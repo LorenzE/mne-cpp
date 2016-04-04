@@ -94,7 +94,7 @@ int AverageModel::rowCount(const QModelIndex & /*parent*/) const
 
 int AverageModel::columnCount(const QModelIndex & /*parent*/) const
 {
-    return 5;
+    return 6;
 }
 
 
@@ -131,7 +131,11 @@ QVariant AverageModel::headerData(int section, Qt::Orientation orientation, int 
                 break;
 
             case 4:
-                return QString("%1").arg("Data types");
+                return QString("%1").arg("Type");
+                break;
+
+            case 5:
+                return QString("%1").arg("nAve");
                 break;
         }
     }
@@ -266,6 +270,26 @@ QVariant AverageModel::data(const QModelIndex &index, int role) const
 
             return v;
         }//end column check
+
+        //******** fifth column (evoked number of averages) ********
+        if(index.column()==5) {
+            QVariant v;
+
+            switch(role) {
+                case Qt::DisplayRole:
+                    v.setValue(QString("%1").arg(m_pEvokedDataSet->evoked.at(index.row()).nave));
+                    return v;
+                    break;
+
+            case AverageModelRoles::GetNumberOfAverages:
+                v.setValue(m_pEvokedDataSet->evoked.at(index.row()).nave);
+                return v;
+                break;
+
+            case Qt::TextAlignmentRole:
+                return Qt::AlignHCenter + Qt::AlignVCenter;
+            }
+        }//end column check
     } // end index.valid() check
 
     return QVariant();
@@ -314,7 +338,7 @@ bool AverageModel::setData(const QModelIndex & index, const QVariant & value, in
 bool AverageModel::loadEvokedData(QFile& qFile)
 {
     beginResetModel();
-    //clearModel();
+    clearModel();
 
     FiffEvokedSet::read(qFile, *m_pEvokedDataSet.data());
 
@@ -357,7 +381,7 @@ bool AverageModel::saveEvokedData(QFile& qFile)
 
 //*************************************************************************************************************
 
-const FiffInfo AverageModel::getFiffInfo()
+FiffInfo AverageModel::getFiffInfo()
 {
     return m_pEvokedDataSet->info;
 }

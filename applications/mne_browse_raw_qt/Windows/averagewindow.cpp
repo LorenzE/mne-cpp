@@ -162,10 +162,14 @@ void AverageWindow::init()
 void AverageWindow::initMVC(QFile &file)
 {
     //Setup average model
-    if(file.exists())
+    if(file.exists()) {
         m_pAverageModel = new AverageModel(file, this);
-    else
+
+        setStimChannels(&m_pAverageModel->getFiffInfo());
+
+    } else {
         m_pAverageModel = new AverageModel(this);
+    }
 
     //Setup average delegate
     m_pAverageDelegate = new AverageDelegate(this);
@@ -199,9 +203,6 @@ void AverageWindow::initTableViewWidgets()
     ui->m_tableView_loadedSets->selectionModel()->select(QItemSelection(m_pAverageModel->index(0,0,QModelIndex()), m_pAverageModel->index(0,3,QModelIndex())),
                                                          QItemSelectionModel::Select);
 
-    connect(m_pAverageModel,&AverageModel::dataChanged,
-                this, &AverageWindow::updateDataTableViews);
-
     //Connect selection of the loaded evoked files
     connect(ui->m_tableView_loadedSets->selectionModel(), &QItemSelectionModel::selectionChanged,
             this, &AverageWindow::onSelectionChanged);
@@ -210,8 +211,16 @@ void AverageWindow::initTableViewWidgets()
 
 //*************************************************************************************************************
 
-void AverageWindow::updateDataTableViews()
+void AverageWindow::setStimChannels(FiffInfo *pFiffInfo)
 {
+    ui->m_comboBox_stimChannel->clear();
+
+    for(int i = 0; i<pFiffInfo->chs.size(); i++) {
+        if(pFiffInfo->chs.at(i).kind == FIFFV_STIM_CH) {
+            ui->m_comboBox_stimChannel->addItem(pFiffInfo->chs.at(i).ch_name);
+        }
+    }
+
     ui->m_tableView_loadedSets->viewport()->update();
 }
 
@@ -441,14 +450,12 @@ void AverageWindow::resizeEvent(QResizeEvent *event)
 
 void AverageWindow::computeAverage()
 {
-    qDebug()<<"AverageWindow::computeAverage - Start";
-
     double dThresholdMin = ui->m_doubleSpinBox_thresholdMin->value();
     double dThresholdMax = ui->m_doubleSpinBox_thresholdMax->value();
     QString sStimChName = ui->m_comboBox_stimChannel->currentText();
-    int iStartMs = ui->m_spinBox_startMs->value();
-    int iEndMs = ui->m_spinBox_endMs->value();
+    int iPreMs = ui->m_spinBox_startMs->value();
+    int iPostMs = ui->m_spinBox_endMs->value();
     QString sAvrDescription = ui->m_lineEdit_avrDescription->text();
 
-    emit computeNewAverage(dThresholdMin, dThresholdMax, sStimChName, iStartMs, iEndMs, sAvrDescription);
+    emit computeNewAverage(dThresholdMin, dThresholdMax, sStimChName, iPreMs, iPostMs, sAvrDescription);
 }

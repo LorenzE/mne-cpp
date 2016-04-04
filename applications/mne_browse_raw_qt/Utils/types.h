@@ -93,7 +93,8 @@ namespace AverageModelRoles
                   GetLastSample = Qt::UserRole + 1005,
                   GetComment = Qt::UserRole + 1006,
                   GetTimeData = Qt::UserRole + 1007,
-                  GetProjections = Qt::UserRole + 1008};
+                  GetProjections = Qt::UserRole + 1008,
+                  GetNumberOfAverages = Qt::UserRole + 1009};
 }
 
 namespace ChInfoModelRoles

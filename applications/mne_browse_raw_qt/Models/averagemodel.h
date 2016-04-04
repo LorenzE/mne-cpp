@@ -135,7 +135,7 @@ public:
     *
     * @param FiffInfo of the evoked file
     */
-    const FiffInfo getFiffInfo();
+    FiffInfo getFiffInfo();
 
     //=========================================================================================================
     /**

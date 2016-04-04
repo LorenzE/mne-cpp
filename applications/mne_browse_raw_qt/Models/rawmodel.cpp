@@ -49,6 +49,7 @@
 //=============================================================================================================
 
 using namespace MNEBrowseRawQt;
+using namespace UTILSLIB;
 
 
 //*************************************************************************************************************
@@ -466,13 +467,89 @@ bool RawModel::writeFiffData(QIODevice *p_IODevice)
 
 //*************************************************************************************************************
 
-bool RawModel::computeNewAverage(double dThresholdMin, double dThresholdMax, const QString &sStimChName, int iStartMs, int iEndMs, const QString &sAvrDescription)
+bool RawModel::computeNewAverage(double dThresholdMin, double dThresholdMax, const QString &sStimChName, int iPreMs, int iPostMs, const QString &sAvrDescription)
 {
-    qDebug()<<"RawModel::computeNewAverage - Start";
-    FiffEvoked evoked;
-    evoked.info = *m_pFiffInfo;
-    evoked.comment = sAvrDescription;
-    emit newAverageComputed(evoked);
+    //Calculate average
+    //   Set up the reading parameters
+    if(m_pfiffIO->m_qlistRaw.size() > 0) {
+        fiff_int_t from = m_pfiffIO->m_qlistRaw[0]->first_samp;
+        fiff_int_t to = m_pfiffIO->m_qlistRaw[0]->last_samp;
+        float quantum_sec = 10.0f;//read and write in 10 sec junks
+        fiff_int_t quantum = ceil(quantum_sec*m_pfiffIO->m_qlistRaw[0]->info.sfreq);
+
+        int iPreSamples = ((double)abs(iPreMs)/1000)*m_pfiffIO->m_qlistRaw[0]->info.sfreq;
+        int iPostSamples = ((double)iPostMs/1000)*m_pfiffIO->m_qlistRaw[0]->info.sfreq;
+
+        fiff_int_t first, last;
+        MatrixXd data;
+        MatrixXd times;
+        MatrixXd averagedData(m_pfiffIO->m_qlistRaw[0]->info.chs.size(), iPreSamples + iPostSamples);
+        averagedData.setZero();
+
+        int iStimChIdx = m_pfiffIO->m_qlistRaw[0]->info.ch_names.indexOf(sStimChName);
+        QList<int> temp;
+        QMap<int,QList<int> > lTriggerList;
+        lTriggerList.insert(iStimChIdx, temp);
+
+        if(iStimChIdx == -1) {
+            qDebug()<<"RawModel::computeNewAverage - stim channel name not found. Returning.";
+            return false;
+        }
+
+        int iCountAvr = 0;
+
+        for(first = from; first < to; first+=quantum)
+        {
+            last = first+quantum-1;
+            if (last > to)
+            {
+                last = to;
+            }
+
+            if (!m_pfiffIO->m_qlistRaw[0]->read_raw_segment(data,times,first,last/*,picks*/))
+            {
+                printf("error during read_raw_segment\n");
+                return false;
+            }
+
+            //Find trigger and add to data matrix
+            DetectTrigger::detectTriggerFlanksGrad(data, lTriggerList, 0, dThresholdMax, "Falling");
+
+            for(int i = 0; i < lTriggerList[iStimChIdx].size(); i++) {
+                if(lTriggerList[iStimChIdx].at(i)-iPreSamples >=0 && lTriggerList[iStimChIdx].at(i)+iPostSamples < data.cols()) {
+                    averagedData += data.block(0, lTriggerList[iStimChIdx].at(i)-iPreSamples, averagedData.rows(), averagedData.cols());
+                    iCountAvr++;
+                }
+            }
+
+            lTriggerList[iStimChIdx].clear();
+            printf("[done]\n");
+        }
+
+        if(iCountAvr > 0) {
+            averagedData /= iCountAvr;
+        }
+
+        //Emit new evoked
+        FiffEvoked evoked;
+
+        evoked.info = *m_pFiffInfo;
+        evoked.nave = iCountAvr;
+        //evoked.aspect_kind = aspect_kind;
+        evoked.first = iPreMs;
+        evoked.last = iPostMs;
+        evoked.comment = sAvrDescription;
+
+//        evoked.times.resize(iPreSamples + iPostSamples);
+//        float T = 1.0/m_pfiffIO->m_qlistRaw[0]->info.sfreq;
+//        evoked.times[0] = -T*iPreSamples;
+//        for(int i = 1; i < evoked.times.size(); ++i)
+//            evoked.times[i] = evoked.times[i-1] + T;
+
+        evoked.data = averagedData;
+
+        emit newAverageComputed(evoked);
+    }
     return true;
 }
 

@@ -159,6 +159,12 @@ public:
     */
     void setMappedChannelNames(QStringList mappedChannelNames);
 
+    //=========================================================================================================
+    /**
+    * Set the stim channel combo box.
+    */
+    void setStimChannels(FIFFLIB::FiffInfo* pFiffInfo);
+
 private:
     //=========================================================================================================
     /**
@@ -185,8 +191,6 @@ private:
     * Inits the table widgets of this window
     */
     void initTableViewWidgets();
-
-    void updateDataTableViews();
 
     //=========================================================================================================
     /**
@@ -249,7 +253,7 @@ private:
     ButterflyScene*         m_pButterflyScene;      /**< The pointer to the butterfly scene. */
 
 signals:
-    void computeNewAverage(double dThresholdMin, double dThresholdMax, const QString &sStimChName, int iStartMs, int iEndMs, const QString &sAvrDescription);
+    void computeNewAverage(double dThresholdMin, double dThresholdMax, const QString &sStimChName, int iPreMs, int iPostMs, const QString &sAvrDescription);
 };
 
 } // NAMESPACE MNEBrowseRawQt

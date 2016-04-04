@@ -214,6 +214,9 @@ void MainWindow::setupWindowWidgets()
     connect(m_pDataWindow->getDataModel(), &RawModel::fileLoaded,
             m_pAverageWindow->getAverageModel(), &AverageModel::setFiffInfo);
 
+    connect(m_pDataWindow->getDataModel(), &RawModel::fileLoaded,
+            m_pAverageWindow, &AverageWindow::setStimChannels);
+
     //If a default file has been specified on startup -> call hideSpinBoxes and set laoded fiff channels - TODO: dirty move get rid of this here
     if(m_pDataWindow->getDataModel()->m_bFileloaded) {
         m_pScaleWindow->hideSpinBoxes(m_pDataWindow->getDataModel()->m_pFiffInfo);

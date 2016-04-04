@@ -75,6 +75,7 @@
 #include "../Utils/filteroperator.h"
 #include "../Utils/rawsettings.h"
 #include "../Utils/datapackage.h"
+#include <utils/detecttrigger.h>
 
 #include <Fiff/fiff_evoked.h>
 
@@ -177,7 +178,7 @@ public:
     * Compute a new average with given data.
     *
     */
-    bool computeNewAverage(double dThresholdMin, double dThresholdMax, const QString &sStimChName, int iStartMs, int iEndMs, const QString &sAvrDescription);
+    bool computeNewAverage(double dThresholdMin, double dThresholdMax, const QString &sStimChName, int iPreMs, int iPostMs, const QString &sAvrDescription);
 
     //VARIABLES
     bool                                        m_bFileloaded;  /**< true when a Fiff file is loaded */
