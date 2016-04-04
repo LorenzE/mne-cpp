@@ -76,6 +76,8 @@
 #include "../Utils/rawsettings.h"
 #include "../Utils/datapackage.h"
 
+#include <Fiff/fiff_evoked.h>
+
 
 //*************************************************************************************************************
 //=============================================================================================================
@@ -122,11 +124,6 @@
 //=============================================================================================================
 // USED NAMESPACES
 //=============================================================================================================
-
-using namespace Eigen;
-using namespace MNELIB;
-using namespace UTILSLIB;
-using namespace FIFFLIB;
 
 
 //*************************************************************************************************************
@@ -175,11 +172,18 @@ public:
     */
     bool writeFiffData(QIODevice *p_IODevice);
 
+    //=========================================================================================================
+    /**
+    * Compute a new average with given data.
+    *
+    */
+    bool computeNewAverage(double dThresholdMin, double dThresholdMax, const QString &sStimChName, int iStartMs, int iEndMs, const QString &sAvrDescription);
+
     //VARIABLES
     bool                                        m_bFileloaded;  /**< true when a Fiff file is loaded */
-    QList<FiffChInfo>                           m_chInfolist;   /**< List of FiffChInfo objects that holds the corresponding channels information */
-    FiffInfo*                              m_pFiffInfo;     /**< fiff info of whole fiff file */
-    QSharedPointer<FiffIO>                      m_pfiffIO;      /**< FiffIO objects, which holds all the information of the fiff data (excluding the samples!) */
+    QList<FIFFLIB::FiffChInfo>                  m_chInfolist;   /**< List of FiffChInfo objects that holds the corresponding channels information */
+    FIFFLIB::FiffInfo*                          m_pFiffInfo;    /**< fiff info of whole fiff file */
+    QSharedPointer<FIFFLIB::FiffIO>             m_pfiffIO;      /**< FiffIO objects, which holds all the information of the fiff data (excluding the samples!) */
     QMap<QString,QSharedPointer<MNEOperator> >  m_Operators;    /**< generated MNEOperator types (FilterOperator,PCA etc.) */
 
 private:
@@ -226,41 +230,41 @@ private:
     * @param to the end point to read from the file
     * @return the data and times matrices
     */
-    QPair<MatrixXd,MatrixXd> readSegment(fiff_int_t from, fiff_int_t to);
+    QPair<Eigen::MatrixXd,Eigen::MatrixXd> readSegment(fiff_int_t from, fiff_int_t to);
 
     //VARIABLES
     //Reload control
-    bool                                    m_bStartReached;            /**< signals, whether the start of the fiff data file is reached. */
-    bool                                    m_bEndReached;              /**< signals, whether the end of the fiff data file is reached. */
-    bool                                    m_bReloadBefore;            /**< bool value indicating if data was reloaded before (1) or after (0) the existing data. */
+    bool                                        m_bStartReached;            /**< signals, whether the start of the fiff data file is reached. */
+    bool                                        m_bEndReached;              /**< signals, whether the end of the fiff data file is reached. */
+    bool                                        m_bReloadBefore;            /**< bool value indicating if data was reloaded before (1) or after (0) the existing data. */
 
     //Concurrent reloading
-    QFutureWatcher<QPair<MatrixXd,MatrixXd> > m_reloadFutureWatcher;    /**< QFutureWatcher for watching process of reloading fiff data. */
-    bool                                    m_bReloading;               /**< signals when the reloading is ongoing. */
+    QFutureWatcher<QPair<MatrixXd,MatrixXd> >   m_reloadFutureWatcher;      /**< QFutureWatcher for watching process of reloading fiff data. */
+    bool                                        m_bReloading;               /**< signals when the reloading is ongoing. */
 
     //Concurrent processing
 //    QFutureWatcher<QPair<int,RowVectorXd> > m_operatorFutureWatcher; /**< QFutureWatcher for watching process of applying Operators to reloaded fiff data. */
-    QFutureWatcher<void>                    m_operatorFutureWatcher;    /**< QFutureWatcher for watching process of applying Operators to reloaded fiff data. */
-    QList<QPair<int,RowVectorXd> >          m_listTmpChData;            /**< contains pairs with a channel number and the corresponding RowVectorXd. */
-    bool                                    m_bProcessing;              /**< true when processing in a background-thread is ongoing.*/
-    QString                                 m_filterChType;
+    QFutureWatcher<void>                        m_operatorFutureWatcher;    /**< QFutureWatcher for watching process of applying Operators to reloaded fiff data. */
+    QList<QPair<int,Eigen::RowVectorXd> >       m_listTmpChData;            /**< contains pairs with a channel number and the corresponding RowVectorXd. */
+    bool                                        m_bProcessing;              /**< true when processing in a background-thread is ongoing.*/
+    QString                                     m_filterChType;
 
-    QMutex                                  m_Mutex;                    /**< mutex for locking against simultaenous access to shared objects >. */
+    QMutex                                      m_Mutex;                    /**< mutex for locking against simultaenous access to shared objects >. */
 
     //Fiff data structure
-    QList<QSharedPointer<DataPackage> >     m_data;                     /**< List that holds the fiff matrix data <n_channels x n_samples>. */
+    QList<QSharedPointer<DataPackage> >         m_data;                     /**< List that holds the fiff matrix data <n_channels x n_samples>. */
 
     //Filter operators
-    QMap<int,QSharedPointer<MNEOperator> >  m_assignedOperators;        /**< Map of MNEOperator types to channels.*/
+    QMap<int,QSharedPointer<DISPLIB::MNEOperator> >  m_assignedOperators;   /**< Map of MNEOperator types to channels.*/
 
-    qint32                                  m_iAbsFiffCursor;           /**< Cursor that points to the current position in the fiff data file [in samples]. */
-    qint32                                  m_iCurAbsScrollPos;         /**< the current (absolute) ScrollPosition in the fiff data file. */
+    qint32                                      m_iAbsFiffCursor;           /**< Cursor that points to the current position in the fiff data file [in samples]. */
+    qint32                                      m_iCurAbsScrollPos;         /**< the current (absolute) ScrollPosition in the fiff data file. */
 
-    qint32                                  m_iWindowSize;              /**< Length of window to load [in samples]. */
-    qint32                                  m_reloadPos;                /**< Distance that the current window needs to be off the ends of m_data[i] [in samples]. */
-    qint8                                   m_maxWindows;               /**< number of windows that are at maximum remained in m_data. */
-    qint16                                  m_iFilterTaps;              /**< Number of Filter taps */
-    int                                     m_iCurrentFFTLength;        /**< Currently used fft length */
+    qint32                                      m_iWindowSize;              /**< Length of window to load [in samples]. */
+    qint32                                      m_reloadPos;                /**< Distance that the current window needs to be off the ends of m_data[i] [in samples]. */
+    qint8                                       m_maxWindows;               /**< number of windows that are at maximum remained in m_data. */
+    qint16                                      m_iFilterTaps;              /**< Number of Filter taps */
+    int                                         m_iCurrentFFTLength;        /**< Currently used fft length */
 
 signals:
     //=========================================================================================================
@@ -275,7 +279,7 @@ signals:
     *
     * @param FiffInfo the current loaded fiffinfo
     */
-    void fileLoaded(FiffInfo*);
+    void fileLoaded(FIFFLIB::FiffInfo*);
 
     //=========================================================================================================
     /**
@@ -283,11 +287,13 @@ signals:
     *
     * @param the currentl assigned operators
     */
-    void assignedOperatorsChanged(const QMap<int,QSharedPointer<MNEOperator> >&);
+    void assignedOperatorsChanged(const QMap<int,QSharedPointer<DISPLIB::MNEOperator> >&);
 
     void writeProgressChanged(int);
 
     void writeProgressRangeChanged(int,int);
+
+    void newAverageComputed(const FIFFLIB::FiffEvoked &evoked);
 
 public slots:
     //=========================================================================================================
@@ -315,7 +321,7 @@ public slots:
     * @param operatorPtr
     * @param chType the string which need to be included in the channels name to get filtered
     */
-    void applyOperator(QModelIndexList chlist, const QSharedPointer<MNEOperator>& operatorPtr, const QString &chType);
+    void applyOperator(QModelIndexList chlist, const QSharedPointer<DISPLIB::MNEOperator>& operatorPtr, const QString &chType);
 
     //=========================================================================================================
     /**
@@ -332,7 +338,7 @@ public slots:
     *
     * @param chdata[in,out] represents the channel data as a RowVectorXd
     */
-    void applyOperatorsConcurrently(QPair<int, RowVectorXd> &chdata) const;
+    void applyOperatorsConcurrently(QPair<int, Eigen::RowVectorXd> &chdata) const;
 
     //=========================================================================================================
     /**
@@ -362,7 +368,7 @@ public slots:
     * @param chlist selects the channels to filter
     * @param type determines the filter type TPassType to choose for the undo operation
     */
-    void undoFilter(QModelIndexList chlist, const QSharedPointer<MNEOperator> &filterPtr);
+    void undoFilter(QModelIndexList chlist, const QSharedPointer<DISPLIB::MNEOperator> &filterPtr);
 
     //=========================================================================================================
     /**
@@ -407,7 +413,7 @@ private slots:
     *
     * @param dataTimesPair contains the reloaded matrices of the data and times so it can be inserted into m_data and m_times
     */
-    void insertReloadedData(QPair<MatrixXd,MatrixXd> dataTimesPair);
+    void insertReloadedData(QPair<Eigen::MatrixXd,Eigen::MatrixXd> dataTimesPair);
 
     //=========================================================================================================
     /**

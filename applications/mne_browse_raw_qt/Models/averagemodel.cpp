@@ -276,11 +276,7 @@ QVariant AverageModel::data(const QModelIndex &index, int role) const
 
 bool AverageModel::insertRows(int position, int span, const QModelIndex & parent)
 {
-    Q_UNUSED(position);
-    Q_UNUSED(span);
-    Q_UNUSED(parent);
-
-    return true;
+    return QAbstractTableModel::insertRows(position, span, parent);
 }
 
 
@@ -288,11 +284,7 @@ bool AverageModel::insertRows(int position, int span, const QModelIndex & parent
 
 bool AverageModel::removeRows(int position, int span, const QModelIndex & parent)
 {
-    Q_UNUSED(position);
-    Q_UNUSED(span);
-    Q_UNUSED(parent);
-
-    return true;
+    return QAbstractTableModel::removeRows(position, span, parent);
 }
 
 
@@ -322,7 +314,7 @@ bool AverageModel::setData(const QModelIndex & index, const QVariant & value, in
 bool AverageModel::loadEvokedData(QFile& qFile)
 {
     beginResetModel();
-    clearModel();
+    //clearModel();
 
     FiffEvokedSet::read(qFile, *m_pEvokedDataSet.data());
 
@@ -354,7 +346,7 @@ bool AverageModel::saveEvokedData(QFile& qFile)
     Q_UNUSED(qFile);
 
     beginResetModel();
-    clearModel();
+    //clearModel();
 
     //TODO: Save evoked to file
 
@@ -368,6 +360,28 @@ bool AverageModel::saveEvokedData(QFile& qFile)
 const FiffInfo AverageModel::getFiffInfo()
 {
     return m_pEvokedDataSet->info;
+}
+
+
+//*************************************************************************************************************
+
+void AverageModel::addEvoked(const FiffEvoked &evoked)
+{
+    beginResetModel();
+
+    m_pEvokedDataSet->evoked.append(evoked);
+
+    endResetModel();
+
+    emit dataChanged(createIndex(0,0), createIndex(rowCount(),columnCount()));
+}
+
+
+//*************************************************************************************************************
+
+void AverageModel::setFiffInfo(FiffInfo* pFiffInfo)
+{
+    m_pEvokedDataSet->info = *pFiffInfo;
 }
 
 

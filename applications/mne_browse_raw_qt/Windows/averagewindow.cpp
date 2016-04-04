@@ -199,9 +199,20 @@ void AverageWindow::initTableViewWidgets()
     ui->m_tableView_loadedSets->selectionModel()->select(QItemSelection(m_pAverageModel->index(0,0,QModelIndex()), m_pAverageModel->index(0,3,QModelIndex())),
                                                          QItemSelectionModel::Select);
 
+    connect(m_pAverageModel,&AverageModel::dataChanged,
+                this, &AverageWindow::updateDataTableViews);
+
     //Connect selection of the loaded evoked files
     connect(ui->m_tableView_loadedSets->selectionModel(), &QItemSelectionModel::selectionChanged,
             this, &AverageWindow::onSelectionChanged);
+}
+
+
+//*************************************************************************************************************
+
+void AverageWindow::updateDataTableViews()
+{
+    ui->m_tableView_loadedSets->viewport()->update();
 }
 
 
@@ -232,6 +243,9 @@ void AverageWindow::initButtons()
 
     connect(ui->m_pushButton_exportButterflyPlot, &QPushButton::released,
             this, &AverageWindow::exportAverageButterflyPlot);
+
+    connect(ui->m_pushButton_addAverage, &QPushButton::released,
+            this, &AverageWindow::computeAverage);
 }
 
 
@@ -420,4 +434,21 @@ void AverageWindow::exportAverageButterflyPlot()
 void AverageWindow::resizeEvent(QResizeEvent *event)
 {
     Q_UNUSED(event);
+}
+
+
+//*************************************************************************************************************
+
+void AverageWindow::computeAverage()
+{
+    qDebug()<<"AverageWindow::computeAverage - Start";
+
+    double dThresholdMin = ui->m_doubleSpinBox_thresholdMin->value();
+    double dThresholdMax = ui->m_doubleSpinBox_thresholdMax->value();
+    QString sStimChName = ui->m_comboBox_stimChannel->currentText();
+    int iStartMs = ui->m_spinBox_startMs->value();
+    int iEndMs = ui->m_spinBox_endMs->value();
+    QString sAvrDescription = ui->m_lineEdit_avrDescription->text();
+
+    emit computeNewAverage(dThresholdMin, dThresholdMax, sStimChName, iStartMs, iEndMs, sAvrDescription);
 }

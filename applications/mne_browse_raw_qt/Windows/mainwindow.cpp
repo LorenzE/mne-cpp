@@ -145,7 +145,6 @@ void MainWindow::setupWindowWidgets()
     m_pDataWindow->init();
     m_pEventWindow->init();
     m_pScaleWindow->init();
-
     //Create the toolbar after all indows have been initiliased
     createToolBar();
 
@@ -204,6 +203,16 @@ void MainWindow::setupWindowWidgets()
 
     connect(m_pNoiseReductionWindow, &NoiseReductionWindow::compSelectionChanged,
             m_pDataWindow->getDataModel(), &RawModel::updateCompensator);
+
+    //Connect average window with computing new averages from data
+    connect(m_pAverageWindow, &AverageWindow::computeNewAverage,
+            m_pDataWindow->getDataModel(), &RawModel::computeNewAverage);
+
+    connect(m_pDataWindow->getDataModel(), &RawModel::newAverageComputed,
+            m_pAverageWindow->getAverageModel(), &AverageModel::addEvoked);
+
+    connect(m_pDataWindow->getDataModel(), &RawModel::fileLoaded,
+            m_pAverageWindow->getAverageModel(), &AverageModel::setFiffInfo);
 
     //If a default file has been specified on startup -> call hideSpinBoxes and set laoded fiff channels - TODO: dirty move get rid of this here
     if(m_pDataWindow->getDataModel()->m_bFileloaded) {

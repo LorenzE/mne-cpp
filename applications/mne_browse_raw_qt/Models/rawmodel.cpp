@@ -465,6 +465,19 @@ bool RawModel::writeFiffData(QIODevice *p_IODevice)
 
 
 //*************************************************************************************************************
+
+bool RawModel::computeNewAverage(double dThresholdMin, double dThresholdMax, const QString &sStimChName, int iStartMs, int iEndMs, const QString &sAvrDescription)
+{
+    qDebug()<<"RawModel::computeNewAverage - Start";
+    FiffEvoked evoked;
+    evoked.info = *m_pFiffInfo;
+    evoked.comment = sAvrDescription;
+    emit newAverageComputed(evoked);
+    return true;
+}
+
+
+//*************************************************************************************************************
 //non-virtual functions
 //private
 void RawModel::loadFiffInfos()

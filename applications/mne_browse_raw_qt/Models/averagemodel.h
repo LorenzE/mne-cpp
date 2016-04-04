@@ -137,6 +137,20 @@ public:
     */
     const FiffInfo getFiffInfo();
 
+    //=========================================================================================================
+    /**
+    * Adds a new evoked to the evoked data set
+    *
+    * @param evoked     The new evoked data.
+    */
+    void addEvoked(const FiffEvoked &evoked);
+
+    //=========================================================================================================
+    /**
+    * Set new fiff info
+    */
+    void setFiffInfo(FiffInfo* pFiffInfo);
+
     bool                        m_bFileloaded;          /**< true when a Fiff evoked file is loaded. */
 
 protected:

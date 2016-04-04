@@ -61,6 +61,8 @@
 #include <QFileDialog>
 #include <QStandardPaths>
 #include <QSvgGenerator>
+#include <QDebug>
+
 
 //*************************************************************************************************************
 //=============================================================================================================
@@ -158,16 +160,15 @@ public:
     void setMappedChannelNames(QStringList mappedChannelNames);
 
 private:
-
     //=========================================================================================================
     /**
-    * called by constructor to perform common initialization step
+    * Called by constructor to perform common initialization step
     */
     void init();
 
     //=========================================================================================================
     /**
-    * inits the model view controller paradigm of this window
+    * Inits the model view controller paradigm of this window
     *
     * @param [in] file holds the file which is to be loaded on startup
     */
@@ -175,19 +176,21 @@ private:
 
     //=========================================================================================================
     /**
-    * inits the model view controller paradigm of this window
+    * Inits the model view controller paradigm of this window
     */
     void initMVC();
 
     //=========================================================================================================
     /**
-    * inits the table widgets of this window
+    * Inits the table widgets of this window
     */
     void initTableViewWidgets();
 
+    void updateDataTableViews();
+
     //=========================================================================================================
     /**
-    * inits the average scene of this window
+    * Inits the average scene of this window
     */
     void initAverageSceneView();
 
@@ -205,27 +208,33 @@ private:
 
     //=========================================================================================================
     /**
-    * call this function whenever a selection was made in teh evoked data set list
+    * Call this function whenever a selection was made in teh evoked data set list
     */
     void onSelectionChanged(const QItemSelection &selected, const QItemSelection &deselected);
 
     //=========================================================================================================
     /**
-    * saves the current layout average plot as png or svg to file
+    * Saves the current layout average plot as png or svg to file
     */
     void exportAverageLayoutPlot();
 
     //=========================================================================================================
     /**
-    * saves the current butterfly average plot as png or svg to file
+    * Saves the current butterfly average plot as png or svg to file
     */
     void exportAverageButterflyPlot();
 
     //=========================================================================================================
     /**
-    * reimplemented resize event.
+    * Reimplemented resize event.
     */
     void resizeEvent(QResizeEvent * event);
+
+    //=========================================================================================================
+    /**
+    * Compute a new average.
+    */
+    void computeAverage();
 
     Ui::AverageWindow*      ui;                     /**< Pointer to the qt designer generated ui class.*/
 
@@ -239,6 +248,8 @@ private:
 
     ButterflyScene*         m_pButterflyScene;      /**< The pointer to the butterfly scene. */
 
+signals:
+    void computeNewAverage(double dThresholdMin, double dThresholdMax, const QString &sStimChName, int iStartMs, int iEndMs, const QString &sAvrDescription);
 };
 
 } // NAMESPACE MNEBrowseRawQt
