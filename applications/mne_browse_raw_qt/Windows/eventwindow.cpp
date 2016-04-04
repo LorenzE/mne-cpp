@@ -192,7 +192,7 @@ void EventWindow::initComboBoxes()
 void EventWindow::initToolButtons()
 {
     QToolBar *toolBar = new QToolBar(this);
-    toolBar->setOrientation(Qt::Vertical);
+    toolBar->setOrientation(Qt::Horizontal);
     toolBar->setMovable(false);
 
     //Add event
@@ -209,7 +209,8 @@ void EventWindow::initToolButtons()
     connect(removeEvent, &QAction::triggered,
             this, &EventWindow::removeEventfromEventModel);
 
-    ui->m_gridLayout_Main->addWidget(toolBar,0,1,1,1);
+    ui->m_gridLayout_Main->addWidget(toolBar,1,0,1,1);
+    ui->m_gridLayout_Main->setAlignment(toolBar, Qt::AlignHCenter);
 }
 
 

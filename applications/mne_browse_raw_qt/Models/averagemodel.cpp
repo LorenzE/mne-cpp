@@ -123,11 +123,11 @@ QVariant AverageModel::headerData(int section, Qt::Orientation orientation, int 
                 break;
 
             case 2:
-                return QString("%1").arg("First sample");
+                return QString("%1").arg("Start");
                 break;
 
             case 3:
-                return QString("%1").arg("Last sample");
+                return QString("%1").arg("End");
                 break;
 
             case 4:
