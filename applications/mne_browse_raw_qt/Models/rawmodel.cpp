@@ -474,7 +474,7 @@ bool RawModel::computeNewAverage(double dThresholdMin, double dThresholdMax, con
     if(m_pfiffIO->m_qlistRaw.size() > 0) {
         fiff_int_t from = m_pfiffIO->m_qlistRaw[0]->first_samp;
         fiff_int_t to = m_pfiffIO->m_qlistRaw[0]->last_samp;
-        float quantum_sec = 10.0f;//read and write in 10 sec junks
+        float quantum_sec = 0.5f;
         fiff_int_t quantum = ceil(quantum_sec*m_pfiffIO->m_qlistRaw[0]->info.sfreq);
 
         int iPreSamples = ((double)abs(iPreMs)/1000)*m_pfiffIO->m_qlistRaw[0]->info.sfreq;
@@ -496,34 +496,27 @@ bool RawModel::computeNewAverage(double dThresholdMin, double dThresholdMax, con
             return false;
         }
 
-        int iCountAvr = 0;
-
-        for(first = from; first < to; first+=quantum)
-        {
+        for(first = from; first < to; first+=quantum) {
             last = first+quantum-1;
-            if (last > to)
-            {
+            if(last > to) {
                 last = to;
             }
 
-            if (!m_pfiffIO->m_qlistRaw[0]->read_raw_segment(data,times,first,last/*,picks*/))
-            {
+            if(!m_pfiffIO->m_qlistRaw[0]->read_raw_segment(data,times,first,last)) {
                 printf("error during read_raw_segment\n");
                 return false;
             }
 
             //Find trigger and add to data matrix
-            DetectTrigger::detectTriggerFlanksGrad(data, lTriggerList, 0, dThresholdMax, "Falling");
+            DetectTrigger::detectTriggerFlanksGrad(data, lTriggerList, first, dThresholdMax, "Falling");
+        }
 
-            for(int i = 0; i < lTriggerList[iStimChIdx].size(); i++) {
-                if(lTriggerList[iStimChIdx].at(i)-iPreSamples >=0 && lTriggerList[iStimChIdx].at(i)+iPostSamples < data.cols()) {
-                    averagedData += data.block(0, lTriggerList[iStimChIdx].at(i)-iPreSamples, averagedData.rows(), averagedData.cols());
-                    iCountAvr++;
-                }
-            }
+        int iCountAvr = 0;
+        for(int i = 0; i < lTriggerList[iStimChIdx].size(); i++) {
+            m_pfiffIO->m_qlistRaw[0]->read_raw_segment(data,times,lTriggerList[iStimChIdx].at(i)-iPreSamples,lTriggerList[iStimChIdx].at(i)+iPostSamples);
 
-            lTriggerList[iStimChIdx].clear();
-            printf("[done]\n");
+            averagedData += data;
+            iCountAvr++;
         }
 
         if(iCountAvr > 0) {
@@ -540,12 +533,18 @@ bool RawModel::computeNewAverage(double dThresholdMin, double dThresholdMax, con
         evoked.last = iPostMs;
         evoked.comment = sAvrDescription;
 
-//        evoked.times.resize(iPreSamples + iPostSamples);
-//        float T = 1.0/m_pfiffIO->m_qlistRaw[0]->info.sfreq;
-//        evoked.times[0] = -T*iPreSamples;
-//        for(int i = 1; i < evoked.times.size(); ++i)
-//            evoked.times[i] = evoked.times[i-1] + T;
+        evoked.times.resize(iPreSamples + iPostSamples);
+        float T = 1.0/m_pfiffIO->m_qlistRaw[0]->info.sfreq;
+        evoked.times[0] = -T*iPreSamples;
+        for(int i = 1; i < evoked.times.size(); ++i)
+            evoked.times[i] = evoked.times[i-1] + T;
 
+        //Do baseline correction
+        QPair<QVariant,QVariant> pairBaselineSec;
+        pairBaselineSec.first = QVariant(QString::number(-10));
+        pairBaselineSec.second = QVariant(QString::number(0));
+
+        averagedData = MNEMath::rescale(averagedData, evoked.times, pairBaselineSec, QString("mean"));
         evoked.data = averagedData;
 
         emit newAverageComputed(evoked);

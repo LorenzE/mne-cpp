@@ -154,6 +154,7 @@ void ButterflySceneItem::paintAveragePaths(QPainter *painter)
                     pen.setColor(m_cAverageColors.at(i));
                 pen.setWidthF(0.25);
                 painter->setPen(pen);
+                double firstVal = *(averageData+(0*m_pFiffInfo->chs.size())+i) * -dScaleY;
 
                 //Generate plot path
                 QPointF qSamplePosition;
@@ -161,6 +162,7 @@ void ButterflySceneItem::paintAveragePaths(QPainter *painter)
                 for(int u = 0; u < totalCols && path.elementCount() <= boundingRect.width(); u += dsFactor) {
                     //evoked matrix is stored in column major
                     double val = (*(averageData+(u*m_pFiffInfo->chs.size())+i) * dScaleY);
+                    val -= firstVal;
 
                     qSamplePosition.setY(-val);
                     qSamplePosition.setX(path.currentPosition().x()+1);
