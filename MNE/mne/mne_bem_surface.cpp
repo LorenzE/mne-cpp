@@ -164,8 +164,6 @@ bool MNEBemSurface::addTriangleData()
 
         this->tri_area(i) = size/2.0f;
         this->tri_nn.row(i) /= size;
-
-
     }
 
     std::fstream doc("./Output/tri_area.dat", std::ofstream::out | std::ofstream::trunc);
@@ -178,12 +176,6 @@ bool MNEBemSurface::addTriangleData()
 
     printf("[done]\n");
 
-//        qDebug() << "this->tri_cent:" << this->tri_cent(0,0) << this->tri_cent(0,1) << this->tri_cent(0,2);
-//        qDebug() << "this->tri_cent:" << this->tri_cent(2,0) << this->tri_cent(2,1) << this->tri_cent(2,2);
-
-        qDebug() << "this->tri_nn:" << this->tri_nn(0,0) << this->tri_nn(0,1) << this->tri_nn(0,2);
-        qDebug() << "this->tri_nn:" << this->tri_nn(2,0) << this->tri_nn(2,1) << this->tri_nn(2,2);
-
     return true;
 }
 
@@ -193,30 +185,32 @@ bool MNEBemSurface::addTriangleData()
 bool MNEBemSurface::addVertexNormals()
 {
 
-      //
-      //   Accumulate the vertex normals
-      //
+    //
+    //   Accumulate the vertex normals
+    //
 
-        for (qint32 p = 0; p < this->ntri; p++)         //check each triangle
-        {
-            for (qint32 j=0; j<3 ; j++)
-            {
-                int nodenr;
-                nodenr = this->tris(p,j);               //find the corners(nodes) of the triangles
-                this->nn(nodenr,0) += this->tri_nn(p,0);  //add the triangle normal to the nodenormal
-                this->nn(nodenr,1) += this->tri_nn(p,1);
-                this->nn(nodenr,2) += this->tri_nn(p,2);
-            }
-        }
+//    this->nn.resize(this->np,3);
 
-            // normalize
-        for (qint32 p = 0; p < this->np; p++)
+    for (qint32 p = 0; p < this->ntri; ++p)         //check each triangle
+    {
+        for (qint32 j = 0; j < 3 ; ++j)
         {
-            float size = 0;
-            size = this->nn.row(p)*this->nn.row(p).transpose();
-            size = std::pow(size, 0.5f );
-            this->nn.row(p) /= size;
+            int nodenr;
+            nodenr = this->tris(p,j);               //find the corners(nodes) of the triangles
+            this->nn(nodenr,0) += this->tri_nn(p,0);  //add the triangle normal to the nodenormal
+            this->nn(nodenr,1) += this->tri_nn(p,1);
+            this->nn(nodenr,2) += this->tri_nn(p,2);
         }
+    }
+
+    // normalize
+    for (qint32 p = 0; p < this->np; ++p)
+    {
+        float size = 0;
+        size = this->nn.row(p)*this->nn.row(p).transpose();
+        size = std::pow(size, 0.5f );
+        this->nn.row(p) /= size;
+    }
 
 return true;
 }
@@ -241,3 +235,15 @@ void MNEBemSurface::writeToStream(FiffStream *p_pStream)
 }
 
 
+//*************************************************************************************************************
+
+QString MNEBemSurface::id_name(int id)
+{
+    switch(id) {
+        case FIFFV_BEM_SURF_ID_BRAIN: return "Brain";
+        case FIFFV_BEM_SURF_ID_SKULL: return "Skull";
+        case FIFFV_BEM_SURF_ID_HEAD: return "Head";
+        case FIFFV_BEM_SURF_ID_UNKNOWN: return "Unknown";
+        default: return "Unknown";
+    }
+}

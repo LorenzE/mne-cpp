@@ -2,6 +2,7 @@
 /**
 * @file     main.cpp
 * @author   Christoph Dinh <chdinh@nmr.mgh.harvard.edu>;
+*           Lorenz Esch <lorenz.esch@tu-ilmenau.de>;
 *           Matti Hamalainen <msh@nmr.mgh.harvard.edu>
 * @version  1.0
 * @date     July, 2012
@@ -54,6 +55,7 @@
 //=============================================================================================================
 
 #include <QtCore/QCoreApplication>
+#include <QCommandLineParser>
 
 
 //*************************************************************************************************************
@@ -81,16 +83,45 @@ using namespace MNELIB;
 */
 int main(int argc, char *argv[])
 {
-    QCoreApplication a(argc, argv);
+    QCoreApplication app(argc, argv);
 
-    QFile t_fileRaw("./MNE-sample-data/MEG/sample/sample_audvis_raw.fif");
+    // Command Line Parser
+    QCommandLineParser parser;
+    parser.setApplicationDescription("Read Raw Example");
+    parser.addHelpOption();
 
-    float from = 42.956f;
-    float to = 320.670f;
+    QCommandLineOption inputOption("fileIn", "The input file <in>.", "in", "./MNE-sample-data/MEG/sample/sample_audvis_raw.fif");
+    QCommandLineOption fromOption("from", "Read data from <from> (in seconds).", "from", "42.956");
+    QCommandLineOption toOption("to", "Read data from <to> (in seconds).", "to", "320.670");
+    QCommandLineOption inSamplesOption("inSamples", "Timing is set in samples.", "inSamples", "false");
+    QCommandLineOption keepCompOption("keepComp", "Keep compensators.", "keepComp", "false");
+
+    parser.addOption(inputOption);
+    parser.addOption(fromOption);
+    parser.addOption(toOption);
+    parser.addOption(inSamplesOption);
+    parser.addOption(keepCompOption);
+
+    parser.process(app);
+
+    QFile t_fileRaw(parser.value(inputOption));
+
+    float from = parser.value(fromOption).toFloat();
+    float to = parser.value(toOption).toFloat();
 
     bool in_samples = false;
+    if(parser.value(inSamplesOption) == "false" || parser.value(inSamplesOption) == "0") {
+        in_samples = false;
+    } else if(parser.value(inSamplesOption) == "true" || parser.value(inSamplesOption) == "1") {
+        in_samples = true;
+    }
 
-    bool keep_comp = true;
+    bool keep_comp = false;
+    if(parser.value(keepCompOption) == "false" || parser.value(keepCompOption) == "0") {
+        keep_comp = false;
+    } else if(parser.value(keepCompOption) == "true" || parser.value(keepCompOption) == "1") {
+        keep_comp = true;
+    }
 
     //
     //   Setup for reading the raw data
@@ -185,7 +216,7 @@ int main(int argc, char *argv[])
     std::cout << data.block(0,0,10,10) << std::endl;
 
 
-    return a.exec();
+    return app.exec();
 }
 
 //*************************************************************************************************************

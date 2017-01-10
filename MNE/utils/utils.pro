@@ -81,7 +81,6 @@ SOURCES += \
     mp/atom.cpp \
     mp/fixdictmp.cpp \
     selectionio.cpp \
-    minimizersimplex.cpp \
     filterTools/cosinefilter.cpp \
     filterTools/parksmcclellan.cpp \
     filterTools/filterdata.cpp \
@@ -89,7 +88,8 @@ SOURCES += \
     detecttrigger.cpp \
     spectrogram.cpp \
     warp.cpp \
-    filterTools/sphara.cpp
+    filterTools/sphara.cpp \
+    sphere.cpp
 
 HEADERS += \
     kmeans.h\
@@ -103,7 +103,6 @@ HEADERS += \
     mp/fixdictmp.h \
     selectionio.h \
     layoutmaker.h \
-    minimizersimplex.h \
     filterTools/cosinefilter.h \
     filterTools/parksmcclellan.h \
     filterTools/filterdata.h \
@@ -111,7 +110,9 @@ HEADERS += \
     detecttrigger.h \
     spectrogram.h \
     warp.h \
-    filterTools/sphara.h
+    filterTools/sphara.h \
+    sphere.h \
+    simplex_algorithm.h
 
 INCLUDEPATH += $${EIGEN_INCLUDE_DIR}
 INCLUDEPATH += $${MNE_INCLUDE_DIR}
@@ -125,3 +126,20 @@ INSTALLS += header_files
 unix: QMAKE_CXXFLAGS += -isystem $$EIGEN_INCLUDE_DIR
 
 FORMS += \
+
+# Deploy Qt Dependencies
+win32 {
+    isEmpty(TARGET_EXT) {
+        TARGET_CUSTOM_EXT = .dll
+    } else {
+        TARGET_CUSTOM_EXT = $${TARGET_EXT}
+    }
+
+    DEPLOY_COMMAND = windeployqt
+
+    DEPLOY_TARGET = $$shell_quote($$shell_path($${MNE_BINARY_DIR}/$${TARGET}$${TARGET_CUSTOM_EXT}))
+
+    #  # Uncomment the following line to help debug the deploy command when running qmake
+    #  warning($${DEPLOY_COMMAND} $${DEPLOY_TARGET})
+    QMAKE_POST_LINK += $${DEPLOY_COMMAND} $${DEPLOY_TARGET}
+}

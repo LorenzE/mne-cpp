@@ -47,6 +47,22 @@
 
 //*************************************************************************************************************
 //=============================================================================================================
+// STL INCLUDES
+//=============================================================================================================
+
+#include <iostream>
+
+
+//*************************************************************************************************************
+//=============================================================================================================
+// Qt INCLUDES
+//=============================================================================================================
+
+#include <QFile>
+
+
+//*************************************************************************************************************
+//=============================================================================================================
 // USED NAMESPACES
 //=============================================================================================================
 
@@ -127,7 +143,9 @@ bool MNEBem::readFromStream(FiffStream::SPtr& p_pStream, bool add_geom, FiffDirT
         t_file.setFileName(t_sFileName);
         p_pStream = FiffStream::SPtr(new FiffStream(&t_file));
         if(!p_pStream->open(p_Tree, t_Dir))
+        {
             return false;
+        }
         open_here = true;
 //        if(t_pDir)
 //            delete t_pDir;
@@ -143,7 +161,9 @@ bool MNEBem::readFromStream(FiffStream::SPtr& p_pStream, bool add_geom, FiffDirT
     {
         qCritical() << "No BEM block found!";
         if(open_here)
+        {
             p_pStream->device()->close();
+        }
         return false;
     }
 
@@ -152,7 +172,9 @@ bool MNEBem::readFromStream(FiffStream::SPtr& p_pStream, bool add_geom, FiffDirT
     {
         qCritical() << "No BEM surfaces found!";
         if(open_here)
+        {
             p_pStream->device()->close();
+        }
         return false;
     }
 
@@ -162,8 +184,10 @@ bool MNEBem::readFromStream(FiffStream::SPtr& p_pStream, bool add_geom, FiffDirT
         printf("\tReading a BEM surface...");
         MNEBem::readBemSurface(p_pStream.data(), bemsurf[k], p_BemSurface);
         p_BemSurface.addTriangleData();
-         if (add_geom)
-            p_BemSurface.addVertexNormals();
+        if (add_geom)
+        {
+           p_BemSurface.addVertexNormals();
+        }
         printf("\t[done]\n" );
 
         p_Bem.m_qListBemSurface.append(p_BemSurface);
@@ -173,7 +197,9 @@ bool MNEBem::readFromStream(FiffStream::SPtr& p_pStream, bool add_geom, FiffDirT
     printf("\t%d bem surfaces read\n", bemsurf.size());
 
     if(open_here)
+    {
         p_pStream->device()->close();
+    }
     return true;
 }
 
@@ -188,19 +214,27 @@ bool MNEBem::readBemSurface(FiffStream *p_pStream, const FiffDirTree &p_Tree, MN
 
     //=====================================================================
     if(!p_Tree.find_tag(p_pStream, FIFF_BEM_SURF_ID, t_pTag))
+    {
          p_BemSurface.id = FIFFV_BEM_SURF_ID_UNKNOWN;
+    }
     else
+    {
          p_BemSurface.id = *t_pTag->toInt();
+    }
 
-        qDebug() << "Read BemSurface ID; type:" << t_pTag->getType() << "value:" << *t_pTag->toInt();
+//    qDebug() << "Read BemSurface ID; type:" << t_pTag->getType() << "value:" << *t_pTag->toInt();
 
     //=====================================================================
     if(!p_Tree.find_tag(p_pStream, FIFF_BEM_SIGMA, t_pTag))
+    {
          p_BemSurface.sigma = 1.0;
+    }
     else
+    {
          p_BemSurface.sigma = *t_pTag->toFloat();
+    }
 
-//        qDebug() <<
+//    qDebug() <<
 
     //=====================================================================
     if(!p_Tree.find_tag(p_pStream, FIFF_BEM_SURF_NNODE, t_pTag))
@@ -210,9 +244,11 @@ bool MNEBem::readBemSurface(FiffStream *p_pStream, const FiffDirTree &p_Tree, MN
         return false;
     }
     else
+    {
          p_BemSurface.np = *t_pTag->toInt();
+    }
 
-//        qDebug() <<
+//    qDebug() <<
 
     //=====================================================================
     if(!p_Tree.find_tag(p_pStream, FIFF_BEM_SURF_NTRI, t_pTag))
@@ -222,9 +258,11 @@ bool MNEBem::readBemSurface(FiffStream *p_pStream, const FiffDirTree &p_Tree, MN
         return false;
     }
     else
+    {
          p_BemSurface.ntri = *t_pTag->toInt();
+    }
 
-//        qDebug() <<
+//    qDebug() <<
 
     //=====================================================================
     if(!p_Tree.find_tag(p_pStream, FIFF_MNE_COORD_FRAME, t_pTag))
@@ -237,12 +275,16 @@ bool MNEBem::readBemSurface(FiffStream *p_pStream, const FiffDirTree &p_Tree, MN
             return false;
         }
         else
+        {
             p_BemSurface.coord_frame = *t_pTag->toInt();
+        }
     }
     else
+    {
          p_BemSurface.coord_frame = *t_pTag->toInt();
+    }
 
-//        qDebug() <<
+//    qDebug() <<
 
     //=====================================================================
     //
@@ -265,7 +307,8 @@ bool MNEBem::readBemSurface(FiffStream *p_pStream, const FiffDirTree &p_Tree, MN
         std::cout << "Vertex information is incorrect."; //ToDo: throw error.
         return false;
     }
-        qDebug() << "Surf Nodes; type:" << t_pTag->getType();
+
+//    qDebug() << "Surf Nodes; type:" << t_pTag->getType();
 
     //=====================================================================
     if(!p_Tree.find_tag(p_pStream, FIFF_BEM_SURF_NORMALS, t_pTag))
@@ -291,7 +334,7 @@ bool MNEBem::readBemSurface(FiffStream *p_pStream, const FiffDirTree &p_Tree, MN
         return false;
     }
 
-    qDebug() << "Bem Vertex Normals; type:" << t_pTag->getType();
+//    qDebug() << "Bem Vertex Normals; type:" << t_pTag->getType();
 
     //=====================================================================
     if (p_BemSurface.ntri > 0)
@@ -384,10 +427,10 @@ const MNEBemSurface& MNEBem::operator[] (qint32 idx) const
 
 MNEBemSurface& MNEBem::operator[] (qint32 idx)
 {
-    if (idx>=m_qListBemSurface.length())
+    if (idx >= m_qListBemSurface.length())
     {
         qWarning("Warning: Required surface doesn't exist! Returning surface '0'.");
-        idx=0;
+        idx = 0;
     }
     return m_qListBemSurface[idx];
 }

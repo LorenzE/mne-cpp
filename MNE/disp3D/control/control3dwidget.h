@@ -43,10 +43,6 @@
 
 #include "../disp3D_global.h"
 
-#include "disp/helpers/roundededgeswidget.h"
-#include "../view3D.h"
-#include "../3DObjects/brain/braintreedelegate.h"
-
 
 //*************************************************************************************************************
 //=============================================================================================================
@@ -58,10 +54,17 @@
 
 //*************************************************************************************************************
 //=============================================================================================================
+// Eigen INCLUDES
+//=============================================================================================================
+
+
+//*************************************************************************************************************
+//=============================================================================================================
 // FORWARD DECLARATIONS
 //=============================================================================================================
+
 namespace Ui {
-class Control3DWidget;
+    class Control3DWidget;
 }
 
 
@@ -79,6 +82,8 @@ namespace DISP3DLIB
 // FORWARD DECLARATIONS
 //=============================================================================================================
 
+class View3D;
+class Data3DTreeModel;
 
 
 //=============================================================================================================
@@ -87,7 +92,7 @@ namespace DISP3DLIB
 *
 * @brief User GUI control for the View3D.
 */
-class DISP3DNEWSHARED_EXPORT Control3DWidget : public DISPLIB::RoundedEdgesWidget
+class DISP3DNEWSHARED_EXPORT Control3DWidget : public QWidget/*, public DISPLIB::RoundedEdgesWidget*/
 {
     Q_OBJECT
 
@@ -100,8 +105,10 @@ public:
     * Default constructor.
     *
     * @param[in] parent      The parent of the QObject.
+    * @param [in] slFlags    The flags indicating which tools to display. Scaling is displayed as default. Possible flags are: projections, compensators, view, filter, triggerdetection, modalities, scaling, sphara.
+    * @param [in] type
     */
-    explicit Control3DWidget(QWidget* parent = 0, Qt::WindowType type = Qt::Window);
+    explicit Control3DWidget(QWidget* parent = 0, const QStringList& slFlags = QStringList() << "Minimize" << "Data" << "Window" << "View" << "Light", Qt::WindowType type = Qt::Window);
 
     //=========================================================================================================
     /**
@@ -111,13 +118,26 @@ public:
 
     //=========================================================================================================
     /**
-    * Set/Add a View3D to be controlled by the this GUI widget.
+    * Init the control widget based on the 3D view and data model.
     *
-    * @param[in] view3D         The view3D to bec connected to this widget.
+    * @param[in] pData3DTreeModel   The 3D data tree model.
+    * @param[in] pView3D            The view3D to bec connected to this widget.
     */
-    void setView3D(View3D::SPtr view3D);
+    void init(QSharedPointer<DISP3DLIB::Data3DTreeModel> pData3DTreeModel, QSharedPointer<View3D> pView3D);
 
-protected slots:
+    //=========================================================================================================
+    /**
+    * Slot called when tree view header visibilty changed.
+    */
+    void onTreeViewHeaderHide();
+
+    //=========================================================================================================
+    /**
+    * Slot called when tree view description visibilty changed.
+    */
+    void onTreeViewDescriptionHide();
+
+protected:
     //=========================================================================================================
     /**
     * Minimizes th ewidget and all its contents.
@@ -140,11 +160,128 @@ protected slots:
     */
     void onSceneColorPicker();
 
-protected:
+    //=========================================================================================================
+    /**
+    * @brief customContextMenuRequested
+    *
+    * @param[in] pos    The position, where the right-click occurred
+    */
+    void onCustomContextMenuRequested(QPoint pos);
+
+    //=========================================================================================================
+    /**
+    * Slot called when the user wants to change the always on top window flag.
+    *
+    * @param[in] state      The newly picked on top state.
+    */
+    void onAlwaysOnTop(bool state);
+
+    //=========================================================================================================
+    /**
+    * Slot called when the user wants change the color of the scene.
+    *
+    * @param[in] color      The newly picked scene color.
+    *
+    */
+    void onSceneColorChanged(const QColor& color);
+
+    //=========================================================================================================
+    /**
+    * Slot called when the user wants to show the view in full screen.
+    *
+    * @param[in] checked      The newly picked full screen state.
+    */
+    void onShowFullScreen(bool checked);
+
+    //=========================================================================================================
+    /**
+    * Slot called when the user wants to rotate the models.
+    *
+    * @param[in] checked      The newly picked rotation state.
+    */
+    void onRotationClicked(bool checked);
+
+    //=========================================================================================================
+    /**
+    * Slot called when the user wants to toggle the coord axis.
+    */
+    void onCoordAxisClicked(bool checked);
+
+    //=========================================================================================================
+    /**
+    * Slot called when the user wants change the color of the lights.
+    */
+    void onLightColorPicker();
+
+    //=========================================================================================================
+    /**
+    * Slot called when the user wants change the color of the lights.
+    *
+    * @param[in] color      The newly picked light color.
+    */
+    void onLightColorChanged(const QColor& color);
+
+    //=========================================================================================================
+    /**
+    * Slot called when the user wants to change the light intensity.
+    *
+    * @param[in] value      The newly picked light intensity value.
+    */
+    void onLightIntensityChanged(double value);
+
     Ui::Control3DWidget*    ui;                         /**< The pointer to the QtDesigner ui class. */
 
-    QList<View3D::SPtr>     m_lView3D;                  /**< List of all connected view3D's. */
     QColor                  m_colCurrentSceneColor;     /**< Current color of the scene in all View3D's. */
+    QColor                  m_colCurrentLightColor;     /**< Current color of the lights in all View3D's. */
+
+signals:
+    //=========================================================================================================
+    /**
+    * Use this signal whenever the scene color was changed by the user.
+    *
+    * @param[in] color      The newly picked color.
+    */
+    void sceneColorChanged(const QColor& color);
+
+    //=========================================================================================================
+    /**
+    * Use this signal whenever the user wants to use full screen mode.
+    *
+    * @param[in] bShowFullScreen      The full screen flag.
+    */
+    void showFullScreen(bool bShowFullScreen);
+
+    //=========================================================================================================
+    /**
+    * Use this signal whenever the user wants to rotate the 3D model.
+    *
+    * @param[in] bRotationChanged      The rotation flag.
+    */
+    void rotationChanged(bool bRotationChanged);
+
+    //=========================================================================================================
+    /**
+    * Use this signal whenever the user wants to show the coordinate axis.
+    *
+    * @param[in] bShowCoordAxis      The coordinate axis flag.
+    */
+    void showCoordAxis(bool bShowCoordAxis);
+
+    //=========================================================================================================
+    /**
+    * Use this signal whenever the light color was changed by the user.
+    *
+    * @param[in] color      The newly picked color.
+    */
+    void lightColorChanged(const QColor& color);
+
+    //=========================================================================================================
+    /**
+    * Use this signal whenever the light intensity was changed by the user.
+    *
+    * @param[in] value      The newly picked intensity.
+    */
+    void lightIntensityChanged(double value);
 };
 
 } // NAMESPACE DISP3DLIB

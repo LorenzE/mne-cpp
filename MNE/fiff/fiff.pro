@@ -82,7 +82,6 @@ else {
 }
 
 SOURCES += fiff.cpp \
-#    fiff_parser.cpp \
     fiff_tag.cpp \
     fiff_dir_tree.cpp \
     fiff_coord_trans.cpp \
@@ -102,10 +101,13 @@ SOURCES += fiff.cpp \
     fiff_info_base.cpp \
     fiff_evoked.cpp \
     fiff_evoked_set.cpp \
-    fiff_io.cpp
+    fiff_io.cpp \
+    fiff_dig_point_set.cpp
 
 HEADERS += fiff.h \
     fiff_global.h \
+    fiff_explain.h \
+    fiff_file.h \
     fiff_types.h \
     fiff_id.h \
     fiff_constants.h \
@@ -126,7 +128,9 @@ HEADERS += fiff.h \
     fiff_stream.h \
     fiff_info_base.h \
     fiff_evoked.h \
-    fiff_evoked_set.h
+    fiff_evoked_set.h \
+    fiff_io.h \
+    fiff_dig_point_set.h
 
 INCLUDEPATH += $${EIGEN_INCLUDE_DIR}
 INCLUDEPATH += $${MNE_INCLUDE_DIR}
@@ -138,3 +142,20 @@ header_files.path = $${MNE_INCLUDE_DIR}/fiff
 INSTALLS += header_files
 
 unix: QMAKE_CXXFLAGS += -isystem $$EIGEN_INCLUDE_DIR
+
+# Deploy Qt Dependencies
+win32 {
+    isEmpty(TARGET_EXT) {
+        TARGET_CUSTOM_EXT = .dll
+    } else {
+        TARGET_CUSTOM_EXT = $${TARGET_EXT}
+    }
+
+    DEPLOY_COMMAND = windeployqt
+
+    DEPLOY_TARGET = $$shell_quote($$shell_path($${MNE_BINARY_DIR}/$${TARGET}$${TARGET_CUSTOM_EXT}))
+
+    #  # Uncomment the following line to help debug the deploy command when running qmake
+    #  warning($${DEPLOY_COMMAND} $${DEPLOY_TARGET})
+    QMAKE_POST_LINK += $${DEPLOY_COMMAND} $${DEPLOY_TARGET}
+}

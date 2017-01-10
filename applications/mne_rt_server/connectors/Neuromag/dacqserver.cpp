@@ -42,8 +42,8 @@
 #include "neuromag.h"
 #include "collectorsocket.h"
 #include "shmemsocket.h"
-#include <fiff/fiff_constants.h>
 #include <fiff/fiff_stream.h>
+#include <fiff/fiff_file.h>
 
 
 //*************************************************************************************************************
@@ -130,7 +130,7 @@ bool DacqServer::getMeasInfo(FiffInfo& p_fiffInfo)
             MatrixXd data;
             
             fiff_int_t kind;
-            bool active;
+            bool active = false;
             QString desc; // maybe, in some cases this has to be a struct.
 
             //

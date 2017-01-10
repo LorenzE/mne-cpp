@@ -47,7 +47,6 @@
 // QT INCLUDES
 //=============================================================================================================
 
-
 #include <QDebug>
 
 
@@ -56,7 +55,8 @@
 // USED NAMESPACES
 //=============================================================================================================
 
-using namespace RTINVLIB;
+using namespace RTPROCESSINGLIB;
+
 
 //*************************************************************************************************************
 //=============================================================================================================
@@ -65,6 +65,7 @@ using namespace RTINVLIB;
 
 RtInvOp::RtInvOp(FiffInfo::SPtr &p_pFiffInfo, MNEForwardSolution::SPtr &p_pFwd, QObject *parent)
 : QThread(parent)
+, m_bIsRunning(false)
 , m_pFiffInfo(p_pFiffInfo)
 , m_pFwd(p_pFwd)
 {

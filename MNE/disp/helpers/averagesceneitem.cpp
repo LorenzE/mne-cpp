@@ -56,14 +56,36 @@ using namespace std;
 // DEFINE MEMBER METHODS
 //=============================================================================================================
 
-AverageSceneItem::AverageSceneItem(const QString& channelName, int channelNumber, const QPointF &channelPosition, int channelKind, int channelUnit, const QColor &color)
+AverageSceneItem::AverageSceneItem(const QString& channelName,
+                                   int channelNumber,
+                                   const QPointF &channelPosition,
+                                   int channelKind,
+                                   int channelUnit,
+                                   const QColor &color)
 : m_sChannelName(channelName)
 , m_iChannelNumber(channelNumber)
 , m_qpChannelPosition(channelPosition)
 , m_iChannelKind(channelKind)
 , m_iChannelUnit(channelUnit)
+, m_iFontTextSize(15)
+, m_iMaxWidth(1000)
+, m_iMaxHeigth(150)
+, m_iTotalNumberChannels(0)
 {
     m_lAverageColors.append(color);
+
+    m_rectBoundingRect = QRectF(-m_iMaxWidth/2, -m_iMaxHeigth/2, m_iMaxWidth, m_iMaxHeigth);
+
+    //Init avr map
+    QPair<QColor, QPair<QString,bool> > pairFinal;
+    QPair<QString,bool> pair;
+
+    pair.first = "0";
+    pair.second = true;
+    pairFinal.first = QColor(0,0,0);
+    pairFinal.second = pair;
+
+    m_qMapAverageColor.insert(0,pairFinal);
 }
 
 
@@ -71,9 +93,27 @@ AverageSceneItem::AverageSceneItem(const QString& channelName, int channelNumber
 
 QRectF AverageSceneItem::boundingRect() const
 {
-    int height = 80;
-    int width = 1000;
-    return QRectF(-width/2, -height/2, width, height);
+    return m_rectBoundingRect;
+}
+
+
+//*************************************************************************************************************
+
+void AverageSceneItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
+{
+    Q_UNUSED(event)
+    m_iFontTextSize = 150;
+    emit sceneUpdateRequested();
+}
+
+
+//*************************************************************************************************************
+
+void AverageSceneItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
+{
+    Q_UNUSED(event)
+    m_iFontTextSize = 15;
+    emit sceneUpdateRequested();
 }
 
 
@@ -87,7 +127,7 @@ void AverageSceneItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *
     //set posistion
     this->setPos(75*m_qpChannelPosition.x(), -75*m_qpChannelPosition.y());
 
-    painter->setRenderHint(QPainter::Antialiasing, true);
+    painter->setRenderHint(QPainter::Antialiasing, false);
 
 //    //Plot bounding rect / drawing region of this item
 //    painter->drawRect(this->boundingRect());
@@ -104,7 +144,6 @@ void AverageSceneItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *
 
     // Plot channel name
     QStaticText staticElectrodeName = QStaticText(m_sChannelName);
-    QSizeF sizeText = staticElectrodeName.size();
     painter->save();
     QPen pen;
     pen.setColor(Qt::yellow);
@@ -112,19 +151,29 @@ void AverageSceneItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *
         pen.setColor(m_lAverageColors.first());
     }
     pen.setWidthF(5);
+
+    QFont f = painter->font();
+    f.setPointSizeF(m_iFontTextSize);
+    painter->setFont(f);
+
     painter->setPen(pen);
-    painter->drawStaticText(boundingRect().x(), boundingRect().y(), staticElectrodeName);
+    painter->drawStaticText(boundingRect().x(), boundingRect().y()-(2*m_iFontTextSize), staticElectrodeName);
     painter->restore();
+
+    //Plot bounding rect
+//    painter->save();
+//    pen.setColor(Qt::red);
+//    painter->setPen(pen);
+//    painter->drawRect(this->boundingRect());
+//    painter->restore();
 }
 
 
 //*************************************************************************************************************
 
-void AverageSceneItem::setSignalColorForAllChannels(const QColor& color)
+void AverageSceneItem::setSignalMap(const QMap<double, QPair<QColor, QPair<QString,bool> > >& mapAvr)
 {
-    for(int i = 0; i<m_lAverageColors.size(); i++) {
-        m_lAverageColors[i] = color;
-    }
+    m_qMapAverageColor = mapAvr;
 
     update();
 }
@@ -191,44 +240,59 @@ void AverageSceneItem::paintAveragePath(QPainter *painter)
 
     //Plot averaged data
     QRectF boundingRect = this->boundingRect();
-    double dScaleY = (boundingRect.height()*10)/(2*dMaxValue);
+    double dScaleY = (boundingRect.height())/(2*dMaxValue);
     QPointF qSamplePosition;
 
     //do for all currently stored evoked set data
-    for(int dataIndex = 0; dataIndex<m_lAverageData.size(); dataIndex++) {
-        //plot data from averaged data m_lAverageData with the calculated downsample factor
-        const double* averageData = m_lAverageData.at(dataIndex).first;
-        int totalCols =  m_lAverageData.at(dataIndex).second;
+    for(int dataIndex = 0; dataIndex < m_lAverageData.size(); ++dataIndex) {
+        if(m_qMapAverageColor[m_lAverageData.at(dataIndex).first].second.second) {
+            //plot data from averaged data m_lAverageData with the calculated downsample factor
+            const double* averageData = m_lAverageData.at(dataIndex).second.first;
+            int totalCols =  m_lAverageData.at(dataIndex).second.second;
 
-        //Calculate downsampling factor of averaged data in respect to the items width
-        int dsFactor;
-        totalCols / boundingRect.width()<1 ? dsFactor = 1 : dsFactor = totalCols / boundingRect.width();
-        if(dsFactor == 0)
-            dsFactor = 1;
+            if(totalCols < m_iMaxWidth) {
+                m_rectBoundingRect = QRectF(-totalCols/2, -m_iMaxHeigth/2, totalCols, m_iMaxHeigth);
+            }
 
-        //Create path
-        //float offset = (*(averageData+(abs(m_firstLastSample.first)*m_iTotalNumberChannels)+m_iChannelNumber)); //choose offset to be the signal value at time instance 0
-        QPainterPath path = QPainterPath(QPointF(boundingRect.x(), boundingRect.y() + boundingRect.height()/2));
-        QPen pen;
-        pen.setStyle(Qt::SolidLine);
-        if(!m_lAverageColors.isEmpty() && dataIndex<m_lAverageColors.size()) {
-            pen.setColor(m_lAverageColors.at(dataIndex));
+            //Calculate downsampling factor of averaged data in respect to the items width
+            int dsFactor;
+            totalCols / boundingRect.width()<1 ? dsFactor = 1 : dsFactor = totalCols / boundingRect.width();
+            if(dsFactor == 0) {
+                dsFactor = 1;
+            }
+
+            //Create path
+            //float offset = (*(averageData+(abs(m_firstLastSample.first)*m_iTotalNumberChannels)+m_iChannelNumber)); //choose offset to be the signal value at time instance 0
+            QPainterPath path = QPainterPath(QPointF(boundingRect.x(), boundingRect.y() + boundingRect.height()/2));
+            QPen pen;
+            pen.setStyle(Qt::SolidLine);
+            pen.setColor(Qt::yellow);
+
+            if(m_qMapAverageColor.contains(m_lAverageData.at(dataIndex).first)) {
+                pen.setColor(m_qMapAverageColor[m_lAverageData.at(dataIndex).first].first);
+            }
+
+            pen.setWidthF(3);
+            painter->setPen(pen);
+
+            for(int i = 0; i < totalCols && path.elementCount() <= boundingRect.width(); i += dsFactor) {
+                //evoked matrix is stored in column major
+                double val = ((*(averageData+(i*m_iTotalNumberChannels)+m_iChannelNumber))/*-offset*/) * dScaleY;
+
+                //Cut plotting if three times bigger than m_iMaxHeigth
+                if(abs(val) > 6*m_iMaxHeigth) {
+                    qSamplePosition.setY(-(val/val) * m_iMaxHeigth); //(val/val) used to retrieve sign of val
+                    qSamplePosition.setX(path.currentPosition().x()+1);
+                } else {
+                    qSamplePosition.setY(-val);
+                    qSamplePosition.setX(path.currentPosition().x()+1);
+                }
+
+                path.lineTo(qSamplePosition);
+            }
+
+            painter->drawPath(path);
         }
-
-        pen.setWidthF(5);
-        painter->setPen(pen);
-
-        for(int i = 0; i < totalCols && path.elementCount() <= boundingRect.width(); i += dsFactor) {
-            //evoked matrix is stored in column major
-            double val = ((*(averageData+(i*m_iTotalNumberChannels)+m_iChannelNumber))/*-offset*/) * dScaleY;
-
-            qSamplePosition.setY(-val);
-            qSamplePosition.setX(path.currentPosition().x()+1);
-
-            path.lineTo(qSamplePosition);
-        }
-
-        painter->drawPath(path);
     }
 }
 
@@ -240,12 +304,12 @@ void AverageSceneItem::paintStimLine(QPainter *painter)
     if(m_lAverageData.size() == 0)
         return;
 
-    //Plot averaged data
+    //Plot vertical and horizontal lines
     QRectF boundingRect = this->boundingRect();
     QPainterPath path = QPainterPath(QPointF(boundingRect.x(), boundingRect.y() + boundingRect.height()/2));
 
     int dsFactor = 1;
-    int totalCols =  m_lAverageData.first().second;
+    int totalCols =  m_lAverageData.first().second.second;
     totalCols / boundingRect.width()<1 ? dsFactor = 1 : dsFactor = totalCols / boundingRect.width();
 
     if(dsFactor == 0)
@@ -257,12 +321,15 @@ void AverageSceneItem::paintStimLine(QPainter *painter)
     pen.setWidthF(3);
     painter->setPen(pen);
 
+    //Stim line
     path.moveTo(boundingRect.x()+abs(m_firstLastSample.first)/dsFactor, boundingRect.y());
     path.lineTo(boundingRect.x()+abs(m_firstLastSample.first)/dsFactor, boundingRect.y()+boundingRect.height());
 
+    //zero line
     path.moveTo(boundingRect.x(),boundingRect.y()+boundingRect.height()/2);
-    path.lineTo(boundingRect.x()+m_lAverageData.first().second/dsFactor, boundingRect.y()+boundingRect.height()/2);
+    path.lineTo(boundingRect.x()+m_lAverageData.first().second.second/dsFactor, boundingRect.y()+boundingRect.height()/2);
 
     painter->drawPath(path);
 }
+
 

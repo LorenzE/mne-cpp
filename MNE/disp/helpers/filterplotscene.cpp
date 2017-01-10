@@ -69,6 +69,7 @@ FilterPlotScene::FilterPlotScene(QGraphicsView *view, QObject *parent)
 , m_iCutOffLow(5)
 , m_iCutOffHigh(40)
 , m_iCutOffMarkerWidth(3)
+, m_iPlotLength(0)
 {
 }
 
@@ -102,15 +103,15 @@ void FilterPlotScene::updateFilter(const FilterData& operatorFilter, int samplin
 void FilterPlotScene::plotMagnitudeDiagram(int samplingFreq, QString filtername)
 {
     //Get row vector with filter coefficients
-    RowVectorXcd coefficientsAFreq = m_pCurrentFilter.m_dFFTCoeffA;
+    int numberCoeff = m_iPlotLength;
 
-    int numberCoeff = coefficientsAFreq.cols();
-    if(numberCoeff>2000) {//if to large downsample
-        int dsFactor = numberCoeff/2000;
-        numberCoeff = numberCoeff/dsFactor;
-    }
-
-    numberCoeff = m_iPlotLength;
+//    RowVectorXcd coefficientsAFreq = m_pCurrentFilter.m_dFFTCoeffA;
+//    if(coefficientsAFreq.cols() > 2000) {//if to large downsample
+//        int dsFactor = coefficientsAFreq.cols()/2000;
+//        numberCoeff = coefficientsAFreq.cols()/dsFactor;
+//    } else {
+//        numberCoeff = coefficientsAFreq.cols();
+//    }
 
     int fMax = samplingFreq/2; //nyquist frequency
 
@@ -142,7 +143,7 @@ void FilterPlotScene::plotMagnitudeDiagram(int samplingFreq, QString filtername)
 
     //VERTICAL
     //Draw vertical lines
-    double length = numberCoeff / (m_iNumberVerticalLines+1);
+    double length = double(numberCoeff) / double(m_iNumberVerticalLines+1);
     for(int i = 1; i<=m_iNumberVerticalLines; i++)
         addLine(i*length - m_iDiagramMarginsHoriz,
                 -m_iDiagramMarginsVert,

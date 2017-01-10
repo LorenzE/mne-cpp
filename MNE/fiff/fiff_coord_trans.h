@@ -50,6 +50,7 @@
 // Qt INCLUDES
 //=============================================================================================================
 
+#include <QIODevice>
 #include <QSharedPointer>
 
 
@@ -59,7 +60,6 @@
 //=============================================================================================================
 
 #include <Eigen/Core>
-#include <Eigen/LU>
 
 
 //*************************************************************************************************************
@@ -95,6 +95,14 @@ public:
     * Constructs the coordinate transformation descriptor.
     */
     FiffCoordTrans();
+
+    //=========================================================================================================
+    /**
+    * Constructs a coordinate transformation, by reading from a IO device.
+    *
+    * @param[in] p_IODevice     IO device to read from the coordinate transform.
+    */
+    FiffCoordTrans(QIODevice &p_IODevice);
 
     //=========================================================================================================
     /**
@@ -137,6 +145,89 @@ public:
     {
         return this->from < 0;
     }
+
+    //=========================================================================================================
+    /**
+    * ### MNE toolbox root function ###: Implementation of the mne_transform_coordinates function
+    *
+    * Reads a coordinate transform from a fif file
+    *
+    * @param[in] p_IODevice    A fiff IO device like a fiff QFile or QTCPSocket
+    * @param[out] p_Trans      A coordinate transform from a fif file
+    *
+    * @return true if succeeded, false otherwise
+    */
+    static bool read(QIODevice& p_IODevice, FiffCoordTrans& p_Trans);
+
+    //=========================================================================================================
+    /**
+    * ### MNE toolbox root function ###: Implementation of the mne_transform_source_space_to function
+    *
+    * TODO: dest       - The id of the destination coordinate system (FIFFV_COORD_...)
+    *
+    * Applies the coordinate transform to given coordinates and returns the transformed coordinates
+    *
+    * @param[in] rr     The coordinates
+    *
+    * @return Transformed coordinates
+    */
+    MatrixX3f apply_trans (const MatrixX3f& rr) const;
+
+    //=========================================================================================================
+    /**
+    * Applies the inverse coordinate transform to given coordinates and returns the transformed coordinates
+    *
+    * @param[in] rr     The coordinates
+    *
+    * @return Transformed coordinates
+    */
+    MatrixX3f apply_inverse_trans (const MatrixX3f& rr) const;
+
+    //=========================================================================================================
+    /**
+    * ### MNE C root function ###: Implementation of the mne_coord_frame_name function
+    *
+    * Map coordinate frame integers to human-readable names
+    *
+    * @param[in] frame  The coordinate frame integer
+    *
+    * @return Human readable form of the coordinate frame.
+    */
+    static QString frame_name (int frame);
+
+    //=========================================================================================================
+    /**
+    * ### MNE C root function ###: Implementation of the fiff_make_transform function
+    *
+    * Compose the coordinate transformation structure
+    * from a known forward transform
+    *
+    * @param[in] from   Source coordinate system
+    * @param[in] to     Destination coordinate system
+    * @param[in] rot    The forward transform (rotation part)
+    * @param[in] move   The forward transform (translation part)
+    *
+    * @return the composed transform
+    */
+    static FiffCoordTrans make(int from, int to, const Matrix3f& rot, const VectorXf& move);
+
+    //=========================================================================================================
+    /**
+    * ### MNE C root function ###: Implementation of the add_inverse function
+    *
+    * @param[in] t      Fiff coordinate transform to which the inverse should be added
+    *
+    * @return True when successful
+    */
+    static bool addInverse(FiffCoordTrans& t);
+
+    //=========================================================================================================
+    /**
+    * ### MNE C root function ###: Implementation of the mne_print_coord_transform & mne_print_coord_transform_label function
+    *
+    * Prints the coordinate transform. TODO: overload stream operator
+    */
+    void print() const;
 
     //=========================================================================================================
     /**

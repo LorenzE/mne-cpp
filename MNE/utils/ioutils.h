@@ -207,7 +207,11 @@ public:
     * @param[in] path       path and file name to write to
     */
     template<typename T>
-    static bool write_eigen_matrix(const Matrix<T, Dynamic, Dynamic>& in, const QString& path);
+    static bool write_eigen_matrix(const Matrix<T, Dynamic, Dynamic>& in, const QString& sPath, const QString& sDescription = QString());
+    template<typename T>
+    static bool write_eigen_matrix(const Matrix<T, 1, Dynamic>& in, const QString& sPath, const QString& sDescription = QString());
+    template<typename T>
+    static bool write_eigen_matrix(const Matrix<T, Dynamic, 1>& in, const QString& sPath, const QString& sDescription = QString());
 
     //=========================================================================================================
     /**
@@ -218,6 +222,10 @@ public:
     */
     template<typename T>
     static bool read_eigen_matrix(Matrix<T, Dynamic, Dynamic>& out, const QString& path);
+    template<typename T>
+    static bool read_eigen_matrix(Matrix<T, 1, Dynamic>& out, const QString& path);
+    template<typename T>
+    static bool read_eigen_matrix(Matrix<T, Dynamic, 1>& out, const QString& path);
 };
 
 //*************************************************************************************************************
@@ -227,13 +235,36 @@ public:
 //*************************************************************************************************************
 
 template<typename T>
-bool IOUtils::write_eigen_matrix(const Matrix<T, Dynamic, Dynamic>& in, const QString& path)
+bool IOUtils::write_eigen_matrix(const Matrix<T, 1, Dynamic>& in, const QString& sPath, const QString& sDescription)
 {
-    QFile file(path);
+    Eigen::Matrix<T, Eigen::Dynamic, Eigen::Dynamic> matrixName(1,in.cols());
+    matrixName.row(0)= in;
+    IOUtils::write_eigen_matrix(matrixName, sPath, sDescription);
+}
+
+
+//*************************************************************************************************************
+
+template<typename T>
+bool IOUtils::write_eigen_matrix(const Matrix<T, Dynamic, 1>& in, const QString& sPath, const QString& sDescription)
+{
+    Eigen::Matrix<T, Eigen::Dynamic, Eigen::Dynamic> matrixName(in.rows(),1);
+    matrixName.col(0)= in;
+    IOUtils::write_eigen_matrix(matrixName, sPath, sDescription);
+}
+
+
+//*************************************************************************************************************
+
+template<typename T>
+bool IOUtils::write_eigen_matrix(const Matrix<T, Dynamic, Dynamic>& in, const QString& sPath, const QString& sDescription)
+{
+    QFile file(sPath);
     if(file.open(QIODevice::WriteOnly|QIODevice::Truncate))
     {
         QTextStream stream(&file);
-        stream<<"Dimensions (rows x cols): "<<in.rows()<<" x "<<in.cols()<<"\n";
+//        stream<<"# Dimensions (rows x cols): "<<in.rows()<<" x "<<in.cols()<<"\n";
+//        stream<<"# Description: "<<sDescription<<"\n";
         for(int row = 0; row<in.rows(); row++) {
             for(int col = 0; col<in.cols(); col++)
                 stream << in(row, col)<<" ";
@@ -253,34 +284,62 @@ bool IOUtils::write_eigen_matrix(const Matrix<T, Dynamic, Dynamic>& in, const QS
 //*************************************************************************************************************
 
 template<typename T>
+bool IOUtils::read_eigen_matrix(Matrix<T, 1, Dynamic>& out, const QString& path)
+{
+    Eigen::Matrix<T, Eigen::Dynamic, Eigen::Dynamic> matrixName;
+    IOUtils::read_eigen_matrix(matrixName, path);
+    if(matrixName.rows() > 0)
+    {
+        out = matrixName.row(0);
+    }
+}
+
+
+//*************************************************************************************************************
+
+template<typename T>
+bool IOUtils::read_eigen_matrix(Matrix<T, Dynamic, 1>& out, const QString& path)
+{
+    Eigen::Matrix<T, Eigen::Dynamic, Eigen::Dynamic> matrixName;
+    IOUtils::read_eigen_matrix(matrixName, path);
+    if(matrixName.cols() > 0)
+    {
+        out = matrixName.col(0);
+    }
+}
+
+
+////*************************************************************************************************************
+
+template<typename T>
 bool IOUtils::read_eigen_matrix(Matrix<T, Dynamic, Dynamic>& out, const QString& path)
 {
+    qDebug() << "Matrix!";
     QFile file(path);
 
     if(file.open(QIODevice::ReadOnly | QIODevice::Text)) {
         //Start reading from file
         QTextStream in(&file);
-        int i=0;
         QList<VectorXd> help;
 
         while(!in.atEnd())
         {
             QString line = in.readLine();
-            QStringList fields = line.split(QRegExp("\\s+"));
+            if(!line.contains("#")) {
+                QStringList fields = line.split(QRegExp("\\s+"));
 
-            //Delete last element if it is a blank character
-            if(fields.at(fields.size()-1) == "")
-                fields.removeLast();
+                //Delete last element if it is a blank character
+                if(fields.at(fields.size()-1) == "")
+                    fields.removeLast();
 
-            VectorXd x (fields.size());
-            //Read actual electrode position
-            for (int j=0; j<fields.size(); j++) {
-                x(j)=fields.at(j).toDouble();
+                VectorXd x (fields.size());
+
+                for (int j=0; j<fields.size(); j++) {
+                    x(j)=fields.at(j).toDouble();
+                }
+
+                help.append(x);
             }
-
-            help.append(x);
-
-            i++;
         }
 
         int rows = help.size();

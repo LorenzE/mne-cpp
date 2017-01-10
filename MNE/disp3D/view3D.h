@@ -41,14 +41,12 @@
 // INCLUDES
 //=============================================================================================================
 
-#include <iostream>
-
 #include "disp3D_global.h"
-#include "3DObjects/brain/brain.h"
-#include "helpers/window.h"
-#include "helpers/types.h"
 
-#include <mne/mne_sourceestimate.h>
+#include <fs/annotationset.h>
+#include <fs/annotation.h>
+#include <mne/mne_forwardsolution.h>
+#include <connectivity/network/network.h>
 
 
 //*************************************************************************************************************
@@ -56,30 +54,30 @@
 // QT INCLUDES
 //=============================================================================================================
 
-#include <QSharedPointer>
-#include <QWidget>
-#include <QWindow>
-#include <QDebug>
-
-#include <Qt3DCore/QAspectEngine>
-#include <Qt3DCore/QCamera>
-#include <Qt3DCore/QTransform>
-
-#include <Qt3DRender/QPhongMaterial>
-#include <Qt3DRender/QPerVertexColorMaterial>
-#include <Qt3DRender/QRenderAspect>
-#include <Qt3DRender/QFrameGraph>
-#include <Qt3DRender/QForwardRenderer>
-#include <Qt3DRender/QPointLight>
-#include <Qt3DRender/QCylinderMesh>
-
-#include <Qt3DInput/QInputAspect>
+#include <Qt3DExtras/Qt3DWindow>
+#include <QVector3D>
+#include <QPointer>
 
 
 //*************************************************************************************************************
 //=============================================================================================================
 // FORWARD DECLARATIONS
 //=============================================================================================================
+
+class QPropertyAnimation;
+
+namespace Qt3DCore {
+    class QTransform;
+}
+
+namespace Qt3DRender {
+    class QPointLight;
+    class QDirectionalLight;
+}
+
+namespace Qt3DExtras {
+    class QPhongMaterial;
+}
 
 
 //*************************************************************************************************************
@@ -96,6 +94,8 @@ namespace DISP3DLIB
 // FORWARD DECLARATIONS
 //=============================================================================================================
 
+class Data3DTreeModel;
+
 
 //=============================================================================================================
 /**
@@ -103,7 +103,7 @@ namespace DISP3DLIB
 *
 * @brief Visualizes 3D data
 */
-class DISP3DNEWSHARED_EXPORT View3D : public Window
+class DISP3DNEWSHARED_EXPORT View3D : public Qt3DExtras::Qt3DWindow
 {
     Q_OBJECT
 
@@ -126,69 +126,11 @@ public:
 
     //=========================================================================================================
     /**
-    * Adds FreeSurfer brain data SET.
+    * Return the tree model which holds the subject information.
     *
-    * @param[in] text               The text of the surface set tree item which this data should be added to. If no item with text exists it will be created.
-    * @param[in] tSurfaceSet        FreeSurfer surface set.
-    * @param[in] tAnnotationSet     FreeSurfer annotation set.
-    *
-    * @return                       Returns true if successful.
+    * @param[in] pModel     The tree model holding the 3d models.
     */
-    bool addBrainData(const QString& text, const FSLIB::SurfaceSet& tSurfaceSet, const FSLIB::AnnotationSet& tAnnotationSet = FSLIB::AnnotationSet());
-
-    //=========================================================================================================
-    /**
-    * Adds FreeSurfer single brain data.
-    *
-    * @param[in] text               The text of the surface set tree item which this data should be added to. If no item with text exists it will be created.
-    * @param[in] tSurface           FreeSurfer surface.
-    * @param[in] tAnnotation        FreeSurfer annotation.
-    *
-    * @return                       Returns true if successful.
-    */
-    bool addBrainData(const QString& text, const FSLIB::Surface& tSurface, const FSLIB::Annotation& tAnnotation = FSLIB::Annotation());
-
-    //=========================================================================================================
-    /**
-    * Adds source space data to the brain tree model.
-    *
-    * @param[in] text               The text of the surface set tree item which this data should be added to. If no item with text exists it will be created.
-    * @param[in] tSourceSpace       The source space information.
-    *
-    * @return                       Returns true if successful.
-    */
-    bool addBrainData(const QString& text, const MNELIB::MNESourceSpace& tSourceSpace);
-
-    //=========================================================================================================
-    /**
-    * Adds a forward solution data to the brain tree model. Convenient function to addBrainData(const QString& text, const MNESourceSpace& tSourceSpace).
-    *
-    * @param[in] text               The text of the surface set tree item which this data should be added to. If no item with text exists it will be created.
-    * @param[in] tForwardSolution   The forward solution information.
-    *
-    * @return                       Returns true if successful.
-    */
-    bool addBrainData(const QString& text, const MNELIB::MNEForwardSolution& tForwardSolution);
-
-    //=========================================================================================================
-    /**
-    * Adds source activity data to the brain tree model.
-    *
-    * @param[in] text                   The name of the hemisphere surface set to which this data should be added.
-    * @param[in] tSourceEstimate        The MNESourceEstimate data.
-    * @param[in] tForwardSolution       The MNEForwardSolution data.
-    *
-    * @return                           Returns a list of the BrainRTSourceLocDataTreeItem where the data was appended to.
-    */
-    QList<BrainRTSourceLocDataTreeItem*> addRtBrainData(const QString& text, const MNELIB::MNESourceEstimate& tSourceEstimate, const MNELIB::MNEForwardSolution& tForwardSolution = MNELIB::MNEForwardSolution());
-
-    //=========================================================================================================
-    /**
-    * Return the tree model which holds the brain information.
-    *
-    * @return          The BrainTreeModel pointer.
-    */
-    BrainTreeModel* getBrainTreeModel();
+    void setModel(QSharedPointer<DISP3DLIB::Data3DTreeModel> pModel);
 
     //=========================================================================================================
     /**
@@ -198,43 +140,50 @@ public:
     */
     void setSceneColor(const QColor& colSceneColor);
 
-protected:
-    Qt3DCore::QAspectEngine             m_aspectEngine;                 /**< The aspect engine. */
-    Qt3DCore::QEntity*                  m_pRootEntity;                  /**< The root/most top level entity buffer. */
-    Qt3DInput::QInputAspect*            m_pInputAspect;                 /**< The input aspect. */
-    Qt3DCore::QCamera*                  m_pCameraEntity;                /**< The camera entity. */
-    Qt3DRender::QFrameGraph*            m_pFrameGraph;                  /**< The frame graph holding the render information. */
-    Qt3DRender::QForwardRenderer*       m_pForwardRenderer;             /**< The renderer (here forward renderer). */
-
-    QSharedPointer<Qt3DCore::QEntity>   m_XAxisEntity;                  /**< The entity representing a torus in x direction. */
-    QSharedPointer<Qt3DCore::QEntity>   m_YAxisEntity;                  /**< The entity representing a torus in y direction. */
-    QSharedPointer<Qt3DCore::QEntity>   m_ZAxisEntity;                  /**< The entity representing a torus in z direction. */
-
-    Qt3DCore::QTransform*               m_pCameraTransform;             /**< The main camera transform. */
-
-    Brain::SPtr                         m_pBrain;                       /**< Pointer to the Brain class, which holds all BrainObjects. */
-
-    bool            m_bCameraTransMode;         /**< Flag for activating/deactivating the translation camera mode. */
-    bool            m_bCameraRotationMode;      /**< Flag for activating/deactivating the rotation camera mode. */
-
-    QPoint          m_mousePressPositon;        /**< Position when the mouse was pressed. */
-
-    QVector3D       m_vecCameraTrans;           /**< The camera translation vector. */
-    QVector3D       m_vecCameraTransOld;        /**< The camera old translation vector. */
-    QVector3D       m_vecCameraRotation;        /**< The camera rotation vector. */
-    QVector3D       m_vecCameraRotationOld;     /**< The camera old rotation vector. */
+    void startModelRotationRecursive(QObject* pObject);
 
     //=========================================================================================================
     /**
-    * Init the meta types
+    * Starts or stops to rotate all loaded 3D models.
     */
-    void initMetatypes();
+    void startStopModelRotation(bool checked);
 
+    //=========================================================================================================
+    /**
+    * Toggle the coord axis visibility.
+    */
+    void toggleCoordAxis(bool checked);
+
+    //=========================================================================================================
+    /**
+    * Show fullscreen.
+    */
+    void showFullScreen(bool checked);
+
+    //=========================================================================================================
+    /**
+    * Change light color.
+    */
+    void setLightColor(QColor color);
+
+    //=========================================================================================================
+    /**
+    * Set light intensity.
+    */
+    void setLightIntensity(double value);
+
+protected:
     //=========================================================================================================
     /**
     * Init the 3D view
     */
     void init();
+
+    //=========================================================================================================
+    /**
+    * Init the light for the 3D view
+    */
+    void initLight();
 
     //=========================================================================================================
     /**
@@ -247,6 +196,7 @@ protected:
     * Window functions
     */
     void keyPressEvent(QKeyEvent* e);
+    void keyReleaseEvent(QKeyEvent* e);
     void mousePressEvent(QMouseEvent* e);
     void wheelEvent(QWheelEvent* e);
     void mouseReleaseEvent(QMouseEvent* e);
@@ -259,6 +209,31 @@ protected:
     * @param[in] parent         The parent identity which will "hold" the coordinate system.
     */
     void createCoordSystem(Qt3DCore::QEntity *parent);
+
+    QPointer<Qt3DCore::QEntity>         m_pRootEntity;                  /**< The root/most top level entity buffer. */
+    QPointer<Qt3DCore::QEntity>         m_p3DObjectsEntity;             /**< The root/most top level entity buffer. */
+    QPointer<Qt3DCore::QEntity>         m_pLightEntity;                 /**< The root/most top level entity buffer. */
+    QPointer<Qt3DRender::QCamera>       m_pCameraEntity;                /**< The camera entity. */
+
+    QSharedPointer<Qt3DCore::QEntity>   m_XAxisEntity;                  /**< The entity representing a torus in x direction. */
+    QSharedPointer<Qt3DCore::QEntity>   m_YAxisEntity;                  /**< The entity representing a torus in y direction. */
+    QSharedPointer<Qt3DCore::QEntity>   m_ZAxisEntity;                  /**< The entity representing a torus in z direction. */
+
+    QPointer<Qt3DCore::QTransform>      m_pCameraTransform;             /**< The main camera transform. */
+
+    bool                                m_bCameraTransMode;             /**< Flag for activating/deactivating the translation camera mode. */
+    bool                                m_bCameraRotationMode;          /**< Flag for activating/deactivating the rotation camera mode. */
+    bool                                m_bModelRotationMode;           /**< Flag for activating/deactivating the rotation model mode. */
+
+    QPoint                              m_mousePressPositon;            /**< Position when the mouse was pressed. */
+
+    QVector3D                           m_vecCameraTrans;               /**< The camera translation vector. */
+    QVector3D                           m_vecCameraTransOld;            /**< The camera old translation vector. */
+    QVector3D                           m_vecCameraRotation;            /**< The camera rotation vector. */
+    QVector3D                           m_vecCameraRotationOld;         /**< The camera old rotation vector. */
+
+    QList<QPointer<QPropertyAnimation> >  m_lPropertyAnimations;        /**< The animations for each 3D object. */
+    QList<QPair<QPointer<Qt3DRender::QDirectionalLight> , QPointer<Qt3DExtras::QPhongMaterial> > >  m_lLightSources;        /**< The light sources. */
 };
 
 } // NAMESPACE

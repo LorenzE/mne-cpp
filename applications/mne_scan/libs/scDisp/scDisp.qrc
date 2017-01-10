@@ -1,0 +1,15 @@
+<RCC>
+    <qresource prefix="/images">
+        <file alias="evokedSettings.png">images/evokedSettings.png</file>
+        <file alias="covarianceSelection.png">images/covarianceSelection.png</file>
+        <file alias="selectSensors.png">images/selectSensors.png</file>
+        <file alias="frqResolution.png">images/frqResolution.png</file>
+        <file alias="channelScaling.png">images/channelScaling.png</file>
+        <file alias="iconSSP.png">images/iconSSP.png</file>
+        <file alias="showFilterWindow.png">images/showFilterWindow.png</file>
+        <file alias="hideBad.png">images/hideBad.png</file>
+        <file alias="showBad.png">images/showBad.png</file>
+        <file alias="quickControl.png">images/quickControl.png</file>
+        <file alias="3DControl.png">images/3DControl.png</file>
+    </qresource>
+</RCC>

@@ -1,5 +1,11 @@
-MNE-CPP [![DOI](https://zenodo.org/badge/8729/mne-tools/mne-cpp.svg)](http://dx.doi.org/10.5281/zenodo.17216)
-=============================================================================================================
+<div align="center">
+  <img src="http://www.mne-cpp.org/wp-content/uploads/2016/06/MNE-CPP_GitHub_Logo.png" width="600" height="300" alt="MNE-CPP"><br><br>
+</div>
+-----------------
+
+|  **`Windows`**   |  **`Linux / OS X`** | **`Dynamic Testing`** |  **`Static Testing`** |  **`Support`** |  **`Cite`** |
+|------------------|---------------------|-----------------------|-----------------------|----------------|-------------|
+| [![AppVeyor](https://ci.appveyor.com/api/projects/status/b63nawx8mnmmr9rv?svg=true)](https://ci.appveyor.com/project/chdinh/mne-cpp) | [![Travis](https://api.travis-ci.org/mne-tools/mne-cpp.png?branch=master)](https://travis-ci.org/mne-tools/mne-cpp) | [![CodeCov](https://codecov.io/gh/mne-tools/mne-cpp/branch/master/graph/badge.svg)](https://codecov.io/gh/mne-tools/mne-cpp) | [![Coverity](https://scan.coverity.com/projects/8955/badge.svg)](https://scan.coverity.com/projects/mne-tools-mne-cpp) | [![Gitter](https://badges.gitter.im/mne-tools/mne-cpp.svg)](https://gitter.im/mne-tools/mne-cpp?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge) | [![DOI](https://zenodo.org/badge/8729/mne-tools/mne-cpp.svg)](http://dx.doi.org/10.5281/zenodo.17216) |
 
 Cross-platform medical (real-time) applications for EEG and MEG data analysis.
 
@@ -23,21 +29,21 @@ Requirements
 
 **Windows**
 
-\>= MSVC2013
+\>= MSVC 2015
 
 **Linux**
 
-\>= gcc 4.5
+\>= gcc 4.9.1
 
-**MacOSX**
+**macOS**
 
-\>= Clang 3.1
+\>= Clang 3.5
 
 
 Dependencies
 ============
 
-[>= Qt5.6](http://download.qt.io/development_releases/qt/)
+[>= Qt 5.7.1](http://download.qt.io/official_releases/qt/)
 
 
 Contact information
@@ -51,7 +57,7 @@ Mailing List: http://mail.nmr.mgh.harvard.edu/mailman/listinfo/mne_analysis
 Releases
 ========
 
-[MNE1.0 release](https://github.com/mne-tools/mne-cpp/wiki/MNE-1.0-release)
+[1.0.0](http://wiki.mne-cpp.org/index.php/ChangeLog)
 
 
 Licensing
@@ -62,7 +68,7 @@ MNE-CPP is **BSD-licensed** (3 clause):
     This software is OSI Certified Open Source Software.
     OSI Certified is a certification mark of the Open Source Initiative.
 
-    Copyright (C) 2010-2016, authors of MNE-CPP.
+    Copyright (C) 2010-2017, [authors](http://doc.mne-cpp.org/#authors_sec) of MNE-CPP.
     All rights reserved.
 
     Redistribution and use in source and binary forms, with or without

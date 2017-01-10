@@ -2,6 +2,7 @@
 /**
 * @file     main.cpp
 * @author   Christoph Dinh <chdinh@nmr.mgh.harvard.edu>;
+*           Lorenz Esch <lorenz.esch@tu-ilmenau.de>;
 *           Matti Hamalainen <msh@nmr.mgh.harvard.edu>
 * @version  1.0
 * @date     July, 2012
@@ -40,6 +41,10 @@
 //=============================================================================================================
 
 #include <disp3D/view3D.h>
+#include <disp3D/control/control3dwidget.h>
+#include <disp3D/model/data3Dtreemodel.h>
+
+#include <fs/surfaceset.h>
 
 
 //*************************************************************************************************************
@@ -48,6 +53,7 @@
 //=============================================================================================================
 
 #include <QApplication>
+#include <QCommandLineParser>
 
 
 //*************************************************************************************************************
@@ -77,62 +83,61 @@ int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
 
-    QStringList args = QCoreApplication::arguments();
-    int w_pos = args.indexOf("-width");
-    int h_pos = args.indexOf("-height");
-    int w, h;
-    if (w_pos >= 0 && h_pos >= 0)
-    {
-        bool ok = true;
-        w = args.at(w_pos + 1).toInt(&ok);
-        if (!ok)
-        {
-            qWarning() << "Could not parse width argument:" << args;
-            return 1;
-        }
-        h = args.at(h_pos + 1).toInt(&ok);
-        if (!ok)
-        {
-            qWarning() << "Could not parse height argument:" << args;
-            return 1;
-        }
-    }
+    // Command Line Parser
+    QCommandLineParser parser;
+    parser.setApplicationDescription("Fs Surface Example");
+    parser.addHelpOption();
+
+    QCommandLineOption hemiOption("hemi", "Selected hemisphere <hemi>.", "hemi", "2");
+    QCommandLineOption subjectOption("subject", "Selected subject <subject>.", "subject", "sample");
+    QCommandLineOption subjectPathOption("subjectPath", "Selected subject path <subjectPath>.", "subjectPath", "./MNE-sample-data/subjects");
+
+    parser.addOption(hemiOption);
+    parser.addOption(subjectOption);
+    parser.addOption(subjectPathOption);
+
+    parser.process(a);
+
+    int hemi = parser.value(hemiOption).toInt();
+    QString subject = parser.value(subjectOption);
+    QString subjectPath = parser.value(subjectPathOption);
 
     //
     // pial
     //
-    SurfaceSet tSurfSetPial ("sample", 2, "orig", "./MNE-sample-data/subjects");
+    SurfaceSet tSurfSetPial (subject, hemi, "pial", subjectPath);
+    Data3DTreeModel::SPtr p3DDataModel = Data3DTreeModel::SPtr(new Data3DTreeModel());
 
-    View3D::SPtr t_pialBrainView = View3D::SPtr(new View3D());
-    t_pialBrainView->addBrainData("orig", tSurfSetPial);
-    t_pialBrainView->show();
+    View3D::SPtr t_BrainView = View3D::SPtr(new View3D());
+    t_BrainView->setModel(p3DDataModel);
+
+    p3DDataModel->addSurfaceSet(subject, "pial", tSurfSetPial);
 
     //
     // inflated
     //
-    SurfaceSet tSurfSetInflated ("sample", 2, "inflated", "./MNE-sample-data/subjects");
-
-    View3D::SPtr t_inflatedBrainView = View3D::SPtr(new View3D());
-    t_inflatedBrainView->addBrainData("orig", tSurfSetInflated);
-    t_inflatedBrainView->show();
+    SurfaceSet tSurfSetInflated (subject, hemi, "inflated", subjectPath);
+    p3DDataModel->addSurfaceSet(subject, "inflated", tSurfSetInflated);
 
     //
     // orig
     //
-    SurfaceSet tSurfSetOrig ("sample", 2, "orig", "./MNE-sample-data/subjects");
-
-    View3D::SPtr t_origBrainView = View3D::SPtr(new View3D());
-    t_origBrainView->addBrainData("orig", tSurfSetOrig);
-    t_origBrainView->show();
+    SurfaceSet tSurfSetOrig (subject, hemi, "orig", subjectPath);
+    p3DDataModel->addSurfaceSet(subject, "orig", tSurfSetOrig);
 
     //
     // white
     //
-    SurfaceSet tSurfSetWhite ("sample", 2, "orig", "./MNE-sample-data/subjects");
+    SurfaceSet tSurfSetWhite (subject, hemi, "white", subjectPath);
+    p3DDataModel->addSurfaceSet(subject, "white", tSurfSetWhite);
 
-    View3D::SPtr t_whiteBrainView = View3D::SPtr(new View3D());
-    t_whiteBrainView->addBrainData("orig", tSurfSetWhite);
-    t_whiteBrainView->show();
+    t_BrainView->show();
+
+    //3D control
+    Control3DWidget::SPtr control3DWidget = Control3DWidget::SPtr(new Control3DWidget());
+    control3DWidget->setWindowFlags(Qt::WindowStaysOnTopHint);
+    control3DWidget->init(p3DDataModel, t_BrainView);
+    control3DWidget->show();
 
     return a.exec();
 }

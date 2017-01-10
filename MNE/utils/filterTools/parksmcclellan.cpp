@@ -59,8 +59,20 @@
 * http://www.iowahills.com/feedbackcomments.html
 */
 
+//*************************************************************************************************************
+//=============================================================================================================
+// INCLUDES
+//=============================================================================================================
 
 #include "parksmcclellan.h"
+
+
+//*************************************************************************************************************
+//=============================================================================================================
+// Qt INCLUDES
+//=============================================================================================================
+
+#include <qmath.h>
 
 
 //*************************************************************************************************************
@@ -73,10 +85,36 @@ using namespace UTILSLIB;
 
 //*************************************************************************************************************
 //=============================================================================================================
+// DEFINES
+//=============================================================================================================
+
+#define BIG 4096    // Used to define array sizes. Must be somewhat larger than 8 * MaxNumTaps
+#define SMALL 256
+#define M_2PI  6.28318530717958647692
+#define ITRMAX 50             // Max Number of Iterations. Some filters require as many as 45 iterations.
+#define MIN_TEST_VAL 1.0E-6   // Min value used in LeGrangeInterp and GEE
+
+
+//*************************************************************************************************************
+//=============================================================================================================
 // DEFINE MEMBER METHODS
 //=============================================================================================================
 
 ParksMcClellan::ParksMcClellan()
+: ExchangeIndex(SMALL)
+, LeGrangeD(SMALL)
+, Alpha(SMALL)
+, CosOfGrid(SMALL)
+, DesPlus(SMALL)
+, Coeff(SMALL)
+, Edge(SMALL)
+, BandMag(SMALL)
+, InitWeight(SMALL)
+, DesiredMag(BIG)
+, Grid(BIG)
+, Weight(BIG)
+, InitDone2(false)
+, HalfTapCount(0)
 {
 }
 
@@ -96,6 +134,8 @@ ParksMcClellan::ParksMcClellan(int NumTaps, double OmegaC, double BW, double Par
 , DesiredMag(BIG)
 , Grid(BIG)
 , Weight(BIG)
+, InitDone2(false)
+, HalfTapCount(0)
 {
     FirCoeff = RowVectorXd::Zero(NumTaps);
     init(NumTaps, OmegaC, BW, ParksWidth, PassType);
@@ -323,6 +363,7 @@ int ParksMcClellan::Remez2(int GridIndex)
     double Deviation, DNUM, DDEN, TempVar;
     double DEVL, COMP, YNZ, Y1, ERR;
 
+    Y1 = 1;
     LUCK = 0;
     DEVL = -1.0;
     NITER = 1; // Init this to 1 to be consistent with the orig code.
@@ -389,19 +430,19 @@ int ParksMcClellan::Remez2(int GridIndex)
 
         if(k < KUP && !ErrTest(k, NUT, COMP, &ERR))
         {
-        L210:
-        COMP = (double)NUT * ERR;
-        for(k++; k<KUP; k++)
-        {
-        if( ErrTest(k, NUT, COMP, &ERR) )break; // for loop
-        COMP = (double)NUT * ERR;
-        }
+            L210:
+            COMP = (double)NUT * ERR;
+            for(k++; k<KUP; k++)
+            {
+                if( ErrTest(k, NUT, COMP, &ERR) )break; // for loop
+                COMP = (double)NUT * ERR;
+            }
 
-        ExchangeIndex[j] = k-1;
-        j++;
-        KLOW = k - 1;
-        JCHNGE++;
-        continue;  // while loop
+            ExchangeIndex[j] = k-1;
+            j++;
+            KLOW = k - 1;
+            JCHNGE++;
+            continue;  // while loop
         }
 
         k--;

@@ -44,22 +44,22 @@ SUBDIRS += \
     fiff \
     mne \
     inverse \
+    connectivity \
     rtCommand \
     rtClient \
-    rtProcessing\
+    rtProcessing \
 
-contains(MNECPP_CONFIG, withGui) {
-    SUBDIRS += disp
+!contains(MNECPP_CONFIG, minimalVersion) {
+    SUBDIRS += \
+        disp \
 
-    qtHaveModule(3dcore,3drender,3dinput) {
-        message(MNE.pro - Qt3D available)
+    qtHaveModule(charts) {
         SUBDIRS += \
+            dispCharts \
             disp3D \
+    } else {
+        message("MNE.pro - The Qt Charts module is missing. Please install to build the complete set of MNE-CPP features.")
     }
-}
-
-contains(MNECPP_CONFIG, withPython) {
-    SUBDIRS += pyio
 }
 
 CONFIG += ordered

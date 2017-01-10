@@ -2,6 +2,7 @@
 /**
 * @file     main.cpp
 * @author   Christoph Dinh <chdinh@nmr.mgh.harvard.edu>;
+*           Lorenz Esch <lorenz.esch@tu-ilmenau.de>;
 *           Matti Hamalainen <msh@nmr.mgh.harvard.edu>
 * @version  1.0
 * @date     July, 2012
@@ -40,6 +41,7 @@
 
 #include <iostream>
 #include <mne/mne.h>
+#include <utils/ioutils.h>
 
 
 //*************************************************************************************************************
@@ -49,6 +51,7 @@
 
 #include <QtCore/QCoreApplication>
 #include <QDebug>
+#include <QCommandLineParser>
 
 
 //*************************************************************************************************************
@@ -75,17 +78,58 @@ using namespace MNELIB;
 */
 int main(int argc, char *argv[])
 {
-    QCoreApplication a(argc, argv);
+    QCoreApplication app(argc, argv);
 
-    QFile t_fileForwardSolution("./MNE-sample-data/MEG/sample/sample_audvis-meg-eeg-oct-6-fwd.fif");
-    MNEForwardSolution t_ForwardSolution(t_fileForwardSolution);
+    // Command Line Parser
+    QCommandLineParser parser;
+    parser.setApplicationDescription("Read Forward Example");
+    parser.addHelpOption();
 
-    if(t_ForwardSolution.source_ori != -1)
+    QCommandLineOption fwdFileOption("fwd", "Path to the forward solution <file>.", "file", "./MNE-sample-data/MEG/sample/sample_audvis-meg-eeg-oct-6-fwd.fif");
+    QCommandLineOption surfOption("surfType", "Surface type <type>.", "type", "orig");
+    QCommandLineOption annotOption("annotType", "Annotation type <type>.", "type", "aparc.a2009s");
+    QCommandLineOption subjectOption("subject", "Selected subject <subject>.", "subject", "sample");
+    QCommandLineOption subjectPathOption("subjectPath", "Selected subject path <subjectPath>.", "subjectPath", "./MNE-sample-data/subjects");
+    QCommandLineOption hemiOption("hemi", "Selected hemisphere <hemi>.", "hemi", "2");
+
+    parser.addOption(fwdFileOption);
+    parser.addOption(surfOption);
+    parser.addOption(annotOption);
+    parser.addOption(subjectOption);
+    parser.addOption(subjectPathOption);
+    parser.addOption(hemiOption);
+
+    parser.process(app);
+
+    //Load data
+    QFile t_fileForwardSolution(parser.value(fwdFileOption));
+    MNEForwardSolution t_Fwd(t_fileForwardSolution);
+
+    if(t_Fwd.source_ori != -1)
     {
-        std::cout << "\nfirst 10 rows and columns of the Gain Matrix:\n" << t_ForwardSolution.sol->data.block(0,0,10,10) << std::endl;
-        std::cout << "\nfirst 10 dipole coordinates:\n" << t_ForwardSolution.source_rr.block(0,0,10,3) << std::endl ;
-        std::cout << "\nfirst 10 dipole normales:\n" << t_ForwardSolution.source_nn.block(0,0,10,3) << std::endl ;
+        std::cout << "\nfirst 10 rows and columns of the Gain Matrix:\n" << t_Fwd.sol->data.block(0,0,10,10) << std::endl;
+        std::cout << "\nfirst 10 dipole coordinates:\n" << t_Fwd.source_rr.block(0,0,10,3) << std::endl ;
+        std::cout << "\nfirst 10 dipole normales:\n" << t_Fwd.source_nn.block(0,0,10,3) << std::endl ;
     }
 
-    return a.exec();
+    // === Option to cluster forward solution ===
+    AnnotationSet t_annotationSet (parser.value(subjectOption), parser.value(hemiOption).toInt(), parser.value(annotOption), parser.value(subjectPathOption));
+
+    //
+    // Cluster forward solution;
+    //
+    MNEForwardSolution t_clusteredFwd = t_Fwd.cluster_forward_solution(t_annotationSet, 20);//40);
+
+    qDebug() << "==== Results ====";
+    qDebug() << "nrow: " << t_clusteredFwd.sol->nrow;
+    qDebug() << "ncol: " << t_clusteredFwd.sol->ncol;
+    qDebug() << "row_names:";
+    qDebug() << t_clusteredFwd.sol->row_names;
+    qDebug() << "col_names:";
+    qDebug() << t_clusteredFwd.sol->col_names;
+    qDebug() << "write fwd data to ./test_fwd.txt ...";
+    IOUtils::write_eigen_matrix(t_clusteredFwd.sol->data,"./test_fwd.txt");
+    qDebug() << "[done]";
+
+    return app.exec();
 }

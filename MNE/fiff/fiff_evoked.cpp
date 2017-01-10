@@ -42,6 +42,7 @@
 #include "fiff_evoked.h"
 #include "fiff_stream.h"
 #include "fiff_tag.h"
+#include "fiff_dir_tree.h"
 
 #include <utils/mnemath.h>
 
@@ -478,7 +479,7 @@ bool FiffEvoked::read(QIODevice& p_IODevice, FiffEvoked& p_FiffEvoked, QVariant 
 
     // Run baseline correction
     all_data = MNEMath::rescale(all_data, times, t_baseline, QString("mean"));
-    printf("Applying baseline correction ... (mode: mean)");
+    printf("Applying baseline correction ... (mode: mean)\n");
 
     // Put it all together
     p_FiffEvoked.info = info;
@@ -534,16 +535,22 @@ void FiffEvoked::setInfo(FiffInfo &p_info, bool proj)
 FiffEvoked & FiffEvoked::operator+=(const MatrixXd &newData)
 {
     //Init matrix if necessary
-    if(nave == -1 || nave == 0)
+    if(nave == -1 || nave == 0) {
         data = MatrixXd::Zero(newData.rows(),newData.cols());
+    }
 
-    if(data.cols() == newData.cols() && data.rows() ==  newData.rows()) {
+    if(data.cols() == newData.cols() && data.rows() == newData.rows()) {
         //Revert old averaging
         data = data*nave;
 
         //Do new averaging
         data += newData;
-        nave++;
+        if(nave <= 0) {
+            nave = 1;
+        } else {
+            nave++;
+        }
+
         data /= nave;
     }
 

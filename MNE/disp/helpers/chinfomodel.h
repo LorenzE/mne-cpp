@@ -31,7 +31,7 @@
 * POSSIBILITY OF SUCH DAMAGE.
 *
 *
-* @brief    This class represents the channel info model of the model/view framework of mne_browse_raw_qt application.
+* @brief    This class represents the channel info model of the model/view framework of mne_browse application.
 *
 */
 
@@ -123,13 +123,12 @@ public:
     typedef QSharedPointer<ChInfoModel> SPtr;              /**< Shared pointer type for ChInfoModel. */
     typedef QSharedPointer<const ChInfoModel> ConstSPtr;   /**< Const shared pointer type for ChInfoModel. */
 
-    ChInfoModel(FiffInfo* pFiffInfo, QObject *parent = 0);
+    ChInfoModel(FiffInfo::SPtr& pFiffInfo, QObject *parent = 0);
     ChInfoModel(QObject *parent = 0);
 
     //=========================================================================================================
     /**
     * Reimplemented virtual functions
-    *
     */
     virtual int rowCount(const QModelIndex & parent = QModelIndex()) const;
     virtual int columnCount(const QModelIndex &parent = QModelIndex()) const;
@@ -146,7 +145,7 @@ public:
     *
     * @param fiffInfo fiff info variabel.
     */
-    void fiffInfoChanged(FiffInfo* pFiffInfo);
+    void fiffInfoChanged(FiffInfo::SPtr& pFiffInfo);
 
     //=========================================================================================================
     /**
@@ -215,7 +214,7 @@ protected:
     */
     void mapLayoutToChannels();
 
-    FiffInfo*               m_pFiffInfo;            /**< The fiff info of the currently loaded fiff file. */
+    FiffInfo::SPtr          m_pFiffInfo;            /**< The fiff info of the currently loaded fiff file. */
     QMap<QString,QPointF>   m_layoutMap;            /**< The current layout map with a position for all MEG and EEG channels. */
     QStringList             m_aliasNames;           /**< list of given channel aliases. */
     QStringList             m_mappedLayoutChNames;  /**< list of the mapped layout channel names. */

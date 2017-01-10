@@ -40,25 +40,21 @@ TEMPLATE = subdirs
 SUBDIRS += \
     mne_rt_server\
 
-contains(MNECPP_CONFIG, withGui) {
+!contains(MNECPP_CONFIG, minimalVersion) {
     SUBDIRS += \
-        mne_x_libs \
-        mne_x
+        mne_browse \
+        mne_matching_pursuit \
+        mne_sample_set_downloader \
 
-    !contains(MNECPP_CONFIG, oldCompiler) {
-        message(mne_browse_raw_qt configured!)
+        qtHaveModule(charts) {
         SUBDIRS += \
-            mne_browse_raw_qt \
-    }
-
-    qtHaveModule(3dcore,3drender,3dinput) {
-        message(applications.pro - Qt3D available)
-        SUBDIRS += \
-            mne_viewer \
-            mne_viewer_parent \
-            mne_matching_pursuit \
-            mne_analyze_qt
-    }
+            mne_launch \
+            mne_dipole_fit \
+            mne_scan \
+            mne_analyze \
+        } else {
+            message("applications.pro - The Qt Charts module is missing. Please install to build the complete set of MNE-CPP features.")
+        }
 }
 
 CONFIG += ordered

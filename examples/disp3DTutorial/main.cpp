@@ -1,14 +1,15 @@
 //=============================================================================================================
 /**
 * @file     main.cpp
-* @author   Christoph Dinh <chdinh@nmr.mgh.harvard.edu>;
+* @author   Lorenz Esch Lorenz Esch <Lorenz.Esch@tu-ilmenau.de>;
+*           Lorenz Esch <lorenz.esch@tu-ilmenau.de>;
 *           Matti Hamalainen <msh@nmr.mgh.harvard.edu>
 * @version  1.0
-* @date     July, 2012
+* @date     July, 2016
 *
 * @section  LICENSE
 *
-* Copyright (C) 2012, Christoph Dinh and Matti Hamalainen. All rights reserved.
+* Copyright (C) 2016, Lorenz Esch and Matti Hamalainen. All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without modification, are permitted provided that
 * the following conditions are met:
@@ -29,7 +30,7 @@
 * POSSIBILITY OF SUCH DAMAGE.
 *
 *
-* @brief    Example of an FreeSurfer Surface application
+* @brief    Example of using the MNE-CPP Disp3D library
 *
 */
 
@@ -41,6 +42,8 @@
 
 #include <disp3D/view3D.h>
 #include <disp3D/control/control3dwidget.h>
+#include <disp3D/model/items/sourceactivity/mneestimatetreeitem.h>
+#include <disp3D/model/data3Dtreemodel.h>
 
 #include <fs/label.h>
 #include <fs/surfaceset.h>
@@ -48,18 +51,18 @@
 
 #include <fiff/fiff_evoked.h>
 #include <fiff/fiff.h>
+#include <fiff/fiff_dig_point_set.h>
 #include <mne/mne.h>
 
+#include <mne/mne.h>
 #include <mne/mne_epoch_data_list.h>
-
 #include <mne/mne_sourceestimate.h>
+
 #include <inverse/minimumNorm/minimumnorm.h>
 
 #include <utils/mnemath.h>
 
 #include <iostream>
-
-#include <stdlib.h>     //for using the function sleep
 
 
 //*************************************************************************************************************
@@ -106,46 +109,66 @@ int main(int argc, char *argv[])
 
     // Command Line Parser
     QCommandLineParser parser;
-    parser.setApplicationDescription("Start disp3D tutorial");
+    parser.setApplicationDescription("Disp3D Example");
     parser.addHelpOption();
-    QCommandLineOption sampleSurfOption("surfType", "Surface type <type>.", "type", "pial");
-    QCommandLineOption sampleAnnotOption("annotType", "Annotation type <type>.", "type", "aparc.a2009s");
-    QCommandLineOption sampleHemiOption("hemi", "Selected hemisphere <hemi>.", "hemi", "2");
-    QCommandLineOption sampleSubjectOption("subject", "Selected subject <subject>.", "subject", "sample");
-    QCommandLineOption sampleSubjectPathOption("subjectPath", "Selected subject path <subjectPath>.", "subjectPath", "./MNE-sample-data/subjects");
-    QCommandLineOption sampleSourceLocOption("doSourceLoc", "Do real time source localization <doSourceLoc>.", "doSourceLoc", "true");
-    QCommandLineOption sampleFwdOption("fwd", "Path to forwad solution <file>.", "file", "./MNE-sample-data/MEG/sample/sample_audvis-meg-eeg-oct-6-fwd.fif");
-    QCommandLineOption sampleInvOpOption("invOp", "Path to inverse operator <file>.", "file", "");
-    QCommandLineOption sampleClustOption("doClust", "Path to clustered inverse operator <doClust>.", "doClust", "true");
 
-    parser.addOption(sampleSurfOption);
-    parser.addOption(sampleAnnotOption);
-    parser.addOption(sampleHemiOption);
-    parser.addOption(sampleSubjectOption);
-    parser.addOption(sampleSubjectPathOption);
-    parser.addOption(sampleSourceLocOption);
-    parser.addOption(sampleFwdOption);
-    parser.addOption(sampleInvOpOption);
-    parser.addOption(sampleClustOption);
+    QCommandLineOption surfOption("surfType", "Surface type <type>.", "type", "orig");
+    QCommandLineOption annotOption("annotType", "Annotation type <type>.", "type", "aparc.a2009s");
+    QCommandLineOption hemiOption("hemi", "Selected hemisphere <hemi>.", "hemi", "2");
+    QCommandLineOption subjectOption("subject", "Selected subject <subject>.", "subject", "sample");
+    QCommandLineOption subjectPathOption("subjectPath", "Selected subject path <subjectPath>.", "subjectPath", "./MNE-sample-data/subjects");
+    QCommandLineOption sourceLocOption("doSourceLoc", "Do real time source localization.", "doSourceLoc", "true");
+    QCommandLineOption fwdOption("fwd", "Path to forwad solution <file>.", "file", "./MNE-sample-data/MEG/sample/sample_audvis-meg-eeg-oct-6-fwd.fif");
+    QCommandLineOption invOpOption("inv", "Path to inverse operator <file>.", "file", "");
+    QCommandLineOption clustOption("doClust", "Path to clustered inverse operator <doClust>.", "doClust", "true");
+    QCommandLineOption covFileOption("cov", "Path to the covariance <file>.", "file", "./MNE-sample-data/MEG/sample/sample_audvis-cov.fif");
+    QCommandLineOption evokedFileOption("ave", "Path to the evoked/average <file>.", "file", "./MNE-sample-data/MEG/sample/sample_audvis-ave.fif");
+    QCommandLineOption methodOption("method", "Inverse estimation <method>, i.e., 'MNE', 'dSPM' or 'sLORETA'.", "method", "dSPM");//"MNE" | "dSPM" | "sLORETA"
+    QCommandLineOption snrOption("snr", "The SNR value used for computation <snr>.", "snr", "3.0");//3.0f;//0.1f;//3.0f;
+    QCommandLineOption evokedIndexOption("aveIdx", "The average <index> to choose from the average file.", "index", "0");
+
+    parser.addOption(surfOption);
+    parser.addOption(annotOption);
+    parser.addOption(hemiOption);
+    parser.addOption(subjectOption);
+    parser.addOption(subjectPathOption);
+    parser.addOption(sourceLocOption);
+    parser.addOption(fwdOption);
+    parser.addOption(invOpOption);
+    parser.addOption(clustOption);
+    parser.addOption(covFileOption);
+    parser.addOption(evokedFileOption);
+    parser.addOption(methodOption);
+    parser.addOption(snrOption);
+    parser.addOption(evokedIndexOption);
     parser.process(a);
 
-    bool bAddRtSourceLoc = parser.value(sampleSourceLocOption) == "false" ? false : true;
-    bool bDoClustering = parser.value(sampleClustOption) == "false" ? false : true;
+    bool bAddRtSourceLoc = false;
+    if(parser.value(sourceLocOption) == "false" || parser.value(sourceLocOption) == "0") {
+        bAddRtSourceLoc = false;
+    } else if(parser.value(sourceLocOption) == "true" || parser.value(sourceLocOption) == "1") {
+        bAddRtSourceLoc = true;
+    }
+
+    bool bDoClustering = false;
+    if(parser.value(clustOption) == "false" || parser.value(clustOption) == "0") {
+        bDoClustering = false;
+    } else if(parser.value(clustOption) == "true" || parser.value(clustOption) == "1") {
+        bDoClustering = true;
+    }
 
     //Inits
-    SurfaceSet tSurfSet (parser.value(sampleSubjectOption), parser.value(sampleHemiOption).toInt(), parser.value(sampleSurfOption), parser.value(sampleSubjectPathOption));
-    AnnotationSet tAnnotSet (parser.value(sampleSubjectOption), parser.value(sampleHemiOption).toInt(), parser.value(sampleAnnotOption), parser.value(sampleSubjectPathOption));
+    SurfaceSet tSurfSet (parser.value(subjectOption), parser.value(hemiOption).toInt(), parser.value(surfOption), parser.value(subjectPathOption));
+    AnnotationSet tAnnotSet (parser.value(subjectOption), parser.value(hemiOption).toInt(), parser.value(annotOption), parser.value(subjectPathOption));
 
-    QFile t_fileFwd(parser.value(sampleFwdOption));
+    QFile t_fileFwd(parser.value(fwdOption));
     MNEForwardSolution t_Fwd(t_fileFwd);
     MNEForwardSolution t_clusteredFwd;
 
-    QString t_sFileClusteredInverse(parser.value(sampleInvOpOption));//QFile t_fileClusteredInverse("./clusteredInverse-inv.fif");
+    QString t_sFileClusteredInverse(parser.value(invOpOption));
 
-    QFile t_fileCov("./MNE-sample-data/MEG/sample/sample_audvis-cov.fif");
-    QFile t_fileEvoked("./MNE-sample-data/MEG/sample/sample_audvis-ave.fif");
-
-    MNESourceEstimate sourceEstimate;
+    QFile t_fileCov(parser.value(covFileOption));
+    QFile t_fileEvoked(parser.value(evokedFileOption));
 
     //########################################################################################
     //
@@ -153,18 +176,22 @@ int main(int argc, char *argv[])
     //
     //########################################################################################
 
+    // Load data
+    QPair<QVariant, QVariant> baseline(QVariant(), 0);
+    MNESourceEstimate sourceEstimate;
+    FiffEvoked evoked(t_fileEvoked, parser.value(evokedIndexOption).toInt(), baseline);
+
     if(bAddRtSourceLoc) {
-        double snr = 1.0;
+        double snr = parser.value(snrOption).toDouble();
         double lambda2 = 1.0 / pow(snr, 2);
-        QString method("dSPM"); //"MNE" | "dSPM" | "sLORETA"
+        QString method(parser.value(methodOption));
 
         // Load data
-        fiff_int_t setno = 1;
-        QPair<QVariant, QVariant> baseline(QVariant(), 0);
-        FiffEvoked evoked(t_fileEvoked, setno, baseline);
+        t_fileEvoked.close();
         if(evoked.isEmpty())
             return 1;
 
+        std::cout << std::endl;
         std::cout << "Evoked description: " << evoked.comment.toLatin1().constData() << std::endl;
 
         if(t_Fwd.isEmpty())
@@ -228,29 +255,47 @@ int main(int argc, char *argv[])
 
     std::cout<<"Creating BrainView"<<std::endl;
 
-//    Surface tSurfRight ("sample", 1, "pial", "./MNE-sample-data/subjects");
-//    Annotation tAnnotRight ("sample", 1, "aparc.a2009s", "./MNE-sample-data/subjects");
-//    Surface tSurfLeft ("sample", 0, "orig", "./MNE-sample-data/subjects");
-//    Annotation tAnnotLeft ("sample", 0, "aparc.a2009s", "./MNE-sample-data/subjects");
+    //Create 3D data model
+    Data3DTreeModel::SPtr p3DDataModel = Data3DTreeModel::SPtr(new Data3DTreeModel());
 
-    View3D::SPtr testWindow = View3D::SPtr(new View3D());
-//    testWindow->addBrainData("HemiLRSet", tSurfLeft, tAnnotLeft);
-//    testWindow->addBrainData("HemiLRSet", tSurfRight, tAnnotRight);
-    testWindow->addBrainData("HemiLRSet", tSurfSet, tAnnotSet);
+    //Add fressurfer surface set including both hemispheres
+    p3DDataModel->addSurfaceSet(parser.value(subjectOption), "MRI", tSurfSet, tAnnotSet);
+
+//    //Read and show BEM
+//    QFile t_fileBem("./MNE-sample-data/subjects/sample/bem/sample-5120-5120-5120-bem.fif");
+//    MNEBem t_Bem(t_fileBem);
+//    p3DDataModel->addBemData(parser.value(subjectOption), "BEM", t_Bem);
+
+//    //Read and show sensor helmets
+//    QFile t_filesensorSurfaceVV("./resources/sensorSurfaces/306m_rt.fif");
+//    MNEBem t_sensorSurfaceVV(t_filesensorSurfaceVV);
+//    p3DDataModel->addBemData("Sensors", "VectorView", t_sensorSurfaceVV);
+
+//    // Read & show digitizer points
+//    QFile t_fileDig("./MNE-sample-data/MEG/sample/sample_audvis-ave.fif");
+//    FiffDigPointSet t_Dig(t_fileDig);
+//    p3DDataModel->addDigitizerData(parser.value(subjectOption), evoked.comment, t_Dig);
 
     if(bAddRtSourceLoc) {
-        QList<BrainRTSourceLocDataTreeItem*> rtItemList = testWindow->addRtBrainData("HemiLRSet", sourceEstimate, t_clusteredFwd);
-        //testWindow->addBrainData("HemiLRSet", t_clusteredFwd);
-
-        //testWindow->addRtBrainData("HemiLRSet", sourceEstimate);
-        //rtItemList.at(0)->addData(sourceEstimate);
+        //Add rt source loc data and init some visualization values
+        if(MneEstimateTreeItem* pRTDataItem = p3DDataModel->addSourceData(parser.value(subjectOption), evoked.comment, sourceEstimate, t_clusteredFwd)) {
+            pRTDataItem->setLoopState(true);
+            pRTDataItem->setTimeInterval(17);
+            pRTDataItem->setNumberAverages(1);
+            pRTDataItem->setStreamingActive(true);
+            pRTDataItem->setNormalization(QVector3D(0.3,0.5,10.0));
+            pRTDataItem->setVisualizationType("Annotation based");
+            pRTDataItem->setColortable("Hot");
+        }
     }
 
-    testWindow->show();    
+    //Create the 3D view
+    View3D::SPtr testWindow = View3D::SPtr(new View3D());
+    testWindow->setModel(p3DDataModel);
+    testWindow->show();
 
     Control3DWidget::SPtr control3DWidget = Control3DWidget::SPtr(new Control3DWidget());
-    control3DWidget->setWindowFlags(Qt::WindowStaysOnTopHint);
-    control3DWidget->setView3D(testWindow);
+    control3DWidget->init(p3DDataModel, testWindow);
     control3DWidget->show();
 
     //########################################################################################

@@ -59,7 +59,7 @@
 // USED NAMESPACES
 //=============================================================================================================
 
-using namespace RTINVLIB;
+using namespace RTPROCESSINGLIB;
 using namespace FIFFLIB;
 
 
@@ -71,6 +71,7 @@ using namespace FIFFLIB;
 RtCov::RtCov(qint32 p_iMaxSamples, FiffInfo::SPtr p_pFiffInfo, QObject *parent)
 : QThread(parent)
 , m_iMaxSamples(p_iMaxSamples)
+, m_iNewMaxSamples(0)
 , m_pFiffInfo(p_pFiffInfo)
 , m_bIsRunning(false)
 {

@@ -2,6 +2,7 @@
 #
 # @file     examples.pro
 # @author   Christoph Dinh <chdinh@nmr.mgh.harvard.edu>;
+#           Lorenz Esch <lorenz.esch@tu-ilmenau.de>;
 #           Florian Schlembach <florian.schlembach@tu-ilmenau.de>;
 #           Matti Hamalainen <msh@nmr.mgh.harvard.edu>
 # @version  1.0
@@ -51,30 +52,26 @@ SUBDIRS += \
     evokedGradAmp \
     cancelNoise \
     fiffIO \
-    makeLayout\
-    readBEM\
-    patientManager \
-    testWarp
+    makeLayout \
+    readBEM \
 
-contains(MNECPP_CONFIG, withGui) {
-    SUBDIRS += \
-
-    qtHaveModule(3dcore,3drender,3dinput) {
-    message(examples.pro - Qt3D available)
-    SUBDIRS += \
-        clusteredInverse \
-        rawClusteredInverse \
-        rawClusteredInverseEEG \
-        readFwdDisp3D \
-        plotSurfaces \
-        lnt \
-        computeInverseRapMusic \
-        rawClusteredInverseRapMusic \
-        computeInversePwlRapMusic \
-        rawClusteredInversePwlRapMusic \
-        stClusteredInversePwlRapMusic  \
-        roiClusteredInversePwlRapMusic \
-        fsSurface \
-        disp3DTutorial \
+!contains(MNECPP_CONFIG, minimalVersion) {
+    qtHaveModule(charts) {
+        SUBDIRS += \
+            clusteredInverse \
+            rawClusteredInverse \
+            readFwdDisp3D \
+            computeInverseRapMusic \
+            rawClusteredInverseRapMusic \
+            computeInversePwlRapMusic \
+            rawClusteredInversePwlRapMusic \
+            stClusteredInversePwlRapMusic  \
+            roiClusteredInversePwlRapMusic \
+            fsSurface \
+            disp3DTutorial \
+            histogram \
+            connectivityTutorial
+    } else {
+        message("examples.pro - The Qt Charts module is missing. Please install to build the complete set of MNE-CPP features.")
     }
 }

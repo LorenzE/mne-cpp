@@ -38,6 +38,7 @@ include(../../mne-cpp.pri)
 
 TEMPLATE = lib
 
+QT       += concurrent
 QT       -= gui
 
 DEFINES += RTPROCESSING_LIBRARY
@@ -52,12 +53,14 @@ LIBS += -L$${MNE_LIBRARY_DIR}
 CONFIG(debug, debug|release) {
     LIBS += -lMNE$${MNE_LIB_VERSION}Genericsd \
             -lMNE$${MNE_LIB_VERSION}Utilsd \
+            -lMNE$${MNE_LIB_VERSION}Fsd \
             -lMNE$${MNE_LIB_VERSION}Fiffd \
             -lMNE$${MNE_LIB_VERSION}Mned
 }
 else {
     LIBS += -lMNE$${MNE_LIB_VERSION}Generics \
             -lMNE$${MNE_LIB_VERSION}Utils \
+            -lMNE$${MNE_LIB_VERSION}Fs \
             -lMNE$${MNE_LIB_VERSION}Fiff \
             -lMNE$${MNE_LIB_VERSION}Mne
 }
@@ -89,7 +92,8 @@ SOURCES += \
         rtinvop.cpp \
         rtave.cpp \
         rtnoise.cpp \
-        rthpis.cpp
+        rthpis.cpp \
+        rtfilter.cpp
 
 HEADERS +=  \
         rtprocessing_global.h \
@@ -97,7 +101,8 @@ HEADERS +=  \
         rtinvop.h \
         rtave.h \
         rtnoise.h \
-        rthpis.h
+        rthpis.h \
+        rtfilter.h
 
 INCLUDEPATH += $${EIGEN_INCLUDE_DIR}
 INCLUDEPATH += $${MNE_INCLUDE_DIR}
@@ -112,3 +117,20 @@ unix: QMAKE_CXXFLAGS += -isystem $$EIGEN_INCLUDE_DIR
 
 # suppress visibility warnings
 unix: QMAKE_CXXFLAGS += -Wno-attributes
+
+# Deploy Qt Dependencies
+win32 {
+    isEmpty(TARGET_EXT) {
+        TARGET_CUSTOM_EXT = .dll
+    } else {
+        TARGET_CUSTOM_EXT = $${TARGET_EXT}
+    }
+
+    DEPLOY_COMMAND = windeployqt
+
+    DEPLOY_TARGET = $$shell_quote($$shell_path($${MNE_BINARY_DIR}/$${TARGET}$${TARGET_CUSTOM_EXT}))
+
+    #  # Uncomment the following line to help debug the deploy command when running qmake
+    #  warning($${DEPLOY_COMMAND} $${DEPLOY_TARGET})
+    QMAKE_POST_LINK += $${DEPLOY_COMMAND} $${DEPLOY_TARGET}
+}

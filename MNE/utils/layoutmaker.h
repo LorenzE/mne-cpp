@@ -42,9 +42,7 @@
 // INCLUDES
 //=============================================================================================================
 
-#include "minimizersimplex.h"
 #include "utils_global.h"
-#include <iostream>
 
 
 //*************************************************************************************************************
@@ -56,8 +54,6 @@
 #include <QList>
 #include <QStringList>
 #include <QFile>
-#include <QTextStream>
-#include <QDebug>
 
 
 //*************************************************************************************************************
@@ -65,7 +61,7 @@
 // Eigen INCLUDES
 //=============================================================================================================
 
-#include <Eigen/Eigen>
+#include <Eigen/Core>
 
 
 //*************************************************************************************************************
@@ -83,32 +79,6 @@ namespace UTILSLIB
 //=============================================================================================================
 
 using namespace Eigen;
-
-
-//*************************************************************************************************************
-//=============================================================================================================
-// DEFINES
-//=============================================================================================================
-#ifndef FAIL
-#define FAIL -1
-#endif
-
-#ifndef OK
-#define OK 0
-#endif
-
-#ifndef FALSE
-#define FALSE 0
-#endif
-
-#ifndef TRUE
-#define TRUE 1
-#endif
-#define EPS 1e-6
-
-#ifndef M_PI
-#define  M_PI   3.14159265358979323846  /* pi */
-#endif
 
 
 //*************************************************************************************************************
@@ -140,11 +110,18 @@ public:
     //=========================================================================================================
     /**
     * Reads the specified ANT elc-layout file.
-    * @param [in] inputPoints the input points in 3D space.
-    * @param [in] outputPoints the output layout points in 2D space.
-    * @param [in] names the channel names.
-    * @param [in] mirrorXAxis mirror points at x axis.
-    * @param [in] mirrorYAxis mirror points at y axis.
+    * @param [in] inputPoints       The input points in 3D space.
+    * @param [out] outputPoints     The output layout points in 2D space.
+    * @param [in] names             The channel names.
+    * @param [in] outFile           The outout file.
+    * @param [in] do_fit            The flag whether to do a sphere fitting.
+    * @param [in] prad
+    * @param [in] w
+    * @param [in] h
+    * @param [in] writeFile         The flag whether to write to file.
+    * @param [in] mirrorXAxis       Mirror points at x axis.
+    * @param [in] mirrorYAxis       Mirror points at y axis.
+    *
     * @return true if making layout was successful, false otherwise.
     */
     static bool makeLayout(const QList<QVector<double> > &inputPoints,
@@ -167,32 +144,6 @@ private:
                       float *theta,
                       float *phi);
 
-    static int report_func(int loop,
-                   const VectorXf &fitpar,
-                   int npar,
-                   double fval);
-
-    static float fit_eval(const VectorXf &fitpar,
-                  int   npar,
-                  void  *user_data);
-
-    static float opt_rad(VectorXf &r0,
-                  fitUser user);
-
-    static void calculate_cm_ave_dist(MatrixXf &rr,
-                               int np,
-                               VectorXf &cm,
-                               float &avep);
-
-    static MatrixXf  make_initial_simplex(VectorXf &pars,
-                                int    npar,
-                                float  size);
-
-    static int fit_sphere_to_points(MatrixXf &rr,
-                             int   np,
-                             float simplex_size,
-                             VectorXf &r0,
-                             float &R);
 };
 
 } //NAMESPACE
