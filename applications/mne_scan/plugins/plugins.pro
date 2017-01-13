@@ -101,3 +101,6 @@ contains(MNECPP_CONFIG, BuildBasicMNESCANVersion) {
         message(TMSI plugin was not configured due to wrong OS (win32 needed)!)
     }
 }
+
+SUBDIRS += \
+    myoarmband
