@@ -18,13 +18,15 @@ TEMPLATE = lib
 DEFINES += MYOARMBAND_LIBRARY
 
 SOURCES += myoarmband.cpp \
-    FormFiles/myoarmbandgui.cpp \
-    myorealtimeproducer.cpp
+            FormFiles/myoarmbandgui.cpp \
+            myorealtimeproducer.cpp \
+    myoarmbanddriver.cpp
 
 HEADERS += myoarmband.h\
-        myoarmband_global.h \
-        FormFiles/myoarmbandgui.h \
-    myorealtimeproducer.h
+            myoarmband_global.h \
+            FormFiles/myoarmbandgui.h \
+            myorealtimeproducer.h \
+    myoarmbanddriver.h
 
 unix {
     target.path = /usr/lib
@@ -34,12 +36,16 @@ unix {
 LIBS += -L$${MNE_LIBRARY_DIR}
 CONFIG(debug, debug|release) {
     LIBS += -lMNE$${MNE_LIB_VERSION}Genericsd \
+            -lMNE$${MNE_LIB_VERSION}Utilsd \
+            -lMNE$${MNE_LIB_VERSION}Fiffd \
             -lscMeasd \
             -lscDispd \
             -lscSharedd
 }
 else {
     LIBS += -lMNE$${MNE_LIB_VERSION}Generics \
+            -lMNE$${MNE_LIB_VERSION}Utils \
+            -lMNE$${MNE_LIB_VERSION}Fiff \
             -lscMeas \
             -lscDisp \
             -lscShared

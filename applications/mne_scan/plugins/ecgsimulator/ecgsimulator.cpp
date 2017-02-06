@@ -241,7 +241,6 @@ bool ECGSimulator::stop()
     m_pInBuffer_III->releaseFromPop();
     m_pInBuffer_III->clear();
 
-
     //Clear Buffers
     m_pECGChannel_ECG_I->clear();
     m_pECGChannel_ECG_II->clear();

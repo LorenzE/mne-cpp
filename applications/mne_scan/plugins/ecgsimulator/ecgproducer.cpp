@@ -63,7 +63,6 @@ ECGProducer::ECGProducer(ECGSimulator* simulator, dBuffer::SPtr& buffer_I, dBuff
 , m_pdBuffer_II(buffer_II)
 , m_pdBuffer_III(buffer_III)
 , m_bIsRunning(true)
-
 {
 
 }

@@ -41,24 +41,18 @@
 //=============================================================================================================
 
 #include "myoarmband_global.h"
-
 #include "FormFiles/myoarmbandgui.h"
-/**
-*@include myo.hpp is the only file needed for the myo handler class.
-*/
 #include "myo/myo.hpp"
-#include "scShared/Interfaces/ISensor.h"
-#include <generics/circularbuffer.h>
-#include <scMeas/newrealtimesamplearray.h>
+
+#include <scShared/Interfaces/ISensor.h>
+#include <generics/circularmatrixbuffer.h>
+
 
 //*************************************************************************************************************
 //=============================================================================================================
-// QT STL INCLUDES
+// QT INCLUDES
 //=============================================================================================================
 
-#include <QtWidgets>
-#include <QVector>
-#include <QDebug>
 
 //*************************************************************************************************************
 //=============================================================================================================
@@ -72,37 +66,51 @@
 #include <string>
 #include <algorithm>
 
-//*************************************************************************************************************
-//=============================================================================================================
-// DEFINE NAMESPACE MyoArmbandPlugin
-//=============================================================================================================
-
-namespace MyoArmbandPlugin
-{
-
-//*************************************************************************************************************
-//=============================================================================================================
-// USED NAMESPACES
-//=============================================================================================================
-
-using namespace SCSHAREDLIB;
-using namespace SCMEASLIB;
-using namespace IOBUFFER;
-using namespace myo;
 
 //*************************************************************************************************************
 //=============================================================================================================
 // FORWARD DECLARATIONS
 //=============================================================================================================
 
-class MYOARMBANDSHARED_EXPORT MyoArmband : public ISensor
+namespace FIFFLIB {
+    class FiffInfo;
+}
+
+namespace SCMEASLIB {
+    class NewRealTimeMultiSampleArray;
+}
+
+
+//*************************************************************************************************************
+//=============================================================================================================
+// DEFINE NAMESPACE MYOARMBANDPLUGIN
+//=============================================================================================================
+
+namespace MYOARMBANDPLUGIN
+{
+
+
+//*************************************************************************************************************
+//=============================================================================================================
+// FORWARD DECLARATIONS
+//=============================================================================================================
+
+
+//=============================================================================================================
+/**
+* DECLARE CLASS MyoRealTimeProducer
+*
+* @brief The MyoRealTimeProducer class handles the comunication with the MyoArmband and is intended to
+* provide the data once a sample rate is given.
+*/
+class MYOARMBANDSHARED_EXPORT MyoArmband : public SCSHAREDLIB::ISensor
 {
     Q_OBJECT
     Q_PLUGIN_METADATA(IID "scsharedlib/1.0" FILE "myoarmband.json") //New Qt5 Plugin system replaces Q_EXPORT_PLUGIN2 macro
     // Use the Q_INTERFACES() macro to tell Qt's meta-object system about the interfaces
     Q_INTERFACES(SCSHAREDLIB::ISensor)
 
-    // TODO: create class myodataproducer.
+    friend class MyoRealTimeProducer;
     friend class MyoArmbandGui;
 
 public:
@@ -130,40 +138,45 @@ public:
     * getName - Returns name of eht class
     * setupWidget -
     */
-    virtual QSharedPointer<IPlugin> clone() const;
+    virtual QSharedPointer<SCSHAREDLIB::IPlugin> clone() const;
     virtual void init();
     virtual void unload();
     virtual bool start();
     virtual bool stop();
-    virtual PluginType getType() const;
+    virtual SCSHAREDLIB::IPlugin::PluginType getType() const;
     virtual QString getName() const;
 //    virtual inline bool multiInstanceAllowed() const;
     virtual QWidget* setupWidget();
 
-    //=========================================================================================================
-    /**
-    * Returns the MyoArmband resource path.
-    * TODO: Implement later. This is for picking up saved data samples
-    * at the moment, is only necesary to process the data obtained in real time.
-    * @return the MyoArmband resource path.
-    */
-//    QString getResourcePath() const {return m_qStringResourcePath;}
-
 protected:
     virtual void run();
 
-private:
+    //=========================================================================================================
+    /**
+    * Initialise the MyoArmband RTMSA.
+    */
+    void initRTMSA();
 
-    //TODO: Add the rest of the channels
-//    PluginOutputData<NewRealTimeSampleArray>::SPtr m_pRTSA_MYO_ROLL_new;   /**< The RealTimeSampleArray to provide the channel MYO Roll.*/
+    //=========================================================================================================
+    /**
+    * Sets up the fiff info with the current data chosen by the user. Note: Only works for ANT Neuro Waveguard Duke caps.
+    */
+    void setUpFiffInfo();
 
-//    float           m_fSamplingRate;        /**< the sampling rate.*/
-//    int             m_iDownsamplingFactor;  /**< the down sampling factor.*/
-//    dBuffer::SPtr   m_pInBuffer_ROLL;       /**< MYO ROLL data which arrive from MYO data producer.*/
+private:    
+    bool            m_bIsRunning;                       /**< Whether main thread is running */
 
-//    QSharedPointer<ECGProducer>     m_pECGProducer; /**< Pointer to the MYO data producer*/
+    float           m_fSamplingRate;                    /**< the sampling rate.*/
+    int             m_iDownsamplingFactor;              /**< the down sampling factor.*/
+    int             m_iNumberOfChannels;                /**< The number of channels defined by the user via the GUI.*/
+    int             m_iSamplesPerBlock;                 /**< The samples per block defined by the user via the GUI.*/
 
-//        QString m_qStringResourcePath;          /**< the path to the Myo resource directory.*/
+    QSharedPointer<IOBUFFER::RawMatrixBuffer>       m_pRawMatrixBuffer;         /**< Holds incoming raw data. */
+    QSharedPointer<MyoRealTimeProducer>             m_pMyoRealTimeProducer;     /**< Pointer to the MYO data producer*/
+
+    QSharedPointer<FIFFLIB::FiffInfo>               m_pFiffInfo;                /**< Fiff measurement info.*/
+
+    QSharedPointer<SCSHAREDLIB::PluginOutputData<SCMEASLIB::NewRealTimeMultiSampleArray> >  m_pRTMSA_MYO_ROLL_new;       /**< The RealTimeSampleArray to provide the channel MYO Roll.*/
 
 };
 

@@ -2,7 +2,6 @@
 #include "ui_myoarmbandgui.h"
 #include "../myoarmband.h"
 
-using namespace MyoArmbandPlugin;
 
 MyoArmbandGui::MyoArmbandGui(QWidget *parent) :
     QWidget(parent),

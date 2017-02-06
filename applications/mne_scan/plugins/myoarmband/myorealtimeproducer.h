@@ -42,8 +42,8 @@
 // INCLUDES
 //=============================================================================================================
 
-#include "myo/myo.hpp"
-#include <generics/circularbuffer.h>
+#include <generics/circularmatrixbuffer.h>
+
 
 //*************************************************************************************************************
 //=============================================================================================================
@@ -53,6 +53,7 @@
 #include <QSharedPointer>
 #include <QtMath>
 #include <QThread>
+
 
 //*************************************************************************************************************
 //=============================================================================================================
@@ -66,20 +67,14 @@
 #include <string>
 #include <algorithm>
 
-//*************************************************************************************************************
-//=============================================================================================================
-// DEFINE NAMESPACE MyoArmbandPlugin
-//=============================================================================================================
-
-namespace MyoArmbandPlugin {
-
 
 //*************************************************************************************************************
 //=============================================================================================================
-// USED NAMESPACES
+// DEFINE NAMESPACE MYOARMBANDPLUGIN
 //=============================================================================================================
 
-using namespace IOBUFFER;
+namespace MYOARMBANDPLUGIN {
+
 
 //*************************************************************************************************************
 //=============================================================================================================
@@ -87,6 +82,8 @@ using namespace IOBUFFER;
 //=============================================================================================================
 
 class MyoArmband;
+class MyoArmbandDriver;
+
 
 //=============================================================================================================
 /**
@@ -95,33 +92,45 @@ class MyoArmband;
 * @brief The MyoRealTimeProducer class handles the comunication with the MyoArmband and is intended to
 * provide the data once a sample rate is given.
 */
-
-class MyoRealTimeProducer : public QThread, public myo::DeviceListener
+class MyoRealTimeProducer : public QThread
 {
 
 public:
     typedef QSharedPointer<MyoRealTimeProducer> SPtr;            /**< Shared pointer type for myorealtimeproducer. */
     typedef QSharedPointer<const MyoRealTimeProducer> ConstSPtr; /**< Const shared pointer type for myorealtimeproducer. */
-
-    //=========================================================================================================
     /**
     * Constructs a myorealtimeproducer object.
     *
     * @param [in] pointer to the corresponding MyoArmband class
     * @param [in] bufferRoll a pointer to the buffer to which this class should save the roll data
     */
-    MyoRealTimeProducer(MyoArmband* myo, dBuffer::SPtr& bufferRoll);
+    MyoRealTimeProducer(MyoArmband* pMyoPlugin, QSharedPointer<IOBUFFER::RawMatrixBuffer> pMatBuff);
 
     /**
     * Destructor.
     */
     ~MyoRealTimeProducer();
 
+    //=============================================================================================================
+    // QThread inhereted
+    //=============================================================================================================
     /**
     * Stops MyoRealTimeProducer by stopping the producer's thread.
     */
     void stop();
+
+    /**
+    * Starts the Myo Armband Producer, by starting the thread and initialising wich data are we going to lift up
+    * from the Myo Armband Driver class.
+    * @param [in]
+    */
+    virtual void start();
+
+
 protected:
+    //=============================================================================================================
+    // QThread inhereted
+    //=============================================================================================================
     /**
     * The starting point for the thread. After calling start(), the newly created thread calls this function.
     * Returning from this method will end the execution of the thread.
@@ -130,9 +139,12 @@ protected:
     virtual void run();
 
 private:
-    MyoArmband*             m_pMyoArmband;      /**< Holds a pointer to corresponding MyoArmband class.*/
-    dBuffer::SPtr           m_pdBuffer_Roll;    /**< Holds a pointer to the buffer where the Roll data should be written to.*/
-    bool                    m_bIsRunning;       /**< Holds whether MyoRealTimeProducer is running.*/
+    MyoArmband*                                 m_pMyoArmband;      /**< Holds a pointer to corresponding MyoArmband plugin class.*/
+    QSharedPointer<MyoArmbandDriver>            m_pMyoArmbandDriver;     /**< Pointer to the MYO data producer*/
+
+    QSharedPointer<IOBUFFER::RawMatrixBuffer>   m_pMatBuffer;       /**< Holds a pointer to the buffer where the Roll data should be written to.*/
+
+    bool                                        m_bIsRunning;       /**< Holds whether MyoRealTimeProducer is running.*/
 };
 
 
@@ -141,114 +153,7 @@ private:
 // INLINE DEFINITIONS
 //=============================================================================================================
 
-//*************************************************************************************************************
-//=============================================================================================================
-// Device listener class - Check connection of myo armband
-//=============================================================================================================
-//class DataCollector : public myo::DeviceListener {
-//public:
-//    DataCollector()
-//    : onArm(false), isUnlocked(false), roll_w(0), pitch_w(0), yaw_w(0), currentPose()
-//    {
-//    }
-
-//    // onUnpair() is called whenever the Myo is disconnected from Myo Connect by the user.
-//    void onUnpair(myo::Myo* myo, uint64_t timestamp)
-//    {
-//        // We've lost a Myo.
-//        // Let's clean up some leftover state.
-//        roll_w = 0;
-//        pitch_w = 0;
-//        yaw_w = 0;
-//        onArm = false;
-//        isUnlocked = false;
-//    }
-
-//    // onOrientationData() is called whenever the Myo device provides its current orientation, which is represented
-//    // as a unit quaternion.
-//    void onOrientationData(myo::Myo* myo, uint64_t timestamp, const myo::Quaternion<float>& quat)
-//    {
-//        using std::atan2;
-//        using std::asin;
-//        using std::sqrt;
-//        using std::max;
-//        using std::min;
-
-//        // Calculate Euler angles (roll, pitch, and yaw) from the unit quaternion.
-//        float roll = atan2(2.0f * (quat.w() * quat.x() + quat.y() * quat.z()),
-//                           1.0f - 2.0f * (quat.x() * quat.x() + quat.y() * quat.y()));
-//        float pitch = asin(max(-1.0f, min(1.0f, 2.0f * (quat.w() * quat.y() - quat.z() * quat.x()))));
-//        float yaw = atan2(2.0f * (quat.w() * quat.z() + quat.x() * quat.y()),
-//                        1.0f - 2.0f * (quat.y() * quat.y() + quat.z() * quat.z()));
-
-//        // Convert the floating point angles in radians to a scale from 0 to 18.
-//        roll_w = static_cast<int>((roll + (float)M_PI)/(M_PI * 2.0f) * 18);
-//        pitch_w = static_cast<int>((pitch + (float)M_PI/2.0f)/M_PI * 18);
-//        yaw_w = static_cast<int>((yaw + (float)M_PI)/(M_PI * 2.0f) * 18);
-//    }
-
-//    // onPose() is called whenever the Myo detects that the person wearing it has changed their pose, for example,
-//    // making a fist, or not making a fist anymore.
-//    void onPose(myo::Myo* myo, uint64_t timestamp, myo::Pose pose)
-//    {
-//        currentPose = pose;
-
-//        if (pose != myo::Pose::unknown && pose != myo::Pose::rest) {
-//            // Tell the Myo to stay unlocked until told otherwise. We do that here so you can hold the poses without the
-//            // Myo becoming locked.
-//            myo->unlock(myo::Myo::unlockHold);
-
-//            // Notify the Myo that the pose has resulted in an action, in this case changing
-//            // the text on the screen. The Myo will vibrate.
-//            myo->notifyUserAction();
-//        } else {
-//            // Tell the Myo to stay unlocked only for a short period. This allows the Myo to stay unlocked while poses
-//            // are being performed, but lock after inactivity.
-//            myo->unlock(myo::Myo::unlockTimed);
-//        }
-//    }
-
-//    // onArmSync() is called whenever Myo has recognized a Sync Gesture after someone has put it on their
-//    // arm. This lets Myo know which arm it's on and which way it's facing.
-//    void onArmSync(myo::Myo* myo, uint64_t timestamp, myo::Arm arm, myo::XDirection xDirection, float rotation,
-//                   myo::WarmupState warmupState)
-//    {
-//        onArm = true;
-//        whichArm = arm;
-//    }
-
-//    // onArmUnsync() is called whenever Myo has detected that it was moved from a stable position on a person's arm after
-//    // it recognized the arm. Typically this happens when someone takes Myo off of their arm, but it can also happen
-//    // when Myo is moved around on the arm.
-//    void onArmUnsync(myo::Myo* myo, uint64_t timestamp)
-//    {
-//        onArm = false;
-//    }
-
-//    // onUnlock() is called whenever Myo has become unlocked, and will start delivering pose events.
-//    void onUnlock(myo::Myo* myo, uint64_t timestamp)
-//    {
-//        isUnlocked = true;
-//    }
-
-//    // onLock() is called whenever Myo has become locked. No pose events will be sent until the Myo is unlocked again.
-//    void onLock(myo::Myo* myo, uint64_t timestamp)
-//    {
-//        isUnlocked = false;
-//    }
-
-//    // These values are set by onArmSync() and onArmUnsync() above.
-//    bool onArm;
-//    myo::Arm whichArm;
-
-//    // This is set by onUnlocked() and onLocked() above.
-//    bool isUnlocked;
-
-//    // These values are set by onOrientationData() and onPose() above.
-//    int roll_w, pitch_w, yaw_w;
-//    myo::Pose currentPose;
-//};
-
 } // namespace NAMESPACE
 
 #endif // NAMESPACE_MYOREALTIMEPRODUCER_H
+

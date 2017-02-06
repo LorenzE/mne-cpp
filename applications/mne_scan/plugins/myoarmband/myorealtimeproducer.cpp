@@ -39,8 +39,9 @@
 // INCLUDES
 //=============================================================================================================
 
+#include "myoarmbanddriver.h"
 #include "myorealtimeproducer.h"
-
+#include "myoarmband.h"
 
 //*************************************************************************************************************
 //=============================================================================================================
@@ -58,13 +59,8 @@
 // USED NAMESPACES
 //=============================================================================================================
 
-using namespace MyoArmbandPlugin;
-
-
-//*************************************************************************************************************
-//=============================================================================================================
-// DEFINE GLOBAL METHODS
-//=============================================================================================================
+using namespace MYOARMBANDPLUGIN;
+using namespace IOBUFFER;
 
 
 //*************************************************************************************************************
@@ -72,17 +68,38 @@ using namespace MyoArmbandPlugin;
 // DEFINE MEMBER METHODS
 //=============================================================================================================
 
-MyoRealTimeProducer::MyoRealTimeProducer(MyoArmband* myo, dBuffer::SPtr& bufferRoll)
-:m_pMyoArmband(myo)
-,m_pdBuffer_Roll(bufferRoll)
-,m_bIsRunning(true)
+MyoRealTimeProducer::MyoRealTimeProducer(MyoArmband* pMyoPlugin, QSharedPointer<RawMatrixBuffer> pMatBuff)
+: m_pMyoArmband(pMyoPlugin)
+, m_pMyoArmbandDriver(new MyoArmbandDriver (this))
+, m_pMatBuffer(pMatBuff)
+, m_bIsRunning(false)
 {
 }
+
+
+//*************************************************************************************************************
 
 MyoRealTimeProducer::~MyoRealTimeProducer()
 {
 
 }
+
+
+//*************************************************************************************************************
+
+void MyoRealTimeProducer::start()
+{
+    if(m_pMyoArmbandDriver->initDevice())
+    {
+        m_bIsRunning = true;
+        QThread::start();
+    }
+    else
+        m_bIsRunning=false;
+}
+
+
+//*************************************************************************************************************
 
 void MyoRealTimeProducer::stop()
 {
@@ -91,9 +108,30 @@ void MyoRealTimeProducer::stop()
 }
 
 
-MyoRealTimeProducer::run()
-{
+//*************************************************************************************************************
 
+void MyoRealTimeProducer::run()
+{
+    unsigned int uiSamplePeriod = (unsigned int) (1000000.0/(m_pMyoArmband->m_fSamplingRate));
+//    int uiCounter_Roll = 0;
+    m_bIsRunning = true;
+//    double value_Roll;
+
+    MatrixXf mat(1,10);
+
+    while(m_bIsRunning)
+    {
+
+        m_pMyoArmbandDriver->updateDevice(1000/20);
+//        usleep(uiSamplePeriod);
+
+        //Get data from myo armband drive
+//        double dValueRoll = -180.0 + (rand() % (int)(180.0 + 180.0 + 1));
+//        mat.setConstant(dValueRoll);
+
+        m_pMyoArmbandDriver->getSampleMatrixValue(mat);
+        m_pMatBuffer->push(&mat);
+    }
 }
 
 //*************************************************************************************************************

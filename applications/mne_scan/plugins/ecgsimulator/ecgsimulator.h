@@ -141,7 +141,6 @@ public:
     */
     void initChannels();
 
-
     virtual bool start();
     virtual bool stop();
 

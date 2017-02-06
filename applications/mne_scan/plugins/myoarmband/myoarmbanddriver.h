@@ -42,6 +42,9 @@
 // INCLUDES
 //=============================================================================================================
 
+#include "myo/myo.hpp"
+#include <generics/circularmatrixbuffer.h>
+
 
 //*************************************************************************************************************
 //=============================================================================================================
@@ -49,12 +52,21 @@
 //=============================================================================================================
 
 #include <QSharedPointer>
+#include <QtMath>
+#include <QVector>
 
 
 //*************************************************************************************************************
 //=============================================================================================================
-// Eigen INCLUDES
+// GENERIC INCLUDES
 //=============================================================================================================
+
+#include <cmath>
+#include <iostream>
+#include <iomanip>
+#include <stdexcept>
+#include <string>
+#include <algorithm>
 
 
 //*************************************************************************************************************
@@ -65,27 +77,84 @@
 
 //*************************************************************************************************************
 //=============================================================================================================
-// DEFINE NAMESPACE MYOARMBANDDRIVER
+// DEFINE NAMESPACE MYOARMBANDPLUGIN
 //=============================================================================================================
 
-namespace MYOARMBANDDRIVER {
+namespace MYOARMBANDPLUGIN {
+
+//*************************************************************************************************************
+//=============================================================================================================
+//  DATA COLLECTOR CLASS
+//=============================================================================================================
+
+class DataCollector : public myo::DeviceListener {
+public:
+    /**
+    *   Constructor device listener. Recieves the events from Myo devices.
+    */
+    DataCollector();
+
+    // onUnpair() is called whenever the Myo is disconnected from Myo Connect by the user.
+    void onUnpair(myo::Myo* myo, uint64_t timestamp);
+
+    // onOrientationData() is called whenever the Myo device provides its current orientation, which is represented
+    // as a unit quaternion.
+    void onOrientationData(myo::Myo* myo, uint64_t timestamp, const myo::Quaternion<float>& quat);
+
+    // onPose() is called whenever the Myo detects that the person wearing it has changed their pose, for example,
+    // making a fist, or not making a fist anymore.
+    void onPose(myo::Myo* myo, uint64_t timestamp, myo::Pose pose);
+
+    // onArmSync() is called whenever Myo has recognized a Sync Gesture after someone has put it on their
+    // arm. This lets Myo know which arm it's on and which way it's facing.
+    void onArmSync(myo::Myo* myo, uint64_t timestamp, myo::Arm arm, myo::XDirection xDirection, float rotation, myo::WarmupState warmupState);
+
+    // onArmUnsync() is called whenever Myo has detected that it was moved from a stable position on a person's arm after
+    // it recognized the arm. Typically this happens when someone takes Myo off of their arm, but it can also happen
+    // when Myo is moved around on the arm.
+    void onArmUnsync(myo::Myo* myo, uint64_t timestamp);
+
+    // onUnlock() is called whenever Myo has become unlocked, and will start delivering pose events.
+    void onUnlock(myo::Myo* myo, uint64_t timestamp);
+
+    // onLock() is called whenever Myo has become locked. No pose events will be sent until the Myo is unlocked again.
+    void onLock(myo::Myo* myo, uint64_t timestamp);
+
+    float DataCollector::getRoll();
+private:
+
+    // These values are set by onArmSync() and onArmUnsync() above.
+    bool onArm;
+    myo::Arm whichArm;
+
+    // This is set by onUnlocked() and onLocked() above.
+    bool isUnlocked;
+
+    // These values are set by onOrientationData() and onPose() above.
+    float roll_w, pitch_w, yaw_w;
+    myo::Pose currentPose;
+
+};
 
 
 //*************************************************************************************************************
 //=============================================================================================================
-// MYOARMBANDDRIVER FORWARD DECLARATIONS
+// FORWARD DECLARATIONS
 //=============================================================================================================
 
+class MyoRealTimeProducer;
 
 //=============================================================================================================
 /**
-* Description of what this class is intended to do (in detail).
+* Myo Armband Driver
 *
-* @brief Brief description of this class.
+* @brief The MyoArmbandDriver class provides the real time data adquisition of the Thalmic Labs Myo
+* Armband device
 */
 
 class MyoArmbandDriver
 {
+friend class DataCollector;
 
 public:
     typedef QSharedPointer<MyoArmbandDriver> SPtr;            /**< Shared pointer type for MyoArmbandDriver. */
@@ -95,22 +164,62 @@ public:
     /**
     * Constructs a MyoArmbandDriver object.
     */
-    MyoArmbandDriver();
+    MyoArmbandDriver(MyoRealTimeProducer* pMyoProducer);
+
+    //=========================================================================================================
+    /**
+    * Destroys MyoArmbandDriver object.
+    */
+    ~MyoArmbandDriver();
+
+    //=========================================================================================================
+    /**
+    * Get sample from the device in form of a mtrix.
+    * @param [in] MatrixXf the block sample values in form of a matrix.
+    * @param [out] bool returns true if sample was successfully written to the input variable, false otherwise.
+    */
+    bool getSampleMatrixValue(IOBUFFER::MatrixXf& sampleMatrix);
+
+    //=========================================================================================================
+    /**
+     * @brief initDevice
+     * Initializes the device.
+     * @return true if the device was succesfully initializated, false if not.
+     */
+    bool initDevice();
+
+    //=========================================================================================================
+    /**
+     * @brief updateDevice
+     * @param eventLoopDuration is the duration the event loop waits to catch the different events.
+     * @return void
+     */
+    void updateDevice(unsigned int eventLoopDuration);
+
+    //=========================================================================================================
+    /**
+    * Uninitialise device.
+    * @param [out] bool returns true if device was successfully uninitialised, false otherwise.
+    */
+    bool uninitDevice();
 
 protected:
 
 private:
+    myo::Hub hub;
+    DataCollector collector;
 
+    MyoRealTimeProducer*    m_pMyoRealTimeProducer;    /**< A pointer to the corresponding MyoRealTimeProducer */
+    bool                    m_bInitDeviceSuccess;
+    uint                    m_uiNumberOfChannels;
+    uint                    m_uiSamplingFrequency;
+    uint                    m_uiSamplesPerBlock;            /**< The samples per block defined by the user via the GUI.*/
 
 };
 
-
-//*************************************************************************************************************
-//=============================================================================================================
-// INLINE DEFINITIONS
-//=============================================================================================================
 
 
 } // namespace MYOARMBANDDRIVER
 
 #endif // MYOARMBANDDRIVER_MYOARMBANDDRIVER_H
+
