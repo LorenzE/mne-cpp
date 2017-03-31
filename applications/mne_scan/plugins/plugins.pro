@@ -9,7 +9,7 @@
 #
 # @section  LICENSE
 #
-# Copyright (C) 2013, Christoph Dinh, Limin Sun and Matti Hamalainen. All rights reserved.
+# Copyright (C) 2013, Christoph Dinh, Limin Sun, Martin Luessi and Matti Hamalainen. All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without modification, are permitted provided that
 # the following conditions are met:
@@ -62,7 +62,6 @@ contains(MNECPP_CONFIG, BuildBasicMNESCANVersion) {
     #Algorithms
     SUBDIRS += \
         dummytoolbox \
-        epidetect \
         mne \
         rapmusictoolbox \
         averaging \
@@ -74,7 +73,6 @@ contains(MNECPP_CONFIG, BuildBasicMNESCANVersion) {
         noisereduction \
         ssvepbci \
         neuronalconnectivity \
-        reference
 
     win32 { #Only compile the TMSI plugin if a windows system is used - TMSi driver is not available for linux yet
         contains(QMAKE_HOST.arch, x86_64) { #Compiling MNE Scan FOR a 64bit system
@@ -104,3 +102,5 @@ contains(MNECPP_CONFIG, BuildBasicMNESCANVersion) {
     }
 }
 
+SUBDIRS += \
+    myoarmband

@@ -1,0 +1,12 @@
+#ifndef MYOARMBAND_GLOBAL_H
+#define MYOARMBAND_GLOBAL_H
+
+#include <QtCore/qglobal.h>
+
+#if defined(MYOARMBAND_LIBRARY)
+#  define MYOARMBANDSHARED_EXPORT Q_DECL_EXPORT
+#else
+#  define MYOARMBANDSHARED_EXPORT Q_DECL_IMPORT
+#endif
+
+#endif // MYOARMBAND_GLOBAL_H

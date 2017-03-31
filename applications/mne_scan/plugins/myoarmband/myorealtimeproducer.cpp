@@ -1,14 +1,14 @@
 //=============================================================================================================
 /**
-* @file     ecgproducer.cpp
-* @author   Christoph Dinh <chdinh@nmr.mgh.harvard.edu>;
+* @file     myorealtimeproducer.cpp
+* @author   Jeremias Baez Carballo <jere.baez91@gmail.com>;
 *           Matti Hamalainen <msh@nmr.mgh.harvard.edu>
 * @version  1.0
-* @date     February, 2013
+* @date     Month, Year
 *
 * @section  LICENSE
 *
-* Copyright (C) 2013, Christoph Dinh and Matti Hamalainen. All rights reserved.
+* Copyright (C) Year, Jeremias Baez Carballo and Matti Hamalainen. All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without modification, are permitted provided that
 * the following conditions are met:
@@ -29,27 +29,38 @@
 * POSSIBILITY OF SUCH DAMAGE.
 *
 *
-* @brief    Contains the implementation of the ECGProducer class.
+* @brief    myorealtimeproducer class definition.
 *
 */
+
 
 //*************************************************************************************************************
 //=============================================================================================================
 // INCLUDES
 //=============================================================================================================
 
-#include "ecgproducer.h"
-#include "ecgsimulator.h"
+#include "myoarmbanddriver.h"
+#include "myorealtimeproducer.h"
+#include "myoarmband.h"
 
-#include <QDebug>
+//*************************************************************************************************************
+//=============================================================================================================
+// INCLUDES
+//=============================================================================================================
 
+
+//*************************************************************************************************************
+//=============================================================================================================
+// QT INCLUDES
+//=============================================================================================================
 
 //*************************************************************************************************************
 //=============================================================================================================
 // USED NAMESPACES
 //=============================================================================================================
 
-using namespace ECGSimulatorPlugin;
+using namespace MYOARMBANDPLUGIN;
+using namespace IOBUFFER;
 
 
 //*************************************************************************************************************
@@ -57,12 +68,18 @@ using namespace ECGSimulatorPlugin;
 // DEFINE MEMBER METHODS
 //=============================================================================================================
 
-ECGProducer::ECGProducer(ECGSimulator* simulator, dBuffer::SPtr& buffer_I, dBuffer::SPtr& buffer_II, dBuffer::SPtr& buffer_III)
-: m_pECGSimulator(simulator)
-, m_pdBuffer_I(buffer_I)
-, m_pdBuffer_II(buffer_II)
-, m_pdBuffer_III(buffer_III)
-, m_bIsRunning(true)
+MyoRealTimeProducer::MyoRealTimeProducer(MyoArmband* pMyoPlugin, QSharedPointer<RawMatrixBuffer> pMatBuff)
+: m_pMyoArmband(pMyoPlugin)
+, m_pMyoArmbandDriver(new MyoArmbandDriver (this))
+, m_pMatBuffer(pMatBuff)
+, m_bIsRunning(false)
+{
+}
+
+
+//*************************************************************************************************************
+
+MyoRealTimeProducer::~MyoRealTimeProducer()
 {
 
 }
@@ -70,15 +87,21 @@ ECGProducer::ECGProducer(ECGSimulator* simulator, dBuffer::SPtr& buffer_I, dBuff
 
 //*************************************************************************************************************
 
-ECGProducer::~ECGProducer()
+void MyoRealTimeProducer::start()
 {
-
+    if(m_pMyoArmbandDriver->initDevice())
+    {
+        m_bIsRunning = true;
+        QThread::start();
+    }
+    else
+        m_bIsRunning=false;
 }
 
 
 //*************************************************************************************************************
 
-void ECGProducer::stop()
+void MyoRealTimeProducer::stop()
 {
     m_bIsRunning = false;
     QThread::wait();
@@ -87,79 +110,28 @@ void ECGProducer::stop()
 
 //*************************************************************************************************************
 
-void ECGProducer::run()
+void MyoRealTimeProducer::run()
 {
-    unsigned int uiSamplePeriod = (unsigned int) (1000000.0/(m_pECGSimulator->m_fSamplingRate));
-    int uiCounter_I = 0;
-    int uiCounter_II = 0;
-    int uiCounter_III = 0;
+    unsigned int uiSamplePeriod = (unsigned int) (1000000.0/(m_pMyoArmband->m_fSamplingRate));
+//    int uiCounter_Roll = 0;
     m_bIsRunning = true;
+//    double value_Roll;
 
-    double value_I;
-    double value_II;
-    double value_III;
+    MatrixXf mat(1,10);
 
     while(m_bIsRunning)
     {
-        usleep(uiSamplePeriod);
 
-        //ECG I
-        if(m_pECGSimulator->m_pECGChannel_ECG_I->isEnabled())
-        {
-            if(uiCounter_I >= (m_pECGSimulator->m_pECGChannel_ECG_I->getSamples().size()-1))
-                uiCounter_I = 0;
+        m_pMyoArmbandDriver->updateDevice(1000/20);
+//        usleep(uiSamplePeriod);
 
-            value_I = 0;
+        //Get data from myo armband drive
+//        double dValueRoll = -180.0 + (rand() % (int)(180.0 + 180.0 + 1));
+//        mat.setConstant(dValueRoll);
 
-            for(unsigned char i = 0; i < m_pECGSimulator->m_iDownsamplingFactor; ++i)
-            {
-                value_I = value_I + m_pECGSimulator->m_pECGChannel_ECG_I->getSamples()[uiCounter_I];
-            }
-
-            value_I = value_I / m_pECGSimulator->m_iDownsamplingFactor;
-            m_pdBuffer_I->push(value_I);
-
-            uiCounter_I = uiCounter_I + m_pECGSimulator->m_iDownsamplingFactor;
-
-        }
-        //ECG II
-        if(m_pECGSimulator->m_pECGChannel_ECG_II->isEnabled())
-        {
-            if(uiCounter_II >= (m_pECGSimulator->m_pECGChannel_ECG_II->getSamples().size()-1))
-                uiCounter_II = 0;
-
-            value_II = 0;
-
-            for(unsigned char i = 0; i < m_pECGSimulator->m_iDownsamplingFactor; ++i)
-            {
-                value_II = value_II + m_pECGSimulator->m_pECGChannel_ECG_II->getSamples()[uiCounter_II];
-            }
-
-            value_II = value_II / m_pECGSimulator->m_iDownsamplingFactor;
-            m_pdBuffer_II->push(value_II);
-
-            uiCounter_II = uiCounter_II + m_pECGSimulator->m_iDownsamplingFactor;
-        }
-
-        //ECG III
-        if(m_pECGSimulator->m_pECGChannel_ECG_III->isEnabled())
-        {
-            if(uiCounter_III >= (m_pECGSimulator->m_pECGChannel_ECG_III->getSamples().size()-1))
-                uiCounter_III = 0;
-
-            value_III = 0;
-
-            for(unsigned char i = 0; i < m_pECGSimulator->m_iDownsamplingFactor; ++i)
-            {
-
-                value_III = value_III + m_pECGSimulator->m_pECGChannel_ECG_III->getSamples()[uiCounter_III];
-            }
-
-            value_III = value_III / m_pECGSimulator->m_iDownsamplingFactor;
-            m_pdBuffer_III->push(value_III);
-
-            uiCounter_III = uiCounter_III + m_pECGSimulator->m_iDownsamplingFactor;
-        }
-
+        m_pMyoArmbandDriver->getSampleMatrixValue(mat);
+        m_pMatBuffer->push(&mat);
     }
 }
+
+//*************************************************************************************************************

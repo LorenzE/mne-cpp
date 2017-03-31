@@ -1,10 +1,9 @@
 //=============================================================================================================
 /**
-* @file     ecgsimulator.h
-* @author   Christoph Dinh <chdinh@nmr.mgh.harvard.edu>;
-*           Matti Hamalainen <msh@nmr.mgh.harvard.edu>
+* @file     myoarmband.h
+* @author   Jeremias Báez Carballo <jere.baez91@gmail.com>;
 * @version  1.0
-* @date     February, 2013
+* @date     November, 2016
 *
 * @section  LICENSE
 *
@@ -29,54 +28,43 @@
 * POSSIBILITY OF SUCH DAMAGE.
 *
 *
-* @brief    Contains the declaration of the ECGSimulator class.
+* @brief    Contains the declaration of the MyoArmband class.
 *
 */
 
-#ifndef ECGSIMULATOR_H
-#define ECGSIMULATOR_H
-
+#ifndef MYOARMBAND_H
+#define MYOARMBAND_H
 
 //*************************************************************************************************************
 //=============================================================================================================
 // INCLUDES
 //=============================================================================================================
 
-#include "ecgsimulator_global.h"
-
-#include "ecgsimchannel.h"
+#include "myoarmband_global.h"
+#include "FormFiles/myoarmbandgui.h"
+#include "myo/myo.hpp"
 
 #include <scShared/Interfaces/ISensor.h>
-#include <generics/circularbuffer.h>
-#include <scMeas/newrealtimesamplearray.h>
+#include <generics/circularmatrixbuffer.h>
 
 
 //*************************************************************************************************************
 //=============================================================================================================
-// QT STL INCLUDES
+// QT INCLUDES
 //=============================================================================================================
-
-#include <QtWidgets>
-#include <QVector>
 
 
 //*************************************************************************************************************
 //=============================================================================================================
-// DEFINE NAMESPACE ECGSimulatorPlugin
+// GENERIC INCLUDES
 //=============================================================================================================
 
-namespace ECGSimulatorPlugin
-{
-
-
-//*************************************************************************************************************
-//=============================================================================================================
-// USED NAMESPACES
-//=============================================================================================================
-
-using namespace SCSHAREDLIB;
-using namespace SCMEASLIB;
-using namespace IOBUFFER;
+#include <cmath>
+#include <iostream>
+#include <iomanip>
+#include <stdexcept>
+#include <string>
+#include <algorithm>
 
 
 //*************************************************************************************************************
@@ -84,104 +72,114 @@ using namespace IOBUFFER;
 // FORWARD DECLARATIONS
 //=============================================================================================================
 
-class ECGProducer;
-//class ECGChannel;
+namespace FIFFLIB {
+    class FiffInfo;
+}
+
+namespace SCMEASLIB {
+    class NewRealTimeMultiSampleArray;
+}
+
+
+//*************************************************************************************************************
+//=============================================================================================================
+// DEFINE NAMESPACE MYOARMBANDPLUGIN
+//=============================================================================================================
+
+namespace MYOARMBANDPLUGIN
+{
+
+
+//*************************************************************************************************************
+//=============================================================================================================
+// FORWARD DECLARATIONS
+//=============================================================================================================
 
 
 //=============================================================================================================
 /**
-* DECLARE CLASS ECGSimulator
+* DECLARE CLASS MyoRealTimeProducer
 *
-* @brief The ECGSimulator class provides a ECG simulator.
+* @brief The MyoRealTimeProducer class handles the comunication with the MyoArmband and is intended to
+* provide the data once a sample rate is given.
 */
-class ECGSIMULATORSHARED_EXPORT ECGSimulator : public ISensor
+class MYOARMBANDSHARED_EXPORT MyoArmband : public SCSHAREDLIB::ISensor
 {
     Q_OBJECT
-    Q_PLUGIN_METADATA(IID "scsharedlib/1.0" FILE "ecgsimulator.json") //New Qt5 Plugin system replaces Q_EXPORT_PLUGIN2 macro
+    Q_PLUGIN_METADATA(IID "scsharedlib/1.0" FILE "myoarmband.json") //New Qt5 Plugin system replaces Q_EXPORT_PLUGIN2 macro
     // Use the Q_INTERFACES() macro to tell Qt's meta-object system about the interfaces
     Q_INTERFACES(SCSHAREDLIB::ISensor)
 
-    friend class ECGProducer;
-    friend class ECGSetupWidget;
+    friend class MyoRealTimeProducer;
+    friend class MyoArmbandGui;
 
 public:
     //=========================================================================================================
     /**
-    * Constructs a ECGSimulator.
+    * Constructs MyoArmband.
     */
-    ECGSimulator();
+    MyoArmband();
 
     //=========================================================================================================
     /**
-    * Destroys the ECGSimulator.
+    * Destroy MyoArmband.
     */
-    virtual ~ECGSimulator();
+    virtual ~MyoArmband();
 
     //=========================================================================================================
     /**
-    * Clone the plugin
+    * ISensorfunctions
+    * clone - Clone the plugin
+    * init - Initialize input and output connectors.
+    * unload - Called when plugind is detached. Can be used to save settings.
+    * start -
+    * stop -
+    * getType - Returns type of the class
+    * getName - Returns name of eht class
+    * setupWidget -
     */
-    virtual QSharedPointer<IPlugin> clone() const;
-
-    //=========================================================================================================
-    /**
-    * Initialise input and output connectors.
-    */
+    virtual QSharedPointer<SCSHAREDLIB::IPlugin> clone() const;
     virtual void init();
-
-    //=========================================================================================================
-    /**
-    * Is called when plugin is detached of the stage. Can be used to safe settings.
-    */
     virtual void unload();
-
-    //=========================================================================================================
-    /**
-    * Initialise the ECGSimulator.
-    */
-    void initChannels();
-
     virtual bool start();
     virtual bool stop();
-
-    virtual IPlugin::PluginType getType() const;
+    virtual SCSHAREDLIB::IPlugin::PluginType getType() const;
     virtual QString getName() const;
-
+//    virtual inline bool multiInstanceAllowed() const;
     virtual QWidget* setupWidget();
-
-    //=========================================================================================================
-    /**
-    * Returns the ECGSimulator resource path.
-    *
-    * @return the ECGSimulator resource path.
-    */
-    QString getResourcePath() const {return m_qStringResourcePath;}
 
 protected:
     virtual void run();
 
-private:
-    PluginOutputData<NewRealTimeSampleArray>::SPtr m_pRTSA_ECG_I_new;   /**< The RealTimeSampleArray to provide the channel ECG I.*/
-    PluginOutputData<NewRealTimeSampleArray>::SPtr m_pRTSA_ECG_II_new;  /**< The RealTimeSampleArray to provide the channel ECG II.*/
-    PluginOutputData<NewRealTimeSampleArray>::SPtr m_pRTSA_ECG_III_new; /**< The RealTimeSampleArray to provide the channel ECG III.*/
+    //=========================================================================================================
+    /**
+    * Initialise the MyoArmband RTMSA.
+    */
+    void initRTMSA();
 
-    float           m_fSamplingRate;        /**< the sampling rate.*/
-    int             m_iDownsamplingFactor;  /**< the down sampling factor.*/
-    dBuffer::SPtr   m_pInBuffer_I;          /**< ECG I data which arrive from ECG producer.*/
-    dBuffer::SPtr   m_pInBuffer_II;         /**< ECG II data which arrive from ECG producer.*/
-    dBuffer::SPtr   m_pInBuffer_III;        /**< ECG III data which arrive from ECG producer.*/
-    QSharedPointer<ECGProducer>     m_pECGProducer; /**< the ECGProducer.*/
+    //=========================================================================================================
+    /**
+    * Sets up the fiff info with the current data chosen by the user. Note: Only works for ANT Neuro Waveguard Duke caps.
+    */
+    void setUpFiffInfo();
 
-    QString m_qStringResourcePath;          /**< the path to the ECG resource directory.*/
+private:    
+    bool            m_bIsRunning;                       /**< Whether main thread is running */
 
-    ECGSimChannel::SPtr m_pECGChannel_ECG_I;    /**< the simulation channel for ECG I.*/
-    ECGSimChannel::SPtr m_pECGChannel_ECG_II;   /**< the simulation channel for ECG II.*/
-    ECGSimChannel::SPtr m_pECGChannel_ECG_III;  /**< the simulation channel for ECG III.*/
+    float           m_fSamplingRate;                    /**< the sampling rate.*/
+    int             m_iDownsamplingFactor;              /**< the down sampling factor.*/
+    int             m_iNumberOfChannels;                /**< The number of channels defined by the user via the GUI.*/
+    int             m_iSamplesPerBlock;                 /**< The samples per block defined by the user via the GUI.*/
 
-    bool m_bIsRunning;  /**< Whether main thread is running */
+    QSharedPointer<IOBUFFER::RawMatrixBuffer>       m_pRawMatrixBuffer;         /**< Holds incoming raw data. */
+    QSharedPointer<MyoRealTimeProducer>             m_pMyoRealTimeProducer;     /**< Pointer to the MYO data producer*/
+
+    QSharedPointer<FIFFLIB::FiffInfo>               m_pFiffInfo;                /**< Fiff measurement info.*/
+
+    QSharedPointer<SCSHAREDLIB::PluginOutputData<SCMEASLIB::NewRealTimeMultiSampleArray> >  m_pRTMSA_MYO_ROLL_new;       /**< The RealTimeSampleArray to provide the channel MYO Roll.*/
 
 };
 
-} // NAMESPACE
+#endif // MYOARMBAND_H
 
-#endif // ECGSIMULATOR_H
+}//NAMESPACE
