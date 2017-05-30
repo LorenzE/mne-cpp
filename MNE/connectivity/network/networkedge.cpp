@@ -41,11 +41,7 @@
 
 #include "networkedge.h"
 
-
-//*************************************************************************************************************
-//=============================================================================================================
-// INCLUDES
-//=============================================================================================================
+#include "networknode.h"
 
 
 //*************************************************************************************************************
@@ -79,9 +75,8 @@ using namespace CONNECTIVITYLIB;
 // DEFINE MEMBER METHODS
 //=============================================================================================================
 
-NetworkEdge::NetworkEdge(QSharedPointer<NetworkNode> pStartNode, QSharedPointer<NetworkNode> pEndNode, double dWeight, QObject *parent)
-: QObject(parent)
-, m_pStartNode(pStartNode)
+NetworkEdge::NetworkEdge(QSharedPointer<NetworkNode> pStartNode, QSharedPointer<NetworkNode> pEndNode, double dWeight)
+: m_pStartNode(pStartNode)
 , m_pEndNode(pEndNode)
 , m_dWeight(dWeight)
 {
@@ -89,7 +84,6 @@ NetworkEdge::NetworkEdge(QSharedPointer<NetworkNode> pStartNode, QSharedPointer<
 
 
 //*************************************************************************************************************
-
 
 QSharedPointer<NetworkNode> NetworkEdge::getStartNode()
 {
@@ -107,7 +101,7 @@ QSharedPointer<NetworkNode> NetworkEdge::getEndNode()
 
 //*************************************************************************************************************
 
-double NetworkEdge::getWeight()
+double NetworkEdge::getWeight() const
 {
     return m_dWeight;
 }

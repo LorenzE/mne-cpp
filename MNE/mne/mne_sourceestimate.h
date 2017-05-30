@@ -88,7 +88,7 @@ using namespace Eigen;
 
 //=============================================================================================================
 /**
-* Source estimation which holds results of MNE-CPP inverse routines
+* Source estimation which holds results of MNE-CPP inverse routines. (Replaces *mneStcData,mneStcDataRec struct of MNE-C mne_types.h).
 *
 * @brief Source estimation
 */
@@ -187,6 +187,14 @@ public:
     * @return the copied source estimate
     */
     MNESourceEstimate& operator= (const MNESourceEstimate &rhs);
+
+    //=========================================================================================================
+    /**
+    * Returns the number of samples.
+    *
+    * @return the number of samples
+    */
+    int samples() const;
 
 public:
     MatrixXd data;          /**< Matrix of shape [n_dipoles x n_times] which contains the data in source space. */

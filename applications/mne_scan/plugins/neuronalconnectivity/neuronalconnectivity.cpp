@@ -41,6 +41,7 @@
 #include "neuronalconnectivity.h"
 
 #include <connectivity/connectivitymeasures.h>
+#include <connectivity/network/network.h>
 
 #include <scMeas/realtimesourceestimate.h>
 #include <scMeas/realtimeconnectivityestimate.h>
@@ -271,8 +272,7 @@ void NeuronalConnectivity::run()
             QElapsedTimer time;
             time.start();
 
-            Network::SPtr pNetwork = ConnectivityMeasures::crossCorrelation(t_mat, m_matNodeVertComb);
-            Network finalNetowrk = *pNetwork.data();
+            Network tNetwork = ConnectivityMeasures::crossCorrelation(t_mat, m_matNodeVertComb);
             qDebug()<<"----------------------------------------";
             qDebug()<<"----------------------------------------";
             qDebug()<<"NeuronalConnectivity::run() - time.elapsed()" << time.elapsed();
@@ -281,7 +281,7 @@ void NeuronalConnectivity::run()
 
             //Send the data to the connected plugins and the online display
             //Unocmment this if you also uncommented the m_pRTCEOutput in the constructor above
-            m_pRTCEOutput->data()->setValue(finalNetowrk);
+            m_pRTCEOutput->data()->setValue(tNetwork);
         }
 
         ++skip_count;

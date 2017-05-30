@@ -83,7 +83,6 @@ else {
 
 SOURCES += fiff.cpp \
     fiff_tag.cpp \
-    fiff_dir_tree.cpp \
     fiff_coord_trans.cpp \
     fiff_ch_info.cpp \
     fiff_proj.cpp \
@@ -102,7 +101,12 @@ SOURCES += fiff.cpp \
     fiff_evoked.cpp \
     fiff_evoked_set.cpp \
     fiff_io.cpp \
-    fiff_dig_point_set.cpp
+    fiff_dig_point_set.cpp \
+    fiff_dir_node.cpp \
+    c/fiff_coord_trans_old.cpp \
+    c/fiff_sparse_matrix.cpp \
+    c/fiff_digitizer_data.cpp \
+    c/fiff_coord_trans_set.cpp \
 
 HEADERS += fiff.h \
     fiff_global.h \
@@ -112,7 +116,6 @@ HEADERS += fiff.h \
     fiff_id.h \
     fiff_constants.h \
     fiff_tag.h \
-    fiff_dir_tree.h \
     fiff_coord_trans.h \
     fiff_ch_info.h \
     fiff_proj.h \
@@ -130,7 +133,13 @@ HEADERS += fiff.h \
     fiff_evoked.h \
     fiff_evoked_set.h \
     fiff_io.h \
-    fiff_dig_point_set.h
+    fiff_dig_point_set.h \
+    fiff_dir_node.h \
+    c/fiff_coord_trans_old.h \
+    c/fiff_sparse_matrix.h \
+    c/fiff_types_mne-c.h \
+    c/fiff_digitizer_data.h \
+    c/fiff_coord_trans_set.h \
 
 INCLUDEPATH += $${EIGEN_INCLUDE_DIR}
 INCLUDEPATH += $${MNE_INCLUDE_DIR}

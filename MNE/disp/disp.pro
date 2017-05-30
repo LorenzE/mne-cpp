@@ -39,6 +39,10 @@ TEMPLATE = lib
 
 QT  += core widgets svg
 
+# Deep Model Viewer
+qtHaveModule(printsupport): QT += printsupport
+qtHaveModule(opengl): QT += opengl
+
 DEFINES += DISP_LIBRARY
 
 TARGET = Disp
@@ -54,6 +58,7 @@ CONFIG(debug, debug|release) {
             -lMNE$${MNE_LIB_VERSION}Fsd \
             -lMNE$${MNE_LIB_VERSION}Fiffd \
             -lMNE$${MNE_LIB_VERSION}Mned \
+            -lMNE$${MNE_LIB_VERSION}Fwdd \
             -lMNE$${MNE_LIB_VERSION}Inversed
 }
 else {
@@ -62,8 +67,24 @@ else {
             -lMNE$${MNE_LIB_VERSION}Fs \
             -lMNE$${MNE_LIB_VERSION}Fiff \
             -lMNE$${MNE_LIB_VERSION}Mne \
+            -lMNE$${MNE_LIB_VERSION}Fwd \
             -lMNE$${MNE_LIB_VERSION}Inverse
 }
+
+# CNTK related stuff
+!isEmpty( CNTK_INCLUDE_DIR ) {
+    LIBS += -L$${CNTK_LIBRARY_DIR}
+    CONFIG(debug, debug|release) {
+        LIBS += -lMNE$${MNE_LIB_VERSION}Deepd \
+                -lCntk.Core-2.0rc2d
+    }
+    else {
+        LIBS += -lMNE$${MNE_LIB_VERSION}Deep \
+                -lCntk.Core-2.0rc2
+    }
+}
+
+
 
 DESTDIR = $${MNE_LIBRARY_DIR}
 
@@ -130,8 +151,32 @@ HEADERS += \
     helpers/mneoperator.h \
     helpers/roundededgeswidget.h
 
+# CNTK related stuff
+!isEmpty( CNTK_INCLUDE_DIR ) {
+    SOURCES += \
+        deepmodelviewer/controls.cpp \
+        deepmodelviewer/edge.cpp \
+        deepmodelviewer/node.cpp \
+        deepmodelviewer/view.cpp \
+        deepmodelviewer/network.cpp \
+        deepmodelviewer/deepviewer.cpp
+
+    HEADERS += \
+        deepmodelviewer/controls.h \
+        deepmodelviewer/edge.h \
+        deepmodelviewer/node.h \
+        deepmodelviewer/view.h \
+        deepmodelviewer/network.h \
+        deepmodelviewer/deepviewer.h
+
+    RESOURCES += \
+        deepmodelviewer/images.qrc
+}
+
+
 INCLUDEPATH += $${EIGEN_INCLUDE_DIR}
 INCLUDEPATH += $${MNE_INCLUDE_DIR}
+INCLUDEPATH += $${CNTK_INCLUDE_DIR}
 
 # Install headers to include directory
 header_files.files = ./*.h

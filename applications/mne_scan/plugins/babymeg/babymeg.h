@@ -82,6 +82,10 @@ namespace SCMEASLIB {
     class NewRealTimeMultiSampleArray;
 }
 
+namespace SCDISPLIB {
+    class HPIWidget;
+}
+
 #define MAX_DATA_LEN    2000000000L
 #define MAX_POS         2000000000L
 
@@ -103,7 +107,6 @@ namespace BABYMEGPLUGIN
 class BabyMEGProjectDialog;
 class BabyMEGClient;
 class BabyMEGInfo;
-class BabyMEGHPIDgl;
 class BabyMEGSetupWidget;
 class BabyMEGProjectDialog;
 class BabyMEGSQUIDControlDgl;
@@ -125,7 +128,6 @@ class BABYMEGSHARED_EXPORT BabyMEG : public SCSHAREDLIB::ISensor
     friend class BabyMEGSetupWidget;
     friend class BabyMEGProjectDialog;
     friend class BabyMEGSQUIDControlDgl;
-    friend class BabyMEGHPIDgl;
 
 public:
     //=========================================================================================================
@@ -142,33 +144,11 @@ public:
 
     //=========================================================================================================
     /**
-    * Clears the rt server
-    */
-    void clear();
-
-    //=========================================================================================================
-    /**
     * Clone the plugin
+    *
+    * @return Returns the cloned widget.
     */
     virtual QSharedPointer<SCSHAREDLIB::IPlugin> clone() const;
-
-    //=========================================================================================================
-    /**
-    * Returns the babyMEG file path which is to be written to.
-    *
-    * @param[in] currentTime    insert current time stamp.
-    *
-    * @return the storage filepath
-    */
-    QString getFilePath(bool currentTime = false) const;
-
-    //=========================================================================================================
-    /**
-    * Returns the path where the subjects folders are stored.
-    *
-    * @return the data path
-    */
-    QString getDataPath() const;
 
     //=========================================================================================================
     /**
@@ -184,35 +164,9 @@ public:
 
     //=========================================================================================================
     /**
-    * Shows the project dialog/window.
+    * Clears the babymeg
     */
-    void showProjectDialog();
-
-    //=========================================================================================================
-    /**
-    * Shows the project squid control dialog.
-    */
-    void showSqdCtrlDialog();
-
-    //=========================================================================================================
-    /**
-    * Determines current file. And starts a new one.
-    */
-    void splitRecordingFile();
-
-    //=========================================================================================================
-    /**
-    * Perform a HPI fitting procedure.
-    *
-    * @param[in] vFreqs    the frequencies for each coil.
-    */
-    void performHPIFitting(const QVector<int>& vFreqs);
-
-    //=========================================================================================================
-    /**
-    * Starts or stops a file recording depending on the current recording state.
-    */
-    void toggleRecordingFile();
+    void clear();
 
     //=========================================================================================================
     /**
@@ -249,6 +203,33 @@ public:
     * @return a QWidget pointer to the set up QWidget
     */
     virtual QWidget* setupWidget();
+
+protected:
+    virtual void run();
+
+    //=========================================================================================================
+    /**
+    * Initialize the connector.
+    */
+    void initConnector();
+
+    //=========================================================================================================
+    /**
+    * Returns the babyMEG file path which is to be written to.
+    *
+    * @param[in] currentTime    insert current time stamp.
+    *
+    * @return the storage filepath
+    */
+    QString getFilePath(bool currentTime = false) const;
+
+    //=========================================================================================================
+    /**
+    * Returns the path where the subjects folders are stored.
+    *
+    * @return the data path
+    */
+    QString getDataPath() const;
 
     //=========================================================================================================
     /**
@@ -294,21 +275,37 @@ public:
     /**
     * Update fiff information.
     */
-    void UpdateFiffInfo();
+    void updateFiffInfo();
 
     //=========================================================================================================
     /**
     * Set HPI fiff information.
     */
-    void SetFiffInfoForHPI();
+    void showHPIDialog();
 
     //=========================================================================================================
     /**
-    * Receive HPI FiffInfo.
+    * Sends the current data block to the HPI dialog.
     *
-    * @param[in] info   the new fiff info.
+    * @param [in] matData   The new data block.
     */
-    void RecvHPIFiffInfo(const FIFFLIB::FiffInfo& info);
+    void updateHPI(const Eigen::MatrixXf &matData);
+
+    //=========================================================================================================
+    /**
+    * Sends the current data block to the HPI dialog and performs a fit.
+    *
+    * @param [in] matData   The data block to which the HPI information is to be written.
+    */
+    void doContinousHPI(Eigen::MatrixXf& matData);
+
+    //=========================================================================================================
+    /**
+    * Toggles teh continous HPI flag.
+    *
+    * @param [in] bDoContinousHPI   Whether to do continous HPI.
+    */
+    void onContinousHPIToggled(bool bDoContinousHPI);
 
     //=========================================================================================================
     /**
@@ -326,17 +323,29 @@ public:
     */
     void setRecordingTimerStateChanged(bool state);
 
-    double m_dSfreq;        /**< The current sampling frequency. */
-
-protected:
-    virtual void run();
-
-private:    
     //=========================================================================================================
     /**
-    * Update HPI.
+    * Shows the project dialog/window.
     */
-    void updateHPI();
+    void showProjectDialog();
+
+    //=========================================================================================================
+    /**
+    * Shows the project squid control dialog.
+    */
+    void showSqdCtrlDialog();
+
+    //=========================================================================================================
+    /**
+    * Determines current file. And starts a new one.
+    */
+    void splitRecordingFile();
+
+    //=========================================================================================================
+    /**
+    * Starts or stops a file recording depending on the current recording state.
+    */
+    void toggleRecordingFile();
 
     //=========================================================================================================
     /**
@@ -390,12 +399,6 @@ private:
     */
     void onRecordingRemainingTimeChange();
 
-    //=========================================================================================================
-    /**
-    * Initialize the connector.
-    */
-    void initConnector();
-
     SCSHAREDLIB::PluginOutputData<SCMEASLIB::NewRealTimeMultiSampleArray>::SPtr m_pRTMSABabyMEG;    /**< The NewRealTimeMultiSampleArray to provide the rt_server Channels.*/
 
     QSharedPointer<IOBUFFER::RawMatrixBuffer>                                   m_pRawMatrixBuffer; /**< Holds incoming raw data. */
@@ -405,7 +408,7 @@ private:
     QSharedPointer<BabyMEGInfo>             pInfo;                          /**< Set up the babyMEG info. */
     QSharedPointer<BabyMEGProjectDialog>    m_pBabyMEGProjectDialog;        /**< Window to setup the recording tiem and fiel name. */
     QSharedPointer<BabyMEGSQUIDControlDgl>  SQUIDCtrlDlg;                   /**< Nonmodal dialog for squid control. */
-    QSharedPointer<BabyMEGHPIDgl>           m_pHPIDlg;                      /**< HPI dialog information. */
+    QSharedPointer<SCDISPLIB::HPIWidget>    m_pHPIWidget;                   /**< HPI widget. */
 
     QSharedPointer<QTimer>                  m_pUpdateTimeInfoTimer;         /**< timer to control remaining time. */
     QSharedPointer<QTimer>                  m_pBlinkingRecordButtonTimer;   /**< timer to control blinking recording button. */
@@ -420,9 +423,11 @@ private:
     qint32                                  m_iBufferSize;                  /**< The raw data buffer size.*/
     qint32                                  m_iSplitCount;                  /**< File split count */
     int                                     m_iRecordingMSeconds;           /**< Recording length in mseconds.*/
+
     bool                                    m_bWriteToFile;                 /**< Flag for for writing the received samples to a file. Defined by the user via the GUI.*/
     bool                                    m_bUseRecordTimer;              /**< Flag whether to use data recording timer.*/
     bool                                    m_bIsRunning;                   /**< If thread is running flag.*/
+    bool                                    m_bDoContinousHPI;              /**< Whether to do continous HPI.*/
     QString                                 m_sBabyMEGDataPath;             /**< The data storage path.*/
     QString                                 m_sCurrentProject;              /**< The current project which is part of the filename to be recorded.*/
     QString                                 m_sCurrentSubject;              /**< The current subject which is part of the filename to be recorded.*/
@@ -438,13 +443,12 @@ private:
 
     Eigen::RowVectorXd                      m_cals;                         /**< Calibration vector.*/
     Eigen::SparseMatrix<double>             m_sparseMatCals;                /**< Sparse calibration matrix.*/
-    Eigen::MatrixXf                         m_matValue;                     /**< The current data block.*/
 
     QAction*                m_pActionSetupProject;          /**< shows setup project dialog */
     QAction*                m_pActionRecordFile;            /**< start recording action */
     QAction*                m_pActionSqdCtrl;               /**< show squid control */
     QAction*                m_pActionUpdateFiffInfo;        /**< Update Fiff Info action */
-    QAction*                m_pActionUpdateFiffInfoForHPI;  /**< Update HPI info into Fiff Info action */
+    QAction*                m_pActionComputeHPI;            /**< Update HPI info into Fiff Info action */
 
 signals:
     //=========================================================================================================

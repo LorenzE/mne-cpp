@@ -42,6 +42,8 @@
 #include "fiff_stream.h"
 #include "fiff_file.h"
 
+#include <utils/ioutils.h>
+
 
 //*************************************************************************************************************
 //=============================================================================================================
@@ -49,6 +51,7 @@
 //=============================================================================================================
 
 using namespace FIFFLIB;
+using namespace UTILSLIB;
 
 
 //*************************************************************************************************************
@@ -72,7 +75,7 @@ FiffInfo::FiffInfo()
 
 FiffInfo::FiffInfo(const FiffInfo& p_FiffInfo)
 : FiffInfoBase(p_FiffInfo)
-, file_id(FiffId(p_FiffInfo.file_id))//: QSharedData(p_FiffInfo)
+, file_id(p_FiffInfo.file_id)
 , sfreq(p_FiffInfo.sfreq)
 , highpass(p_FiffInfo.highpass)
 , lowpass(p_FiffInfo.lowpass)
@@ -109,7 +112,7 @@ FiffInfo::~FiffInfo()
 void FiffInfo::clear()
 {
     FiffInfoBase::clear();
-    file_id.clear();
+    file_id = FiffId();
     meas_date[0] = -1;
     sfreq = -1.0;
     highpass = -1.0;
@@ -136,7 +139,7 @@ qint32 FiffInfo::get_current_comp()
     {
         if (this->chs[k].kind == FIFFV_MEG_CH)
         {
-            comp = this->chs[k].coil_type >> 16;
+            comp = this->chs[k].chpos.coil_type >> 16;
             if (first_comp < 0)
                 first_comp = comp;
             else if (comp != first_comp)
@@ -341,8 +344,8 @@ QList<FiffChInfo> FiffInfo::set_current_comp(QList<FiffChInfo>& chs, fiff_int_t 
     {
         if (chs[k].kind == FIFFV_MEG_CH)
         {
-            coil_type = chs[k].coil_type & lower_half;
-            new_chs[k].coil_type = (coil_type | (value << 16));
+            coil_type = chs[k].chpos.coil_type & lower_half;
+            new_chs[k].chpos.coil_type = (coil_type | (value << 16));
         }
     }
     return new_chs;
@@ -459,10 +462,10 @@ void FiffInfo::writeToStream(FiffStream* p_pStream) const
         //
         //    Scan numbers may have been messed up
         //
-        chs[k].scanno = k+1;//+1 because
-        chs[k].range  = 1.0f;//Why? -> cause its already calibrated through reading
+        chs[k].scanNo = k+1;//+1 because
+//        chs[k].range  = 1.0f;//Why? -> cause its already calibrated through reading
         cals(0,k) = chs[k].cal; //ToDo whats going on with cals?
-        p_pStream->write_ch_info(&chs[k]);
+        p_pStream->write_ch_info(chs[k]);
     }
     //
     //

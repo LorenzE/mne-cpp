@@ -83,7 +83,7 @@ namespace FIFFLIB {
 //=============================================================================================================
 
 class FiffDigPoint;
-class FiffDirTree;
+class FiffDirNode;
 
 
 //=============================================================================================================
@@ -130,12 +130,12 @@ public:
     /**
     * Reads FiffDigPointSet from a fif file
     *
-    * @param [in, out] p_pStream    The opened fif file
-    * @param [in, out] p_Tree       Search for the bem surface here
+    * @param [in, out] p_Stream     The opened fif file
+    * @param [out] p_Dig            The read digitizer point set
     *
     * @return true if succeeded, false otherwise
     */
-    static bool readFromStream(FiffStream::SPtr& p_pStream, FiffDirTree& p_Tree, FiffDigPointSet& p_Dig);
+    static bool readFromStream(FiffStream::SPtr& p_Stream, FiffDigPointSet& p_Dig);
 
     //=========================================================================================================
     /**
@@ -161,6 +161,20 @@ public:
 
     //=========================================================================================================
     /**
+     * @brief write
+     * @param p_IODevice
+     */
+    void write(QIODevice &p_IODevice);
+
+    //=========================================================================================================
+    /**
+     * @brief writeToStream
+     * @param p_pStream
+     */
+    void writeToStream(FiffStream* p_pStream);
+
+    //=========================================================================================================
+    /**
     * Subscript operator [] to access FiffDigPoint by index
     *
     * @param[in] idx    the FiffDigPoint index.
@@ -178,6 +192,16 @@ public:
     * @return FiffDigPoint related to the parameter index.
     */
     FiffDigPoint& operator[] (qint32 idx);
+
+    //=========================================================================================================
+    /**
+    * Pick the wanted types from this set and returns them
+    *
+    * @param[in] includeTypes    The include types (FIFFV_POINT_HPI, FIFFV_POINT_CARDINAL, FIFFV_POINT_EEG, FIFFV_POINT_ECG, FIFFV_POINT_EXTRA, FIFFV_POINT_LPA, FIFFV_POINT_NASION, FIFFV_POINT_RPA).
+    *
+    * @return FiffDigPointSet
+    */
+    FiffDigPointSet pickTypes(QList<int> includeTypes) const;
 
     //=========================================================================================================
     /**

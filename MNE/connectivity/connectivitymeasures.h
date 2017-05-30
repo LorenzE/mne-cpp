@@ -33,8 +33,8 @@
 *
 */
 
-#ifndef CONNECTLIB_CONNECTIVITYMEASURES_H
-#define CONNECTLIB_CONNECTIVITYMEASURES_H
+#ifndef CONNECTIVITYMEASURES_H
+#define CONNECTIVITYMEASURES_H
 
 
 //*************************************************************************************************************
@@ -43,7 +43,6 @@
 //=============================================================================================================
 
 #include "connectivity_global.h"
-#include "network/network.h"
 
 
 //*************************************************************************************************************
@@ -83,6 +82,8 @@ namespace CONNECTIVITYLIB {
 // CONNECTIVITYLIB FORWARD DECLARATIONS
 //=============================================================================================================
 
+class Network;
+
 
 //=============================================================================================================
 /**
@@ -112,7 +113,7 @@ public:
     *
     * @return               The connectivity information in form of a network structure.
     */
-    static Network::SPtr pearsonsCorrelationCoeff(const Eigen::MatrixXd& matData, const Eigen::MatrixX3f& matVert);
+    static Network pearsonsCorrelationCoeff(const Eigen::MatrixXd& matData, const Eigen::MatrixX3f& matVert);
 
     //=========================================================================================================
     /**
@@ -123,7 +124,7 @@ public:
     *
     * @return               The connectivity information in form of a network structure.
     */
-    static Network::SPtr crossCorrelation(const Eigen::MatrixXd& matData, const Eigen::MatrixX3f& matVert);
+    static Network crossCorrelation(const Eigen::MatrixXd& matData, const Eigen::MatrixX3f& matVert);
 
 protected:
     //=========================================================================================================
@@ -148,8 +149,6 @@ protected:
     */
     static QPair<int,double> calcCrossCorrelation(const Eigen::RowVectorXd &vecFirst, const Eigen::RowVectorXd &vecSecond);
 
-private:
-
 };
 
 
@@ -161,4 +160,4 @@ private:
 
 } // namespace CONNECTIVITYLIB
 
-#endif // CONNECTLIB_CONNECTIVITYMEASURES_H
+#endif // CONNECTIVITYMEASURES_H

@@ -44,10 +44,10 @@
 
 #include <scMeas/realtimeconnectivityestimate.h>
 
-#include <disp3D/model/items/network/networktreeitem.h>
-#include <disp3D/model/data3Dtreemodel.h>
-#include <disp3D/view3D.h>
-#include <disp3D/control/control3dwidget.h>
+#include <disp3D/engine/model/items/network/networktreeitem.h>
+#include <disp3D/engine/model/data3Dtreemodel.h>
+#include <disp3D/engine/view/view3D.h>
+#include <disp3D/engine/control/control3dwidget.h>
 
 #include <mne/mne_forwardsolution.h>
 #include <mne/mne_inverse_operator.h>
@@ -117,7 +117,9 @@ RealTimeConnectivityEstimateWidget::RealTimeConnectivityEstimateWidget(QSharedPo
 
     m_p3DView->setModel(m_pData3DModel);
 
-    m_pControl3DView = Control3DWidget::SPtr(new Control3DWidget(this));
+    m_pControl3DView = Control3DWidget::SPtr(new Control3DWidget(this,
+                                                                 QStringList() << "Minimize" << "Data" << "Window" << "View" << "Light",
+                                                                 Qt::Window));
     m_pControl3DView->init(m_pData3DModel, m_p3DView);
 
     QGridLayout *mainLayoutView = new QGridLayout;
@@ -162,12 +164,12 @@ void RealTimeConnectivityEstimateWidget::getData()
         //
         if(!m_pRtItem) {
             qDebug()<<"RealTimeConnectivityEstimateWidget::getData - Creating m_pRtItem list";
-            m_pRtItem = m_pData3DModel->addConnectivityData("Subject01", "HemiLRSet", m_pRTCE->getValue());
+            m_pRtItem = m_pData3DModel->addConnectivityData("Subject", "Data", *(m_pRTCE->getValue().data()));
         } else {
             qDebug()<<"RealTimeConnectivityEstimateWidget::getData - Working with m_pRtItem list";
 
             if(m_pRtItem) {
-                m_pRtItem->addData(m_pRTCE->getValue());
+                m_pRtItem->addData(*(m_pRTCE->getValue().data()));
             }
         }
     }
@@ -181,7 +183,7 @@ void RealTimeConnectivityEstimateWidget::getData()
             //
             // Add brain data
             //
-            m_pData3DModel->addSurfaceSet("Subject01", "HemiLRSet", *m_pRTCE->getSurfSet(), *m_pRTCE->getAnnotSet());
+            m_pData3DModel->addSurfaceSet("Subject", "MRI", *m_pRTCE->getSurfSet(), *m_pRTCE->getAnnotSet());
         }
     }
 }

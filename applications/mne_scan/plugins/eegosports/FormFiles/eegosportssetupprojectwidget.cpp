@@ -43,12 +43,25 @@
 #include "ui_eegosportssetupprojectwidget.h"
 #include "../eegosports.h"
 
+#include <utils/layoutloader.h>
+
+
+//*************************************************************************************************************
+//=============================================================================================================
+// QT INCLUDES
+//=============================================================================================================
+
+#include <QFileDialog>
+#include <QDate>
+
+
 //*************************************************************************************************************
 //=============================================================================================================
 // USED NAMESPACES
 //=============================================================================================================
 
 using namespace EEGOSPORTSPLUGIN;
+using namespace UTILSLIB;
 
 
 //*************************************************************************************************************
@@ -213,8 +226,8 @@ void EEGoSportsSetupProjectWidget::onCardinalComboBoxChanged()
 
 void EEGoSportsSetupProjectWidget::updateCardinalComboBoxes(const QString& sPath)
 {
-    QList<QVector<double> > elcLocation3D;
-    QList<QVector<double> > elcLocation2D;
+    QList<QVector<float> > elcLocation3D;
+    QList<QVector<float> > elcLocation2D;
     QString unit;
     QStringList elcChannelNames;
 

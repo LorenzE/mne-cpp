@@ -41,7 +41,7 @@
 #include "fiff_cov.h"
 #include "fiff_stream.h"
 #include "fiff_info_base.h"
-#include "fiff_dir_tree.h"
+#include "fiff_dir_node.h"
 
 #include <utils/mnemath.h>
 
@@ -96,16 +96,14 @@ FiffCov::FiffCov(QIODevice &p_IODevice)
 , nfree(-1)
 {
     FiffStream::SPtr t_pStream(new FiffStream(&p_IODevice));
-    FiffDirTree t_Tree;
-    QList<FiffDirEntry> t_Dir;
 
-    if(!t_pStream->open(t_Tree, t_Dir))
+    if(!t_pStream->open())
     {
         printf("\tNot able to open IODevice.\n");//ToDo Throw here
         return;
     }
 
-    if(!t_pStream->read_cov(t_Tree, FIFFV_MNE_NOISE_COV, *this))
+    if(!t_pStream->read_cov(t_pStream->dirtree(), FIFFV_MNE_NOISE_COV, *this))
         printf("\tFiff covariance not found.\n");//ToDo Throw here
 }
 
@@ -219,10 +217,12 @@ FiffCov FiffCov::prepare_noise_cov(const FiffInfo &p_Info, const QStringList &p_
     qint32 ncomp = p_Info.make_projector(proj, p_ChNames);
 
     //Create the projection operator
-    if (ncomp > 0)
+    if (ncomp > 0 && proj.rows() == count)
     {
         printf("Created an SSP operator (subspace dimension = %d)\n", ncomp);
         C = proj * (C * proj.transpose());
+    } else {
+        qWarning("Warning in FiffCov::prepare_noise_cov: No projections applied since no projectors specified or projector dimensions do not match!");
     }
 
     RowVectorXi pick_meg = p_Info.pick_types(true, false, false, defaultQStringList, p_Info.bads);
@@ -405,10 +405,10 @@ FiffCov FiffCov::regularize(const FiffInfo& p_info, double p_fRegMag, double p_f
         std::vector<qint32> idx = it.value().second;
 
         if(idx.size() == 0 || reg == 0.0)
-            printf("\tNothing to regularize within %s data.\n", desc.toLatin1().constData());
+            printf("\tNothing to regularize within %s data.\n", desc.toUtf8().constData());
         else
         {
-            printf("\tRegularize %s: %f\n", desc.toLatin1().constData(), reg);
+            printf("\tRegularize %s: %f\n", desc.toUtf8().constData(), reg);
             MatrixXd this_C(idx.size(), idx.size());
             for(quint32 i = 0; i < idx.size(); ++i)
                 for(quint32 j = 0; j < idx.size(); ++j)
@@ -435,7 +435,7 @@ FiffCov FiffCov::regularize(const FiffInfo& p_info, double p_fRegMag, double p_f
 
                 if (ncomp > 0)
                 {
-                    printf("\tCreated an SSP operator for %s (dimension = %d).\n", desc.toLatin1().constData(), ncomp);
+                    printf("\tCreated an SSP operator for %s (dimension = %d).\n", desc.toUtf8().constData(), ncomp);
                     this_C = U.transpose() * (this_C * U);
                 }
             }

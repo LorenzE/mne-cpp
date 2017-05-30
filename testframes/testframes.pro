@@ -2,6 +2,7 @@
 #
 # @file     testframes.pro
 # @author   Christoph Dinh <chdinh@nmr.mgh.harvard.edu>;
+#           Lorenz Esch <Lorenz.Esch@tu-ilmenau.de>;
 #           Matti Hamalainen <msh@nmr.mgh.harvard.edu>
 # @version  1.0
 # @date     July, 2012
@@ -39,24 +40,14 @@ TEMPLATE = subdirs
 
 SUBDIRS += \
     test_codecov \
-    test_fiff_rwr \
     test_dipole_fit \
-#    test_mne_libs \
-#    test_mne_rt \
-#    mne_x_plugin_com \
-#    test_mne_future \
-#    test_ssp \
+    test_fiff_rwr \
+    test_fiff_mne_types_io \
+    test_forward_solution \
+    test_fiff_cov \
+    test_fiff_digitizer \
+    test_mne_msh_display_surface_set
 
-#!contains(MNECPP_CONFIG, minimalVersion) {
-    SUBDIRS += \
-#        test_mne_graph
-#        test_mne_cluster_eval \
-#        test_rap_cluster_eval \
-#        test_rtc_eval \
-#        test_rap_eval \
-#        test_orig_rap_cluster_eval \
-#        mne_3d_widget \
-#        test_mne_cluster \
-#        test_mne_surface \
-#        test_mne_stc \
-#}
+!contains(MNECPP_CONFIG, minimalVersion) {
+#    SUBDIRS += \
+}

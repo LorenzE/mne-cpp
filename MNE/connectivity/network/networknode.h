@@ -33,8 +33,8 @@
 *
 */
 
-#ifndef CONNECTIVITYLIB_NETWORKNODE_H
-#define CONNECTIVITYLIB_NETWORKNODE_H
+#ifndef NETWORKNODE_H
+#define NETWORKNODE_H
 
 
 //*************************************************************************************************************
@@ -43,7 +43,6 @@
 //=============================================================================================================
 
 #include "../connectivity_global.h"
-#include "networkedge.h"
 
 
 //*************************************************************************************************************
@@ -92,9 +91,8 @@ class NetworkEdge;
 * @brief This class holds an object to describe the node of a network.
 */
 
-class CONNECTIVITYSHARED_EXPORT NetworkNode : public QObject
+class CONNECTIVITYSHARED_EXPORT NetworkNode
 {
-    Q_OBJECT
 
 public:
     typedef QSharedPointer<NetworkNode> SPtr;            /**< Shared pointer type for NetworkNode. */
@@ -103,16 +101,11 @@ public:
     //=========================================================================================================
     /**
     * Constructs a NetworkNode object.
-    */
-    explicit NetworkNode(qint16 iId, const Eigen::RowVectorXf& vecVert, QObject *parent = 0);
-
-    //=========================================================================================================
-    /**
-    * Returns all edges(undirected gaph).
     *
-    * @return   Returns the list with all edges beloning to the node.
+    * @param[in] iId        The node's ID.
+    * @param[in] vecVert    The node's 3D position.
     */
-    QList<QSharedPointer<NetworkEdge> > getEdges();
+    explicit NetworkNode(qint16 iId, const Eigen::RowVectorXf& vecVert);
 
     //=========================================================================================================
     /**
@@ -120,7 +113,7 @@ public:
     *
     * @return   Returns the list with all ingoing edges.
     */
-    QList<QSharedPointer<NetworkEdge> > getEdgesIn();
+    const QList<QSharedPointer<NetworkEdge> >& getEdgesIn() const;
 
     //=========================================================================================================
     /**
@@ -128,7 +121,15 @@ public:
     *
     * @return   Returns the list with all outgoing edges.
     */
-    QList<QSharedPointer<NetworkEdge>> getEdgesOut();
+    const QList<QSharedPointer<NetworkEdge>>& getEdgesOut() const;
+
+    //=========================================================================================================
+    /**
+    * Returns the number of all edges.
+    *
+    * @return   Returns the number of all edges.
+    */
+    int getNumberEdges() const;
 
     //=========================================================================================================
     /**
@@ -136,7 +137,7 @@ public:
     *
     * @return   Returns the 3D position of the node.
     */
-    const Eigen::RowVectorXf& getVert();
+    const Eigen::RowVectorXf& getVert() const;
 
     //=========================================================================================================
     /**
@@ -144,7 +145,7 @@ public:
     *
     * @return   Returns the node id.
     */
-    qint16 getId();
+    qint16 getId() const;
 
     //=========================================================================================================
     /**
@@ -152,7 +153,7 @@ public:
     *
     * @return   The node degree calculated as the number of edges connected to a node (undirected gaph).
     */
-    qint16 getDegree();
+    qint16 getDegree() const;
 
     //=========================================================================================================
     /**
@@ -160,7 +161,7 @@ public:
     *
     * @return   The node degree calculated as the number of incoming edges (only in directed graphs).
     */
-    qint16 getIndegree();
+    qint16 getIndegree() const;
 
     //=========================================================================================================
     /**
@@ -168,7 +169,7 @@ public:
     *
     * @return   The node degree calculated as the number of outgoing edges (only in directed graphs).
     */
-    qint16 getOutdegree();
+    qint16 getOutdegree() const;
 
     //=========================================================================================================
     /**
@@ -176,7 +177,7 @@ public:
     *
     * @return   The node strength calculated as the sum of all weights of all edges of a node.
     */
-    double getStrength();
+    double getStrength() const;
 
     //=========================================================================================================
     /**
@@ -184,7 +185,7 @@ public:
     *
     * @return   The node strength calculated as the sum of all weights of all ingoing edges of a node.
     */
-    double getInstrength();
+    double getInstrength() const;
 
     //=========================================================================================================
     /**
@@ -192,7 +193,7 @@ public:
     *
     * @return   The node strength calculated as the sum of all weights of all outgoing edges of a node.
     */
-    double getOutstrength();
+    double getOutstrength() const;
 
     //=========================================================================================================
     /**
@@ -208,7 +209,7 @@ public:
     *
     * @return   Whether this node is a hub or not.
     */
-    bool getHubStatus();
+    bool getHubStatus() const;
 
     //=========================================================================================================
     /**
@@ -219,19 +220,14 @@ public:
     NetworkNode &operator<<(QSharedPointer<NetworkEdge> newEdge);
 
 protected:
+    bool                                    m_bIsHub;       /**< Whether this node is a hub.*/
 
-private:
-    bool                                    m_bIsHub;
+    qint16                                  m_iId;          /**< The node's ID.*/
 
-    qint16                                  m_iId;
+    Eigen::RowVectorXf                      m_vecVert;      /**< The 3D position of the node.*/
 
-    Eigen::RowVectorXf                      m_vecVert;
-
-    QList<QSharedPointer<NetworkEdge> >     m_lEdgesIn;
-    QList<QSharedPointer<NetworkEdge> >     m_lEdgesOut;
-
-signals:
-
+    QList<QSharedPointer<NetworkEdge> >     m_lEdgesIn;     /**< List with all incoming edges of the node.*/
+    QList<QSharedPointer<NetworkEdge> >     m_lEdgesOut;    /**< List with all outgoing edges of the node.*/
 };
 
 
@@ -243,4 +239,4 @@ signals:
 
 } // namespace CONNECTIVITYLIB
 
-#endif // CONNECTIVITYLIB_NETWORKNODE_H
+#endif // NETWORKNODE_H
