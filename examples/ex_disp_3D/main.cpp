@@ -55,8 +55,6 @@
 
 #include <inverse/minimumNorm/minimumnorm.h>
 
-#include <iostream>
-
 
 //*************************************************************************************************************
 //=============================================================================================================
@@ -104,7 +102,7 @@ int main(int argc, char *argv[])
     parser.setApplicationDescription("Disp3D Example");
     parser.addHelpOption();
 
-    QCommandLineOption surfOption("surfType", "Surface type <type>.", "type", "pial");
+    QCommandLineOption surfOption("surfType", "Surface type <type>.", "type", "inflated");
     QCommandLineOption annotOption("annotType", "Annotation type <type>.", "type", "aparc.a2009s");
     QCommandLineOption hemiOption("hemi", "Selected hemisphere <hemi>.", "hemi", "2");
     QCommandLineOption subjectOption("subject", "Selected subject <subject>.", "subject", "sample");
@@ -266,9 +264,9 @@ int main(int argc, char *argv[])
             pRTDataItem->setLoopState(true);
             pRTDataItem->setTimeInterval(17);
             pRTDataItem->setNumberAverages(1);
-            pRTDataItem->setStreamingActive(true);
+            pRTDataItem->setStreamingActive(false);
             pRTDataItem->setNormalization(QVector3D(0.0,0.5,10.0));
-            pRTDataItem->setVisualizationType("Annotation based");
+            pRTDataItem->setVisualizationType("Smoothing based");
             pRTDataItem->setColortable("Hot");
         }
     }

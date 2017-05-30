@@ -88,7 +88,7 @@ namespace Data3DTreeModelItemTypes
                     AnnotationItem = QStandardItem::UserType + 4,
                     MNEEstimateItem = QStandardItem::UserType + 5,
                     SourceSpaceItem = QStandardItem::UserType + 6,
-                    RTConnectivityDataItem = QStandardItem::UserType + 7,
+                    NetworkItem = QStandardItem::UserType + 7,
                     SubjectItem = QStandardItem::UserType + 8,
                     BemItem = QStandardItem::UserType + 9,
                     BemSurfaceItem = QStandardItem::UserType + 10,
@@ -99,14 +99,13 @@ namespace Data3DTreeModelItemTypes
                     SensorSetItem = QStandardItem::UserType + 15,
                     SensorSurfaceItem = QStandardItem::UserType + 16,
                     SensorPositionItem = QStandardItem::UserType + 17,
-                    AbstractSurfaceItem = QStandardItem::UserType + 18};
+                    AbstractMeshItem = QStandardItem::UserType + 18};
 }
 
 namespace MetaTreeItemTypes
 {
     enum ItemType{FileName = QStandardItem::UserType + 100,
                     FilePath = QStandardItem::UserType + 101,
-                    SurfaceType = QStandardItem::UserType + 102,
                     SurfaceColorGyri = QStandardItem::UserType + 103,
                     SurfaceColorSulci = QStandardItem::UserType + 104,
                     SurfaceColorVert = QStandardItem::UserType + 105,
@@ -121,15 +120,18 @@ namespace MetaTreeItemTypes
                     VisualizationType = QStandardItem::UserType + 114,
                     Color = QStandardItem::UserType + 115,
                     UnknownItem = QStandardItem::UserType + 116,
-                    SurfaceTranslateX = QStandardItem::UserType + 117,
-                    SurfaceTranslateY = QStandardItem::UserType + 118,
-                    SurfaceTranslateZ = QStandardItem::UserType + 119,
+                    TranslateX = QStandardItem::UserType + 117,
+                    TranslateY = QStandardItem::UserType + 118,
+                    TranslateZ = QStandardItem::UserType + 119,
                     NetworkThreshold = QStandardItem::UserType + 120,
                     NetworkMatrix = QStandardItem::UserType + 121,
                     SurfaceTessInner = QStandardItem::UserType + 122,
                     SurfaceTessOuter = QStandardItem::UserType + 123,
                     SurfaceTriangleScale = QStandardItem::UserType + 124,
-                    NumberDipoles = QStandardItem::UserType + 125};
+                    NumberDipoles = QStandardItem::UserType + 125,
+                    MaterialType = QStandardItem::UserType + 126,
+                    ShowNormals = QStandardItem::UserType + 127,
+                    Scale = QStandardItem::UserType + 128  };
 }
 
 // Model item roles
@@ -188,14 +190,15 @@ namespace MetaTreeItemRoles
                     DistributedSourceLocThreshold = Qt::UserRole + 15,
                     VisualizationType = Qt::UserRole + 16,
                     Color = Qt::UserRole + 17,
-                    SurfaceTranslateX = Qt::UserRole + 18,
-                    SurfaceTranslateY = Qt::UserRole + 19,
-                    SurfaceTranslateZ = Qt::UserRole + 20,
-                    PointColor = Qt::UserRole + 21,
+                    TranslateX = Qt::UserRole + 18,
+                    TranslateY = Qt::UserRole + 19,
+                    TranslateZ = Qt::UserRole + 20,
                     NetworkThreshold = Qt::UserRole + 22,
                     SurfaceTessInner = Qt::UserRole + 23,
                     SurfaceTessOuter = Qt::UserRole + 24,
-                    SurfaceTriangleScale = Qt::UserRole + 25};
+                    SurfaceTriangleScale = Qt::UserRole + 25,
+                    SurfaceMaterial = Qt::UserRole + 26,
+                    Scale = Qt::UserRole + 27};
 }
 
 } //NAMESPACE DISP3DLIB
