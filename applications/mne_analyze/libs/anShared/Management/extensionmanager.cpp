@@ -87,7 +87,7 @@ void ExtensionManager::loadExtension(const QString& dir)
 {
     QDir extensionsDir(dir);
 
-    foreach(QString file, extensionsDir.entryList(QDir::Files))
+    foreach(const QString &file, extensionsDir.entryList(QDir::Files))
     {
         fprintf(stderr,"Loading Extension %s... ",file.toUtf8().constData());
 

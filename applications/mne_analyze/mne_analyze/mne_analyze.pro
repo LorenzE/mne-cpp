@@ -101,12 +101,14 @@ DESTDIR = $${MNE_BINARY_DIR}
 SOURCES += \
     main.cpp \
     mainwindow.cpp \
-    mdiview.cpp
+    mdiview.cpp \
+    analyzecore.cpp
 
 HEADERS += \
     info.h \
     mainwindow.h \
-    mdiview.h
+    mdiview.h \
+    analyzecore.h
 
 FORMS +=
 

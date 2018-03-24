@@ -88,7 +88,7 @@ void DeepCNTKManager::loadDeepConfigurations(const QString& dir)
 {
     QDir deepConfigurationsDir(dir);
 
-    foreach(QString file, deepConfigurationsDir.entryList(QDir::Files))
+    foreach(const QString &file, deepConfigurationsDir.entryList(QDir::Files))
     {
         fprintf(stderr,"Loading deep configuration %s... ",file.toUtf8().constData());
 

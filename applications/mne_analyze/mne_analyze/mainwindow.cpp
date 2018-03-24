@@ -42,10 +42,9 @@
 #include "mainwindow.h"
 #include "mdiview.h"
 #include "../libs/anShared/Interfaces/IExtension.h"
-#include "../libs/anShared/Management/analyzesettings.h"
-#include "../libs/anShared/Management/analyzedata.h"
 #include "../libs/anShared/Management/extensionmanager.h"
 
+#include <iostream>
 
 //*************************************************************************************************************
 //=============================================================================================================
@@ -75,20 +74,11 @@ using namespace ANSHAREDLIB;
 
 //*************************************************************************************************************
 //=============================================================================================================
-// CONST
-//=============================================================================================================
-
-const char* extensionsDir = "/mne_analyze_extensions";        /**< holds path to the extensions.*/
-
-
-//*************************************************************************************************************
-//=============================================================================================================
 // DEFINE MEMBER METHODS
 //=============================================================================================================
 
-MainWindow::MainWindow(QWidget *parent)
+MainWindow::MainWindow(QSharedPointer<ANSHAREDLIB::ExtensionManager> pExtensionManager, QWidget *parent)
 : QMainWindow(parent)
-, m_pExtensionManager(new ANSHAREDLIB::ExtensionManager(this))
 , m_pMdiView(Q_NULLPTR)
 {
     fprintf(stderr, "%s - Version %s\n",
@@ -99,13 +89,13 @@ MainWindow::MainWindow(QWidget *parent)
     setMinimumSize(400, 400);
     setWindowTitle(CInfo::AppNameShort());
 
-    initGlobalSettings();
-    initGlobalData();
-    m_pExtensionManager->loadExtension(qApp->applicationDirPath()+extensionsDir);
-    m_pExtensionManager->initExtensions(m_analyzeSettings, m_analyzeData);
-
-    createDockWindows();
-    createMdiView();
+    if(!pExtensionManager.isNull()) {
+        createDockWindows(pExtensionManager);
+        createMdiView(pExtensionManager);
+    }
+    else {
+        std::cerr << "ERROR MainWindow::MainWindow extension manager is nullptr" << std::endl;
+    }
 
     createActions();
     createMenus();
@@ -117,22 +107,6 @@ MainWindow::MainWindow(QWidget *parent)
 MainWindow::~MainWindow()
 {
 
-}
-
-
-//*************************************************************************************************************
-
-void MainWindow::initGlobalSettings()
-{
-    m_analyzeSettings = AnalyzeSettings::SPtr(new AnalyzeSettings);
-}
-
-
-//*************************************************************************************************************
-
-void MainWindow::initGlobalData()
-{
-    m_analyzeData = AnalyzeData::SPtr(new AnalyzeData);
 }
 
 
@@ -196,21 +170,19 @@ void MainWindow::createMenus()
 
 //*************************************************************************************************************
 
-void MainWindow::createDockWindows()
+void MainWindow::createDockWindows(QSharedPointer<ANSHAREDLIB::ExtensionManager> pExtensionManager)
 {
     setTabPosition(Qt::LeftDockWidgetArea,QTabWidget::West);
     setTabPosition(Qt::RightDockWidgetArea,QTabWidget::East);
     setDockOptions(QMainWindow::ForceTabbedDocks);
 
     //Add Extension views to mdi
-    for(int i = 0; i < m_pExtensionManager->getExtensions().size(); ++i) {
-        IExtension* extension = m_pExtensionManager->getExtensions()[i];
+    for(IExtension* pExtension : pExtensionManager->getExtensions()) {
+        qDebug() << "create dock" << pExtension->getName();
 
-        qDebug() << "create dock" << extension->getName();
-
-        QDockWidget* control = extension->getControl();
-        if(control) {
-            addDockWidget(Qt::LeftDockWidgetArea,control);
+        QDockWidget* pControl = pExtension->getControl();
+        if(pControl) {
+            addDockWidget(Qt::LeftDockWidgetArea,pControl);
         }
     }
 
@@ -220,20 +192,18 @@ void MainWindow::createDockWindows()
 
 //*************************************************************************************************************
 
-void MainWindow::createMdiView()
+void MainWindow::createMdiView(QSharedPointer<ExtensionManager> pExtensionManager)
 {
     m_pMdiView = new MdiView(this);
     setCentralWidget(m_pMdiView);
 
     //Add Extension views to mdi
-    for(int i = 0; i < m_pExtensionManager->getExtensions().size(); ++i) {
-        IExtension* extension = m_pExtensionManager->getExtensions()[i];
+    for(IExtension* pExtension : pExtensionManager->getExtensions()) {
+        qDebug() << "create mdi" << pExtension->getName();
 
-        qDebug() << "create mdi" << extension->getName();
-
-        QWidget* view = extension->getView();
-        if(view) {
-            m_pMdiView->addSubWindow(view);
+        QWidget* pView = pExtension->getView();
+        if(pView) {
+            m_pMdiView->addSubWindow(pView);
         }
     }
 
