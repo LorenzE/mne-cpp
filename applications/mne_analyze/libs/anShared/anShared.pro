@@ -77,6 +77,7 @@ SOURCES += \
     Management/analyzesettings.cpp \
     Management/extensionmanager.cpp \
     Data/datastorage.cpp \
+    Model/modelstorage.cpp
 
 HEADERS += \
     anshared_global.h \
@@ -98,6 +99,7 @@ HEADERS += \
     Management/extensionmanager.h \
     anshared_global.h \
     Data/datastorage.h \
+    Model/modelstorage.h
 
 
 INCLUDEPATH += $${EIGEN_INCLUDE_DIR}
