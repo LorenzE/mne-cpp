@@ -69,7 +69,14 @@ DESTDIR = $${MNE_LIBRARY_DIR}
 SOURCES += \
     Management/analyzedata.cpp \
     Management/analyzesettings.cpp \
-    Management/extensionmanager.cpp
+    Management/extensionmanager.cpp \
+    Management/analyzedata.cpp \
+    Management/analyzesettings.cpp \
+    Management/extensionmanager.cpp \
+    Management/analyzedata.cpp \
+    Management/analyzesettings.cpp \
+    Management/extensionmanager.cpp \
+    Data/datastorage.cpp \
 
 HEADERS += \
     anshared_global.h \
@@ -77,7 +84,20 @@ HEADERS += \
     Management/analyzedata.h \
     Management/analyzesettings.h \
     Management/extensionmanager.h \
-    Interfaces/IStandardView.h
+    Interfaces/IStandardView.h \
+    Interfaces/IExtension.h \
+    Interfaces/IStandardView.h \
+    Management/analyzedata.h \
+    Management/analyzesettings.h \
+    Management/extensionmanager.h \
+    anshared_global.h \
+    Interfaces/IExtension.h \
+    Interfaces/IStandardView.h \
+    Management/analyzedata.h \
+    Management/analyzesettings.h \
+    Management/extensionmanager.h \
+    anshared_global.h \
+    Data/datastorage.h \
 
 
 INCLUDEPATH += $${EIGEN_INCLUDE_DIR}
