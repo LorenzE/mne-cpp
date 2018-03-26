@@ -1,7 +1,7 @@
 //=============================================================================================================
 /**
-* @file     datasettings.cpp
-* @author   Lars Debor <lars.debor@tu-ilmenau.de>;
+* @file     surfacedata.cpp
+* @author   Lars Debor <lars.debor@tu-ilmenaul.de>;
 *           Matti Hamalainen <msh@nmr.mgh.harvard.edu>
 * @version  1.0
 * @date     March, 2018
@@ -29,7 +29,7 @@
 * POSSIBILITY OF SUCH DAMAGE.
 *
 *
-* @brief    DataSettings class definition.
+* @brief    SurfaceData class definition.
 *
 */
 
@@ -39,7 +39,8 @@
 // INCLUDES
 //=============================================================================================================
 
-#include "datasettings.h"
+#include "surfacedata.h"
+#include <fs/surface.h>
 
 
 //*************************************************************************************************************
@@ -60,7 +61,7 @@
 //=============================================================================================================
 
 using namespace ANSHAREDLIB;
-
+using namespace FSLIB;
 
 //*************************************************************************************************************
 //=============================================================================================================
@@ -73,11 +74,25 @@ using namespace ANSHAREDLIB;
 // DEFINE MEMBER METHODS
 //=============================================================================================================
 
-DataSettings::DataSettings()
+SurfaceData::SurfaceData()
+: m_surface(Surface())
 {
 }
 
-DataSettings::~DataSettings()
+
+//*************************************************************************************************************
+
+SurfaceData::SurfaceData(const QString &p_sFile)
+: m_surface(Surface(p_sFile))
+{
+
+}
+
+
+//*************************************************************************************************************
+
+SurfaceData::SurfaceData(const QString &subject_id, qint32 hemi, const QString &surf, const QString &subjects_dir)
+: m_surface(Surface(subject_id, hemi, surf, subjects_dir))
 {
 
 }

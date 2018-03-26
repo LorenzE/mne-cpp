@@ -1,6 +1,6 @@
 //=============================================================================================================
 /**
-* @file     datasettings.cpp
+* @file     surfacesetdata.h
 * @author   Lars Debor <lars.debor@tu-ilmenau.de>;
 *           Matti Hamalainen <msh@nmr.mgh.harvard.edu>
 * @version  1.0
@@ -29,9 +29,12 @@
 * POSSIBILITY OF SUCH DAMAGE.
 *
 *
-* @brief    DataSettings class definition.
+* @brief     SurfaceSetData class declaration.
 *
 */
+
+#ifndef ANSHAREDLIB_SURFACESETDATA_H
+#define ANSHAREDLIB_SURFACESETDATA_H
 
 
 //*************************************************************************************************************
@@ -39,13 +42,17 @@
 // INCLUDES
 //=============================================================================================================
 
-#include "datasettings.h"
+#include "abstractdata.h"
+#include "../anshared_global.h"
 
 
 //*************************************************************************************************************
 //=============================================================================================================
 // QT INCLUDES
 //=============================================================================================================
+
+#include <QSharedPointer>
+#include <QMap>
 
 
 //*************************************************************************************************************
@@ -56,31 +63,75 @@
 
 //*************************************************************************************************************
 //=============================================================================================================
-// USED NAMESPACES
-//=============================================================================================================
-
-using namespace ANSHAREDLIB;
-
-
-//*************************************************************************************************************
-//=============================================================================================================
-// DEFINE GLOBAL METHODS
+// FORWARD DECLARATIONS
 //=============================================================================================================
 
 
 //*************************************************************************************************************
 //=============================================================================================================
-// DEFINE MEMBER METHODS
+// DEFINE NAMESPACE ANSHAREDLIB
 //=============================================================================================================
 
-DataSettings::DataSettings()
+namespace ANSHAREDLIB {
+
+
+//*************************************************************************************************************
+//=============================================================================================================
+// ANSHAREDLIB FORWARD DECLARATIONS
+//=============================================================================================================
+
+class SurfaceData;
+
+//=============================================================================================================
+/**
+* This is a wrapper class for SurfaceSet.
+*
+* @brief This is a wrapper class for SurfaceSet.
+*/
+class ANSHAREDSHARED_EXPORT SurfaceSetData : public AbstractData
 {
-}
 
-DataSettings::~DataSettings()
-{
+public:
+    typedef QSharedPointer<SurfaceSetData> SPtr;            /**< Shared pointer type for SurfaceSetData. */
+    typedef QSharedPointer<const SurfaceSetData> ConstSPtr; /**< Const shared pointer type for SurfaceSetData. */
 
-}
+    //=========================================================================================================
+    /**
+    * Constructs a SurfaceSetData object.
+    */
+    SurfaceSetData();
+
+    //=========================================================================================================
+    /**
+    * Construts the surface set by reading it of the given files.
+    *
+    * @param[in] subject_id         Name of subject
+    * @param[in] hemi               Which hemisphere to load {0 -> lh, 1 -> rh, 2 -> both}
+    * @param[in] surf               Name of the surface to load (eg. inflated, orig ...)
+    * @param[in] subjects_dir       Subjects directory
+    */
+    explicit SurfaceSetData(const QString &subject_id, qint32 hemi, const QString &surf, const QString &subjects_dir);
+
+protected:
+
+private:
+
+    QMap<qint32, SurfaceData>       m_surfaceData;
+
+signals:
+
+
+    void newSurfaceLoaded();
+
+};
 
 
 //*************************************************************************************************************
+//=============================================================================================================
+// INLINE DEFINITIONS
+//=============================================================================================================
+
+
+} // namespace ANSHAREDLIB
+
+#endif // ANSHAREDLIB_SURFACESETDATA_H

@@ -1,6 +1,6 @@
 //=============================================================================================================
 /**
-* @file     datasettings.cpp
+* @file     surfacesetdata.cpp
 * @author   Lars Debor <lars.debor@tu-ilmenau.de>;
 *           Matti Hamalainen <msh@nmr.mgh.harvard.edu>
 * @version  1.0
@@ -29,7 +29,7 @@
 * POSSIBILITY OF SUCH DAMAGE.
 *
 *
-* @brief    DataSettings class definition.
+* @brief    SurfaceSetData class definition.
 *
 */
 
@@ -39,7 +39,8 @@
 // INCLUDES
 //=============================================================================================================
 
-#include "datasettings.h"
+#include "surfacesetdata.h"
+#include "surfacedata.h"
 
 
 //*************************************************************************************************************
@@ -60,6 +61,7 @@
 //=============================================================================================================
 
 using namespace ANSHAREDLIB;
+using namespace FSLIB;
 
 
 //*************************************************************************************************************
@@ -73,11 +75,11 @@ using namespace ANSHAREDLIB;
 // DEFINE MEMBER METHODS
 //=============================================================================================================
 
-DataSettings::DataSettings()
+SurfaceSetData::SurfaceSetData()
 {
 }
 
-DataSettings::~DataSettings()
+SurfaceSetData::SurfaceSetData(const QString &subject_id, qint32 hemi, const QString &surf, const QString &subjects_dir)
 {
 
 }

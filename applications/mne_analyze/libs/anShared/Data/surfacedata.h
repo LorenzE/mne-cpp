@@ -1,7 +1,7 @@
 //=============================================================================================================
 /**
-* @file     abstractdata.h
-* @author   Lars Debor <lars.debor@tu-ilmenau.de>;
+* @file     surfacedata.h
+* @author   Lars Debor <lars.debor@tu-ilmenaul.de>;
 *           Matti Hamalainen <msh@nmr.mgh.harvard.edu>
 * @version  1.0
 * @date     March, 2018
@@ -29,12 +29,12 @@
 * POSSIBILITY OF SUCH DAMAGE.
 *
 *
-* @brief     AbstractData class declaration.
+* @brief     SurfaceData class declaration.
 *
 */
 
-#ifndef ANSHAREDLIB_ABSTRACTDATA_H
-#define ANSHAREDLIB_ABSTRACTDATA_H
+#ifndef ANSHAREDLIB_SURFACEDATA_H
+#define ANSHAREDLIB_SURFACEDATA_H
 
 
 //*************************************************************************************************************
@@ -42,7 +42,9 @@
 // INCLUDES
 //=============================================================================================================
 
+#include "abstractdata.h"
 #include "../anshared_global.h"
+#include <fs/surface.h>
 
 
 //*************************************************************************************************************
@@ -57,6 +59,8 @@
 //=============================================================================================================
 // Eigen INCLUDES
 //=============================================================================================================
+
+#include <Eigen/Core>
 
 
 //*************************************************************************************************************
@@ -78,52 +82,131 @@ namespace ANSHAREDLIB {
 // ANSHAREDLIB FORWARD DECLARATIONS
 //=============================================================================================================
 
-class DataSettings;
-
 
 //=============================================================================================================
 /**
-* Description of what this class is intended to do (in detail).
+* This is a wrapper class for Surface.
 *
-* @brief Brief description of this class.
+* @brief This is a wrapper class for Surface.
 */
-class ANSHAREDSHARED_EXPORT AbstractData
+class ANSHAREDSHARED_EXPORT SurfaceData : public AbstractData
 {
 
 public:
-    typedef QSharedPointer<AbstractData> SPtr;            /**< Shared pointer type for AbstractData. */
-    typedef QSharedPointer<const AbstractData> ConstSPtr; /**< Const shared pointer type for AbstractData. */
+    typedef QSharedPointer<SurfaceData> SPtr;            /**< Shared pointer type for SurfaceData. */
+    typedef QSharedPointer<const SurfaceData> ConstSPtr; /**< Const shared pointer type for SurfaceData. */
 
     //=========================================================================================================
     /**
-    * Constructs a AbstractData object.
+    * Default Constructor.
     */
-    AbstractData();
+    SurfaceData();
 
     //=========================================================================================================
     /**
-    * Destructor.
+    * Construts the surface by reading it of the given file.
+    *
+    * @param[in] p_sFile    Surface file name with path
     */
-    virtual ~AbstractData();
+    explicit SurfaceData(const QString& p_sFile);
 
-    virtual QSharedPointer<DataSettings> getSettings();
+    //=========================================================================================================
+    /**
+    * Construts the surface by reading it of the given file.
+    *
+    * @param[in] subject_id         Name of subject
+    * @param[in] hemi               Which hemisphere to load {0 -> lh, 1 -> rh}
+    * @param[in] surf               Name of the surface to load (eg. inflated, orig ...)
+    * @param[in] subjects_dir       Subjects directory
+    */
+    explicit SurfaceData(const QString &subject_id, qint32 hemi, const QString &surf, const QString &subjects_dir);
+
+    //=========================================================================================================
+    /**
+    * Default Destructor.
+    */
+    ~SurfaceData() = default;
+
+    //=========================================================================================================
+    /**
+    * Returns whether SurfaceData is empty.
+    *
+    * @return true if is empty, false otherwise
+    */
+    inline bool isEmpty() const;
+
+    //=========================================================================================================
+    /**
+    * Coordinates of vertices (rr)
+    *
+    * @return coordinates of vertices
+    */
+    inline const Eigen::Matrix3f& vertices() const;
+
+    //=========================================================================================================
+    /**
+    * Normalized surface normals for each vertex
+    *
+    * @return surface normals
+    */
+    inline const Eigen::MatrixX3f& normals() const;
+
+    //=========================================================================================================
+    /**
+    * The triangle descriptions
+    *
+    * @return triangle descriptions
+    */
+    inline const Eigen::MatrixX3i& tris() const;
 
 protected:
 
 private:
 
-    QSharedPointer<DataSettings>            m_pSettings;
+    FSLIB::Surface      m_surface;
 
+    //TODO SETTINGS: hemi, surfname, path, offset, filename
 
 };
-
 
 //*************************************************************************************************************
 //=============================================================================================================
 // INLINE DEFINITIONS
 //=============================================================================================================
 
+bool SurfaceData::isEmpty() const
+{
+    return m_surface.isEmpty();
+}
+
+
+//*************************************************************************************************************
+
+const Eigen::Matrix3f &SurfaceData::vertices() const
+{
+    return m_surface.rr();
+}
+
+
+//*************************************************************************************************************
+
+const Eigen::MatrixX3f &SurfaceData::normals() const
+{
+    return m_surface.nn();
+}
+
+
+//*************************************************************************************************************
+
+const Eigen::MatrixX3i &SurfaceData::tris() const
+{
+    return m_surface.tris();
+}
+
+
+//*************************************************************************************************************
+
 
 } // namespace ANSHAREDLIB
 
-#endif // ANSHAREDLIB_ABSTRACTDATA_H
+#endif // ANSHAREDLIB_SURFACEDATA_H
