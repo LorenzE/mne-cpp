@@ -1,6 +1,6 @@
 //=============================================================================================================
 /**
-* @file     datastorage.h
+* @file     abstractdata.h
 * @author   Lars Debor <lars.debor@tu-ilmenau.de>;
 *           Matti Hamalainen <msh@nmr.mgh.harvard.edu>
 * @version  1.0
@@ -29,12 +29,12 @@
 * POSSIBILITY OF SUCH DAMAGE.
 *
 *
-* @brief     DataStorage class declaration.
+* @brief     AbstractData class declaration.
 *
 */
 
-#ifndef ANSHAREDLIB_DATASTORAGE_H
-#define ANSHAREDLIB_DATASTORAGE_H
+#ifndef ANSHAREDLIB_ABSTRACTDATA_H
+#define ANSHAREDLIB_ABSTRACTDATA_H
 
 
 //*************************************************************************************************************
@@ -49,8 +49,6 @@
 //=============================================================================================================
 
 #include <QSharedPointer>
-#include <QHash>
-#include <QString>
 
 
 //*************************************************************************************************************
@@ -78,7 +76,8 @@ namespace ANSHAREDLIB {
 // ANSHAREDLIB FORWARD DECLARATIONS
 //=============================================================================================================
 
-class AbstractData;
+class DataSettings;
+
 
 //=============================================================================================================
 /**
@@ -86,25 +85,33 @@ class AbstractData;
 *
 * @brief Brief description of this class.
 */
-class DataStorage
+class AbstractData
 {
 
 public:
-    typedef QSharedPointer<DataStorage> SPtr;            /**< Shared pointer type for DataStorage. */
-    typedef QSharedPointer<const DataStorage> ConstSPtr; /**< Const shared pointer type for DataStorage. */
+    typedef QSharedPointer<AbstractData> SPtr;            /**< Shared pointer type for AbstractData. */
+    typedef QSharedPointer<const AbstractData> ConstSPtr; /**< Const shared pointer type for AbstractData. */
 
     //=========================================================================================================
     /**
-    * Constructs a DataStorage object.
+    * Constructs a AbstractData object.
     */
-    DataStorage();
+    AbstractData();
+
+    //=========================================================================================================
+    /**
+    * Destructor.
+    */
+    virtual ~AbstractData();
+
+    virtual QSharedPointer<DataSettings> getSettings();
 
 protected:
 
 private:
 
-    //TODO File names as keys
-    QHash<QString, QSharedPointer<AbstractData> >        m_data;
+    QSharedPointer<DataSettings>            m_pSettings;
+
 
 };
 
@@ -117,4 +124,4 @@ private:
 
 } // namespace ANSHAREDLIB
 
-#endif // ANSHAREDLIB_DATASTORAGE_H
+#endif // ANSHAREDLIB_ABSTRACTDATA_H
