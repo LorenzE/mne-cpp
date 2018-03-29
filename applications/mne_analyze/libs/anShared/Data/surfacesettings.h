@@ -1,7 +1,7 @@
 //=============================================================================================================
 /**
-* @file     surfacedata.cpp
-* @author   Lars Debor <lars.debor@tu-ilmenaul.de>;
+* @file     surfacesettings.h
+* @author   Lars Debor <lars.debor@tu-ilmenau.de>;
 *           Matti Hamalainen <msh@nmr.mgh.harvard.edu>
 * @version  1.0
 * @date     March, 2018
@@ -29,9 +29,12 @@
 * POSSIBILITY OF SUCH DAMAGE.
 *
 *
-* @brief    SurfaceData class definition.
+* @brief     SurfaceSettings class declaration.
 *
 */
+
+#ifndef ANSHAREDLIB_SURFACESETTINGS_H
+#define ANSHAREDLIB_SURFACESETTINGS_H
 
 
 //*************************************************************************************************************
@@ -39,9 +42,7 @@
 // INCLUDES
 //=============================================================================================================
 
-#include "surfacedata.h"
-#include <fs/surface.h>
-#include "surfacesettings.h"
+#include "datasettings.h"
 
 
 //*************************************************************************************************************
@@ -49,89 +50,94 @@
 // QT INCLUDES
 //=============================================================================================================
 
+#include <QSharedPointer>
+#include <QPointer>
+
 
 //*************************************************************************************************************
 //=============================================================================================================
 // Eigen INCLUDES
 //=============================================================================================================
 
-
-//*************************************************************************************************************
-//=============================================================================================================
-// USED NAMESPACES
-//=============================================================================================================
-
-using namespace ANSHAREDLIB;
-using namespace FSLIB;
-
-//*************************************************************************************************************
-//=============================================================================================================
-// DEFINE GLOBAL METHODS
-//=============================================================================================================
+#include <Eigen/Core>
 
 
 //*************************************************************************************************************
 //=============================================================================================================
-// DEFINE MEMBER METHODS
+// FORWARD DECLARATIONS
 //=============================================================================================================
 
-SurfaceData::SurfaceData()
-: m_surface(Surface())
-{
+namespace FSLIB {
+    class Surface;
 }
+
+//*************************************************************************************************************
+//=============================================================================================================
+// DEFINE NAMESPACE ANSHAREDLIB
+//=============================================================================================================
+
+namespace ANSHAREDLIB {
 
 
 //*************************************************************************************************************
+//=============================================================================================================
+// ANSHAREDLIB FORWARD DECLARATIONS
+//=============================================================================================================
 
-SurfaceData::SurfaceData(const QString &p_sFile)
-: m_surface(Surface(p_sFile))
+
+//=============================================================================================================
+/**
+* Description of what this class is intended to do (in detail).
+*
+* @brief Brief description of this class.
+*/
+class SurfaceSettings : public DataSettings
 {
 
-}
+public:
+    typedef QSharedPointer<SurfaceSettings> SPtr;            /**< Shared pointer type for SurfaceSettings. */
+    typedef QSharedPointer<const SurfaceSettings> ConstSPtr; /**< Const shared pointer type for SurfaceSettings. */
+
+    SurfaceSettings() = delete;
+
+    //=========================================================================================================
+    /**
+    * Constructs a SurfaceSettings object.
+    */
+    SurfaceSettings(FSLIB::Surface* pSurface);
+
+    qint32 getHemi() const;
+
+    QString getSurfaceType() const;
+
+    Eigen::Vector3f getOffset() const;
+
+    QString getFilePath() const;
+
+    QString getFileName() const;
+
+    void setFilePath(const QString &sPath);
+
+    void setOffset(const Eigen::Vector3f &vOffset);
+
+protected:
+
+private:
+    FSLIB::Surface*     m_pSurface;
+
+signals:
+
+
+
+};
 
 
 //*************************************************************************************************************
-
-SurfaceData::SurfaceData(const QString &subject_id, qint32 hemi, const QString &surf, const QString &subjects_dir)
-: m_surface(Surface(subject_id, hemi, surf, subjects_dir))
-{
-
-}
+//=============================================================================================================
+// INLINE DEFINITIONS
+//=============================================================================================================
 
 
-//*************************************************************************************************************
+} // namespace ANSHAREDLIB
 
-void SurfaceData::initiSettings()
-{
-    m_pSettings = QSharedPointer<SurfaceSettings>::create(&m_surface);
-}
-
-
-//*************************************************************************************************************
-
-
-Vector3f SurfaceData::vertexAt(int idx) const
-{
-    Eigen::Vector3f vector;
-    vector[0] = m_surface.rr()(idx, 0);
-    vector[1] = m_surface.rr()(idx, 1);
-    vector[2] = m_surface.rr()(idx, 2);
-
-    return vector;
-}
-
-
-//*************************************************************************************************************
-
-Vector3f SurfaceData::normalAt(int idx) const
-{
-    Eigen::Vector3f vector;
-    vector[0] = m_surface.nn()(idx, 0);
-    vector[1] = m_surface.nn()(idx, 1);
-    vector[2] = m_surface.nn()(idx, 2);
-
-    return vector;
-}
-
-
-//*************************************************************************************************************
+#endif // ANSHAREDLIB_SURFACESETTINGS_H

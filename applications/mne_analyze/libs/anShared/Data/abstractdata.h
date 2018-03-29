@@ -106,11 +106,11 @@ public:
     */
     virtual ~AbstractData();
 
+    virtual void initiSettings() = 0;
+
     virtual QSharedPointer<DataSettings> getSettings();
 
 protected:
-
-private:
 
     QSharedPointer<DataSettings>            m_pSettings;
 

@@ -1,7 +1,7 @@
 //=============================================================================================================
 /**
-* @file     surfacedata.cpp
-* @author   Lars Debor <lars.debor@tu-ilmenaul.de>;
+* @file     surfacemodel.cpp
+* @author   Lars Debor <lars.debor@tu-ilmenau.de>;
 *           Matti Hamalainen <msh@nmr.mgh.harvard.edu>
 * @version  1.0
 * @date     March, 2018
@@ -29,7 +29,7 @@
 * POSSIBILITY OF SUCH DAMAGE.
 *
 *
-* @brief    SurfaceData class definition.
+* @brief    SurfaceModel class definition.
 *
 */
 
@@ -39,9 +39,8 @@
 // INCLUDES
 //=============================================================================================================
 
-#include "surfacedata.h"
-#include <fs/surface.h>
-#include "surfacesettings.h"
+#include "surfacemodel.h"
+#include "../Utils/types.h"
 
 
 //*************************************************************************************************************
@@ -62,7 +61,8 @@
 //=============================================================================================================
 
 using namespace ANSHAREDLIB;
-using namespace FSLIB;
+using namespace Eigen;
+
 
 //*************************************************************************************************************
 //=============================================================================================================
@@ -75,63 +75,45 @@ using namespace FSLIB;
 // DEFINE MEMBER METHODS
 //=============================================================================================================
 
-SurfaceData::SurfaceData()
-: m_surface(Surface())
-{
-}
-
-
-//*************************************************************************************************************
-
-SurfaceData::SurfaceData(const QString &p_sFile)
-: m_surface(Surface(p_sFile))
+SurfaceModel::SurfaceModel(SurfaceData* pSurfaceData)
+: m_pSurfaceData(pSurfaceData)
 {
 
 }
 
+int SurfaceModel::rowCount(const QModelIndex &parent) const
+{
+    return m_pSurfaceData->vertices().cols();
+}
 
-//*************************************************************************************************************
+int SurfaceModel::columnCount(const QModelIndex &parent) const
+{
+    return 2;
+}
 
-SurfaceData::SurfaceData(const QString &subject_id, qint32 hemi, const QString &surf, const QString &subjects_dir)
-: m_surface(Surface(subject_id, hemi, surf, subjects_dir))
+QVariant SurfaceModel::data(const QModelIndex &index, int role) const
+{
+
+    if(index.isValid()) {
+        QVariant output;
+        if(index.column() == 0 && role == Qt::DisplayRole) {
+            output.setValue(m_pSurfaceData->vertexAt(index.row()));
+            return output;
+        }
+
+        if(index.column() == 1 && role == Qt::DisplayRole) {
+            output.setValue(m_pSurfaceData->normalAt(index.row()));
+            return output;
+        }
+    }
+}
+
+QVariant SurfaceModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
 
 }
 
 
-//*************************************************************************************************************
-
-void SurfaceData::initiSettings()
-{
-    m_pSettings = QSharedPointer<SurfaceSettings>::create(&m_surface);
-}
-
-
-//*************************************************************************************************************
-
-
-Vector3f SurfaceData::vertexAt(int idx) const
-{
-    Eigen::Vector3f vector;
-    vector[0] = m_surface.rr()(idx, 0);
-    vector[1] = m_surface.rr()(idx, 1);
-    vector[2] = m_surface.rr()(idx, 2);
-
-    return vector;
-}
-
-
-//*************************************************************************************************************
-
-Vector3f SurfaceData::normalAt(int idx) const
-{
-    Eigen::Vector3f vector;
-    vector[0] = m_surface.nn()(idx, 0);
-    vector[1] = m_surface.nn()(idx, 1);
-    vector[2] = m_surface.nn()(idx, 2);
-
-    return vector;
-}
 
 
 //*************************************************************************************************************

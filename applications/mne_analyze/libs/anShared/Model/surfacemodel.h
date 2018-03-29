@@ -1,7 +1,7 @@
 //=============================================================================================================
 /**
-* @file     surfacedata.cpp
-* @author   Lars Debor <lars.debor@tu-ilmenaul.de>;
+* @file     surfacemodel.h
+* @author   Lars Debor <lars.debor@tu-ilmenau.de>;
 *           Matti Hamalainen <msh@nmr.mgh.harvard.edu>
 * @version  1.0
 * @date     March, 2018
@@ -29,9 +29,12 @@
 * POSSIBILITY OF SUCH DAMAGE.
 *
 *
-* @brief    SurfaceData class definition.
+* @brief     SurfaceModel class declaration.
 *
 */
+
+#ifndef ANSHAREDLIB_SURFACEMODEL_H
+#define ANSHAREDLIB_SURFACEMODEL_H
 
 
 //*************************************************************************************************************
@@ -39,15 +42,15 @@
 // INCLUDES
 //=============================================================================================================
 
-#include "surfacedata.h"
-#include <fs/surface.h>
-#include "surfacesettings.h"
-
+#include "../Data/surfacedata.h"
 
 //*************************************************************************************************************
 //=============================================================================================================
 // QT INCLUDES
 //=============================================================================================================
+
+#include <QSharedPointer>
+#include <QAbstractTableModel>
 
 
 //*************************************************************************************************************
@@ -58,80 +61,68 @@
 
 //*************************************************************************************************************
 //=============================================================================================================
-// USED NAMESPACES
-//=============================================================================================================
-
-using namespace ANSHAREDLIB;
-using namespace FSLIB;
-
-//*************************************************************************************************************
-//=============================================================================================================
-// DEFINE GLOBAL METHODS
+// FORWARD DECLARATIONS
 //=============================================================================================================
 
 
 //*************************************************************************************************************
 //=============================================================================================================
-// DEFINE MEMBER METHODS
+// DEFINE NAMESPACE ANSHAREDLIB
 //=============================================================================================================
 
-SurfaceData::SurfaceData()
-: m_surface(Surface())
-{
-}
+namespace ANSHAREDLIB {
 
 
 //*************************************************************************************************************
+//=============================================================================================================
+// ANSHAREDLIB FORWARD DECLARATIONS
+//=============================================================================================================
 
-SurfaceData::SurfaceData(const QString &p_sFile)
-: m_surface(Surface(p_sFile))
+
+//=============================================================================================================
+/**
+* Description of what this class is intended to do (in detail).
+*
+* @brief Brief description of this class.
+*/
+class SurfaceModel : public QAbstractTableModel
 {
 
-}
+public:
+    typedef QSharedPointer<SurfaceModel> SPtr;            /**< Shared pointer type for SurfaceModel. */
+    typedef QSharedPointer<const SurfaceModel> ConstSPtr; /**< Const shared pointer type for SurfaceModel. */
+
+    SurfaceModel() = delete;
+    //=========================================================================================================
+    /**
+    * Constructs a SurfaceModel object.
+    */
+    SurfaceModel(SurfaceData* pSurfaceData);
+
+    virtual int rowCount(const QModelIndex &parent = QModelIndex()) const override;
+    virtual int columnCount(const QModelIndex &parent = QModelIndex()) const override;
+    virtual QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
+    virtual QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const override;
+
+
+
+protected:
+
+private:
+
+    SurfaceData*    m_pSurfaceData;
+
+
+
+};
 
 
 //*************************************************************************************************************
-
-SurfaceData::SurfaceData(const QString &subject_id, qint32 hemi, const QString &surf, const QString &subjects_dir)
-: m_surface(Surface(subject_id, hemi, surf, subjects_dir))
-{
-
-}
+//=============================================================================================================
+// INLINE DEFINITIONS
+//=============================================================================================================
 
 
-//*************************************************************************************************************
+} // namespace ANSHAREDLIB
 
-void SurfaceData::initiSettings()
-{
-    m_pSettings = QSharedPointer<SurfaceSettings>::create(&m_surface);
-}
-
-
-//*************************************************************************************************************
-
-
-Vector3f SurfaceData::vertexAt(int idx) const
-{
-    Eigen::Vector3f vector;
-    vector[0] = m_surface.rr()(idx, 0);
-    vector[1] = m_surface.rr()(idx, 1);
-    vector[2] = m_surface.rr()(idx, 2);
-
-    return vector;
-}
-
-
-//*************************************************************************************************************
-
-Vector3f SurfaceData::normalAt(int idx) const
-{
-    Eigen::Vector3f vector;
-    vector[0] = m_surface.nn()(idx, 0);
-    vector[1] = m_surface.nn()(idx, 1);
-    vector[2] = m_surface.nn()(idx, 2);
-
-    return vector;
-}
-
-
-//*************************************************************************************************************
+#endif // ANSHAREDLIB_SURFACEMODEL_H

@@ -71,11 +71,13 @@ SOURCES += \
     Management/analyzesettings.cpp \
     Management/extensionmanager.cpp \
     Data/datastorage.cpp \
-    Model/modelstorage.cpp \
     Data/abstractdata.cpp \
     Data/datasettings.cpp \
     Data/surfacesetdata.cpp \
-    Data/surfacedata.cpp
+    Data/surfacedata.cpp \
+    Data/surfacesettings.cpp \
+    Model/modelstorage.cpp \
+    Model/surfacemodel.cpp
 
 HEADERS += \
     anshared_global.h \
@@ -85,11 +87,15 @@ HEADERS += \
     Interfaces/IStandardView.h \
     Interfaces/IExtension.h \
     Data/datastorage.h \
-    Model/modelstorage.h \
     Data/abstractdata.h \
     Data/datasettings.h \
     Data/surfacesetdata.h \
-    Data/surfacedata.h
+    Data/surfacedata.h \
+    Data/surfacesettings.h \
+    Model/modelstorage.h \
+    Model/surfacemodel.h \
+    Utils/types.h \
+    anshared_global.h
 
 
 INCLUDEPATH += $${EIGEN_INCLUDE_DIR}

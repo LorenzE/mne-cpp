@@ -127,6 +127,8 @@ public:
     */
     ~SurfaceData() = default;
 
+    void initiSettings() override;
+
     //=========================================================================================================
     /**
     * Returns whether SurfaceData is empty.
@@ -141,7 +143,9 @@ public:
     *
     * @return coordinates of vertices
     */
-    inline const Eigen::Matrix3f& vertices() const;
+    inline const Eigen::MatrixX3f& vertices() const;
+
+    Eigen::Vector3f vertexAt(int idx) const;
 
     //=========================================================================================================
     /**
@@ -150,6 +154,8 @@ public:
     * @return surface normals
     */
     inline const Eigen::MatrixX3f& normals() const;
+
+    Eigen::Vector3f normalAt(int idx) const;
 
     //=========================================================================================================
     /**
@@ -182,7 +188,7 @@ bool SurfaceData::isEmpty() const
 
 //*************************************************************************************************************
 
-const Eigen::Matrix3f &SurfaceData::vertices() const
+const Eigen::MatrixX3f &SurfaceData::vertices() const
 {
     return m_surface.rr();
 }
