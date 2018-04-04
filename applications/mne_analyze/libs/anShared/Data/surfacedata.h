@@ -165,6 +165,18 @@ public:
     */
     inline const Eigen::MatrixX3i& tris() const;
 
+    Eigen::Vector3i triAt(int idx) const;
+
+    //=========================================================================================================
+    /**
+    * FreeSurfer curvature
+    *
+    * @return the FreeSurfer curvature data
+    */
+    inline const Eigen::VectorXf& curvature() const;
+
+    float curvAt(int idx) const;
+
 protected:
 
 private:
@@ -207,6 +219,14 @@ const Eigen::MatrixX3f &SurfaceData::normals() const
 const Eigen::MatrixX3i &SurfaceData::tris() const
 {
     return m_surface.tris();
+}
+
+
+//*************************************************************************************************************
+
+const Eigen::VectorXf &SurfaceData::curvature() const
+{
+    return m_surface.curv();
 }
 
 

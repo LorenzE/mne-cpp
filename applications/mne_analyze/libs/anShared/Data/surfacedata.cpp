@@ -135,3 +135,24 @@ Vector3f SurfaceData::normalAt(int idx) const
 
 
 //*************************************************************************************************************
+
+Vector3i SurfaceData::triAt(int idx) const
+{
+    Eigen::Vector3i vector;
+    vector[0] = m_surface.tris()(idx, 0);
+    vector[1] = m_surface.tris()(idx, 1);
+    vector[2] = m_surface.tris()(idx, 2);
+
+    return vector;
+}
+
+
+//*************************************************************************************************************
+
+float SurfaceData::curvAt(int idx) const
+{
+    return m_surface.curv()[idx];
+}
+
+
+//*************************************************************************************************************
