@@ -100,7 +100,16 @@ public:
     typedef QSharedPointer<SurfaceModel> SPtr;            /**< Shared pointer type for SurfaceModel. */
     typedef QSharedPointer<const SurfaceModel> ConstSPtr; /**< Const shared pointer type for SurfaceModel. */
 
+private:
+    enum  InternalId {
+        VerticeItem = 1,
+        NormalItem = 2,
+        TriangleItem = 3,
+        CurvatureItem = 4,
+    };
+
     SurfaceModel() = delete;
+
     //=========================================================================================================
     /**
     * Constructs a SurfaceModel object.

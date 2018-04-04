@@ -90,32 +90,31 @@ QVariant SurfaceModel::data(const QModelIndex &index, int role) const
     if(index.isValid() && role == Qt::DisplayRole) {
         QVariant output;
         // Vertices:
-        if(index.row() == 0) {
+        if(index.internalId() == InternalId::VerticeItem) {
             output.setValue(m_pSurfaceData->vertexAt(index.column()));
             return output;
         }
 
         // Normals:
-        if(index.row() == 1) {
+        else if(index.internalId() == InternalId::NormalItem) {
             output.setValue(m_pSurfaceData->normalAt(index.column()));
             return output;
         }
 
         // Triangles:
-        if(index.row() == 2) {
+        else if(index.internalId() == InternalId::TriangleItem) {
             output.setValue(m_pSurfaceData->triAt(index.column()));
             return output;
         }
 
         // Curvature:
-        if(index.row() == 3) {
+        else if(index.internalId() == InternalId::CurvatureItem) {
             output.setValue(m_pSurfaceData->curvAt(index.column()));
             return output;
         }
     }
 
    return QVariant();
-
 }
 
 
@@ -143,10 +142,19 @@ QModelIndex SurfaceModel::index(int row, int column, const QModelIndex &parent) 
         return QModelIndex();
     }
 
-
+    //TODO rework this
     if(!parent.isValid()) {
         if(row == 0) {
-
+            return createIndex(row, column, InternalId::VerticeItem);
+        }
+        else if(row == 1) {
+            return createIndex(row, column, InternalId::NormalItem);
+        }
+        else if(row == 2) {
+            return createIndex(row, column, InternalId::TriangleItem);
+        }
+        else if(row == 3) {
+            return createIndex(row, column, InternalId::CurvatureItem);
         }
     }
 }
@@ -180,7 +188,30 @@ int SurfaceModel::rowCount(const QModelIndex &parent) const
 
 int SurfaceModel::columnCount(const QModelIndex &parent) const
 {
-    return 2;
+    int col = 0;
+
+    switch(parent.internalId()) {
+        case InternalId::VerticeItem:
+            col = m_pSurfaceData->vertices().rows();
+            break;
+
+        case InternalId::NormalItem:
+            col = m_pSurfaceData->normals().rows();
+            break;
+
+        case InternalId::TriangleItem:
+            col = m_pSurfaceData->tris().rows();
+            break;
+
+        case InternalId::CurvatureItem:
+            col = m_pSurfaceData->curvature().rows();
+            break;
+
+        default:
+            break;
+    }
+
+    return col;
 }
 
 
