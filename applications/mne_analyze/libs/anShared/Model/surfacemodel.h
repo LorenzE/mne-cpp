@@ -50,7 +50,7 @@
 //=============================================================================================================
 
 #include <QSharedPointer>
-#include <QAbstractTableModel>
+#include <QAbstractItemModel>
 
 
 //*************************************************************************************************************
@@ -81,12 +81,20 @@ namespace ANSHAREDLIB {
 
 //=============================================================================================================
 /**
-* Description of what this class is intended to do (in detail).
+* This model is used to access surface data.
+* Structure:
+*
+*           root
+*             |
+*     row = 0 |--Vertices [column]
+*             |
+*     row = 1 |--Normals [column]
 *
 * @brief Brief description of this class.
 */
-class SurfaceModel : public QAbstractTableModel
+class SurfaceModel : public QAbstractItemModel
 {
+    Q_OBJECT
 
 public:
     typedef QSharedPointer<SurfaceModel> SPtr;            /**< Shared pointer type for SurfaceModel. */
@@ -97,14 +105,31 @@ public:
     /**
     * Constructs a SurfaceModel object.
     */
-    SurfaceModel(SurfaceData* pSurfaceData);
+    explicit SurfaceModel(SurfaceData* pSurfaceData, QObject* pParent = nullptr);
 
-    virtual int rowCount(const QModelIndex &parent = QModelIndex()) const override;
-    virtual int columnCount(const QModelIndex &parent = QModelIndex()) const override;
-    virtual QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
-    virtual QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const override;
+    ~SurfaceModel() = default;
 
+    QVariant data(const QModelIndex &index, int role) const override;
 
+    Qt::ItemFlags flags(const QModelIndex &index) const override;
+
+    QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const override;
+
+    QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const override;
+
+    QModelIndex parent(const QModelIndex &index) const override;
+
+    //=========================================================================================================
+    /**
+    * Returns the number of childeren for the parent node.
+    */
+    int rowCount(const QModelIndex &parent = QModelIndex()) const override;
+
+    //=========================================================================================================
+    /**
+    * Returns the number of objects stored in the node.
+    */
+    int columnCount(const QModelIndex &parent = QModelIndex()) const override;
 
 protected:
 

@@ -75,45 +75,113 @@ using namespace Eigen;
 // DEFINE MEMBER METHODS
 //=============================================================================================================
 
-SurfaceModel::SurfaceModel(SurfaceData* pSurfaceData)
-: m_pSurfaceData(pSurfaceData)
+SurfaceModel::SurfaceModel(SurfaceData* pSurfaceData, QObject *pParent)
+: QAbstractItemModel(pParent)
+, m_pSurfaceData(pSurfaceData)
 {
 
 }
+
+
+//*************************************************************************************************************
+
+QVariant SurfaceModel::data(const QModelIndex &index, int role) const
+{
+    if(index.isValid() && role == Qt::DisplayRole) {
+        QVariant output;
+        // Vertices:
+        if(index.row() == 0) {
+            output.setValue(m_pSurfaceData->vertexAt(index.column()));
+            return output;
+        }
+
+        // Normals:
+        if(index.row() == 1) {
+            output.setValue(m_pSurfaceData->normalAt(index.column()));
+            return output;
+        }
+
+        // Triangles:
+        if(index.row() == 2) {
+            output.setValue(m_pSurfaceData->triAt(index.column()));
+            return output;
+        }
+
+        // Curvature:
+        if(index.row() == 3) {
+            output.setValue(m_pSurfaceData->curvAt(index.column()));
+            return output;
+        }
+    }
+
+   return QVariant();
+
+}
+
+
+//*************************************************************************************************************
+
+Qt::ItemFlags SurfaceModel::flags(const QModelIndex &index) const
+{
+    return Qt::NoItemFlags;
+}
+
+
+//*************************************************************************************************************
+
+QVariant SurfaceModel::headerData(int section, Qt::Orientation orientation, int role) const
+{
+    return QVariant();
+}
+
+
+//*************************************************************************************************************
+
+QModelIndex SurfaceModel::index(int row, int column, const QModelIndex &parent) const
+{
+    if(!hasIndex(row, column, parent)) {
+        return QModelIndex();
+    }
+
+
+    if(!parent.isValid()) {
+        if(row == 0) {
+
+        }
+    }
+}
+
+
+//*************************************************************************************************************
+
+QModelIndex SurfaceModel::parent(const QModelIndex &index) const
+{
+    //Only the root node has childeren, therefore all parents are an invalid model index
+    return QModelIndex();
+}
+
+
+//*************************************************************************************************************
 
 int SurfaceModel::rowCount(const QModelIndex &parent) const
 {
-    return m_pSurfaceData->vertices().cols();
+    //if parent == root node
+    if(!parent.isValid()) {
+        return 4;
+    }
+    else {
+        // only the root node has children
+        return 0;
+    }
 }
+
+
+//*************************************************************************************************************
 
 int SurfaceModel::columnCount(const QModelIndex &parent) const
 {
     return 2;
 }
-
-QVariant SurfaceModel::data(const QModelIndex &index, int role) const
-{
-
-    if(index.isValid()) {
-        QVariant output;
-        if(index.column() == 0 && role == Qt::DisplayRole) {
-            output.setValue(m_pSurfaceData->vertexAt(index.row()));
-            return output;
-        }
-
-        if(index.column() == 1 && role == Qt::DisplayRole) {
-            output.setValue(m_pSurfaceData->normalAt(index.row()));
-            return output;
-        }
-    }
-}
-
-QVariant SurfaceModel::headerData(int section, Qt::Orientation orientation, int role) const
-{
-
-}
-
-
 
 
 //*************************************************************************************************************
