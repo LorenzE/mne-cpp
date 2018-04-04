@@ -73,6 +73,7 @@ namespace MNEANALYZE
 } //NAMESPACE
 
 Q_DECLARE_METATYPE(Eigen::Vector3f);
+Q_DECLARE_METATYPE(Eigen::Vector3i);
 
 
 #endif // TYPES_H
