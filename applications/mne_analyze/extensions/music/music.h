@@ -115,6 +115,9 @@ public:
     virtual QDockWidget* getControl();
     virtual QWidget* getView();
 
+    virtual void handleEvent(ANSHAREDLIB::Event *e);
+    virtual QVector<ANSHAREDLIB::Event::EVENT_TYPE> getEventSubscriptions() const;
+
     //=========================================================================================================
     /**
     * Called when calculation is requested

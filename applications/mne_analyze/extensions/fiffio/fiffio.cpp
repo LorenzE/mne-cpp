@@ -124,3 +124,21 @@ QWidget *FiffIO::getView()
 {
     return Q_NULLPTR;
 }
+
+
+
+//*************************************************************************************************************
+
+void FiffIO::handleEvent(Event *e)
+{
+
+}
+
+
+//*************************************************************************************************************
+
+QVector<Event::EVENT_TYPE> FiffIO::getEventSubscriptions(void) const
+{
+    QVector<Event::EVENT_TYPE> temp;
+    return temp;
+}

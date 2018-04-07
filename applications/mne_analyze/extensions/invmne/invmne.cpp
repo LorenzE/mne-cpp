@@ -158,6 +158,25 @@ QWidget *InvMNE::getView()
 
 //*************************************************************************************************************
 
+void InvMNE::handleEvent(Event *e)
+{
+    std::cout << "InvMNE has seen event nr. " << e->getType() << std::endl;
+}
+
+
+//*************************************************************************************************************
+
+QVector<Event::EVENT_TYPE> InvMNE::getEventSubscriptions(void) const
+{
+    // EXPERIMENTAL
+    QVector<Event::EVENT_TYPE> temp;
+    temp.push_back(Event::EVENT_TYPE::PING);
+    return temp;
+}
+
+
+//*************************************************************************************************************
+
 void InvMNE::calculate()
 {
 //    printf("Data contains %d sets\n",evokedSet.evoked.size());

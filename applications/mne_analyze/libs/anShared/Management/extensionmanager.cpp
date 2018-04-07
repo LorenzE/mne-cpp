@@ -42,6 +42,7 @@ Copyright (C) 2017, Christoph Dinh, Lars Debor, Simon Heinke and Matti Hamalaine
 
 #include "extensionmanager.h"
 #include "../Interfaces/IExtension.h"
+#include "eventmanager.h"
 
 
 //*************************************************************************************************************
@@ -118,9 +119,9 @@ void ExtensionManager::initExtensions(QSharedPointer<AnalyzeSettings>& settings,
         extension->setGlobalSettings(settings);
         extension->setGlobalData(data);
         extension->init();
+        EventManager::addExtension(extension);
     }
 }
-
 
 //*************************************************************************************************************
 

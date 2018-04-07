@@ -1,14 +1,15 @@
 //=============================================================================================================
 /**
-* @file     dipolefit.h
-* @author   Christoph Dinh <chdinh@nmr.mgh.harvard.edu>;
+* @file     eventmanager.h
+* @author   Lars Debor <lars.debor@tu-ilmenau.de>;
+*           Simon Heinke <simon.heinke@tu-ilmenau.de>;
 *           Matti Hamalainen <msh@nmr.mgh.harvard.edu>
 * @version  1.0
-* @date     February, 2017
+* @date     April, 2018
 *
 * @section  LICENSE
 *
-* Copyright (C) 2017 Christoph Dinh and Matti Hamalainen. All rights reserved.
+* Copyright (C) 2018, Lars Debor, Simon Heinke and Matti Hamalainen. All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without modification, are permitted provided that
 * the following conditions are met:
@@ -29,47 +30,36 @@
 * POSSIBILITY OF SUCH DAMAGE.
 *
 *
-* @brief    Contains the declaration of the FiffIO class.
+* @brief    EventManager class declaration.
 *
 */
 
-#ifndef DIPOLEFIT_H
-#define DIPOLEFIT_H
+#ifndef ANSHAREDLIB_EVENT_MANAGER_H
+#define ANSHAREDLIB_EVENT_MANAGER_H
 
 //*************************************************************************************************************
 //=============================================================================================================
 // INCLUDES
 //=============================================================================================================
 
-#include "dipolefit_global.h"
-
-#include <anShared/Interfaces/IExtension.h>
-
-
+#include "../anshared_global.h"
+#include "event.h"
 
 //*************************************************************************************************************
 //=============================================================================================================
 // QT INCLUDES
 //=============================================================================================================
 
-#include <QtWidgets>
-#include <QtCore/QtPlugin>
-
-
-//*************************************************************************************************************
-//=============================================================================================================
-// FORWARD DECLARATIONS
-//=============================================================================================================
-
-class DipoleFitControl;
-
+#include <QSharedPointer>
+#include <QPointer>
+#include <QMultiMap>
 
 //*************************************************************************************************************
 //=============================================================================================================
-// DEFINE NAMESPACE DIPOLEFITEXTENSION
+// DEFINE NAMESPACE ANSHAREDLIB
 //=============================================================================================================
 
-namespace DIPOLEFITEXTENSION
+namespace ANSHAREDLIB
 {
 
 
@@ -78,54 +68,47 @@ namespace DIPOLEFITEXTENSION
 // FORWARD DECLARATIONS
 //=============================================================================================================
 
+class IExtension;
 
-//=============================================================================================================
+//=========================================================================================================
 /**
-* DipoleFit Extension
+* DECLARE CLASS EventManager
 *
-* @brief The DipoleFit class provides input and output capabilities for the fiff file format.
+* @brief EventManager for Event communication
 */
-class DIPOLEFITSHARED_EXPORT DipoleFit : public ANSHAREDLIB::IExtension
+class ANSHAREDSHARED_EXPORT EventManager
 {
-    Q_OBJECT
-    Q_PLUGIN_METADATA(IID "ansharedlib/1.0" FILE "dipolefit.json") //New Qt5 Plugin system replaces Q_EXPORT_PLUGIN2 macro
-    // Use the Q_INTERFACES() macro to tell Qt's meta-object system about the interfaces
-    Q_INTERFACES(ANSHAREDLIB::IExtension)
+private:
+    static QMultiMap<Event::EVENT_TYPE, IExtension*> m_routingTable;
 
 public:
-    //=========================================================================================================
-    /**
-    * Constructs a DipoleFit.
-    */
-    DipoleFit();
+    typedef QSharedPointer<EventManager> SPtr;            /**< Shared pointer type for GeometryInfo. */
+    typedef QSharedPointer<const EventManager> ConstSPtr; /**< Const shared pointer type for GeometryInfo. */
 
     //=========================================================================================================
     /**
-    * Destroys the DipoleFit.
+    * deleted default constructor (static class).
     */
-    ~DipoleFit();
+    EventManager() = delete;
 
-    // IExtension functions
-    virtual QSharedPointer<IExtension> clone() const;
-    virtual void init();
-    virtual void unload();
-    virtual QString getName() const;
+    //=========================================================================================================
+    /**
+     * @brief publishEvent Communicate an event to all entities that have registered for the respective event type
+     *
+     * @param e The event to publish
+     */
+    static void publishEvent(Event* e);
 
-    virtual QMenu* getMenu();
-    virtual QDockWidget* getControl();
-    virtual QWidget* getView();
-
-    virtual void handleEvent(ANSHAREDLIB::Event *e);
-    virtual QVector<ANSHAREDLIB::Event::EVENT_TYPE> getEventSubscriptions() const;
-
-protected:
-
-private:
-    // Control
-    QDockWidget*        m_pControl;             /**< Control Widget */
-    DipoleFitControl*   m_pDipoleFitControl;    /**< The Dipole Fit Control Widget */
+    //=========================================================================================================
+    /**
+     * @brief addExtension Adds an Extension to the communication manager, meaning that all Events that the
+     * Extensions has subscribed for will be passed to it.
+     *
+     * @param extension The Extension to add to the Event routing system.
+     */
+    static void addExtension(IExtension* extension);
 };
 
-} // NAMESPACE
+} // namespace
 
-#endif // DIPOLEFIT_H
+#endif // ANSHAREDLIB_EVENT_MANAGER_H

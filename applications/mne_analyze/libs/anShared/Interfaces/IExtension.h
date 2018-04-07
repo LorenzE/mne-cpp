@@ -42,7 +42,7 @@
 //=============================================================================================================
 
 #include "../anshared_global.h"
-
+#include "../Management/event.h"
 
 //*************************************************************************************************************
 //=============================================================================================================
@@ -141,6 +141,23 @@ public:
     * @return the view
     */
     virtual QWidget* getView() = 0;
+
+    //=========================================================================================================
+    /**
+    * Called by the EventManager in case a subscribed-for Event has happened
+    *
+    * @param e The Event that has taken place
+    */
+    virtual void handleEvent(Event* e) = 0;
+
+    //=========================================================================================================
+    /**
+    * Informs the EventManager about all Events that the Extension wants to know about. Can return an empty
+    * vector in case no Events need to be seen by the Extension
+    *
+    * @return The vector of relevant Events
+    */
+    virtual QVector<Event::EVENT_TYPE> getEventSubscriptions(void) const = 0;
 
     //=========================================================================================================
     /**

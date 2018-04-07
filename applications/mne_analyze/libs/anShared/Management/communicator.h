@@ -1,14 +1,15 @@
 //=============================================================================================================
 /**
-* @file     dipolefit.h
-* @author   Christoph Dinh <chdinh@nmr.mgh.harvard.edu>;
+* @file     communicator.h
+* @author   Lars Debor <lars.debor@tu-ilmenau.de>;
+*           Simon Heinke <simon.heinke@tu-ilmenau.de>;
 *           Matti Hamalainen <msh@nmr.mgh.harvard.edu>
 * @version  1.0
-* @date     February, 2017
+* @date     April, 2018
 *
 * @section  LICENSE
 *
-* Copyright (C) 2017 Christoph Dinh and Matti Hamalainen. All rights reserved.
+* Copyright (C) 2018, Lars Debor, Simon Heinke and Matti Hamalainen. All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without modification, are permitted provided that
 * the following conditions are met:
@@ -29,47 +30,35 @@
 * POSSIBILITY OF SUCH DAMAGE.
 *
 *
-* @brief    Contains the declaration of the FiffIO class.
+* @brief    Communicator class declaration.
 *
 */
 
-#ifndef DIPOLEFIT_H
-#define DIPOLEFIT_H
+#ifndef ANSHAREDLIB_COMMUNICATOR_H
+#define ANSHAREDLIB_COMMUNICATOR_H
 
 //*************************************************************************************************************
 //=============================================================================================================
 // INCLUDES
 //=============================================================================================================
 
-#include "dipolefit_global.h"
-
-#include <anShared/Interfaces/IExtension.h>
-
-
+#include "../anshared_global.h"
+#include "event.h"
 
 //*************************************************************************************************************
 //=============================================================================================================
 // QT INCLUDES
 //=============================================================================================================
 
-#include <QtWidgets>
-#include <QtCore/QtPlugin>
-
-
-//*************************************************************************************************************
-//=============================================================================================================
-// FORWARD DECLARATIONS
-//=============================================================================================================
-
-class DipoleFitControl;
-
+#include <QSharedPointer>
+#include <QPointer>
 
 //*************************************************************************************************************
 //=============================================================================================================
-// DEFINE NAMESPACE DIPOLEFITEXTENSION
+// DEFINE NAMESPACE ANSHAREDLIB
 //=============================================================================================================
 
-namespace DIPOLEFITEXTENSION
+namespace ANSHAREDLIB
 {
 
 
@@ -79,53 +68,61 @@ namespace DIPOLEFITEXTENSION
 //=============================================================================================================
 
 
-//=============================================================================================================
+//=========================================================================================================
 /**
-* DipoleFit Extension
+* DECLARE CLASS Communicator
 *
-* @brief The DipoleFit class provides input and output capabilities for the fiff file format.
+* @brief Communicator class for Event communication
 */
-class DIPOLEFITSHARED_EXPORT DipoleFit : public ANSHAREDLIB::IExtension
+class ANSHAREDSHARED_EXPORT Communicator
 {
-    Q_OBJECT
-    Q_PLUGIN_METADATA(IID "ansharedlib/1.0" FILE "dipolefit.json") //New Qt5 Plugin system replaces Q_EXPORT_PLUGIN2 macro
-    // Use the Q_INTERFACES() macro to tell Qt's meta-object system about the interfaces
-    Q_INTERFACES(ANSHAREDLIB::IExtension)
-
 public:
-    //=========================================================================================================
-    /**
-    * Constructs a DipoleFit.
-    */
-    DipoleFit();
-
-    //=========================================================================================================
-    /**
-    * Destroys the DipoleFit.
-    */
-    ~DipoleFit();
-
-    // IExtension functions
-    virtual QSharedPointer<IExtension> clone() const;
-    virtual void init();
-    virtual void unload();
-    virtual QString getName() const;
-
-    virtual QMenu* getMenu();
-    virtual QDockWidget* getControl();
-    virtual QWidget* getView();
-
-    virtual void handleEvent(ANSHAREDLIB::Event *e);
-    virtual QVector<ANSHAREDLIB::Event::EVENT_TYPE> getEventSubscriptions() const;
-
-protected:
+    typedef long CommunicatorID;
 
 private:
-    // Control
-    QDockWidget*        m_pControl;             /**< Control Widget */
-    DipoleFitControl*   m_pDipoleFitControl;    /**< The Dipole Fit Control Widget */
+    static CommunicatorID communicatorID;
+
+    CommunicatorID m_ID;
+
+    Communicator(CommunicatorID ID);
+
+public:
+    typedef QSharedPointer<Communicator> SPtr;            /**< Shared pointer type for GeometryInfo. */
+    typedef QSharedPointer<const Communicator> ConstSPtr; /**< Const shared pointer type for GeometryInfo. */
+
+    //=========================================================================================================
+    /**
+    * deleted default constructor (use factory method)
+    */
+    Communicator() = delete;
+
+    //=========================================================================================================
+    /**
+    * Creates and returns a new Communicator object with a unique ID
+    *
+    * @return A new Communicator object.
+    */
+    static Communicator* requestCommunicator(void);
+
+    //=========================================================================================================
+    /**
+    * Called by EventManager whenever an event needs to be handled
+    *
+    * @param e The event that needs to be handled
+    */
+    void notify(Event* e);
 };
 
-} // NAMESPACE
+//*************************************************************************************************************
+//=============================================================================================================
+// INLINE DEFINITIONS
+//=============================================================================================================
 
-#endif // DIPOLEFIT_H
+inline Communicator* Communicator::requestCommunicator()
+{
+    return new Communicator(communicatorID++);
+}
+
+} // namespace
+
+#endif // ANSHAREDLIB_COMMUNICATOR_H

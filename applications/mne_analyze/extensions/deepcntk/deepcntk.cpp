@@ -261,6 +261,23 @@ QWidget *DeepCNTK::getView()
 
 //*************************************************************************************************************
 
+void DeepCNTK::handleEvent(Event *e)
+{
+
+}
+
+
+//*************************************************************************************************************
+
+QVector<Event::EVENT_TYPE> DeepCNTK::getEventSubscriptions(void) const
+{
+    QVector<Event::EVENT_TYPE> temp;
+    return temp;
+}
+
+
+//*************************************************************************************************************
+
 void DeepCNTK::trainingFinished()
 {
     QString configName = m_pDeepCNTKManager->currentDeepConfiguration()->getName();
