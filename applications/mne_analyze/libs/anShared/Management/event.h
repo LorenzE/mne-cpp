@@ -87,7 +87,8 @@ public:
     */
     enum EVENT_TYPE
     {
-        PING
+        PING,
+        DEFAULT
     };
 
     //=========================================================================================================
@@ -104,6 +105,18 @@ public:
     */
     inline EVENT_TYPE getType();
 
+    //=========================================================================================================
+    /**
+    * Returns the sender of the Event.
+    *
+    * @return Sender of the Event.
+    */
+    inline IExtension* getSender();
+
+    //=========================================================================================================
+    /**
+    * Destructor
+    */
     ~Event();
 
 private:
@@ -120,6 +133,13 @@ private:
 inline Event::EVENT_TYPE Event::getType()
 {
     return m_eventType;
+}
+
+//=============================================================================================================
+
+inline IExtension* Event::getSender()
+{
+    return m_sender;
 }
 
 } // NAMESPACE
