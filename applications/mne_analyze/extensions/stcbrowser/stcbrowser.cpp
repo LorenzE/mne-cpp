@@ -40,9 +40,6 @@
 
 #include "stcbrowser.h"
 #include "FormFiles/stccontrol.h"
-#include <anShared/Management/eventmanager.h>
-#include <QtConcurrent/QtConcurrent>
-#include <iostream>
 
 
 //*************************************************************************************************************
@@ -59,14 +56,6 @@ using namespace ANSHAREDLIB;
 // DEFINE MEMBER METHODS
 //=============================================================================================================
 
-// EXPERIMENTAL
-void aFunction(IExtension* ex) {
-    while (true) {
-        EventManager::publishEvent(new Event(Event::EVENT_TYPE::DEFAULT, ex, QVariant()));
-        EventManager::publishEvent(new Event(Event::EVENT_TYPE::PING, ex, QVariant()));
-        QThread::sleep(1);
-    }
-}
 
 STCBrowser::STCBrowser()
 : m_pControl(Q_NULLPTR)
@@ -98,8 +87,6 @@ QSharedPointer<IExtension> STCBrowser::clone() const
 void STCBrowser::init()
 {
     m_pStcControl = new STCControl;
-    // EXPERIMENTAL
-    QtConcurrent::run(aFunction, (IExtension*) this);
 }
 
 
@@ -152,7 +139,7 @@ QWidget *STCBrowser::getView()
 
 //*************************************************************************************************************
 
-void STCBrowser::handleEvent(Event *e)
+void STCBrowser::handleEvent(Event e)
 {
 
 }
@@ -162,6 +149,5 @@ void STCBrowser::handleEvent(Event *e)
 
 QVector<Event::EVENT_TYPE> STCBrowser::getEventSubscriptions(void) const
 {
-    QVector<Event::EVENT_TYPE> temp;
-    return temp;
+    return QVector<Event::EVENT_TYPE>();
 }

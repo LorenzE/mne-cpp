@@ -40,6 +40,8 @@
 //=============================================================================================================
 
 #include "communicator.h"
+#include "eventmanager.h"
+#include "../Interfaces/IExtension.h"
 
 //*************************************************************************************************************
 //=============================================================================================================
@@ -59,8 +61,63 @@ using namespace ANSHAREDLIB;
 // DEFINE MEMBER METHODS
 //=============================================================================================================
 
-Communicator::Communicator(CommunicatorID ID)
-    : m_ID(ID)
+Communicator::Communicator(QVector<Event::EVENT_TYPE> subs)
+    : m_ID(nextID()),
+      m_EventSubscriptions(subs)
 {
-
+    EventManager::addCommunicator(this);
 }
+
+//*************************************************************************************************************
+
+Communicator::Communicator(IExtension* extension)
+    : Communicator(extension->getEventSubscriptions())
+{
+    QObject::connect(this, SIGNAL(receivedEvent(Event)), extension, SLOT(handleEvent(Event)), Qt::DirectConnection);
+}
+
+//*************************************************************************************************************
+
+void Communicator::publishEvent(Event::EVENT_TYPE etype, QVariant data) const
+{
+    // simply pass on to the EventManager
+    EventManager::issueEvent(Event(etype, this, data));
+}
+
+//*************************************************************************************************************
+
+void Communicator::updateSubscriptions(QVector<Event::EVENT_TYPE> subs)
+{
+    // update routing table of event manager
+    EventManager::updateSubscriptions(this, subs);
+    // update own subscription list: This HAS to be done after the EventManager::updateSubscriptions,
+    // since the latter uses the old list in order to keep execution time low
+    m_EventSubscriptions.clear();
+    m_EventSubscriptions.append(subs);
+}
+
+//*************************************************************************************************************
+
+void Communicator::addSubscriptions(QVector<Event::EVENT_TYPE> newsubs)
+{
+    m_EventSubscriptions.append(newsubs);
+    // add new subscriptions to routing table of event manager
+    EventManager::addSubscriptions(this, newsubs);
+}
+
+//*************************************************************************************************************
+
+void Communicator::addSubscriptions(Event::EVENT_TYPE newsub)
+{
+    // convenience function, simply wrap in vector
+    QVector<Event::EVENT_TYPE> temp;
+    temp.push_back(newsub);
+    addSubscriptions(temp);
+}
+
+//*************************************************************************************************************
+//=============================================================================================================
+// DEFINE STATIC MEMBERS
+//=============================================================================================================
+
+Communicator::CommunicatorID Communicator::m_IDCounter;

@@ -39,7 +39,6 @@
 //=============================================================================================================
 
 #include "surfer.h"
-#include <iostream>
 
 //*************************************************************************************************************
 //=============================================================================================================
@@ -145,10 +144,9 @@ QWidget *Surfer::getView()
 
 //*************************************************************************************************************
 
-void Surfer::handleEvent(Event *e)
+void Surfer::handleEvent(Event e)
 {
-    // EXPERIMENTAL
-    std::cout << "Surfer: has seen event nr.  " << e->getType() << std::endl;
+
 }
 
 
@@ -156,8 +154,5 @@ void Surfer::handleEvent(Event *e)
 
 QVector<Event::EVENT_TYPE> Surfer::getEventSubscriptions(void) const
 {
-    // EXPERIMENTAL
-    QVector<Event::EVENT_TYPE> temp;
-    temp.push_back(Event::EVENT_TYPE::DEFAULT);
-    return temp;
+    return QVector<Event::EVENT_TYPE>();
 }

@@ -54,8 +54,6 @@
 
 #include <utils/mnemath.h>
 
-#include <iostream>
-
 
 //*************************************************************************************************************
 //=============================================================================================================
@@ -158,9 +156,9 @@ QWidget *InvMNE::getView()
 
 //*************************************************************************************************************
 
-void InvMNE::handleEvent(Event *e)
+void InvMNE::handleEvent(Event e)
 {
-    std::cout << "InvMNE has seen event nr. " << e->getType() << std::endl;
+
 }
 
 
@@ -168,10 +166,7 @@ void InvMNE::handleEvent(Event *e)
 
 QVector<Event::EVENT_TYPE> InvMNE::getEventSubscriptions(void) const
 {
-    // EXPERIMENTAL
-    QVector<Event::EVENT_TYPE> temp;
-    temp.push_back(Event::EVENT_TYPE::PING);
-    return temp;
+    return QVector<Event::EVENT_TYPE>();
 }
 
 

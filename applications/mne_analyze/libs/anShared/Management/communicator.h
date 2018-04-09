@@ -50,8 +50,10 @@
 // QT INCLUDES
 //=============================================================================================================
 
+#include <QObject>
 #include <QSharedPointer>
 #include <QPointer>
+#include <QVector>
 
 //*************************************************************************************************************
 //=============================================================================================================
@@ -66,7 +68,7 @@ namespace ANSHAREDLIB
 //=============================================================================================================
 // FORWARD DECLARATIONS
 //=============================================================================================================
-
+class IExtension;
 
 //=========================================================================================================
 /**
@@ -74,43 +76,103 @@ namespace ANSHAREDLIB
 *
 * @brief Communicator class for Event communication
 */
-class ANSHAREDSHARED_EXPORT Communicator
+class ANSHAREDSHARED_EXPORT Communicator : public QObject
 {
-public:
-    typedef long CommunicatorID;
-
-private:
-    static CommunicatorID communicatorID;
-
-    CommunicatorID m_ID;
-
-    Communicator(CommunicatorID ID);
-
+    Q_OBJECT
 public:
     typedef QSharedPointer<Communicator> SPtr;            /**< Shared pointer type for GeometryInfo. */
     typedef QSharedPointer<const Communicator> ConstSPtr; /**< Const shared pointer type for GeometryInfo. */
 
-    //=========================================================================================================
-    /**
-    * deleted default constructor (use factory method)
-    */
-    Communicator() = delete;
+    typedef long CommunicatorID;                        /**< Typedef for CommunicatorID. */
 
     //=========================================================================================================
     /**
-    * Creates and returns a new Communicator object with a unique ID
-    *
-    * @return A new Communicator object.
-    */
-    static Communicator* requestCommunicator(void);
+     * @brief Communicator constructs a Communicator object that emits a signal (receivedEvent) when one of
+     *        the passed list of events happens. A further QtConnect IS necessary (See implementation of
+     *        second constructor for more details. Qt::DirectConnection is recommended.
+     * @param subs The list of relevant events.
+     */
+    Communicator(QVector<Event::EVENT_TYPE> subs = QVector<Event::EVENT_TYPE>());
 
     //=========================================================================================================
     /**
-    * Called by EventManager whenever an event needs to be handled
+     * @brief Communicator constructs a Communicator object that is connected to the Extensions' handleEvent
+     *        method via a Qt::DirectConnection.
+     * @param extension The Extensions to connect to.
+     */
+    Communicator(IExtension* extension);
+
+    //=========================================================================================================
+
+    /**
+     * @brief publishEvent Sends an Event of type etype into the event system
+     * @param etype Type of the event to be published
+     * @param data Potential data to be attached to the event
+     */
+    void publishEvent(Event::EVENT_TYPE etype, QVariant data = QVariant()) const;
+
+    //=========================================================================================================
+
+    /**
+     * @brief updateSubscriptions Overwrites the Communicators subscriptions. Attention: old subscriptions will
+     *        be deleted! See updateSubscriptions.
+     * @param subs The new list of Event types to be notified about
+     */
+    void updateSubscriptions(QVector<Event::EVENT_TYPE> subs);
+
+    //=========================================================================================================
+
+    /**
+     * @brief addSubscriptions Adds the provided list of Event types to the preexisting list.
+     * @param newsubs List of new subscriptions.
+     */
+    void addSubscriptions(QVector<Event::EVENT_TYPE> newsubs);
+
+    //=========================================================================================================
+
+    /**
+     * @brief addSubscriptions Convenience overload, see addSubscriptions
+     * @param newsub
+     */
+    void addSubscriptions(Event::EVENT_TYPE newsub);
+
+    //=========================================================================================================
+
+    /**
+     * @brief getSubscriptions Getter for list of subscriptions
+     * @return List of subscriptions
+     */
+    inline QVector<Event::EVENT_TYPE> getSubscriptions(void) const;
+
+    //=========================================================================================================
+
+    /**
+     * @brief getID Getter for internal ID
+     * @return Internal ID
+     */
+    inline CommunicatorID getID(void) const;
+
+    //=========================================================================================================
+
+private:
+    static CommunicatorID m_IDCounter;                  /**< ID-Counter for Communicator instances. */
+    inline static CommunicatorID nextID();              /**< Simply increments the counter and returns it. */
+
+    CommunicatorID m_ID;                                /**< Communicator ID. */
+    QVector<Event::EVENT_TYPE> m_EventSubscriptions;    /**< All event types that the Communicator receives*/
+
+
+    //=========================================================================================================
+
+signals: 
+    /**
+    * @brief Called by EventManager whenever an event needs to be handled. This must be connected to some other
+    *        function for actual usage.
     *
-    * @param e The event that needs to be handled
+    * @param e The event that was received
     */
-    void notify(Event* e);
+    void receivedEvent(Event e);
+
 };
 
 //*************************************************************************************************************
@@ -118,9 +180,23 @@ public:
 // INLINE DEFINITIONS
 //=============================================================================================================
 
-inline Communicator* Communicator::requestCommunicator()
+inline Communicator::CommunicatorID Communicator::nextID()
 {
-    return new Communicator(communicatorID++);
+    return ++m_IDCounter;
+}
+
+//=============================================================================================================
+
+inline QVector<Event::EVENT_TYPE> Communicator::getSubscriptions(void) const
+{
+    return m_EventSubscriptions;
+}
+
+//=============================================================================================================
+
+inline Communicator::CommunicatorID Communicator::getID(void) const
+{
+    return m_ID;
 }
 
 } // namespace

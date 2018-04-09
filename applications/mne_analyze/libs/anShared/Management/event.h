@@ -67,7 +67,7 @@ namespace ANSHAREDLIB
 // FORWARD DECLARATIONS
 //=============================================================================================================
 
-class IExtension;
+class Communicator;
 
 //=========================================================================================================
 /**
@@ -95,11 +95,11 @@ public:
     /**
     * Constructs an Event object.
     */
-    Event(EVENT_TYPE type, IExtension* sender, const QVariant& data);
+    Event(const EVENT_TYPE type, const Communicator* sender, const QVariant data);
 
     //=========================================================================================================
     /**
-    * Returns the type of the Event.
+    * @brief Getter for Event type.
     *
     * @return Type of the Event.
     */
@@ -107,22 +107,22 @@ public:
 
     //=========================================================================================================
     /**
-    * Returns the sender of the Event.
+    * @brief Getter for Event Sender
     *
     * @return Sender of the Event.
     */
-    inline IExtension* getSender();
+    inline const Communicator *getSender();
 
     //=========================================================================================================
     /**
-    * Destructor
+    * @brief Destructor
     */
     ~Event();
 
 private:
-    EVENT_TYPE m_eventType;
-    IExtension* m_sender;
-    const QVariant& m_data;
+    EVENT_TYPE m_eventType;             /**< Type of the respective Event instance. */
+    const Communicator* m_sender;       /**< Sender of the Event. */
+    const QVariant& m_data;             /**< Attached Data (can be empty). */
 };
 
 //*************************************************************************************************************
@@ -137,7 +137,7 @@ inline Event::EVENT_TYPE Event::getType()
 
 //=============================================================================================================
 
-inline IExtension* Event::getSender()
+inline const Communicator* Event::getSender()
 {
     return m_sender;
 }

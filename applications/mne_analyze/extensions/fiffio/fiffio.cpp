@@ -129,7 +129,7 @@ QWidget *FiffIO::getView()
 
 //*************************************************************************************************************
 
-void FiffIO::handleEvent(Event *e)
+void FiffIO::handleEvent(Event e)
 {
 
 }
@@ -139,6 +139,5 @@ void FiffIO::handleEvent(Event *e)
 
 QVector<Event::EVENT_TYPE> FiffIO::getEventSubscriptions(void) const
 {
-    QVector<Event::EVENT_TYPE> temp;
-    return temp;
+    return QVector<Event::EVENT_TYPE>();
 }

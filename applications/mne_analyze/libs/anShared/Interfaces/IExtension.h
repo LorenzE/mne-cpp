@@ -144,14 +144,6 @@ public:
 
     //=========================================================================================================
     /**
-    * Called by the EventManager in case a subscribed-for Event has happened
-    *
-    * @param e The Event that has taken place
-    */
-    virtual void handleEvent(Event* e) = 0;
-
-    //=========================================================================================================
-    /**
     * Informs the EventManager about all Events that the Extension wants to know about. Can return an empty
     * vector in case no Events need to be seen by the Extension
     *
@@ -190,6 +182,16 @@ public:
     * @return the global settings
     */
     virtual inline QSharedPointer<AnalyzeSettings>& globalSettings();
+
+public slots:
+
+    //=========================================================================================================
+    /**
+    * Called by the EventManager in case a subscribed-for Event has happened
+    *
+    * @param e The Event that has taken place
+    */
+    virtual void handleEvent(Event e) = 0;
 
 private:
     QSharedPointer<AnalyzeData> m_analyzeData;              /**< Pointer to the global data base */

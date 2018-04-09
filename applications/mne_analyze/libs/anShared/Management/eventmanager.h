@@ -68,7 +68,7 @@ namespace ANSHAREDLIB
 // FORWARD DECLARATIONS
 //=============================================================================================================
 
-class IExtension;
+class Communicator;
 
 //=========================================================================================================
 /**
@@ -78,35 +78,54 @@ class IExtension;
 */
 class ANSHAREDSHARED_EXPORT EventManager
 {
-private:
-    static QMultiMap<Event::EVENT_TYPE, IExtension*> m_routingTable;
-
 public:
-    typedef QSharedPointer<EventManager> SPtr;            /**< Shared pointer type for GeometryInfo. */
-    typedef QSharedPointer<const EventManager> ConstSPtr; /**< Const shared pointer type for GeometryInfo. */
+    typedef QSharedPointer<EventManager> SPtr;            /**< Shared pointer type for EventManager. */
+    typedef QSharedPointer<const EventManager> ConstSPtr; /**< Const shared pointer type for EventManager. */
 
     //=========================================================================================================
     /**
-    * deleted default constructor (static class).
+    * Deleted default constructor (static class).
     */
     EventManager() = delete;
 
     //=========================================================================================================
     /**
-     * @brief publishEvent Communicate an event to all entities that have registered for the respective event type
-     *
-     * @param e The event to publish
+     * @brief addCommunicator Adds a Communicator, respectively its subscriptions to the routing table
+     * @param commu The Communicator to add
      */
-    static void publishEvent(Event* e);
+    static void addCommunicator(Communicator* commu);
 
     //=========================================================================================================
     /**
-     * @brief addExtension Adds an Extension to the communication manager, meaning that all Events that the
-     * Extensions has subscribed for will be passed to it.
+     * @brief issueEvent Communicate an event to all entities that have registered for the respective
+     *        event type
      *
-     * @param extension The Extension to add to the Event routing system.
+     * @param e The event to publish
      */
-    static void addExtension(IExtension* extension);
+    static void issueEvent(Event e);
+
+    //=========================================================================================================
+
+    /**
+     * @brief addSubscriptions Add the specified list of Event types to the routing table
+     * @param commu The respective Communicator
+     * @param newsubs List of new (additional) subscriptions
+     */
+    static void addSubscriptions(Communicator* commu, QVector<Event::EVENT_TYPE> newsubs);
+
+    //=========================================================================================================
+
+    /**
+     * @brief updateSubscriptions Replaces a Communicators subscriptions with the provided list
+     * @param commu The respective Communicator
+     * @param subs New list of subscriptions
+     */
+    static void updateSubscriptions(Communicator* commu, QVector<Event::EVENT_TYPE> subs);
+
+    //=========================================================================================================
+
+private:
+    static QMultiMap<Event::EVENT_TYPE, Communicator*> m_routingTable;
 };
 
 } // namespace

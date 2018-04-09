@@ -40,7 +40,7 @@
 //=============================================================================================================
 
 #include "event.h"
-#include "../Interfaces/IExtension.h"
+#include "communicator.h"
 
 //*************************************************************************************************************
 //=============================================================================================================
@@ -60,7 +60,7 @@ using namespace ANSHAREDLIB;
 // DEFINE MEMBER METHODS
 //=============================================================================================================
 
-Event::Event(EVENT_TYPE type, IExtension *sender, const QVariant &data)
+Event::Event(const EVENT_TYPE type, const Communicator *sender, const QVariant data)
     : m_eventType(type),
       m_sender(sender),
       m_data(data)

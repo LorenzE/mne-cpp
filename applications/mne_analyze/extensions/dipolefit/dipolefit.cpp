@@ -138,7 +138,7 @@ QWidget *DipoleFit::getView()
 
 //*************************************************************************************************************
 
-void DipoleFit::handleEvent(Event *e)
+void DipoleFit::handleEvent(Event e)
 {
 
 }
@@ -148,6 +148,5 @@ void DipoleFit::handleEvent(Event *e)
 
 QVector<Event::EVENT_TYPE> DipoleFit::getEventSubscriptions(void) const
 {
-    QVector<Event::EVENT_TYPE> temp;
-    return temp;
+    return QVector<Event::EVENT_TYPE>();
 }

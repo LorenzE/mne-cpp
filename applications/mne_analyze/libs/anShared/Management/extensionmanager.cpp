@@ -119,7 +119,6 @@ void ExtensionManager::initExtensions(QSharedPointer<AnalyzeSettings>& settings,
         extension->setGlobalSettings(settings);
         extension->setGlobalData(data);
         extension->init();
-        EventManager::addExtension(extension);
     }
 }
 

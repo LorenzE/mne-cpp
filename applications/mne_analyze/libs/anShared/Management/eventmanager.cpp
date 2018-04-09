@@ -40,7 +40,9 @@
 //=============================================================================================================
 
 #include "eventmanager.h"
-#include "../Interfaces/IExtension.h"
+#include "communicator.h"
+
+#include <iostream>
 
 //*************************************************************************************************************
 //=============================================================================================================
@@ -60,28 +62,60 @@ using namespace ANSHAREDLIB;
 // DEFINE MEMBER METHODS
 //=============================================================================================================
 
-void EventManager::publishEvent(Event* e)
+void EventManager::addCommunicator(Communicator* commu)
 {
-    const QList<IExtension*> subscribers = m_routingTable.values(e->getType());
-    foreach(IExtension* extension, subscribers)
+    const QVector<Event::EVENT_TYPE>& subscriptions = commu->getSubscriptions();
+    foreach(Event::EVENT_TYPE etype, subscriptions)
     {
-        // @TODO check bottleneck relevance of this check
-        if (extension != e->getSender())
+        m_routingTable.insert(etype, commu);
+    }
+}
+
+//*************************************************************************************************************
+
+void EventManager::issueEvent(Event e)
+{
+    const QList<Communicator*> subscribers = m_routingTable.values(e.getType());
+    foreach(Communicator* commu, subscribers)
+    {
+        // avoid self-messaging
+        if (commu->getID() != e.getSender()->getID())
         {
-            // @TODO maybe check if pointer is valid / Extension is alive
-            extension->handleEvent(e);
+            // notify communicator about event
+            emit commu->receivedEvent(e);
         }
     }
 }
 
 //*************************************************************************************************************
 
-void EventManager::addExtension(IExtension *extension)
+void EventManager::addSubscriptions(Communicator* commu, QVector<Event::EVENT_TYPE> newsubs)
 {
-    const QVector<Event::EVENT_TYPE>& subscriptions = extension->getEventSubscriptions();
-    foreach(Event::EVENT_TYPE etype, subscriptions)
+    foreach(Event::EVENT_TYPE etype, newsubs)
     {
-        m_routingTable.insert(etype, extension);
+        m_routingTable.insert(etype, commu);
+    }
+}
+
+//*************************************************************************************************************
+
+void EventManager::updateSubscriptions(Communicator* commu, QVector<Event::EVENT_TYPE> subs)
+{
+    // remove old subscriptions from EventManager routing table
+    foreach(Event::EVENT_TYPE etype, commu->getSubscriptions())
+    {
+        int removed = m_routingTable.remove(etype, commu);
+        // consistency check:
+        if (removed != 1)
+        {
+            std::cerr << "EventManager: WARNING ! Found " << removed << " entries instead of 1 for event type ";
+            std::cerr << etype << " and communicator ID " << commu->getID() << std::endl;
+        }
+    }
+    // add new key-value-pairs into map
+    foreach(Event::EVENT_TYPE etype, subs)
+    {
+        m_routingTable.insert(etype, commu);
     }
 }
 
@@ -90,4 +124,4 @@ void EventManager::addExtension(IExtension *extension)
 // DEFINE STATIC MEMBERS
 //=============================================================================================================
 
-QMultiMap<Event::EVENT_TYPE, IExtension*> EventManager::m_routingTable;
+QMultiMap<Event::EVENT_TYPE, Communicator*> EventManager::m_routingTable;
