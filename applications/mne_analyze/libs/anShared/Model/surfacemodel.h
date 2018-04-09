@@ -43,6 +43,8 @@
 //=============================================================================================================
 
 #include "../Data/surfacedata.h"
+#include "../anshared_global.h"
+
 
 //*************************************************************************************************************
 //=============================================================================================================
@@ -92,7 +94,7 @@ namespace ANSHAREDLIB {
 *
 * @brief Brief description of this class.
 */
-class SurfaceModel : public QAbstractItemModel
+class ANSHAREDSHARED_EXPORT SurfaceModel : public QAbstractItemModel
 {
     Q_OBJECT
 
@@ -108,7 +110,7 @@ private:
         CurvatureItem = 4,
     };
 
-    SurfaceModel() = delete;
+public:
 
     //=========================================================================================================
     /**

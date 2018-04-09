@@ -48,6 +48,7 @@
 // QT INCLUDES
 //=============================================================================================================
 
+#include <QDebug>
 
 //*************************************************************************************************************
 //=============================================================================================================
@@ -122,7 +123,7 @@ QVariant SurfaceModel::data(const QModelIndex &index, int role) const
 
 Qt::ItemFlags SurfaceModel::flags(const QModelIndex &index) const
 {
-    return Qt::NoItemFlags;
+    return QAbstractItemModel::flags(index);
 }
 
 
@@ -138,10 +139,6 @@ QVariant SurfaceModel::headerData(int section, Qt::Orientation orientation, int 
 
 QModelIndex SurfaceModel::index(int row, int column, const QModelIndex &parent) const
 {
-    if(!hasIndex(row, column, parent)) {
-        return QModelIndex();
-    }
-
     //TODO rework this
     if(!parent.isValid()) {
         if(row == 0) {
@@ -157,6 +154,8 @@ QModelIndex SurfaceModel::index(int row, int column, const QModelIndex &parent) 
             return createIndex(row, column, InternalId::CurvatureItem);
         }
     }
+
+    return QModelIndex();
 }
 
 
