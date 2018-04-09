@@ -43,6 +43,7 @@
 //=============================================================================================================
 
 #include "datasettings.h"
+#include "../anshared_global.h"
 
 
 //*************************************************************************************************************
@@ -91,7 +92,7 @@ namespace ANSHAREDLIB {
 *
 * @brief Brief description of this class.
 */
-class SurfaceSettings : public DataSettings
+class ANSHAREDSHARED_EXPORT SurfaceSettings : public DataSettings
 {
 
 public:
