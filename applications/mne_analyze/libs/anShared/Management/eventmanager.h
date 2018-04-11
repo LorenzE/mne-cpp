@@ -124,6 +124,13 @@ public:
 
     //=========================================================================================================
 
+    /**
+     * @brief removeCommunicator Removes (and thus disconnects) a Communicator from the routing table
+     * @param commu The communicator to remove.
+     */
+    static void removeCommunicator(Communicator* commu);
+    //=========================================================================================================
+
 private:
     static QMultiMap<Event::EVENT_TYPE, Communicator*> m_routingTable;
 };

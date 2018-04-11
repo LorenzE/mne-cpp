@@ -73,7 +73,18 @@ Communicator::Communicator(QVector<Event::EVENT_TYPE> subs)
 Communicator::Communicator(IExtension* extension)
     : Communicator(extension->getEventSubscriptions())
 {
-    QObject::connect(this, SIGNAL(receivedEvent(Event)), extension, SLOT(handleEvent(Event)), Qt::DirectConnection);
+    QObject::connect(this,
+                     SIGNAL(receivedEvent(Event)),
+                     extension,
+                     SLOT(handleEvent(Event)),
+                     Qt::DirectConnection);
+}
+
+//*************************************************************************************************************
+
+Communicator::~Communicator()
+{
+    EventManager::removeCommunicator(this);
 }
 
 //*************************************************************************************************************
@@ -113,6 +124,14 @@ void Communicator::addSubscriptions(Event::EVENT_TYPE newsub)
     QVector<Event::EVENT_TYPE> temp;
     temp.push_back(newsub);
     addSubscriptions(temp);
+}
+
+//*************************************************************************************************************
+
+void Communicator::manualDisconnect(void)
+{
+    // simply delegate to EventManager
+    EventManager::removeCommunicator(this);
 }
 
 //*************************************************************************************************************

@@ -105,6 +105,13 @@ public:
     //=========================================================================================================
 
     /**
+     * @brief Destructs the communicator and disconnects it from the EventManager
+     */
+    ~Communicator();
+
+    //=========================================================================================================
+
+    /**
      * @brief publishEvent Sends an Event of type etype into the event system
      * @param etype Type of the event to be published
      * @param data Potential data to be attached to the event
@@ -135,6 +142,13 @@ public:
      * @param newsub
      */
     void addSubscriptions(Event::EVENT_TYPE newsub);
+
+    //=========================================================================================================
+
+    /**
+     * @brief manualDisconnect Manually disconnects a Communicator from the Event system.
+     */
+    void manualDisconnect(void);
 
     //=========================================================================================================
 

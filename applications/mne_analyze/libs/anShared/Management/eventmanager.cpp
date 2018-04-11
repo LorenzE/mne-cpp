@@ -102,6 +102,18 @@ void EventManager::addSubscriptions(Communicator* commu, QVector<Event::EVENT_TY
 void EventManager::updateSubscriptions(Communicator* commu, QVector<Event::EVENT_TYPE> subs)
 {
     // remove old subscriptions from EventManager routing table
+    EventManager::removeCommunicator(commu);
+    // add new key-value-pairs into map
+    foreach(Event::EVENT_TYPE etype, subs)
+    {
+        m_routingTable.insert(etype, commu);
+    }
+}
+
+//*************************************************************************************************************
+
+void EventManager::removeCommunicator(Communicator* commu)
+{
     foreach(Event::EVENT_TYPE etype, commu->getSubscriptions())
     {
         int removed = m_routingTable.remove(etype, commu);
@@ -111,11 +123,6 @@ void EventManager::updateSubscriptions(Communicator* commu, QVector<Event::EVENT
             std::cerr << "EventManager: WARNING ! Found " << removed << " entries instead of 1 for event type ";
             std::cerr << etype << " and communicator ID " << commu->getID() << std::endl;
         }
-    }
-    // add new key-value-pairs into map
-    foreach(Event::EVENT_TYPE etype, subs)
-    {
-        m_routingTable.insert(etype, commu);
     }
 }
 
