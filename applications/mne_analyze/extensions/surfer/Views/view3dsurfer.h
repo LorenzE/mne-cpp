@@ -1,15 +1,14 @@
 //=============================================================================================================
 /**
-* @file     surfer.h
-* @author   Christoph Dinh <chdinh@nmr.mgh.harvard.edu>;
-*           Lars Debor <lars.debor@tu-ilmenau.de>;
+* @file     view3dsurfer.h
+* @author   Lars Debor <lars.debor@tu-ilmenau.de>;
 *           Matti Hamalainen <msh@nmr.mgh.harvard.edu>
 * @version  1.0
-* @date     February, 2017
+* @date     August, 2018
 *
 * @section  LICENSE
 *
-* Copyright (C) 2017 Christoph Dinh, Lars Debor and Matti Hamalainen. All rights reserved.
+* Copyright (C) 2018, Lars Debor and Matti Hamalainen. All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without modification, are permitted provided that
 * the following conditions are met:
@@ -30,12 +29,12 @@
 * POSSIBILITY OF SUCH DAMAGE.
 *
 *
-* @brief    Contains the declaration of the Surfer class.
+* @brief     View3DSurfer class declaration.
 *
 */
 
-#ifndef SURFER_H
-#define SURFER_H
+#ifndef SURFEREXTENSION_VIEW3DSURFER_H
+#define SURFEREXTENSION_VIEW3DSURFER_H
 
 
 //*************************************************************************************************************
@@ -43,12 +42,7 @@
 // INCLUDES
 //=============================================================================================================
 
-#include "surfer_global.h"
-
-#include "Views/view3dsurfer.h"
-
-#include <anShared/Interfaces/IExtension.h>
-
+#include <mne/mne_bem_surface.h>
 
 
 //*************************************************************************************************************
@@ -56,71 +50,115 @@
 // QT INCLUDES
 //=============================================================================================================
 
-#include <QtWidgets>
-#include <QtCore/QtPlugin>
-#include <QDebug>
+#include <QSharedPointer>
+#include <QWidget>
 
 
 //*************************************************************************************************************
 //=============================================================================================================
-// DEFINE NAMESPACE SURFEREXTENSION
+// Eigen INCLUDES
 //=============================================================================================================
 
-namespace SURFEREXTENSION
-{
 
 //*************************************************************************************************************
 //=============================================================================================================
 // FORWARD DECLARATIONS
 //=============================================================================================================
 
+namespace Qt3DRender {
+    class QGeometryRenderer;
+    class QPickEvent;
+}
+
+namespace Qt3DCore {
+    class QEntity;
+}
+
+class QGridLayout;
+
+namespace MNELIB {
+    class MNEBemSurface;
+}
+
+//*************************************************************************************************************
+//=============================================================================================================
+// DEFINE NAMESPACE SURFEREXTENSION
+//=============================================================================================================
+
+namespace SURFEREXTENSION {
+
+
+//*************************************************************************************************************
+//=============================================================================================================
+// SURFEREXTENSION FORWARD DECLARATIONS
+//=============================================================================================================
+
 
 //=============================================================================================================
 /**
-* Surfer Extension
+* Description of what this class is intended to do (in detail).
 *
-* @brief The Surfer class provides a Disp3D Views.
+* @brief Brief description of this class.
 */
-class SURFERSHARED_EXPORT Surfer : public ANSHAREDLIB::IExtension
+class View3DSurfer : public QWidget
 {
-    Q_OBJECT
-    Q_PLUGIN_METADATA(IID "ansharedlib/1.0" FILE "surfer.json") //New Qt5 Plugin system replaces Q_EXPORT_PLUGIN2 macro
-    // Use the Q_INTERFACES() macro to tell Qt's meta-object system about the interfaces
-    Q_INTERFACES(ANSHAREDLIB::IExtension)
 
 public:
-    //=========================================================================================================
-    /**
-    * Constructs a Surfer.
-    */
-    Surfer();
+    typedef QSharedPointer<View3DSurfer> SPtr;            /**< Shared pointer type for View3DSurfer. */
+    typedef QSharedPointer<const View3DSurfer> ConstSPtr; /**< Const shared pointer type for View3DSurfer. */
 
     //=========================================================================================================
     /**
-    * Destroys the Surfer.
+    * Constructs a View3DSurfer object.
     */
-    ~Surfer();
+    View3DSurfer();
 
-    // IExtension functions
-    virtual QSharedPointer<IExtension> clone() const;
-    virtual void init();
-    virtual void unload();
-    virtual QString getName() const;
-    virtual QMenu* getMenu();
-    virtual QDockWidget* getControl();
-    virtual QWidget* getView();
+    //=========================================================================================================
+    /**
+    * Default destructor.
+    */
+    ~View3DSurfer() = default;
 
-    virtual void handleEvent(ANSHAREDLIB::Event e);
-    virtual QVector<ANSHAREDLIB::Event::EVENT_TYPE> getEventSubscriptions() const;
+
+
+protected:
 
 private:
-    // Control
-    QDockWidget*        m_pControl; /**< Control Widget */
 
-    // View
-    View3DSurfer*      m_pView;    /**< Control View */
+    //=========================================================================================================
+    /**
+    * Initializes the 3d view.
+    */
+    void init();
+
+    //=========================================================================================================
+    /**
+    * Creates the QEntity tree for the scene.
+    */
+    Qt3DCore::QEntity *createEntityTree();
+
+    //=========================================================================================================
+    /**
+    * Creates mesh of a surface.
+    */
+    Qt3DRender::QGeometryRenderer *createMesh();
+
+    void testPicking(Qt3DRender::QPickEvent *event);
+    //Layout
+    QWidget *m_view3d_container;
+    QGridLayout *m_view3d_gridlayout;
+
+    MNELIB::MNEBemSurface m_surface;
+
 };
 
-} // NAMESPACE
 
-#endif // SURFER_H
+//*************************************************************************************************************
+//=============================================================================================================
+// INLINE DEFINITIONS
+//=============================================================================================================
+
+
+} // namespace SURFEREXTENSION
+
+#endif // SURFEREXTENSION_VIEW3DSURFER_H

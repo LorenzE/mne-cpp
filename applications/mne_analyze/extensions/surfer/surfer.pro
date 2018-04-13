@@ -81,13 +81,15 @@ DESTDIR = $${MNE_BINARY_DIR}/mne_analyze_extensions
 SOURCES += \
     surfer.cpp \
     Views/baseview.cpp \
-    Views/view3danalyze.cpp
+    Views/view3danalyze.cpp \
+    Views/view3dsurfer.cpp
 
 HEADERS += \
     surfer_global.h \
     surfer.h \
     Views/baseview.h \
-    Views/view3danalyze.h
+    Views/view3danalyze.h \
+    Views/view3dsurfer.h
 
 INCLUDEPATH += $${EIGEN_INCLUDE_DIR}
 INCLUDEPATH += $${MNE_INCLUDE_DIR}
