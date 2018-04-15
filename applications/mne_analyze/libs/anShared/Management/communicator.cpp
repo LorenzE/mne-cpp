@@ -43,6 +43,7 @@
 #include "eventmanager.h"
 #include "../Interfaces/IExtension.h"
 
+
 //*************************************************************************************************************
 //=============================================================================================================
 // QT INCLUDES
@@ -55,6 +56,7 @@
 //=============================================================================================================
 
 using namespace ANSHAREDLIB;
+
 
 //*************************************************************************************************************
 //=============================================================================================================
@@ -70,6 +72,7 @@ Communicator::Communicator(QVector<Event::EVENT_TYPE> subs)
 
 //*************************************************************************************************************
 
+
 Communicator::Communicator(IExtension* extension)
     : Communicator(extension->getEventSubscriptions())
 {
@@ -82,12 +85,14 @@ Communicator::Communicator(IExtension* extension)
 
 //*************************************************************************************************************
 
+
 Communicator::~Communicator()
 {
     EventManager::removeCommunicator(this);
 }
 
 //*************************************************************************************************************
+
 
 void Communicator::publishEvent(Event::EVENT_TYPE etype, QVariant data) const
 {
@@ -96,6 +101,7 @@ void Communicator::publishEvent(Event::EVENT_TYPE etype, QVariant data) const
 }
 
 //*************************************************************************************************************
+
 
 void Communicator::updateSubscriptions(QVector<Event::EVENT_TYPE> subs)
 {
@@ -118,6 +124,7 @@ void Communicator::addSubscriptions(QVector<Event::EVENT_TYPE> newsubs)
 
 //*************************************************************************************************************
 
+
 void Communicator::addSubscriptions(Event::EVENT_TYPE newsub)
 {
     // convenience function, simply wrap in vector
@@ -128,6 +135,7 @@ void Communicator::addSubscriptions(Event::EVENT_TYPE newsub)
 
 //*************************************************************************************************************
 
+
 void Communicator::manualDisconnect(void)
 {
     // simply delegate to EventManager
@@ -135,6 +143,8 @@ void Communicator::manualDisconnect(void)
 }
 
 //*************************************************************************************************************
+
+
 //=============================================================================================================
 // DEFINE STATIC MEMBERS
 //=============================================================================================================

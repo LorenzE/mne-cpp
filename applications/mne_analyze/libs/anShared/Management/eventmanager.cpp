@@ -41,8 +41,8 @@
 
 #include "eventmanager.h"
 #include "communicator.h"
-
 #include <iostream>
+
 
 //*************************************************************************************************************
 //=============================================================================================================
@@ -56,6 +56,7 @@
 //=============================================================================================================
 
 using namespace ANSHAREDLIB;
+
 
 //*************************************************************************************************************
 //=============================================================================================================
@@ -73,6 +74,7 @@ void EventManager::addCommunicator(Communicator* commu)
 
 //*************************************************************************************************************
 
+
 void EventManager::issueEvent(Event e)
 {
     const QList<Communicator*> subscribers = m_routingTable.values(e.getType());
@@ -89,6 +91,7 @@ void EventManager::issueEvent(Event e)
 
 //*************************************************************************************************************
 
+
 void EventManager::addSubscriptions(Communicator* commu, QVector<Event::EVENT_TYPE> newsubs)
 {
     foreach(Event::EVENT_TYPE etype, newsubs)
@@ -98,6 +101,7 @@ void EventManager::addSubscriptions(Communicator* commu, QVector<Event::EVENT_TY
 }
 
 //*************************************************************************************************************
+
 
 void EventManager::updateSubscriptions(Communicator* commu, QVector<Event::EVENT_TYPE> subs)
 {
@@ -111,6 +115,7 @@ void EventManager::updateSubscriptions(Communicator* commu, QVector<Event::EVENT
 }
 
 //*************************************************************************************************************
+
 
 void EventManager::removeCommunicator(Communicator* commu)
 {
@@ -127,6 +132,8 @@ void EventManager::removeCommunicator(Communicator* commu)
 }
 
 //*************************************************************************************************************
+
+
 //=============================================================================================================
 // DEFINE STATIC MEMBERS
 //=============================================================================================================

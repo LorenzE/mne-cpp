@@ -45,6 +45,7 @@
 #include "../anshared_global.h"
 #include "event.h"
 
+
 //*************************************************************************************************************
 //=============================================================================================================
 // QT INCLUDES
@@ -54,6 +55,7 @@
 #include <QSharedPointer>
 #include <QPointer>
 #include <QVector>
+
 
 //*************************************************************************************************************
 //=============================================================================================================
@@ -68,7 +70,9 @@ namespace ANSHAREDLIB
 //=============================================================================================================
 // FORWARD DECLARATIONS
 //=============================================================================================================
+
 class IExtension;
+
 
 //=========================================================================================================
 /**
@@ -87,86 +91,76 @@ public:
 
     //=========================================================================================================
     /**
-     * @brief Communicator constructs a Communicator object that emits a signal (receivedEvent) when one of
-     *        the passed list of events happens. A further QtConnect IS necessary (See implementation of
-     *        second constructor for more details. Qt::DirectConnection is recommended.
-     * @param subs The list of relevant events.
-     */
+    * @brief Communicator constructs a Communicator object that emits a signal (receivedEvent) when one of
+    *        the passed list of events happens. A further QtConnect IS necessary (See implementation of
+    *        second constructor for more details. Qt::DirectConnection is recommended.
+    * @param subs The list of relevant events.
+    */
     Communicator(QVector<Event::EVENT_TYPE> subs = QVector<Event::EVENT_TYPE>());
 
     //=========================================================================================================
     /**
-     * @brief Communicator constructs a Communicator object that is connected to the Extensions' handleEvent
-     *        method via a Qt::DirectConnection.
-     * @param extension The Extensions to connect to.
-     */
+    * @brief Communicator constructs a Communicator object that is connected to the Extensions' handleEvent
+    *        method via a Qt::DirectConnection.
+    * @param extension The Extensions to connect to.
+    */
     Communicator(IExtension* extension);
 
     //=========================================================================================================
-
     /**
-     * @brief Destructs the communicator and disconnects it from the EventManager
-     */
+    * @brief Destructs the communicator and disconnects it from the EventManager
+    */
     ~Communicator();
 
     //=========================================================================================================
-
     /**
-     * @brief publishEvent Sends an Event of type etype into the event system
-     * @param etype Type of the event to be published
-     * @param data Potential data to be attached to the event
-     */
+    * @brief publishEvent Sends an Event of type etype into the event system
+    * @param etype Type of the event to be published
+    * @param data Potential data to be attached to the event
+    */
     void publishEvent(Event::EVENT_TYPE etype, QVariant data = QVariant()) const;
 
     //=========================================================================================================
-
     /**
-     * @brief updateSubscriptions Overwrites the Communicators subscriptions. Attention: old subscriptions will
-     *        be deleted! See updateSubscriptions.
-     * @param subs The new list of Event types to be notified about
-     */
+    * @brief updateSubscriptions Overwrites the Communicators subscriptions. Attention: old subscriptions will
+    *        be deleted! See updateSubscriptions.
+    * @param subs The new list of Event types to be notified about
+    */
     void updateSubscriptions(QVector<Event::EVENT_TYPE> subs);
 
     //=========================================================================================================
-
     /**
-     * @brief addSubscriptions Adds the provided list of Event types to the preexisting list.
-     * @param newsubs List of new subscriptions.
-     */
+    * @brief addSubscriptions Adds the provided list of Event types to the preexisting list.
+    * @param newsubs List of new subscriptions.
+    */
     void addSubscriptions(QVector<Event::EVENT_TYPE> newsubs);
 
     //=========================================================================================================
-
     /**
-     * @brief addSubscriptions Convenience overload, see addSubscriptions
-     * @param newsub
-     */
+    * @brief addSubscriptions Convenience overload, see addSubscriptions
+    * @param newsub
+    */
     void addSubscriptions(Event::EVENT_TYPE newsub);
 
     //=========================================================================================================
-
     /**
-     * @brief manualDisconnect Manually disconnects a Communicator from the Event system.
-     */
+    * @brief manualDisconnect Manually disconnects a Communicator from the Event system.
+    */
     void manualDisconnect(void);
 
     //=========================================================================================================
-
     /**
-     * @brief getSubscriptions Getter for list of subscriptions
-     * @return List of subscriptions
-     */
+    * @brief getSubscriptions Getter for list of subscriptions
+    * @return List of subscriptions
+    */
     inline QVector<Event::EVENT_TYPE> getSubscriptions(void) const;
 
     //=========================================================================================================
-
     /**
-     * @brief getID Getter for internal ID
-     * @return Internal ID
-     */
+    * @brief getID Getter for internal ID
+    * @return Internal ID
+    */
     inline CommunicatorID getID(void) const;
-
-    //=========================================================================================================
 
 private:
     static CommunicatorID m_IDCounter;                  /**< ID-Counter for Communicator instances. */
@@ -174,9 +168,6 @@ private:
 
     CommunicatorID m_ID;                                /**< Communicator ID. */
     QVector<Event::EVENT_TYPE> m_EventSubscriptions;    /**< All event types that the Communicator receives*/
-
-
-    //=========================================================================================================
 
 signals: 
     /**
@@ -199,14 +190,16 @@ inline Communicator::CommunicatorID Communicator::nextID()
     return ++m_IDCounter;
 }
 
-//=============================================================================================================
+//*************************************************************************************************************
+
 
 inline QVector<Event::EVENT_TYPE> Communicator::getSubscriptions(void) const
 {
     return m_EventSubscriptions;
 }
 
-//=============================================================================================================
+//*************************************************************************************************************
+
 
 inline Communicator::CommunicatorID Communicator::getID(void) const
 {
