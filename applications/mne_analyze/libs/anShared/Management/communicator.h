@@ -84,8 +84,8 @@ class ANSHAREDSHARED_EXPORT Communicator : public QObject
 {
     Q_OBJECT
 public:
-    typedef QSharedPointer<Communicator> SPtr;            /**< Shared pointer type for GeometryInfo. */
-    typedef QSharedPointer<const Communicator> ConstSPtr; /**< Const shared pointer type for GeometryInfo. */
+    typedef QSharedPointer<Communicator> SPtr;            /**< Shared pointer type for Communicator. */
+    typedef QSharedPointer<const Communicator> ConstSPtr; /**< Const shared pointer type for Communicator. */
 
     typedef long CommunicatorID;                        /**< Typedef for CommunicatorID. */
 
@@ -96,7 +96,7 @@ public:
     *        second constructor for more details. Qt::DirectConnection is recommended.
     * @param subs The list of relevant events.
     */
-    Communicator(QVector<Event::EVENT_TYPE> subs = QVector<Event::EVENT_TYPE>());
+    Communicator(const QVector<Event::EVENT_TYPE>& subs = QVector<Event::EVENT_TYPE>());
 
     //=========================================================================================================
     /**
@@ -118,7 +118,7 @@ public:
     * @param etype Type of the event to be published
     * @param data Potential data to be attached to the event
     */
-    void publishEvent(Event::EVENT_TYPE etype, QVariant data = QVariant()) const;
+    void publishEvent(Event::EVENT_TYPE etype, const QVariant& data = QVariant()) const;
 
     //=========================================================================================================
     /**
@@ -126,14 +126,14 @@ public:
     *        be deleted! See updateSubscriptions.
     * @param subs The new list of Event types to be notified about
     */
-    void updateSubscriptions(QVector<Event::EVENT_TYPE> subs);
+    void updateSubscriptions(const QVector<Event::EVENT_TYPE>& subs);
 
     //=========================================================================================================
     /**
     * @brief addSubscriptions Adds the provided list of Event types to the preexisting list.
     * @param newsubs List of new subscriptions.
     */
-    void addSubscriptions(QVector<Event::EVENT_TYPE> newsubs);
+    void addSubscriptions(const QVector<Event::EVENT_TYPE>& newsubs);
 
     //=========================================================================================================
     /**
@@ -176,7 +176,7 @@ signals:
     *
     * @param e The event that was received
     */
-    void receivedEvent(Event e);
+    void receivedEvent(const Event& e);
 
 };
 

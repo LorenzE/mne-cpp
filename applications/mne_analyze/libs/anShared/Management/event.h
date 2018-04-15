@@ -98,7 +98,7 @@ public:
     /**
     * Constructs an Event object.
     */
-    Event(const EVENT_TYPE type, const Communicator* sender, const QVariant data);
+    Event(const EVENT_TYPE type, const Communicator* sender, const QVariant& data);
 
     //=========================================================================================================
     /**
@@ -106,7 +106,7 @@ public:
     *
     * @return Type of the Event.
     */
-    inline EVENT_TYPE getType();
+    inline EVENT_TYPE getType() const;
 
     //=========================================================================================================
     /**
@@ -114,7 +114,7 @@ public:
     *
     * @return Sender of the Event.
     */
-    inline const Communicator *getSender();
+    inline const Communicator *getSender() const;
 
     //=========================================================================================================
     /**
@@ -125,7 +125,7 @@ public:
 private:
     EVENT_TYPE m_eventType;             /**< Type of the respective Event instance. */
     const Communicator* m_sender;       /**< Sender of the Event. */
-    const QVariant& m_data;             /**< Attached Data (can be empty). */
+    const QVariant m_data;             /**< Attached Data (can be empty). */
 };
 
 //*************************************************************************************************************
@@ -133,7 +133,7 @@ private:
 // INLINE DEFINITIONS
 //=============================================================================================================
 
-inline Event::EVENT_TYPE Event::getType()
+inline Event::EVENT_TYPE Event::getType() const
 {
     return m_eventType;
 }
@@ -141,7 +141,7 @@ inline Event::EVENT_TYPE Event::getType()
 
 //*************************************************************************************************************
 
-inline const Communicator* Event::getSender()
+inline const Communicator* Event::getSender() const
 {
     return m_sender;
 }

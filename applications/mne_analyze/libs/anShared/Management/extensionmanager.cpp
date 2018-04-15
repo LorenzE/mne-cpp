@@ -42,7 +42,6 @@ Copyright (C) 2017, Christoph Dinh, Lars Debor, Simon Heinke and Matti Hamalaine
 
 #include "extensionmanager.h"
 #include "../Interfaces/IExtension.h"
-#include "eventmanager.h"
 
 
 //*************************************************************************************************************
@@ -78,7 +77,7 @@ ExtensionManager::ExtensionManager(QObject *parent)
 
 ExtensionManager::~ExtensionManager()
 {
-    foreach(IExtension* extension, m_qVecExtensions)
+    for(IExtension* extension : m_qVecExtensions)
     {
         delete extension;
     }

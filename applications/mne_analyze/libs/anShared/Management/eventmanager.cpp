@@ -66,7 +66,7 @@ using namespace ANSHAREDLIB;
 void EventManager::addCommunicator(Communicator* commu)
 {
     const QVector<Event::EVENT_TYPE>& subscriptions = commu->getSubscriptions();
-    foreach(Event::EVENT_TYPE etype, subscriptions)
+    for(const Event::EVENT_TYPE& etype : subscriptions)
     {
         m_routingTable.insert(etype, commu);
     }
@@ -78,7 +78,7 @@ void EventManager::addCommunicator(Communicator* commu)
 void EventManager::issueEvent(Event e)
 {
     const QList<Communicator*> subscribers = m_routingTable.values(e.getType());
-    foreach(Communicator* commu, subscribers)
+    for(Communicator* commu : subscribers)
     {
         // avoid self-messaging
         if (commu->getID() != e.getSender()->getID())
@@ -94,7 +94,7 @@ void EventManager::issueEvent(Event e)
 
 void EventManager::addSubscriptions(Communicator* commu, QVector<Event::EVENT_TYPE> newsubs)
 {
-    foreach(Event::EVENT_TYPE etype, newsubs)
+    for(const Event::EVENT_TYPE& etype : newsubs)
     {
         m_routingTable.insert(etype, commu);
     }
@@ -103,12 +103,12 @@ void EventManager::addSubscriptions(Communicator* commu, QVector<Event::EVENT_TY
 //*************************************************************************************************************
 
 
-void EventManager::updateSubscriptions(Communicator* commu, QVector<Event::EVENT_TYPE> subs)
+void EventManager::updateSubscriptions(Communicator* commu,const QVector<Event::EVENT_TYPE> &subs)
 {
     // remove old subscriptions from EventManager routing table
     EventManager::removeCommunicator(commu);
     // add new key-value-pairs into map
-    foreach(Event::EVENT_TYPE etype, subs)
+    for(const Event::EVENT_TYPE& etype : subs)
     {
         m_routingTable.insert(etype, commu);
     }
@@ -119,7 +119,7 @@ void EventManager::updateSubscriptions(Communicator* commu, QVector<Event::EVENT
 
 void EventManager::removeCommunicator(Communicator* commu)
 {
-    foreach(Event::EVENT_TYPE etype, commu->getSubscriptions())
+    for(const Event::EVENT_TYPE& etype : commu->getSubscriptions())
     {
         int removed = m_routingTable.remove(etype, commu);
         // consistency check:

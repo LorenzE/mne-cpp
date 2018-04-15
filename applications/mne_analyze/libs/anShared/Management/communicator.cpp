@@ -63,7 +63,7 @@ using namespace ANSHAREDLIB;
 // DEFINE MEMBER METHODS
 //=============================================================================================================
 
-Communicator::Communicator(QVector<Event::EVENT_TYPE> subs)
+Communicator::Communicator(const QVector<Event::EVENT_TYPE> &subs)
     : m_ID(nextID()),
       m_EventSubscriptions(subs)
 {
@@ -94,7 +94,7 @@ Communicator::~Communicator()
 //*************************************************************************************************************
 
 
-void Communicator::publishEvent(Event::EVENT_TYPE etype, QVariant data) const
+void Communicator::publishEvent(Event::EVENT_TYPE etype, const QVariant &data) const
 {
     // simply pass on to the EventManager
     EventManager::issueEvent(Event(etype, this, data));
@@ -103,7 +103,7 @@ void Communicator::publishEvent(Event::EVENT_TYPE etype, QVariant data) const
 //*************************************************************************************************************
 
 
-void Communicator::updateSubscriptions(QVector<Event::EVENT_TYPE> subs)
+void Communicator::updateSubscriptions(const QVector<Event::EVENT_TYPE> &subs)
 {
     // update routing table of event manager
     EventManager::updateSubscriptions(this, subs);
@@ -115,7 +115,7 @@ void Communicator::updateSubscriptions(QVector<Event::EVENT_TYPE> subs)
 
 //*************************************************************************************************************
 
-void Communicator::addSubscriptions(QVector<Event::EVENT_TYPE> newsubs)
+void Communicator::addSubscriptions(const QVector<Event::EVENT_TYPE> &newsubs)
 {
     m_EventSubscriptions.append(newsubs);
     // add new subscriptions to routing table of event manager

@@ -121,7 +121,7 @@ public:
     * @param commu The respective Communicator
     * @param subs New list of subscriptions
     */
-    static void updateSubscriptions(Communicator* commu, QVector<Event::EVENT_TYPE> subs);
+    static void updateSubscriptions(Communicator* commu, const QVector<Event::EVENT_TYPE> &subs);
 
     //=========================================================================================================
     /**
