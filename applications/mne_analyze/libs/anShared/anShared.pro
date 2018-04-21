@@ -76,7 +76,6 @@ SOURCES += \
     Data/surfacesetdata.cpp \
     Data/surfacedata.cpp \
     Data/surfacesettings.cpp \
-    Model/modelstorage.cpp \
     Model/surfacemodel.cpp \
     Management/event.cpp \
     Management/communicator.cpp \
@@ -95,7 +94,6 @@ HEADERS += \
     Data/surfacesetdata.h \
     Data/surfacedata.h \
     Data/surfacesettings.h \
-    Model/modelstorage.h \
     Model/surfacemodel.h \
     Utils/types.h \
     anshared_global.h \
