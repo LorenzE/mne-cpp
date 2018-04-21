@@ -97,9 +97,45 @@ public:
 
     //=========================================================================================================
     /**
+    * Public enum for all available data types. Naming convention: Namespace_Classname
+    */
+    enum DATA_TYPE
+    {
+        FSLIB_SURFACE
+    };
+
+    //=========================================================================================================
+    /**
     * Constructs a DataStorage object.
     */
     DataStorage();
+
+    //=========================================================================================================
+    /**
+    * @brief isLoaded Returns whether or not a certain object is already loaded in the DataStorage
+    * @param filename Name of the respective file
+    * @param dtype Type of the object
+    * @return True if the file in question has already been loaded, false otherwise
+    */
+    bool isLoaded(QString filename, DATA_TYPE dtype);
+
+    //=========================================================================================================
+    /**
+    * @brief loadObjectFile This method loads the specified object into the DataStorage.
+    * @param filename Name of the respective file
+    * @param dtype Type of the object
+    * @param blocking If this flag is true, the object in question is loaded in the calling thread. A different
+    *                 thread will be used otherwise
+    */
+    void loadObjectFile(QString filename, DATA_TYPE dtype, bool blocking = false);
+
+    //=========================================================================================================
+    /**
+    * @brief getLoadedObjects Returns a vector of all loaded objects that have type dtype
+    * @param dtype Type of the object
+    * @return Vector of all loaded objects that have type dtype
+    */
+    QVector<QSharedPointer<AbstractData> > getLoadedObjects(DATA_TYPE dtype);
 
 protected:
 
