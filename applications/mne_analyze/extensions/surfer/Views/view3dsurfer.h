@@ -2,13 +2,14 @@
 /**
 * @file     view3dsurfer.h
 * @author   Lars Debor <lars.debor@tu-ilmenau.de>;
+*           Simon Heinke <simon.heinke@tu-ilmenau.de>;
 *           Matti Hamalainen <msh@nmr.mgh.harvard.edu>
 * @version  1.0
 * @date     August, 2018
 *
 * @section  LICENSE
 *
-* Copyright (C) 2018, Lars Debor and Matti Hamalainen. All rights reserved.
+* Copyright (C) 2018, Lars Debor, Simon Heinke and Matti Hamalainen. All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without modification, are permitted provided that
 * the following conditions are met:
@@ -52,6 +53,7 @@
 
 #include <QSharedPointer>
 #include <QWidget>
+#include <QPointer>
 
 
 //*************************************************************************************************************
@@ -72,12 +74,23 @@ namespace Qt3DRender {
 
 namespace Qt3DCore {
     class QEntity;
+    class QTransform;
+}
+
+namespace Qt3DExtras {
+    class QSphereMesh;
 }
 
 class QGridLayout;
+class QAbstractItemModel;
+class QItemSelectionModel;
 
 namespace MNELIB {
     class MNEBemSurface;
+}
+
+namespace DISP3DLIB {
+    class CustomMesh;
 }
 
 //*************************************************************************************************************
@@ -119,7 +132,28 @@ public:
     */
     ~View3DSurfer() = default;
 
+    //=========================================================================================================
+    /**
+    * Sets the model for the view to present.
+    *
+    * This function will create and set a new selection model,
+    * replacing any model that was previously set with setSelectionModel().
+    * However, the old selection model will not be deleted as it may be shared between several views.
+    *
+    * @param[in]    pModel   The new item model.
+    */
+    void setModel(QAbstractItemModel *pModel);
 
+    //=========================================================================================================
+    /**
+    * Sets the current selection model to the given selectionModel.
+    *
+    * Note that, if you call setModel() after this function,
+    * the given selectionModel will be replaced by one created by the view.
+    *
+    * @param[in]    pSelectionModel     The new selection model.
+    */
+    void setSelectionModel(QItemSelectionModel *pSelectionModel);
 
 protected:
 
@@ -137,20 +171,41 @@ private:
     */
     Qt3DCore::QEntity *createEntityTree();
 
+//    //=========================================================================================================
+//    /**
+//    * Creates mesh of a surface.
+//    */
+//    Qt3DRender::QGeometryRenderer *createMesh();
+
     //=========================================================================================================
     /**
-    * Creates mesh of a surface.
+    * This function creates a mesh from the data given by a SurfaceModel.
     */
-    Qt3DRender::QGeometryRenderer *createMesh();
+    void updateSurfaceModelMesh();
+
+    Qt3DCore::QEntity *createLightEntity();
 
     void testPicking(Qt3DRender::QPickEvent *event);
+
+    inline float squared(float x);
+
     //Layout
     QWidget *m_view3d_container;
     QGridLayout *m_view3d_gridlayout;
 
     MNELIB::MNEBemSurface m_surface;
 
+    DISP3DLIB::CustomMesh *m_pSurfaceMesh;
+
+    Qt3DExtras::QSphereMesh *m_pointMesh;
+    Qt3DCore::QTransform *pSphereTransform;
+
+    QPointer<QAbstractItemModel> m_pItemModel;
+    QPointer<QItemSelectionModel> m_pSelectionModel;
+
 };
+
+
 
 
 //*************************************************************************************************************
@@ -158,6 +213,11 @@ private:
 // INLINE DEFINITIONS
 //=============================================================================================================
 
+
+inline float View3DSurfer::squared(float x)
+{
+    return x * x;
+}
 
 } // namespace SURFEREXTENSION
 

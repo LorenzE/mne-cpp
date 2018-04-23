@@ -2,13 +2,15 @@
 /**
 * @file     surfer.cpp
 * @author   Christoph Dinh <chdinh@nmr.mgh.harvard.edu>;
+*           Lars Debor <lars.debor@tu-ilmenau.de>;
+*           Simon Heinke <simon.heinke@tu-ilmenau.de>;
 *           Matti Hamalainen <msh@nmr.mgh.harvard.edu>
 * @version  1.0
 * @date     February, 2017
 *
 * @section  LICENSE
 *
-* Copyright (C) 2017 Christoph Dinh and Matti Hamalainen. All rights reserved.
+* Copyright (C) 2017 Christoph Dinh, Lars Debor, Simon Heinke and Matti Hamalainen. All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without modification, are permitted provided that
 * the following conditions are met:
@@ -39,6 +41,9 @@
 //=============================================================================================================
 
 #include "surfer.h"
+#include <anShared/Model/surfacemodel.h>
+#include <anShared/Data/surfacedata.h>
+
 
 //*************************************************************************************************************
 //=============================================================================================================
@@ -136,6 +141,12 @@ QWidget *Surfer::getView()
         //
         m_pView = new View3DSurfer();
         m_pView->setWindowTitle("Pial surface");
+
+        // TODO delete this later
+        // This is only for testing until the extension has access to ModelStorage
+        SurfaceData *surfaceData = new SurfaceData("sample", 1, "pial", "./MNE-sample-data/subjects");
+        SurfaceModel *surfaceModel = new SurfaceModel(surfaceData);
+        m_pView->setModel(surfaceModel);
     }
 
     return m_pView;
