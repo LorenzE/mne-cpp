@@ -45,7 +45,7 @@
 #include "../applications/mne_analyze/libs/anShared/Model/surfacemodel.h"
 #include "../applications/mne_analyze/libs/anShared/Data/surfacedata.h"
 #include "../applications/mne_analyze/libs/anShared/Utils/types.h"
-#include "../applications/mne_analyze/libs/anShared/Data/datastorage.h"
+#include "../applications/mne_analyze/libs/anShared/Management/analyzedata.h"
 #include <iostream>
 
 
@@ -89,7 +89,7 @@ private slots:
 private:
     SurfaceData* m_surfaceData;
     QSharedPointer<SurfaceModel> m_surfaceModel;
-    DataStorage* ds;
+    AnalyzeData* ad;
 };
 
 //*************************************************************************************************************
@@ -104,8 +104,8 @@ TestSurfaceModel::TestSurfaceModel()
 void TestSurfaceModel::initTestCase()
 {
     // use DataStorage for loading the model
-    ds = new DataStorage();
-    m_surfaceModel = ds->loadSurface("sample", 1, "pial", "./MNE-sample-data/subjects");
+    ad = new AnalyzeData();
+    m_surfaceModel = ad->loadSurface("sample", 1, "pial", "./MNE-sample-data/subjects");
     // load same data again
     m_surfaceData = new SurfaceData("sample", 1, "pial", "./MNE-sample-data/subjects");
 }

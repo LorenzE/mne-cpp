@@ -249,5 +249,5 @@ void InvMNE::calculate()
     printf("tmin = %f s\n", sourceEstimate.tmin);
     printf("tstep = %f s\n", sourceEstimate.tstep);
 
-    globalData()->addSTC(sourceEstimate);
+    // globalData()->addSTC(sourceEstimate);
 }

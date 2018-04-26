@@ -161,27 +161,11 @@ public:
 
     //=========================================================================================================
     /**
-    * Returns the global data base
-    *
-    * @return the global data
-    */
-    virtual inline QSharedPointer<AnalyzeData>& globalData();
-
-    //=========================================================================================================
-    /**
     * Sets the global settings, which provides the mne analyze settings
     *
     * @param [in] globalSettings  the global settings
     */
     virtual inline void setGlobalSettings(QSharedPointer<AnalyzeSettings>& globalSettings);
-
-    //=========================================================================================================
-    /**
-    * Returns the global settings base
-    *
-    * @return the global settings
-    */
-    virtual inline QSharedPointer<AnalyzeSettings>& globalSettings();
 
 public slots:
 
@@ -209,28 +193,12 @@ void IExtension::setGlobalData(QSharedPointer<AnalyzeData> &data)
     m_analyzeData = data;
 }
 
-
 //*************************************************************************************************************
 
-QSharedPointer<AnalyzeData> &IExtension::globalData()
-{
-    return m_analyzeData;
-}
-
-
-//*************************************************************************************************************
 
 void IExtension::setGlobalSettings(QSharedPointer<AnalyzeSettings> &settings)
 {
     m_analyzeSettings = settings;
-}
-
-
-//*************************************************************************************************************
-
-QSharedPointer<AnalyzeSettings> &IExtension::globalSettings()
-{
-    return m_analyzeSettings;
 }
 
 } //Namespace

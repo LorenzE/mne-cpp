@@ -42,20 +42,14 @@
 //=============================================================================================================
 
 #include "../anshared_global.h"
-
-#include <mne/mne_sourceestimate.h>
-
-#include <inverse/dipoleFit/dipole_fit_settings.h>
-#include <inverse/dipoleFit/ecd_set.h>
-
+#include "../Model/abstractmodel.h"
+#include "../Model/surfacemodel.h"
 
 //*************************************************************************************************************
 //=============================================================================================================
 // QT INCLUDES
 //=============================================================================================================
 
-#include <QPair>
-#include <QList>
 #include <QSharedPointer>
 
 
@@ -104,35 +98,41 @@ public:
     /**
     * Destroys the Analyze Data.
     */
-    virtual ~AnalyzeData();
+    ~AnalyzeData();
 
-signals:
-    void stcChanged_signal();                   /**< Emmited when the current STC changed.*/
-    void stcSampleChanged_signal(int sample);   /**< Emmited when the current STC sample point changed. @param [in] sample  The sample time point;*/
-    void ecdSetChanged_signal();                /**< Emmited when the current ECD Set changed.*/
+    //=========================================================================================================
+    /**
+    * @brief getObjectsOfType Returns a vector of models that have the specified type
+    * @param mtype The type to search for
+    * @return Vector of models that have the specified type
+    */
+    QVector<QSharedPointer<AbstractModel> > getObjectsOfType(AbstractModel::MODEL_TYPE mtype);
 
-public:
-//STC
-    const MNELIB::MNESourceEstimate& currentSTC() const;    /*!< Returns the current STC. @return The current STC.*/
-    void addSTC( const MNELIB::MNESourceEstimate &stc );    /*!< Adds a new STC. @param [in] stc    the new STC;*/
-    void setCurrentSTCSample(int sample);                   /*!< Sets the current stc sample;*/
-    int currentSTCSample();                                 /*!< Returns the current STC sample. @return The current STC sample.*/
+    //=========================================================================================================
+    /**
+    * @brief loadSurface Loads a Surface from the specified filepath (only if the object is not loaded yet)
+    * @param path The path of the object to load
+    * @return SurfaceModel that contains the specified surface
+    */
+    QSharedPointer<SurfaceModel> loadSurface(const QString& path);
 
-//ECD
-    const INVERSELIB::ECDSet& currentECDSet() const;                                            /*!< Returns the current ECD Set. @return The current ECD Set.*/
-    void addECDSet( INVERSELIB::DipoleFitSettings &ecdSettings,  INVERSELIB::ECDSet &ecdSet );  /*!< Sets the current ECD Set. @param [in] ecdSettings  Sets the settings corresponding to the current ECD Set; @param [in] ecdSet  Sets the current ECD Set;*/
-    const QList< QPair< INVERSELIB::DipoleFitSettings, INVERSELIB::ECDSet > >& ecdSets() const; /*!< Returns a list of all past ECD Sets. @return All past ECD Sets.*/
+    //=========================================================================================================
+    /**
+    * @brief loadSurface        Constructs a filepath out of the passed parameters and calls the single-
+    *                           parameter version of loadSurface. Path Construction is copied from Surface::read
+    * @param subject_id         Name of subject
+    * @param hemi               Which hemisphere to load {0 -> lh, 1 -> rh}
+    * @param surf               Name of the surface to load (eg. inflated, orig ...)
+    * @param subjects_dir       Subjects directory
+    * @return SurfaceModel that contains the specified surface
+    */
+    QSharedPointer<SurfaceModel> loadSurface(const QString &subject_id, qint32 hemi, const QString &surf, const QString &subjects_dir);
 
-// Database -> Consider using abstract item models or other datamanagement architecture
+protected:
+
 private:
-// STCs
-    QList<MNELIB::MNESourceEstimate>    m_qListEstimates;       /**< List of all Source Estimates.*/
-    int                                 m_iCurrentEstimate;     /**< Current Estimate */
-    int                                 m_iCurrentSample;       /**< Current sample point of the current estimate */
+    QHash<QString, QSharedPointer<AbstractModel> >        m_data;
 
-// ECDs
-    QList< QPair< INVERSELIB::DipoleFitSettings, INVERSELIB::ECDSet > > m_qListECDSets;     /**< List of all past ECD Sets.*/
-    int                                                                 m_iCurrentECDSet;   /**< Current ECD Set */
 };
 
 //*************************************************************************************************************
