@@ -2,13 +2,14 @@
 /**
 * @file     surfacemodel.h
 * @author   Lars Debor <lars.debor@tu-ilmenau.de>;
+*           Simon Heinke <simon.heinke@tu-ilmenau.de>;
 *           Matti Hamalainen <msh@nmr.mgh.harvard.edu>
 * @version  1.0
 * @date     March, 2018
 *
 * @section  LICENSE
 *
-* Copyright (C) 2018, Lars Debor and Matti Hamalainen. All rights reserved.
+* Copyright (C) 2018, Lars Debor, Simon Heinke and Matti Hamalainen. All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without modification, are permitted provided that
 * the following conditions are met:
@@ -44,6 +45,7 @@
 
 #include "../Data/surfacedata.h"
 #include "../anshared_global.h"
+#include "abstractmodel.h"
 
 
 //*************************************************************************************************************
@@ -52,7 +54,6 @@
 //=============================================================================================================
 
 #include <QSharedPointer>
-#include <QAbstractItemModel>
 
 
 //*************************************************************************************************************
@@ -98,7 +99,7 @@ namespace ANSHAREDLIB {
 *
 * @brief This model is used to access surface data.
 */
-class ANSHAREDSHARED_EXPORT SurfaceModel : public QAbstractItemModel
+class ANSHAREDSHARED_EXPORT SurfaceModel : public AbstractModel
 {
     Q_OBJECT
 
@@ -186,13 +187,18 @@ public:
     */
     int columnCount(const QModelIndex &parent = QModelIndex()) const override;
 
+    //=========================================================================================================
+    /**
+    * @brief getType The type of this model (SurfaceModel)
+    * @return The type of this model (SurfaceModel)
+    */
+    inline AbstractModel::MODEL_TYPE getType() const;
+
 protected:
 
 private:
 
     SurfaceData*    m_pSurfaceData;
-
-
 
 };
 
@@ -202,6 +208,10 @@ private:
 // INLINE DEFINITIONS
 //=============================================================================================================
 
+inline AbstractModel::MODEL_TYPE SurfaceModel::getType() const
+{
+    return AbstractModel::MODEL_TYPE::FSLIB_SURFACE_MODEL;
+}
 
 } // namespace ANSHAREDLIB
 

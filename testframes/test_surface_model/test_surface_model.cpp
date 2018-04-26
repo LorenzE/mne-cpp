@@ -2,13 +2,14 @@
 /**
 * @file     test_surface_model.cpp
 * @author   Lars Debor <lars.debor@tu-ilmenau.de>;
+*           Simon Heinke <simon.heinke@tu-ilmenau.de>;
 *           Matti Hamalainen <msh@nmr.mgh.harvard.edu>
 * @version  1.0
 * @date     April, 2018
 *
 * @section  LICENSE
 *
-* Copyright (C) 2018, Lars Debor and Matti Hamalainen. All rights reserved.
+* Copyright (C) 2018, Lars Debor, Simon Heinke and Matti Hamalainen. All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without modification, are permitted provided that
 * the following conditions are met:
@@ -44,6 +45,7 @@
 #include "../applications/mne_analyze/libs/anShared/Model/surfacemodel.h"
 #include "../applications/mne_analyze/libs/anShared/Data/surfacedata.h"
 #include "../applications/mne_analyze/libs/anShared/Utils/types.h"
+#include "../applications/mne_analyze/libs/anShared/Data/datastorage.h"
 #include <iostream>
 
 
@@ -86,7 +88,8 @@ private slots:
 
 private:
     SurfaceData* m_surfaceData;
-    SurfaceModel* m_surfaceModel;
+    QSharedPointer<SurfaceModel> m_surfaceModel;
+    DataStorage* ds;
 };
 
 //*************************************************************************************************************
@@ -100,9 +103,11 @@ TestSurfaceModel::TestSurfaceModel()
 
 void TestSurfaceModel::initTestCase()
 {
-    //SurfaceSet tSurfSet (sample, 2, "pial", "./MNE-sample-data/subjects");
+    // use DataStorage for loading the model
+    ds = new DataStorage();
+    m_surfaceModel = ds->loadSurface("sample", 1, "pial", "./MNE-sample-data/subjects");
+    // load same data again
     m_surfaceData = new SurfaceData("sample", 1, "pial", "./MNE-sample-data/subjects");
-    m_surfaceModel = new SurfaceModel(m_surfaceData);
 }
 
 
@@ -189,7 +194,7 @@ void TestSurfaceModel::testDataAccess()
 void TestSurfaceModel::cleanupTestCase()
 {
     delete m_surfaceData;
-    delete m_surfaceModel;
+    // delete m_surfaceModel;
 }
 
 //=============================================================================================================

@@ -1,15 +1,14 @@
 //=============================================================================================================
 /**
-* @file     datastorage.h
-* @author   Lars Debor <lars.debor@tu-ilmenau.de>;
-*           Simon Heinke <simon.heinke@tu-ilmenau.de>;
+* @file     abstractmodel.h
+* @author   Simon Heinke <simon.heinke@tu-ilmenau.de>;
 *           Matti Hamalainen <msh@nmr.mgh.harvard.edu>
 * @version  1.0
-* @date     March, 2018
+* @date     04, 2018
 *
 * @section  LICENSE
 *
-* Copyright (C) 2018, Lars Debor and Matti Hamalainen. All rights reserved.
+* Copyright (C) 2018, Simon Heinke and Matti Hamalainen. All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without modification, are permitted provided that
 * the following conditions are met:
@@ -30,12 +29,12 @@
 * POSSIBILITY OF SUCH DAMAGE.
 *
 *
-* @brief     DataStorage class declaration.
+* @brief     AbstractModel class declaration.
 *
 */
 
-#ifndef ANSHAREDLIB_DATASTORAGE_H
-#define ANSHAREDLIB_DATASTORAGE_H
+#ifndef ANSHAREDLIB_ABSTRACTMODEL_H
+#define ANSHAREDLIB_ABSTRACTMODEL_H
 
 
 //*************************************************************************************************************
@@ -44,9 +43,6 @@
 //=============================================================================================================
 
 #include "../anshared_global.h"
-#include "../Model/abstractmodel.h"
-#include "../Model/surfacemodel.h"
-
 
 //*************************************************************************************************************
 //=============================================================================================================
@@ -54,8 +50,7 @@
 //=============================================================================================================
 
 #include <QSharedPointer>
-#include <QHash>
-#include <QString>
+#include <QAbstractItemModel>
 
 
 //*************************************************************************************************************
@@ -83,7 +78,6 @@ namespace ANSHAREDLIB {
 // ANSHAREDLIB FORWARD DECLARATIONS
 //=============================================================================================================
 
-class AbstractData;
 
 //=============================================================================================================
 /**
@@ -91,51 +85,50 @@ class AbstractData;
 *
 * @brief Brief description of this class.
 */
-class ANSHAREDSHARED_EXPORT DataStorage
+class ANSHAREDSHARED_EXPORT AbstractModel : public QAbstractItemModel
 {
+    Q_OBJECT
 
 public:
-    typedef QSharedPointer<DataStorage> SPtr;            /**< Shared pointer type for DataStorage. */
-    typedef QSharedPointer<const DataStorage> ConstSPtr; /**< Const shared pointer type for DataStorage. */
+    typedef QSharedPointer<AbstractModel> SPtr;            /**< Shared pointer type for AbstractModel. */
+    typedef QSharedPointer<const AbstractModel> ConstSPtr; /**< Const shared pointer type for AbstractModel. */
 
     //=========================================================================================================
     /**
-    * Constructs a DataStorage object.
+    * Constructs a AbstractModel object. Simply pass potential parent object to super class.
     */
-    DataStorage();
+    AbstractModel(QObject *pParent)
+        : QAbstractItemModel(pParent) {}
 
     //=========================================================================================================
     /**
-    * @brief getObjectsOfType Returns a vector of models that have the specified type
-    * @param mtype The type to search for
-    * @return Vector of models that have the specified type
+    * @brief The MODEL_TYPE enum lists all available model types.
+    *        Naming convention: NAMESPACE_CLASSNAME_MODEL
     */
-    QVector<QSharedPointer<AbstractModel> > getObjectsOfType(AbstractModel::MODEL_TYPE mtype);
+    enum MODEL_TYPE
+    {
+        FSLIB_SURFACE_MODEL
+    };
 
     //=========================================================================================================
     /**
-    * @brief loadSurface Loads a Surface from the specified filepath (only if the object is not loaded yet)
-    * @param path The path of the object to load
-    * @return SurfaceModel that contains the specified surface
+    * @brief getType Inherited by AbstractModel
+    * @return The type of the respective subclasses
     */
-    QSharedPointer<SurfaceModel> loadSurface(const QString& path);
+    virtual inline MODEL_TYPE getType() const = 0;
 
     //=========================================================================================================
-    /**
-    * @brief loadSurface        Constructs a filepath out of the passed parameters and calls the single-
-    *                           parameter version of loadSurface. Path Construction is copied from Surface::read
-    * @param subject_id         Name of subject
-    * @param hemi               Which hemisphere to load {0 -> lh, 1 -> rh}
-    * @param surf               Name of the surface to load (eg. inflated, orig ...)
-    * @param subjects_dir       Subjects directory
-    * @return SurfaceModel that contains the specified surface
-    */
-    QSharedPointer<SurfaceModel> loadSurface(const QString &subject_id, qint32 hemi, const QString &surf, const QString &subjects_dir);
+    // Inherited by QAbstractItemModel:
+    virtual QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override = 0;
+    virtual Qt::ItemFlags flags(const QModelIndex &index) const override = 0;
+    virtual QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const override = 0;
+    virtual QModelIndex parent(const QModelIndex &index) const override = 0;
+    virtual int rowCount(const QModelIndex &parent = QModelIndex()) const override = 0;
+    virtual int columnCount(const QModelIndex &parent = QModelIndex()) const override = 0;
 
 protected:
 
 private:
-    QHash<QString, QSharedPointer<AbstractModel> >        m_data;
 
 };
 
@@ -148,4 +141,4 @@ private:
 
 } // namespace ANSHAREDLIB
 
-#endif // ANSHAREDLIB_DATASTORAGE_H
+#endif // ANSHAREDLIB_ABSTRACTMODEL_H

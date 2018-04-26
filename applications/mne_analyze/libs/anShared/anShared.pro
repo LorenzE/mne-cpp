@@ -99,7 +99,8 @@ HEADERS += \
     anshared_global.h \
     Management/event.h \
     Management/communicator.h \
-    Management/eventmanager.h
+    Management/eventmanager.h \
+    Model/abstractmodel.h
 
 
 INCLUDEPATH += $${EIGEN_INCLUDE_DIR}
