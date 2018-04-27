@@ -195,6 +195,14 @@ public:
 
     //=========================================================================================================
     /**
+    * Returns true if parent has any children; otherwise returns false.
+    *
+    * @param[in] parent     The index of the parent node.
+    */
+    bool hasChildren(const QModelIndex &parent = QModelIndex()) const override;
+
+    //=========================================================================================================
+    /**
     * @brief getType The type of this model (SurfaceModel)
     * @return The type of this model (SurfaceModel)
     */

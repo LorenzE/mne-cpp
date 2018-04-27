@@ -216,3 +216,11 @@ int SurfaceModel::columnCount(const QModelIndex &parent) const
 
 
 //*************************************************************************************************************
+
+bool SurfaceModel::hasChildren(const QModelIndex &parent) const
+{
+    return rowCount(parent) > 0;
+}
+
+
+//*************************************************************************************************************
