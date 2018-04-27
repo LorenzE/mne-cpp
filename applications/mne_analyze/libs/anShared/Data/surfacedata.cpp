@@ -75,14 +75,6 @@ using namespace FSLIB;
 // DEFINE MEMBER METHODS
 //=============================================================================================================
 
-SurfaceData::SurfaceData()
-: m_surface(Surface())
-{
-}
-
-
-//*************************************************************************************************************
-
 SurfaceData::SurfaceData(const QString &p_sFile)
 : m_surface(Surface(p_sFile))
 {
