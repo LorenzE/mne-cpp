@@ -119,12 +119,18 @@ public:
 
     //=========================================================================================================
     /**
+    * Deleted default constructor.
+    */
+    SurfaceModel() = delete;
+
+    //=========================================================================================================
+    /**
     * Constructs a SurfaceModel object from a given SurfaceData object.
     *
-    * @param[in] pSurfaceData   The surface data that the model uses.
-    * @param[in] pParent        The parent of this object.
+    * @param[in] sSurfaceFilePath   The path used in Surface class for data loading.
+    * @param[in] pParent            The parent of this object.
     */
-    explicit SurfaceModel(SurfaceData* pSurfaceData, QObject* pParent = nullptr);
+    explicit SurfaceModel(const QString& sSurfaceFilePath, QObject* pParent = nullptr);
 
     //=========================================================================================================
     /**
@@ -183,7 +189,7 @@ public:
     /**
     * Returns the number of objects stored in the node.
     *
-    *  @param[in] parent     The index of the requested node.
+    * @param[in] parent     The index of the requested node.
     */
     int columnCount(const QModelIndex &parent = QModelIndex()) const override;
 
@@ -198,7 +204,7 @@ protected:
 
 private:
 
-    SurfaceData*    m_pSurfaceData;
+    SurfaceData    m_pSurfaceData;
 
 };
 

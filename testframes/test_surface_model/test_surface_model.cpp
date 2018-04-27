@@ -89,7 +89,7 @@ private slots:
 private:
     SurfaceData* m_surfaceData;
     QSharedPointer<SurfaceModel> m_surfaceModel;
-    AnalyzeData* ad;
+    AnalyzeData* m_analyzeData;
 };
 
 //*************************************************************************************************************
@@ -104,9 +104,9 @@ TestSurfaceModel::TestSurfaceModel()
 void TestSurfaceModel::initTestCase()
 {
     // use DataStorage for loading the model
-    ad = new AnalyzeData();
-    m_surfaceModel = ad->loadSurface("sample", 1, "pial", "./MNE-sample-data/subjects");
-    // load same data again
+    m_analyzeData = new AnalyzeData();
+    m_surfaceModel = m_analyzeData->loadSurface("sample", 1, "pial", "./MNE-sample-data/subjects");
+    // load same data again for testing reasons
     m_surfaceData = new SurfaceData("sample", 1, "pial", "./MNE-sample-data/subjects");
 }
 

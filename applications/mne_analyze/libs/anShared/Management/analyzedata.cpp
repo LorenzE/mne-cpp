@@ -108,8 +108,8 @@ QSharedPointer<SurfaceModel> AnalyzeData::loadSurface(const QString &path)
     }
     else
     {
-        QSharedPointer<SurfaceModel> sm = QSharedPointer<SurfaceModel>::create(new SurfaceData(path));
-        m_data.insert(path, qSharedPointerDynamicCast<AbstractModel>(sm));
+        QSharedPointer<SurfaceModel> sm = QSharedPointer<SurfaceModel>::create(path);
+        m_data.insert(path, qSharedPointerCast<AbstractModel>(sm));
         return sm;
     }
 }

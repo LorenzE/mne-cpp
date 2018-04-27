@@ -77,9 +77,9 @@ using namespace Eigen;
 // DEFINE MEMBER METHODS
 //=============================================================================================================
 
-SurfaceModel::SurfaceModel(SurfaceData* pSurfaceData, QObject *pParent)
+SurfaceModel::SurfaceModel(const QString &sSurfaceFilePath, QObject *pParent)
 : AbstractModel(pParent)
-, m_pSurfaceData(pSurfaceData)
+, m_pSurfaceData(sSurfaceFilePath)
 {
 
 }
@@ -93,25 +93,25 @@ QVariant SurfaceModel::data(const QModelIndex &index, int role) const
         QVariant output;
         // Vertices:
         if(index.internalId() == InternalId::VerticeItem) {
-            output.setValue(m_pSurfaceData->vertexAt(index.column()));
+            output.setValue(m_pSurfaceData.vertexAt(index.column()));
             return output;
         }
 
         // Normals:
         else if(index.internalId() == InternalId::NormalItem) {
-            output.setValue(m_pSurfaceData->normalAt(index.column()));
+            output.setValue(m_pSurfaceData.normalAt(index.column()));
             return output;
         }
 
         // Triangles:
         else if(index.internalId() == InternalId::TriangleItem) {
-            output.setValue(m_pSurfaceData->triAt(index.column()));
+            output.setValue(m_pSurfaceData.triAt(index.column()));
             return output;
         }
 
         // Curvature:
         else if(index.internalId() == InternalId::CurvatureItem) {
-            output.setValue(m_pSurfaceData->curvAt(index.column()));
+            output.setValue(m_pSurfaceData.curvAt(index.column()));
             return output;
         }
     }
@@ -192,19 +192,19 @@ int SurfaceModel::columnCount(const QModelIndex &parent) const
 
     switch(parent.internalId()) {
         case InternalId::VerticeItem:
-            col = m_pSurfaceData->vertices().rows();
+            col = m_pSurfaceData.vertices().rows();
             break;
 
         case InternalId::NormalItem:
-            col = m_pSurfaceData->normals().rows();
+            col = m_pSurfaceData.normals().rows();
             break;
 
         case InternalId::TriangleItem:
-            col = m_pSurfaceData->tris().rows();
+            col = m_pSurfaceData.tris().rows();
             break;
 
         case InternalId::CurvatureItem:
-            col = m_pSurfaceData->curvature().rows();
+            col = m_pSurfaceData.curvature().rows();
             break;
 
         default:

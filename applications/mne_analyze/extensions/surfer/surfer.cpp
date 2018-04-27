@@ -140,12 +140,12 @@ QWidget *Surfer::getView()
         //Pial surface
         //
         m_pView = new View3DSurfer();
-        m_pView->setWindowTitle("Pial surface");
+        m_pView->setWindowTitle(QStringLiteral("Pial surface"));
 
         // TODO delete this later
         // This is only for testing until the extension has access to ModelStorage
-        SurfaceData *surfaceData = new SurfaceData("sample", 1, "pial", "./MNE-sample-data/subjects");
-        SurfaceModel *surfaceModel = new SurfaceModel(surfaceData);
+        //SurfaceData *surfaceData = new SurfaceData("sample", 1, "pial", "./MNE-sample-data/subjects");
+        SurfaceModel *surfaceModel = new SurfaceModel(QStringLiteral("./MNE-sample-data/subjects/sample/surf/rh.pial"));
         m_pView->setModel(surfaceModel);
     }
 
