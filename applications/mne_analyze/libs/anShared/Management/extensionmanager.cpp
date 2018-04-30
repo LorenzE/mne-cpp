@@ -111,7 +111,7 @@ void ExtensionManager::loadExtension(const QString& dir)
 
 //*************************************************************************************************************
 
-void ExtensionManager::initExtensions(QSharedPointer<AnalyzeSettings>& settings, QSharedPointer<AnalyzeData>& data)
+void ExtensionManager::initExtensions(QSharedPointer<AnalyzeSettings> settings, QSharedPointer<AnalyzeData> data)
 {
     foreach(IExtension* extension, m_qVecExtensions)
     {
