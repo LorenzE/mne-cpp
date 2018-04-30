@@ -193,8 +193,6 @@ private:
     QWidget *m_view3d_container;
     QGridLayout *m_view3d_gridlayout;
 
-    MNELIB::MNEBemSurface m_surface;
-
     DISP3DLIB::CustomMesh *m_pSurfaceMesh;
 
     Qt3DExtras::QSphereMesh *m_pointMesh;

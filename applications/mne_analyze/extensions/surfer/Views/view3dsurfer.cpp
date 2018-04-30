@@ -351,7 +351,7 @@ void View3DSurfer::testPicking(QPickEvent *event)
     if(QPickTriangleEvent* tri = dynamic_cast<QPickTriangleEvent*>(event)) {
         qDebug() << "picked triangle index: " << tri->triangleIndex();
         qDebug() << tri->vertex1Index() << " " << tri->vertex2Index() << " " << tri->vertex3Index() << " ";
-        qDebug() << m_surface.tris(tri->triangleIndex(), 0);
+        //qDebug() << m_surface.tris(tri->triangleIndex(), 0);
         qDebug() << "local intersection " << tri->localIntersection();
 
         //calculate the nearest triangle vertex to the local intersection
