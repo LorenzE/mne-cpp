@@ -2,13 +2,14 @@
 /**
 * @file     surfacedata.h
 * @author   Lars Debor <lars.debor@tu-ilmenaul.de>;
+*           Simon Heinke <simon.heinke@tu-ilmenau.de>;
 *           Matti Hamalainen <msh@nmr.mgh.harvard.edu>
 * @version  1.0
 * @date     March, 2018
 *
 * @section  LICENSE
 *
-* Copyright (C) 2018, Lars Debor and Matti Hamalainen. All rights reserved.
+* Copyright (C) 2018, Lars Debor, Simon Heinke and Matti Hamalainen. All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without modification, are permitted provided that
 * the following conditions are met:
@@ -139,37 +140,61 @@ public:
 
     //=========================================================================================================
     /**
-    * Coordinates of vertices (rr)
+    * Coordinates of vertices (rr).
     *
     * @return coordinates of vertices
     */
     inline const Eigen::MatrixX3f& vertices() const;
 
+    //=========================================================================================================
+    /**
+    * Coordinates of a vertex with index idx.
+    *
+    * @param[in]    Index of the vertex.
+    *
+    * @return coordinates of vertex.
+    */
     Eigen::Vector3f vertexAt(int idx) const;
 
     //=========================================================================================================
     /**
-    * Normalized surface normals for each vertex
+    * Normalized surface normals for each vertex.
     *
     * @return surface normals
     */
     inline const Eigen::MatrixX3f& normals() const;
 
+    //=========================================================================================================
+    /**
+    * Coordinates of a normal vector with index idx.
+    *
+    * @param[in]    Index of the normals vector.
+    *
+    * @return The normal vector.
+    */
     Eigen::Vector3f normalAt(int idx) const;
 
     //=========================================================================================================
     /**
-    * The triangle descriptions
+    * The triangle descriptions.
     *
     * @return triangle descriptions
     */
     inline const Eigen::MatrixX3i& tris() const;
 
+    //=========================================================================================================
+    /**
+    * Returns the indices of 3 vertices that build a triangle.
+    *
+    * @param[in]    Index of the triangle.
+    *
+    * @return Vector with indices of the vertices.
+    */
     Eigen::Vector3i triAt(int idx) const;
 
     //=========================================================================================================
     /**
-    * FreeSurfer curvature
+    * FreeSurfer curvature.
     *
     * @return the FreeSurfer curvature data
     */
