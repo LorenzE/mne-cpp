@@ -58,6 +58,7 @@
 #include <QtCore/QtPlugin>
 #include <QDebug>
 
+
 //*************************************************************************************************************
 //=============================================================================================================
 // FORWARD DECLARATIONS
@@ -104,16 +105,15 @@ public:
     ~Surfer();
 
     // IExtension functions
-    virtual QSharedPointer<IExtension> clone() const;
-    virtual void init();
-    virtual void unload();
-    virtual QString getName() const;
-    virtual QMenu* getMenu();
-    virtual QDockWidget* getControl();
-    virtual QWidget* getView();
-
-    virtual void handleEvent(ANSHAREDLIB::Event e);
-    virtual QVector<ANSHAREDLIB::EVENT_TYPE> getEventSubscriptions() const;
+    virtual QSharedPointer<IExtension> clone() const override;
+    virtual void init() override;
+    virtual void unload() override;
+    virtual QString getName() const override;
+    virtual QMenu* getMenu() override;
+    virtual QDockWidget* getControl() override;
+    virtual QWidget* getView() override;
+    virtual void handleEvent(ANSHAREDLIB::Event e) override;
+    virtual QVector<ANSHAREDLIB::Event::EVENT_TYPE> getEventSubscriptions() const override;
 
 private:
     // Control
