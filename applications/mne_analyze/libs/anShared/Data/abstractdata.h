@@ -83,9 +83,9 @@ class DataSettings;
 
 //=============================================================================================================
 /**
-* Description of what this class is intended to do (in detail).
+* This class is the abstract base class for all data classes.
 *
-* @brief Brief description of this class.
+* @brief This class is the abstract base class for all data classes.
 */
 class ANSHAREDSHARED_EXPORT AbstractData
 {
@@ -106,8 +106,18 @@ public:
     */
     virtual ~AbstractData();
 
+    //=========================================================================================================
+    /**
+    * Intitialize the settings of the object.
+    */
     virtual void initiSettings() = 0;
 
+    //=========================================================================================================
+    /**
+    * Returns the setttings of this object.
+    *
+    * @returns  SharedPointer to the settings.
+    */
     virtual QSharedPointer<DataSettings> getSettings();
 
 protected:
