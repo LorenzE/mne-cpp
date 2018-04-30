@@ -97,7 +97,6 @@ void Surfer::init()
 
 void Surfer::unload()
 {
-
 }
 
 
