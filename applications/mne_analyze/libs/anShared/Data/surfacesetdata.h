@@ -2,13 +2,14 @@
 /**
 * @file     surfacesetdata.h
 * @author   Lars Debor <lars.debor@tu-ilmenau.de>;
+*           Simon Heinke <simon.heinke@tu-ilmenau.de>;
 *           Matti Hamalainen <msh@nmr.mgh.harvard.edu>
 * @version  1.0
 * @date     March, 2018
 *
 * @section  LICENSE
 *
-* Copyright (C) 2018, Lars Debor and Matti Hamalainen. All rights reserved.
+* Copyright (C) 2018, Lars Debor, Simon Heinke and Matti Hamalainen. All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without modification, are permitted provided that
 * the following conditions are met:
@@ -90,7 +91,7 @@ class SurfaceData;
 */
 class ANSHAREDSHARED_EXPORT SurfaceSetData : public AbstractData
 {
-
+    //TODO is this class needed? Maybe combine 2 SurfacesModels to a SurfaceSetModel
 public:
     typedef QSharedPointer<SurfaceSetData> SPtr;            /**< Shared pointer type for SurfaceSetData. */
     typedef QSharedPointer<const SurfaceSetData> ConstSPtr; /**< Const shared pointer type for SurfaceSetData. */
@@ -117,11 +118,6 @@ protected:
 private:
 
     QMap<qint32, SurfaceData>       m_surfaceData;
-
-signals:
-
-
-    void newSurfaceLoaded();
 
 };
 
