@@ -2,13 +2,14 @@
 /**
 * @file     datasettings.h
 * @author   Lars Debor <lars.debor@tu-ilmenau.de>;
+*           Simon Heinke <simon.heinke@tu-ilmenau.de>;
 *           Matti Hamalainen <msh@nmr.mgh.harvard.edu>
 * @version  1.0
 * @date     March, 2018
 *
 * @section  LICENSE
 *
-* Copyright (C) 2018, Lars Debor and Matti Hamalainen. All rights reserved.
+* Copyright (C) 2018, Lars Debor, Simon Heinke and Matti Hamalainen. All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without modification, are permitted provided that
 * the following conditions are met:
@@ -81,9 +82,9 @@ namespace ANSHAREDLIB {
 
 //=============================================================================================================
 /**
-* Description of what this class is intended to do (in detail).
+* This class stores all settings that need be stored with the data.
 *
-* @brief Brief description of this class.
+* @brief This class stores all settings that need be stored with the data.
 */
 class ANSHAREDSHARED_EXPORT DataSettings
 {
