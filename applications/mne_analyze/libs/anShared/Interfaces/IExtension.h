@@ -181,7 +181,7 @@ public slots:
     */
     virtual void handleEvent(Event e) = 0;
 
-private:
+protected:
     QSharedPointer<AnalyzeData> m_analyzeData;              /**< Pointer to the global data base */
     QSharedPointer<AnalyzeSettings> m_analyzeSettings;      /**< Pointer to the global analyze settings */
 

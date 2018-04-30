@@ -46,6 +46,7 @@
 #include <mne/mne_bem_surface.h>
 #include <anShared/Model/surfacemodel.h>
 #include <anShared/Utils/types.h>
+#include <anShared/Model/abstractmodel.h>
 
 #include <cmath>
 #include <limits>
@@ -78,6 +79,7 @@ using namespace SURFEREXTENSION;
 using namespace DISP3DLIB;
 using namespace Qt3DRender;
 using namespace Qt3DCore;
+using namespace ANSHAREDLIB;
 
 
 //*************************************************************************************************************
@@ -103,7 +105,7 @@ View3DSurfer::View3DSurfer()
 
 //*************************************************************************************************************
 
-void View3DSurfer::setModel(QAbstractItemModel *pModel)
+void View3DSurfer::setModel(QSharedPointer<AbstractModel> pModel)
 {
     m_pItemModel = pModel;
 
@@ -204,7 +206,7 @@ QEntity *View3DSurfer::createEntityTree()
 
 void View3DSurfer::updateSurfaceModelMesh()
 {
-    if(dynamic_cast<ANSHAREDLIB::SurfaceModel*>(m_pItemModel.data()) == nullptr) {
+    if(qSharedPointerDynamicCast<SurfaceModel>(m_pItemModel) == nullptr) {
         return;
     }
 
@@ -256,7 +258,7 @@ void View3DSurfer::updateSurfaceModelMesh()
     Eigen::MatrixX3f colors;
     int rows = m_pItemModel->columnCount(m_pItemModel->index(0, 0, QModelIndex()));
     colors.resize(rows, 3);
-    colors.setZero(rows, 3);
+    colors.setConstant(rows, 3, 0.6);
     m_pSurfaceMesh->setColor(colors);
 }
 

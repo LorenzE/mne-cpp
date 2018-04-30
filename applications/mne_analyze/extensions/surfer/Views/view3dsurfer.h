@@ -85,14 +85,13 @@ class QGridLayout;
 class QAbstractItemModel;
 class QItemSelectionModel;
 
-namespace MNELIB {
-    class MNEBemSurface;
-}
-
 namespace DISP3DLIB {
     class CustomMesh;
 }
 
+namespace ANSHAREDLIB {
+    class AbstractModel;
+}
 
 //*************************************************************************************************************
 //=============================================================================================================
@@ -143,7 +142,7 @@ public:
     *
     * @param[in]    pModel   The new item model.
     */
-    void setModel(QAbstractItemModel *pModel);
+    void setModel(QSharedPointer<ANSHAREDLIB::AbstractModel> pModel);
 
     //=========================================================================================================
     /**
@@ -191,7 +190,7 @@ private:
     Qt3DExtras::QSphereMesh *m_pointMesh;
     Qt3DCore::QTransform *pSphereTransform;
 
-    QPointer<QAbstractItemModel> m_pItemModel;
+    QSharedPointer<QAbstractItemModel> m_pItemModel;
     QPointer<QItemSelectionModel> m_pSelectionModel;
 
 };
