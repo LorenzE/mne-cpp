@@ -92,73 +92,81 @@ public:
 
     //=========================================================================================================
     /**
-    * @brief Communicator constructs a Communicator object that emits a signal (receivedEvent) when one of
-    *        the passed list of events happens. A further QtConnect IS necessary (See implementation of
-    *        second constructor for more details. Qt::DirectConnection is recommended.
-    * @param subs The list of relevant events.
+    * Constructs a Communicator object that emits a signal (receivedEvent) when one of the passed list of events
+    * happens. A further QtConnect IS necessary (See implementation of second constructor for more details.
+    * Qt::DirectConnection is recommended.
+    *
+    * @param[in] subs           The list of relevant events.
     */
     Communicator(const QVector<EVENT_TYPE>& subs = QVector<EVENT_TYPE>());
 
     //=========================================================================================================
     /**
-    * @brief Communicator constructs a Communicator object that is connected to the Extensions' handleEvent
-    *        method via a Qt::DirectConnection.
-    * @param extension The Extensions to connect to.
+    * Constructs a Communicator object that is connected to the Extensions' handleEvent method
+    * via a Qt::DirectConnection.
+    *
+    * @param[in] extension      The Extensions to connect to.
     */
     Communicator(IExtension* extension);
 
     //=========================================================================================================
     /**
-    * @brief Destructs the communicator and disconnects it from the EventManager
+    * Destructs the communicator and disconnects it from the EventManager
     */
     ~Communicator();
 
     //=========================================================================================================
     /**
-    * @brief publishEvent Sends an Event of type etype into the event system
-    * @param etype Type of the event to be published
-    * @param data Potential data to be attached to the event
+    * Sends an Event of type etype into the event system
+    *
+    * @param[in] etype          Type of the event to be published
+    * @param[in] data           Potential data to be attached to the event
     */
     void publishEvent(EVENT_TYPE etype, const QVariant& data = QVariant()) const;
 
     //=========================================================================================================
     /**
-    * @brief updateSubscriptions Overwrites the Communicators subscriptions. Attention: old subscriptions will
-    *        be deleted! See updateSubscriptions.
-    * @param subs The new list of Event types to be notified about
+    * Overwrites the Communicators subscriptions. Attention: old subscriptions will be deleted!
+    * See addSubscriptions.
+    *
+    * @param[in] subs           The new list of Event types to be notified about
     */
     void updateSubscriptions(const QVector<EVENT_TYPE>& subs);
 
     //=========================================================================================================
     /**
-    * @brief addSubscriptions Adds the provided list of Event types to the preexisting list.
-    * @param newsubs List of new subscriptions.
+    * Adds the provided list of Event types to the preexisting list.
+    *
+    * @param[in] newsubs        List of new subscriptions.
     */
     void addSubscriptions(const QVector<EVENT_TYPE>& newsubs);
 
     //=========================================================================================================
     /**
-    * @brief addSubscriptions Convenience overload, see addSubscriptions
-    * @param newsub
+    * Convenience overload, see addSubscriptions
+    *
+    * @param[in] newsub         New subscription to be added
     */
     void addSubscriptions(EVENT_TYPE newsub);
 
     //=========================================================================================================
     /**
-    * @brief manualDisconnect Manually disconnects a Communicator from the Event system.
+    * Manually disconnects a Communicator from the Event system.
     */
     void manualDisconnect(void);
 
     //=========================================================================================================
     /**
-    * @brief getSubscriptions Getter for list of subscriptions
+    * Getter for list of subscriptions
+    *
     * @return List of subscriptions
     */
     inline QVector<EVENT_TYPE> getSubscriptions(void) const;
 
     //=========================================================================================================
     /**
-    * @brief getID Getter for internal ID
+    * Getter for internal ID
+    *
     * @return Internal ID
     */
     inline CommunicatorID getID(void) const;
@@ -168,14 +176,14 @@ private:
     inline static CommunicatorID nextID();              /**< Simply increments the counter and returns it. */
 
     CommunicatorID m_ID;                                /**< Communicator ID. */
-    QVector<EVENT_TYPE> m_EventSubscriptions;    /**< All event types that the Communicator receives*/
+    QVector<EVENT_TYPE> m_EventSubscriptions;           /**< All event types that the Communicator receives*/
 
 signals: 
     /**
-    * @brief Called by EventManager whenever an event needs to be handled. This must be connected to some other
-    *        function for actual usage.
+    * Called by EventManager whenever an event needs to be handled. This must be connected to some other
+    * function for actual usage.
     *
-    * @param e The event that was received
+    * @param[in] e              The event that was received
     */
     void receivedEvent(const Event& e);
 

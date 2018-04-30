@@ -74,11 +74,11 @@ namespace ANSHAREDLIB
 class Communicator;
 
 
-//=========================================================================================================
+//=============================================================================================================
 /**
 * DECLARE CLASS EventManager
 *
-* @brief EventManager for Event communication
+* @brief EventManager for Event communication. Holds a routing table that keeps track of Event subscriptions
 */
 class ANSHAREDSHARED_EXPORT EventManager
 {
@@ -94,40 +94,43 @@ public:
 
     //=========================================================================================================
     /**
-    * @brief addCommunicator Adds a Communicator, respectively its subscriptions to the routing table
-    * @param commu The Communicator to add
+    * Adds a Communicator, respectively its subscriptions to the routing table
+    *
+    * @param[in] commu          The Communicator to add
     */
     static void addCommunicator(Communicator* commu);
 
     //=========================================================================================================
     /**
-    * @brief issueEvent Communicate an event to all entities that have registered for the respective
-    *        event type
+    * Communicate an event to all entities that have registered for the respective event type
     *
-    * @param e The event to publish
+    * @param[in] e              The event to publish
     */
     static void issueEvent(Event e);
 
     //=========================================================================================================
     /**
-    * @brief addSubscriptions Add the specified list of Event types to the routing table
-    * @param commu The respective Communicator
-    * @param newsubs List of new (additional) subscriptions
+    * Expands a Communicator's subscriptions by the specified list
+    *
+    * @param[in] commu          The Communicator to add the events for
+    * @param[in] newsubs        List of new (additional) subscriptions
     */
     static void addSubscriptions(Communicator* commu, QVector<EVENT_TYPE> newsubs);
 
     //=========================================================================================================
     /**
-    * @brief updateSubscriptions Replaces a Communicators subscriptions with the provided list
-    * @param commu The respective Communicator
-    * @param subs New list of subscriptions
+    * Replaces a Communicators subscriptions with the specified list
+    *
+    * @param[in] commu          The respective Communicator
+    * @param[in] subs           New list of subscriptions
     */
     static void updateSubscriptions(Communicator* commu, const QVector<EVENT_TYPE> &subs);
 
     //=========================================================================================================
     /**
-    * @brief removeCommunicator Removes (and thus disconnects) a Communicator from the routing table
-    * @param commu The communicator to remove.
+    * Removes (and thus disconnects) a Communicator and all its subscriptions from the routing table
+    *
+    * @param[in] commu The communicator to remove.
     */
     static void removeCommunicator(Communicator* commu);
 

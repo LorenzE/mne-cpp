@@ -106,29 +106,35 @@ public:
 
     //=========================================================================================================
     /**
-    * @brief getObjectsOfType Returns a vector of models that have the specified type
-    * @param mtype The type to search for
-    * @return Vector of models that have the specified type
+    * Returns a vector of all loaded models that have the specified type
+    *
+    * @param[in] mtype              The type to search for
+    *
+    * @return                       Vector of models that have the specified type
     */
     QVector<QSharedPointer<AbstractModel> > getObjectsOfType(MODEL_TYPE mtype);
 
     //=========================================================================================================
     /**
-    * @brief loadSurface Loads a Surface from the specified filepath (only if the object is not loaded yet)
-    * @param path The path of the object to load
-    * @return SurfaceModel that contains the specified surface
+    * Loads a Surface from the specified filepath (only if the object is not loaded yet)
+    *
+    * @param[in] path               The path of the object to load
+    *
+    * @return                       SurfaceModel that contains the specified surface
     */
     QSharedPointer<SurfaceModel> loadSurface(const QString& path);
 
     //=========================================================================================================
     /**
-    * @brief loadSurface        Constructs a filepath out of the passed parameters and calls the single-
-    *                           parameter version of loadSurface. Path Construction is copied from Surface::read
-    * @param subject_id         Name of subject
-    * @param hemi               Which hemisphere to load {0 -> lh, 1 -> rh}
-    * @param surf               Name of the surface to load (eg. inflated, orig ...)
-    * @param subjects_dir       Subjects directory
-    * @return SurfaceModel that contains the specified surface
+    * Constructs a filepath out of the passed parameters and calls the single-parameter version of loadSurface.
+    * Path Construction is copied from Surface::read.
+    *
+    * @param[in] subject_id         Name of subject
+    * @param[in] hemi               Which hemisphere to load {0 -> lh, 1 -> rh}
+    * @param[in] surf               Name of the surface to load (eg. inflated, orig ...)
+    * @param[in] subjects_dir       Subjects directory
+    *
+    * @return                       SurfaceModel that contains the specified surface
     */
     QSharedPointer<SurfaceModel> loadSurface(const QString &subject_id, qint32 hemi, const QString &surf, const QString &subjects_dir);
 

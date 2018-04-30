@@ -84,9 +84,9 @@ namespace ANSHAREDLIB {
 
 //=============================================================================================================
 /**
-* Description of what this class is intended to do (in detail).
 *
-* @brief Brief description of this class.
+* @brief Super class for all models that are intended to be used by AnalyzeData.
+*        Holds information such as model type.
 */
 class ANSHAREDSHARED_EXPORT AbstractModel : public QAbstractItemModel
 {
@@ -111,7 +111,8 @@ public:
 
     //=========================================================================================================
     /**
-    * @brief getType Inherited by AbstractModel
+    * Getter for the model type
+    *
     * @return The type of the respective subclasses
     */
     virtual inline MODEL_TYPE getType() const = 0;
