@@ -93,7 +93,7 @@ public:
     *
     * @param[in] parent pointer to parent Object. (It's normally the default value.)
     */
-    ExtensionManager(QObject* parent = 0);
+    ExtensionManager(QObject* parent = nullptr);
 
     //=========================================================================================================
     /**
@@ -116,7 +116,7 @@ public:
     * @param [in] settings      the global mne analyze settings
     * @param [in] data          the global mne analyze data
     */
-    void initExtensions(QSharedPointer<AnalyzeSettings>& settings, QSharedPointer<AnalyzeData>& data);
+    void initExtensions(QSharedPointer<AnalyzeSettings> settings, QSharedPointer<AnalyzeData> data);
 
     //=========================================================================================================
     /**
