@@ -33,8 +33,8 @@
 * @brief    Contains general application specific types
 *
 */
-#ifndef TYPES_H
-#define TYPES_H
+#ifndef ANSHARED_TYPES_H
+#define ANSHARED_TYPES_H
 
 //*************************************************************************************************************
 //=============================================================================================================
@@ -67,8 +67,6 @@ using namespace Eigen;
 
 namespace MNEANALYZE
 {
-
-
 
 } //NAMESPACE
 

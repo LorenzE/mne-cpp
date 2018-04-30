@@ -137,7 +137,7 @@ void FiffIO::handleEvent(Event e)
 
 //*************************************************************************************************************
 
-QVector<Event::EVENT_TYPE> FiffIO::getEventSubscriptions(void) const
+QVector<EVENT_TYPE> FiffIO::getEventSubscriptions(void) const
 {
-    return QVector<Event::EVENT_TYPE>();
+    return QVector<EVENT_TYPE>();
 }

@@ -83,7 +83,7 @@ AnalyzeData::~AnalyzeData()
 
 //*************************************************************************************************************
 
-QVector<QSharedPointer<AbstractModel> > AnalyzeData::getObjectsOfType(AbstractModel::MODEL_TYPE mtype)
+QVector<QSharedPointer<AbstractModel> > AnalyzeData::getObjectsOfType(MODEL_TYPE mtype)
 {
     // simply iterate over map, number of objects in memory should be small enough
     QVector<QSharedPointer<AbstractModel> > result;

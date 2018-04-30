@@ -146,7 +146,7 @@ void DipoleFit::handleEvent(Event e)
 
 //*************************************************************************************************************
 
-QVector<Event::EVENT_TYPE> DipoleFit::getEventSubscriptions(void) const
+QVector<EVENT_TYPE> DipoleFit::getEventSubscriptions(void) const
 {
-    return QVector<Event::EVENT_TYPE>();
+    return QVector<EVENT_TYPE>();
 }

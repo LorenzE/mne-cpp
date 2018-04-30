@@ -163,9 +163,9 @@ void Surfer::handleEvent(Event e)
 
 //*************************************************************************************************************
 
-QVector<Event::EVENT_TYPE> Surfer::getEventSubscriptions(void) const
+QVector<EVENT_TYPE> Surfer::getEventSubscriptions(void) const
 {
-    return QVector<Event::EVENT_TYPE>();
+    return QVector<EVENT_TYPE>();
 }
 
 

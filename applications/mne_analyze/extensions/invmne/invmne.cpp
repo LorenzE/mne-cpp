@@ -164,9 +164,9 @@ void InvMNE::handleEvent(Event e)
 
 //*************************************************************************************************************
 
-QVector<Event::EVENT_TYPE> InvMNE::getEventSubscriptions(void) const
+QVector<EVENT_TYPE> InvMNE::getEventSubscriptions(void) const
 {
-    return QVector<Event::EVENT_TYPE>();
+    return QVector<EVENT_TYPE>();
 }
 
 

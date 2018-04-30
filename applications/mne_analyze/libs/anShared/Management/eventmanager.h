@@ -44,6 +44,7 @@
 
 #include "../anshared_global.h"
 #include "event.h"
+#include "../Utils/enums.h"
 
 
 //*************************************************************************************************************
@@ -113,7 +114,7 @@ public:
     * @param commu The respective Communicator
     * @param newsubs List of new (additional) subscriptions
     */
-    static void addSubscriptions(Communicator* commu, QVector<Event::EVENT_TYPE> newsubs);
+    static void addSubscriptions(Communicator* commu, QVector<EVENT_TYPE> newsubs);
 
     //=========================================================================================================
     /**
@@ -121,7 +122,7 @@ public:
     * @param commu The respective Communicator
     * @param subs New list of subscriptions
     */
-    static void updateSubscriptions(Communicator* commu, const QVector<Event::EVENT_TYPE> &subs);
+    static void updateSubscriptions(Communicator* commu, const QVector<EVENT_TYPE> &subs);
 
     //=========================================================================================================
     /**
@@ -131,7 +132,7 @@ public:
     static void removeCommunicator(Communicator* commu);
 
 private:
-    static QMultiMap<Event::EVENT_TYPE, Communicator*> m_routingTable;
+    static QMultiMap<EVENT_TYPE, Communicator*> m_routingTable;
 };
 
 } // namespace

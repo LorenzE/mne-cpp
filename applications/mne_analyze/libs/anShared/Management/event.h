@@ -43,6 +43,7 @@
 //=============================================================================================================
 
 #include "../anshared_global.h"
+#include "../Utils/enums.h"
 
 
 //*************************************************************************************************************
@@ -86,16 +87,6 @@ public:
 
     //=========================================================================================================
     /**
-    * Public enum for all available Event types.
-    */
-    enum EVENT_TYPE
-    {
-        PING,
-        DEFAULT
-    };
-
-    //=========================================================================================================
-    /**
     * Constructs an Event object.
     */
     Event(const EVENT_TYPE type, const Communicator* sender, const QVariant& data);
@@ -133,7 +124,7 @@ private:
 // INLINE DEFINITIONS
 //=============================================================================================================
 
-inline Event::EVENT_TYPE Event::getType() const
+inline EVENT_TYPE Event::getType() const
 {
     return m_eventType;
 }

@@ -269,9 +269,9 @@ void DeepCNTK::handleEvent(Event e)
 
 //*************************************************************************************************************
 
-QVector<Event::EVENT_TYPE> DeepCNTK::getEventSubscriptions(void) const
+QVector<EVENT_TYPE> DeepCNTK::getEventSubscriptions(void) const
 {
-    QVector<Event::EVENT_TYPE> temp;
+    QVector<EVENT_TYPE> temp;
     return temp;
 }
 

@@ -46,6 +46,7 @@
 #include "../Data/surfacedata.h"
 #include "../anshared_global.h"
 #include "abstractmodel.h"
+#include "../Utils/enums.h"
 
 
 //*************************************************************************************************************
@@ -204,7 +205,7 @@ public:
     * @brief getType The type of this model (SurfaceModel)
     * @return The type of this model (SurfaceModel)
     */
-    inline AbstractModel::MODEL_TYPE getType() const override;
+    inline MODEL_TYPE getType() const override;
 
 private:
 
@@ -218,9 +219,9 @@ private:
 // INLINE DEFINITIONS
 //=============================================================================================================
 
-inline AbstractModel::MODEL_TYPE SurfaceModel::getType() const
+inline MODEL_TYPE SurfaceModel::getType() const
 {
-    return AbstractModel::MODEL_TYPE::FSLIB_SURFACE_MODEL;
+    return MODEL_TYPE::FSLIB_SURFACE_MODEL;
 }
 
 } // namespace ANSHAREDLIB

@@ -43,6 +43,8 @@
 
 #include "../anshared_global.h"
 #include "../Management/event.h"
+#include "../Utils/enums.h"
+
 
 //*************************************************************************************************************
 //=============================================================================================================
@@ -149,7 +151,7 @@ public:
     *
     * @return The vector of relevant Events
     */
-    virtual QVector<Event::EVENT_TYPE> getEventSubscriptions(void) const = 0;
+    virtual QVector<EVENT_TYPE> getEventSubscriptions(void) const = 0;
 
     //=========================================================================================================
     /**

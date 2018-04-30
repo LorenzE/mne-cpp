@@ -46,6 +46,8 @@
 #include "../anshared_global.h"
 #include "../Model/abstractmodel.h"
 #include "../Model/surfacemodel.h"
+#include "../Utils/enums.h"
+
 
 //*************************************************************************************************************
 //=============================================================================================================
@@ -108,7 +110,7 @@ public:
     * @param mtype The type to search for
     * @return Vector of models that have the specified type
     */
-    QVector<QSharedPointer<AbstractModel> > getObjectsOfType(AbstractModel::MODEL_TYPE mtype);
+    QVector<QSharedPointer<AbstractModel> > getObjectsOfType(MODEL_TYPE mtype);
 
     //=========================================================================================================
     /**

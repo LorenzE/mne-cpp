@@ -178,9 +178,9 @@ void Music::handleEvent(Event e)
 
 //*************************************************************************************************************
 
-QVector<Event::EVENT_TYPE> Music::getEventSubscriptions(void) const
+QVector<EVENT_TYPE> Music::getEventSubscriptions(void) const
 {
-    return QVector<Event::EVENT_TYPE>();
+    return QVector<EVENT_TYPE>();
 }
 
 

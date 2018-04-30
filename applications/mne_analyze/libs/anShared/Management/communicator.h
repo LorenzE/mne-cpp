@@ -44,6 +44,7 @@
 
 #include "../anshared_global.h"
 #include "event.h"
+#include "../Utils/enums.h"
 
 
 //*************************************************************************************************************
@@ -96,7 +97,7 @@ public:
     *        second constructor for more details. Qt::DirectConnection is recommended.
     * @param subs The list of relevant events.
     */
-    Communicator(const QVector<Event::EVENT_TYPE>& subs = QVector<Event::EVENT_TYPE>());
+    Communicator(const QVector<EVENT_TYPE>& subs = QVector<EVENT_TYPE>());
 
     //=========================================================================================================
     /**
@@ -118,7 +119,7 @@ public:
     * @param etype Type of the event to be published
     * @param data Potential data to be attached to the event
     */
-    void publishEvent(Event::EVENT_TYPE etype, const QVariant& data = QVariant()) const;
+    void publishEvent(EVENT_TYPE etype, const QVariant& data = QVariant()) const;
 
     //=========================================================================================================
     /**
@@ -126,21 +127,21 @@ public:
     *        be deleted! See updateSubscriptions.
     * @param subs The new list of Event types to be notified about
     */
-    void updateSubscriptions(const QVector<Event::EVENT_TYPE>& subs);
+    void updateSubscriptions(const QVector<EVENT_TYPE>& subs);
 
     //=========================================================================================================
     /**
     * @brief addSubscriptions Adds the provided list of Event types to the preexisting list.
     * @param newsubs List of new subscriptions.
     */
-    void addSubscriptions(const QVector<Event::EVENT_TYPE>& newsubs);
+    void addSubscriptions(const QVector<EVENT_TYPE>& newsubs);
 
     //=========================================================================================================
     /**
     * @brief addSubscriptions Convenience overload, see addSubscriptions
     * @param newsub
     */
-    void addSubscriptions(Event::EVENT_TYPE newsub);
+    void addSubscriptions(EVENT_TYPE newsub);
 
     //=========================================================================================================
     /**
@@ -153,7 +154,7 @@ public:
     * @brief getSubscriptions Getter for list of subscriptions
     * @return List of subscriptions
     */
-    inline QVector<Event::EVENT_TYPE> getSubscriptions(void) const;
+    inline QVector<EVENT_TYPE> getSubscriptions(void) const;
 
     //=========================================================================================================
     /**
@@ -167,7 +168,7 @@ private:
     inline static CommunicatorID nextID();              /**< Simply increments the counter and returns it. */
 
     CommunicatorID m_ID;                                /**< Communicator ID. */
-    QVector<Event::EVENT_TYPE> m_EventSubscriptions;    /**< All event types that the Communicator receives*/
+    QVector<EVENT_TYPE> m_EventSubscriptions;    /**< All event types that the Communicator receives*/
 
 signals: 
     /**
@@ -193,7 +194,7 @@ inline Communicator::CommunicatorID Communicator::nextID()
 //*************************************************************************************************************
 
 
-inline QVector<Event::EVENT_TYPE> Communicator::getSubscriptions(void) const
+inline QVector<EVENT_TYPE> Communicator::getSubscriptions(void) const
 {
     return m_EventSubscriptions;
 }
