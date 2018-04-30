@@ -2,13 +2,14 @@
 /**
 * @file     surfacesettings.h
 * @author   Lars Debor <lars.debor@tu-ilmenau.de>;
+*           Simon Heinke <simon.heinke@tu-ilmenau.de>;
 *           Matti Hamalainen <msh@nmr.mgh.harvard.edu>
 * @version  1.0
 * @date     March, 2018
 *
 * @section  LICENSE
 *
-* Copyright (C) 2018, Lars Debor and Matti Hamalainen. All rights reserved.
+* Copyright (C) 2018, Lars Debor, Simon Heinke and Matti Hamalainen. All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without modification, are permitted provided that
 * the following conditions are met:
@@ -72,6 +73,7 @@ namespace FSLIB {
     class Surface;
 }
 
+
 //*************************************************************************************************************
 //=============================================================================================================
 // DEFINE NAMESPACE ANSHAREDLIB
@@ -88,9 +90,9 @@ namespace ANSHAREDLIB {
 
 //=============================================================================================================
 /**
-* Description of what this class is intended to do (in detail).
+* This class is a wrapper class for the settings of a Surface.
 *
-* @brief Brief description of this class.
+* @brief This class stores the settings of a Surface.
 */
 class ANSHAREDSHARED_EXPORT SurfaceSettings : public DataSettings
 {
@@ -99,26 +101,74 @@ public:
     typedef QSharedPointer<SurfaceSettings> SPtr;            /**< Shared pointer type for SurfaceSettings. */
     typedef QSharedPointer<const SurfaceSettings> ConstSPtr; /**< Const shared pointer type for SurfaceSettings. */
 
+    //=========================================================================================================
+    /**
+    * Deleted default constructor
+    */
     SurfaceSettings() = delete;
 
     //=========================================================================================================
     /**
     * Constructs a SurfaceSettings object.
+    *
+    * @param[in] pSurface    The surface that this object wraps.
     */
     SurfaceSettings(FSLIB::Surface* pSurface);
 
+    //=========================================================================================================
+    /**
+    * Returns the hemisphere id (0 = lh; 1 = rh)
+    *
+    * @return hemisphere id
+    */
     qint32 getHemi() const;
 
+    //=========================================================================================================
+    /**
+    * Returns the loaded surface type (eg. inflated, orig ...).
+    *
+    * @return the surface type
+    */
     QString getSurfaceType() const;
 
+    //=========================================================================================================
+    /**
+    * Returns the vector offset.
+    *
+    * @return the offset vector
+    */
     Eigen::Vector3f getOffset() const;
 
+    //=========================================================================================================
+    /**
+    * Returns the path to surf directory.
+    *
+    * @return the path to surf directory
+    */
     QString getFilePath() const;
 
+    //=========================================================================================================
+    /**
+    * Retuns the surf file name.
+    *
+    * @return the surf file name
+    */
     QString getFileName() const;
 
+    //=========================================================================================================
+    /**
+    * Sets a new file path for the surface.
+    *
+    * @param[in] sPath  The new file path
+    */
     void setFilePath(const QString &sPath);
 
+    //=========================================================================================================
+    /**
+    * Sets the new offset.
+    *
+    * @param[in] vOffset    The new offset
+    */
     void setOffset(const Eigen::Vector3f &vOffset);
 
 protected:
