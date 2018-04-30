@@ -157,7 +157,7 @@ public:
     *
     * @param [in] globalData  the global data
     */
-    virtual inline void setGlobalData(QSharedPointer<AnalyzeData>& globalData);
+    virtual inline void setGlobalData(QSharedPointer<AnalyzeData> globalData);
 
     //=========================================================================================================
     /**
@@ -165,7 +165,7 @@ public:
     *
     * @param [in] globalSettings  the global settings
     */
-    virtual inline void setGlobalSettings(QSharedPointer<AnalyzeSettings>& globalSettings);
+    virtual inline void setGlobalSettings(QSharedPointer<AnalyzeSettings> globalSettings);
 
 public slots:
 
@@ -188,17 +188,17 @@ private:
 // INLINE DEFINITIONS
 //=============================================================================================================
 
-void IExtension::setGlobalData(QSharedPointer<AnalyzeData> &data)
+void IExtension::setGlobalData(QSharedPointer<AnalyzeData> globalData)
 {
-    m_analyzeData = data;
+    m_analyzeData = globalData;
 }
 
 //*************************************************************************************************************
 
 
-void IExtension::setGlobalSettings(QSharedPointer<AnalyzeSettings> &settings)
+void IExtension::setGlobalSettings(QSharedPointer<AnalyzeSettings> globalSettings)
 {
-    m_analyzeSettings = settings;
+    m_analyzeSettings = globalSettings;
 }
 
 } //Namespace

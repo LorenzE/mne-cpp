@@ -132,7 +132,7 @@ QDockWidget *Surfer::getControl()
 
 //*************************************************************************************************************
 
-// check with owner ship and mdi area for garbage collection
+// TODO check with owner ship and mdi area for garbage collection
 QWidget *Surfer::getView()
 {
     if(!m_pView) {
@@ -167,3 +167,6 @@ QVector<Event::EVENT_TYPE> Surfer::getEventSubscriptions(void) const
 {
     return QVector<Event::EVENT_TYPE>();
 }
+
+
+//*************************************************************************************************************
