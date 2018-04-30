@@ -156,13 +156,11 @@ public:
     */
     Qt::ItemFlags flags(const QModelIndex &index) const override;
 
-    // QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const override;
-
     //=========================================================================================================
     /**
     * Returns the index for the item in the model specified by the given row, column and parent index.
     *
-    * @param8in] row      The specified row.
+    * @param[in] row      The specified row.
     * @param[in] column   The specified column.
     * @param[in] parent   The parent index.
     */
@@ -206,9 +204,7 @@ public:
     * @brief getType The type of this model (SurfaceModel)
     * @return The type of this model (SurfaceModel)
     */
-    inline AbstractModel::MODEL_TYPE getType() const;
-
-protected:
+    inline AbstractModel::MODEL_TYPE getType() const override;
 
 private:
 

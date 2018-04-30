@@ -145,7 +145,7 @@ public:
     //=========================================================================================================
     /**
     * Informs the EventManager about all Events that the Extension wants to know about. Can return an empty
-    * vector in case no Events need to be seen by the Extension
+    * vector in case no Events need to be seen by the Extension.
     *
     * @return The vector of relevant Events
     */
@@ -153,17 +153,17 @@ public:
 
     //=========================================================================================================
     /**
-    * Sets the global data, which provides the central database
+    * Sets the global data, which provides the central database.
     *
-    * @param [in] globalData  the global data
+    * @param[in] globalData  the global data
     */
     virtual inline void setGlobalData(QSharedPointer<AnalyzeData> globalData);
 
     //=========================================================================================================
     /**
-    * Sets the global settings, which provides the mne analyze settings
+    * Sets the global settings, which provides the mne analyze settings.
     *
-    * @param [in] globalSettings  the global settings
+    * @param[in] globalSettings  the global settings
     */
     virtual inline void setGlobalSettings(QSharedPointer<AnalyzeSettings> globalSettings);
 
@@ -171,7 +171,7 @@ public slots:
 
     //=========================================================================================================
     /**
-    * Called by the EventManager in case a subscribed-for Event has happened
+    * Called by the EventManager in case a subscribed-for Event has happened.
     *
     * @param e The Event that has taken place
     */

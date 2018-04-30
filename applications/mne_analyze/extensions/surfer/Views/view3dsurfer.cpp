@@ -143,15 +143,11 @@ void View3DSurfer::init()
     pPickSettings->setPickMethod(QPickingSettings::TrianglePicking);
     pPickSettings->setPickResultMode(QPickingSettings::NearestPick);
 
-
     QCamera *pCamera = pWindow->camera();
     pCamera->setPosition(QVector3D(0,0,1));
 
-
     Qt3DExtras::QFirstPersonCameraController *pCamController = new Qt3DExtras::QFirstPersonCameraController(pRootEntity);
     pCamController->setCamera(pCamera);
-
-
 
     //A container is created to contain the QWindow that comes from BrainView, then a minimum size is set
     m_view3d_container = QWidget::createWindowContainer(pWindow);
@@ -171,19 +167,10 @@ QEntity *View3DSurfer::createEntityTree()
 
     //Create mesh entity
     QEntity *pMeshEntity = new QEntity(pRootEntity);
-//    Qt3DExtras::QSphereMesh *customMesh = new Qt3DExtras::QSphereMesh;
-//    pMeshEntity->addComponent(customMesh);
-
-
-
     pMeshEntity->addComponent(m_pSurfaceMesh);
 
     Qt3DExtras::QPerVertexColorMaterial *pMaterial = new Qt3DExtras::QPerVertexColorMaterial();
     pMeshEntity->addComponent(pMaterial);
-
-//    Qt3DExtras::QPhongMaterial *pMaterial = new Qt3DExtras::QPhongMaterial;
-//    pMaterial->setAmbient(Qt::blue);
-//    pMeshEntity->addComponent(pMaterial);
 
     Qt3DCore::QTransform *pTransform = new Qt3DCore::QTransform();
     //pTransform->setRotationX(270);
@@ -209,36 +196,8 @@ QEntity *View3DSurfer::createEntityTree()
     pSphereMat->setAmbient(Qt::red);
     pSphereEntity->addComponent(pSphereMat);
 
-
-
     return pRootEntity;
-
 }
-
-
-//*************************************************************************************************************
-
-//Qt3DRender::QGeometryRenderer *View3DSurfer::createMesh()
-//{
-//    //acquire surface data
-//    QFile t_filesensorSurfaceVV("./MNE-sample-data/subjects/sample/bem/sample-5120-5120-5120-bem.fif");
-//    MNELIB::MNEBem t_sensorSurfaceVV(t_filesensorSurfaceVV);
-//    m_surface = t_sensorSurfaceVV[0];
-
-//    //Create Mesh
-//    m_pSurfaceMesh = new CustomMesh();
-//    m_pSurfaceMesh->setVertex(m_surface.rr);
-//    m_pSurfaceMesh->setNormals(m_surface.nn);
-//    m_pSurfaceMesh->setIndex(m_surface.tris);
-//    Eigen::MatrixX3f colors;
-//    colors.resize(m_surface.rr.rows(), 3);
-//    colors.setZero(m_surface.rr.rows(), 3);
-//    m_pSurfaceMesh->setColor(colors);
-
-
-//    return m_pSurfaceMesh;
-
-//}
 
 
 //*************************************************************************************************************
@@ -329,16 +288,6 @@ QEntity *View3DSurfer::createLightEntity()
         pPointLight->setColor(lightColor);
         pPointLight->setIntensity(lightIntensity);
         pLightEntity->addComponent(pPointLight);
-
-        //m_lLightSources.append(pPointLight);
-
-        //Uncomment the following to visualize the light sources for debugging:
-//        Qt3DExtras::QSphereMesh* lightSphere = new Qt3DExtras::QSphereMesh(pLightEntity);
-//        lightSphere->setRadius(0.1f);
-//        pLightEntity->addComponent(lightSphere);
-//        Qt3DExtras::QPhongMaterial* material = new Qt3DExtras::QPhongMaterial(pLightEntity);
-//        material->setAmbient(lightColor);
-//        pLightEntity->addComponent(material);
     }
     return pLightRoot;
 }
