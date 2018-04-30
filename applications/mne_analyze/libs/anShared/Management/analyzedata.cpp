@@ -103,6 +103,7 @@ QVector<QSharedPointer<AbstractModel> > AnalyzeData::getObjectsOfType(MODEL_TYPE
 
 QSharedPointer<SurfaceModel> AnalyzeData::loadSurface(const QString &path)
 {
+    //TODO rewrite as template
     // check if file was already loaded:
     if (m_data.contains(path))
     {

@@ -131,14 +131,6 @@ Qt::ItemFlags SurfaceModel::flags(const QModelIndex &index) const
 
 //*************************************************************************************************************
 
-//QVariant SurfaceModel::headerData(int section, Qt::Orientation orientation, int role) const
-//{
-//    return QVariant();
-//}
-
-
-//*************************************************************************************************************
-
 QModelIndex SurfaceModel::index(int row, int column, const QModelIndex &parent) const
 {
     //TODO rework this
