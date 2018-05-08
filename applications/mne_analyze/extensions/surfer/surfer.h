@@ -112,7 +112,7 @@ public:
     virtual QMenu* getMenu() override;
     virtual QDockWidget* getControl() override;
     virtual QWidget* getView() override;
-    virtual void handleEvent(ANSHAREDLIB::Event e) override;
+    virtual void handleEvent(QSharedPointer<ANSHAREDLIB::Event> e) override;
     virtual QVector<ANSHAREDLIB::Event::EVENT_TYPE> getEventSubscriptions() const override;
 
 private:

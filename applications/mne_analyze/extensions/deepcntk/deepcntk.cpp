@@ -261,7 +261,7 @@ QWidget *DeepCNTK::getView()
 
 //*************************************************************************************************************
 
-void DeepCNTK::handleEvent(Event e)
+void DeepCNTK::handleEvent(QSharedPointer<Event> e)
 {
 
 }

@@ -115,7 +115,7 @@ public:
     virtual QDockWidget* getControl();
     virtual QWidget* getView();
 
-    virtual void handleEvent(ANSHAREDLIB::Event e);
+    virtual void handleEvent(QSharedPointer<ANSHAREDLIB::Event> e);
     virtual QVector<ANSHAREDLIB::EVENT_TYPE> getEventSubscriptions() const;
 
 protected:

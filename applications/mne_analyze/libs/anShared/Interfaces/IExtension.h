@@ -179,7 +179,7 @@ public slots:
     *
     * @param e The Event that has taken place
     */
-    virtual void handleEvent(Event e) = 0;
+    virtual void handleEvent(QSharedPointer<Event> e) = 0;
 
 protected:
     QSharedPointer<AnalyzeData> m_analyzeData;              /**< Pointer to the global data base */

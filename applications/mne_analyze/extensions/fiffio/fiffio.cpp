@@ -129,7 +129,7 @@ QWidget *FiffIO::getView()
 
 //*************************************************************************************************************
 
-void FiffIO::handleEvent(Event e)
+void FiffIO::handleEvent(QSharedPointer<Event> e)
 {
 
 }

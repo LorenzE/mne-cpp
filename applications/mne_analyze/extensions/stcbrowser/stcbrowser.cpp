@@ -139,7 +139,7 @@ QWidget *STCBrowser::getView()
 
 //*************************************************************************************************************
 
-void STCBrowser::handleEvent(Event e)
+void STCBrowser::handleEvent(QSharedPointer<Event> e)
 {
 
 }

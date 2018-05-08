@@ -185,7 +185,7 @@ signals:
     *
     * @param[in] e              The event that was received
     */
-    void receivedEvent(const Event& e);
+    void receivedEvent(const QSharedPointer<Event> e);
 
 };
 

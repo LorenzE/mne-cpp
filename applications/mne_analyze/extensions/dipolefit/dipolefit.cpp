@@ -138,7 +138,7 @@ QWidget *DipoleFit::getView()
 
 //*************************************************************************************************************
 
-void DipoleFit::handleEvent(Event e)
+void DipoleFit::handleEvent(QSharedPointer<Event> e)
 {
 
 }

@@ -150,7 +150,7 @@ QWidget *Surfer::getView()
 
 //*************************************************************************************************************
 
-void Surfer::handleEvent(Event e)
+void Surfer::handleEvent(QSharedPointer<Event> e)
 {
 
 }

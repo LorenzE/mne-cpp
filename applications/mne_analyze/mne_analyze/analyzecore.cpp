@@ -46,6 +46,7 @@
 #include "../libs/anShared/Management/analyzesettings.h"
 #include "../libs/anShared/Management/analyzedata.h"
 #include "../libs/anShared/Management/extensionmanager.h"
+#include "../libs/anShared/Management/eventmanager.h"
 
 #include<iostream>
 
@@ -91,6 +92,7 @@ AnalyzeCore::AnalyzeCore()
     initGlobalSettings();
     initGlobalData();
 
+    initEventSystem();
     initExtensionManager();
     initMainWindow();
 
@@ -134,6 +136,14 @@ void AnalyzeCore::initGlobalSettings()
 void AnalyzeCore::initGlobalData()
 {
     m_analyzeData = AnalyzeData::SPtr::create();
+}
+
+
+//*************************************************************************************************************
+
+void AnalyzeCore::initEventSystem()
+{
+    EventManager::getEventManager().startEventHandling(20.0f);
 }
 
 

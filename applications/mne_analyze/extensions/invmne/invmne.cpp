@@ -156,7 +156,7 @@ QWidget *InvMNE::getView()
 
 //*************************************************************************************************************
 
-void InvMNE::handleEvent(Event e)
+void InvMNE::handleEvent(QSharedPointer<Event> e)
 {
 
 }

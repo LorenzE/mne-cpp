@@ -129,6 +129,7 @@ protected:
 
 private:
 
+    void initEventSystem();
     void initExtensionManager();
     void initMainWindow();
 
