@@ -45,6 +45,7 @@
 
 #include "../anshared_global.h"
 #include "../Management/event.h"
+#include "../Model/abstractmodel.h"
 #include "../Utils/enums.h"
 
 
@@ -181,6 +182,14 @@ public slots:
     */
     virtual void handleEvent(QSharedPointer<Event> e) = 0;
 
+    //=========================================================================================================
+    /**
+     * Called by AnalyzeData whenever new models have been loaded.
+     *
+     * @param model The new model
+     */
+    virtual void onNewModelAvailable(QSharedPointer<AbstractModel> model) = 0;
+
 protected:
     QSharedPointer<AnalyzeData> m_analyzeData;              /**< Pointer to the global data base */
     QSharedPointer<AnalyzeSettings> m_analyzeSettings;      /**< Pointer to the global analyze settings */
@@ -194,6 +203,13 @@ protected:
 
 void IExtension::setGlobalData(QSharedPointer<AnalyzeData> globalData)
 {
+    // @TODO why do we need to cast here (worked without cast in Communicator)
+    QObject::connect(
+                (QObject*) globalData.data(),
+                SIGNAL(newModelAvailable(QSharedPointer<AbstractModel>)),
+                (QObject*) this,
+                SLOT(onNewModelAvailable(QSharedPointer<AbstractModel>)),
+                Qt::DirectConnection);
     m_analyzeData = globalData;
 }
 

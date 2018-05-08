@@ -186,6 +186,14 @@ QVector<EVENT_TYPE> Music::getEventSubscriptions(void) const
 
 //*************************************************************************************************************
 
+void Music::onNewModelAvailable(QSharedPointer<AbstractModel> model)
+{
+
+}
+
+
+//*************************************************************************************************************
+
 void Music::calculate()
 {
     QString fwdFileOption(QCoreApplication::applicationDirPath() + "/MNE-sample-data/MEG/sample/sample_audvis-meg-eeg-oct-6-fwd.fif");

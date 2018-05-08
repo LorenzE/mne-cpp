@@ -165,3 +165,8 @@ QVector<EVENT_TYPE> Surfer::getEventSubscriptions(void) const
 
 
 //*************************************************************************************************************
+
+void Surfer::onNewModelAvailable(QSharedPointer<AbstractModel> model)
+{
+
+}

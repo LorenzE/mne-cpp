@@ -51,6 +51,7 @@
 #include <QVector>
 #include <QSharedPointer>
 #include <QString>
+#include <QtConcurrent/QtConcurrent>
 
 
 //*************************************************************************************************************
@@ -112,7 +113,9 @@ QSharedPointer<SurfaceModel> AnalyzeData::loadSurface(const QString &path)
     else
     {
         QSharedPointer<SurfaceModel> sm = QSharedPointer<SurfaceModel>::create(path);
-        m_data.insert(path, qSharedPointerCast<AbstractModel>(sm));
+        QSharedPointer<AbstractModel> temp = qSharedPointerCast<AbstractModel>(sm);
+        m_data.insert(path, temp);
+        emitWrappedNewModelAvailable(temp);
         return sm;
     }
 }
@@ -128,3 +131,15 @@ QSharedPointer<SurfaceModel> AnalyzeData::loadSurface(const QString &subject_id,
 }
 
 //*************************************************************************************************************
+
+
+void AnalyzeData::emitWrappedNewModelAvailable(QSharedPointer<AbstractModel> model)
+{
+    // move emit to new thread (see header for details)
+    QtConcurrent::run(
+                [this] (QSharedPointer<AbstractModel> model)
+                {
+                    emit this->newModelAvailable(model);
+                },
+                model);
+}

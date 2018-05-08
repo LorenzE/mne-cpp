@@ -151,3 +151,11 @@ QVector<EVENT_TYPE> STCBrowser::getEventSubscriptions(void) const
 {
     return QVector<EVENT_TYPE>();
 }
+
+
+//*************************************************************************************************************
+
+void STCBrowser::onNewModelAvailable(QSharedPointer<ANSHAREDLIB::AbstractModel> model)
+{
+
+}

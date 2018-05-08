@@ -141,3 +141,11 @@ QVector<EVENT_TYPE> FiffIO::getEventSubscriptions(void) const
 {
     return QVector<EVENT_TYPE>();
 }
+
+
+//*************************************************************************************************************
+
+void FiffIO::onNewModelAvailable(QSharedPointer<AbstractModel> model)
+{
+
+}
