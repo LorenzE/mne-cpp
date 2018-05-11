@@ -204,7 +204,6 @@ protected:
 
 void IExtension::setGlobalData(QSharedPointer<AnalyzeData> globalData)
 {
-    // @TODO why do we need to cast here (worked without cast in Communicator)
     QObject::connect(globalData.data(), &AnalyzeData::newModelAvailable, this, &IExtension::onNewModelAvailable);
     m_analyzeData = globalData;
 }

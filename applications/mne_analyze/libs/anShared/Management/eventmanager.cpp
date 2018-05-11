@@ -70,8 +70,7 @@ EventManager::EventManager()
       m_eventQ(),
       m_eventQMutex(),
       m_routingTableMutex(),
-      m_sleepTime(40l),
-      m_running(false)
+      m_sleepTime(40l)
 {
 
 }
@@ -146,7 +145,6 @@ void EventManager::removeCommunicator(Communicator* commu)
 void EventManager::startEventHandling(float frequency)
 {
     m_sleepTime = (long) (1000.0f / frequency);
-    m_running = true;
     // start qthread
     start();
 }
@@ -156,9 +154,8 @@ void EventManager::startEventHandling(float frequency)
 
 void EventManager::stopEventHandling()
 {
-    // @TODO do we need a mutex for this ?
-    // @TODO do we need to explicitly join the event thread ?
-    m_running = false;
+    requestInterruption();
+    wait();
 }
 
 //*************************************************************************************************************
@@ -184,7 +181,7 @@ EventManager& EventManager::getEventManager()
 void EventManager::run()
 {
     // main loop
-    while (m_running)
+    while (true)
     {
         auto before = std::chrono::high_resolution_clock::now();
         // go through all buffered events:
@@ -220,5 +217,18 @@ void EventManager::run()
             // issue warning
             std::cout << "[EventManager] WARNING, running behind on event handling...";
         }
+        if (isInterruptionRequested())
+        {
+            return;
+        }
     }
+}
+
+//*************************************************************************************************************
+
+
+void EventManager::shutdown()
+{
+    requestInterruption();
+    wait();
 }

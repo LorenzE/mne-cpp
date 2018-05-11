@@ -51,6 +51,7 @@
 //=============================================================================================================
 
 #include <QMainWindow>
+#include <QCloseEvent>
 #include <QString>
 
 
@@ -113,6 +114,18 @@ public:
     * All MainWindow's children are deleted first. The application exits if MainWindow is the main widget.
     */
     ~MainWindow();
+
+    //=========================================================================================================
+    /**
+     * This is called when the user presses the "close" button
+     *
+     * @param event The event that has happened
+     */
+    void closeEvent(QCloseEvent *event) override;
+
+signals:
+
+    void mainWindowClosed();
 
 private:
     void createActions();       /**< Creates all actions for user interface of MainWindow class. */

@@ -156,20 +156,25 @@ public:
 
     //=========================================================================================================
     /**
-     * Indicates whether or not the EventManager currently holds any unprocessed events.
-     *
-     * @return Whether or not the EventManager has unprocessed events.
-     */
+    * Indicates whether or not the EventManager currently holds any unprocessed events.
+    *
+    * @return Whether or not the EventManager has unprocessed events.
+    */
     bool hasBufferedEvents();
 
     //=========================================================================================================
     /**
-     * Static method for singleton implementation (returns reference to local static object)
-     *
-     * @return A reference to the EventManager singleton
-     */
+    * Static method for singleton implementation (returns reference to local static object)
+    *
+    * @return A reference to the EventManager singleton
+    */
     static EventManager& getEventManager();
 
+    //=========================================================================================================
+    /**
+    * This is called when the user presses the "close" button
+    */
+    void shutdown();
 
 private:
 
@@ -191,7 +196,6 @@ private:
     QMutex m_eventQMutex;                                   /**< Guarding mutex for the event queue */
     QMutex m_routingTableMutex;                             /**< Guarding mutex for the routing table */
     volatile long m_sleepTime;                              /**< Controlling execution frequency of main loop */
-    volatile bool m_running;                                /**< Flag whether or not to continue main loop */
 };
 
 } // namespace

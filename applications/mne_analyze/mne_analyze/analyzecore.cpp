@@ -87,7 +87,8 @@ const char* extensionsDir = "/mne_analyze_extensions";        /**< holds path to
 // DEFINE MEMBER METHODS
 //=============================================================================================================
 
-AnalyzeCore::AnalyzeCore()
+AnalyzeCore::AnalyzeCore(QObject* parent)
+    : QObject(parent)
 {
     initGlobalSettings();
     initGlobalData();
@@ -162,7 +163,13 @@ void AnalyzeCore::initExtensionManager()
 void AnalyzeCore::initMainWindow()
 {
     m_pMainWindow = new MainWindow(m_pExtensionManager);
+    QObject::connect(m_pMainWindow, &MainWindow::mainWindowClosed, this, &AnalyzeCore::onMainWindowClosed);
 }
 
 
 //*************************************************************************************************************
+
+void AnalyzeCore::onMainWindowClosed()
+{
+    EventManager::getEventManager().shutdown();
+}

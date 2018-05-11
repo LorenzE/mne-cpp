@@ -112,6 +112,16 @@ MainWindow::~MainWindow()
 
 //*************************************************************************************************************
 
+void MainWindow::closeEvent(QCloseEvent *event)
+{
+    emit mainWindowClosed();
+    // default implementation does this, so its probably a good idea
+    event->accept();
+}
+
+
+//*************************************************************************************************************
+
 void MainWindow::createActions()
 {
     //File QMenu
