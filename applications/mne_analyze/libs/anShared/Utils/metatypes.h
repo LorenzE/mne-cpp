@@ -1,6 +1,6 @@
 //=============================================================================================================
 /**
-* @file     enums.h
+* @file     metatypes.h
 * @author   Simon Heinke <simon.heinke@tu-ilmenau.de>;
 *           Lars Debor <lars.debor@tu-ilmenau.de>;
 *           Matti Hamalainen <msh@nmr.mgh.harvard.edu>
@@ -30,13 +30,15 @@
 * POSSIBILITY OF SUCH DAMAGE.
 *
 *
-* @brief     Enums that are used globally
+* @brief     Register your QMetatypes here.
 *
 */
 
-#ifndef ENUMS_H
-#define ENUMS_H
+#ifndef METATYPES_H
+#define METATYPES_H
 
+Q_DECLARE_METATYPE(Eigen::Vector3f);
+Q_DECLARE_METATYPE(Eigen::Vector3i);
 
 namespace ANSHAREDLIB {
 

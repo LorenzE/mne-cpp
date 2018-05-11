@@ -46,7 +46,7 @@
 #include "../anshared_global.h"
 #include "../Model/abstractmodel.h"
 #include "../Model/surfacemodel.h"
-#include "../Utils/enums.h"
+#include "../Utils/types.h"
 
 
 //*************************************************************************************************************

@@ -46,7 +46,7 @@
 #include "../anshared_global.h"
 #include "../Management/event.h"
 #include "../Model/abstractmodel.h"
-#include "../Utils/enums.h"
+#include "../Utils/types.h"
 #include "../Management/analyzedata.h"
 
 

@@ -46,6 +46,7 @@
 #include <mne/mne_bem_surface.h>
 #include <anShared/Model/surfacemodel.h>
 #include <anShared/Utils/types.h>
+#include "anShared/Utils/metatypes.h"
 #include <anShared/Model/abstractmodel.h>
 
 #include <cmath>

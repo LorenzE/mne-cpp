@@ -45,6 +45,7 @@
 #include "../applications/mne_analyze/libs/anShared/Model/surfacemodel.h"
 #include "../applications/mne_analyze/libs/anShared/Data/surfacedata.h"
 #include "../applications/mne_analyze/libs/anShared/Utils/types.h"
+#include "../applications/mne_analyze/libs/anShared/Utils/metatypes.h"
 #include "../applications/mne_analyze/libs/anShared/Management/analyzedata.h"
 #include <iostream>
 

@@ -43,7 +43,7 @@
 //=============================================================================================================
 
 #include "../anshared_global.h"
-#include "../Utils/enums.h"
+#include "../Utils/types.h"
 
 
 //*************************************************************************************************************
@@ -51,6 +51,7 @@
 // QT INCLUDES
 //=============================================================================================================
 
+#include <QObject>
 #include <QSharedPointer>
 #include <QPointer>
 #include <QVariant>
@@ -79,8 +80,9 @@ class Communicator;
 *
 * @brief Event class for inter-Extension communication. Basically holds type information, sender and data.
 */
-class ANSHAREDSHARED_EXPORT Event
+class ANSHAREDSHARED_EXPORT Event : public QObject
 {
+    Q_OBJECT
 public:
     typedef QSharedPointer<Event> SPtr;            /**< Shared pointer type for Event. */
     typedef QSharedPointer<const Event> ConstSPtr; /**< Const shared pointer type for Event. */

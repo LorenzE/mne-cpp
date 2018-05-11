@@ -135,7 +135,7 @@ contains(MNECPP_CONFIG, useFFTW) {
     INCLUDEPATH += $$shell_path($${FFTW_DIR_INCLUDE})
     LIBS += -L$$shell_path($${FFTW_DIR_LIBS})
 
-    win32 {
+win32 {
         # On Windows
         LIBS += -llibfftw3-3 \
                 -llibfftw3f-3 \
@@ -146,5 +146,5 @@ contains(MNECPP_CONFIG, useFFTW) {
         # On Linux
         LIBS += -lfftw3 \
                 -lfftw3_threads \
-    }
+}
 }
