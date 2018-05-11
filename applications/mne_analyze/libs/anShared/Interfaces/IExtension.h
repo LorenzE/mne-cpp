@@ -47,6 +47,7 @@
 #include "../Management/event.h"
 #include "../Model/abstractmodel.h"
 #include "../Utils/enums.h"
+#include "../Management/analyzedata.h"
 
 
 //*************************************************************************************************************
@@ -204,12 +205,7 @@ protected:
 void IExtension::setGlobalData(QSharedPointer<AnalyzeData> globalData)
 {
     // @TODO why do we need to cast here (worked without cast in Communicator)
-    QObject::connect(
-                (QObject*) globalData.data(),
-                SIGNAL(newModelAvailable(QSharedPointer<AbstractModel>)),
-                (QObject*) this,
-                SLOT(onNewModelAvailable(QSharedPointer<AbstractModel>)),
-                Qt::DirectConnection);
+    QObject::connect(globalData.data(), &AnalyzeData::newModelAvailable, this, &IExtension::onNewModelAvailable);
     m_analyzeData = globalData;
 }
 

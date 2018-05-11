@@ -115,7 +115,7 @@ QSharedPointer<SurfaceModel> AnalyzeData::loadSurface(const QString &path)
         QSharedPointer<SurfaceModel> sm = QSharedPointer<SurfaceModel>::create(path);
         QSharedPointer<AbstractModel> temp = qSharedPointerCast<AbstractModel>(sm);
         m_data.insert(path, temp);
-        emitWrappedNewModelAvailable(temp);
+        emit this->newModelAvailable(temp);
         return sm;
     }
 }
@@ -131,15 +131,3 @@ QSharedPointer<SurfaceModel> AnalyzeData::loadSurface(const QString &subject_id,
 }
 
 //*************************************************************************************************************
-
-
-void AnalyzeData::emitWrappedNewModelAvailable(QSharedPointer<AbstractModel> model)
-{
-    // move emit to new thread (see header for details)
-    QtConcurrent::run(
-                [this] (QSharedPointer<AbstractModel> model)
-                {
-                    emit this->newModelAvailable(model);
-                },
-                model);
-}

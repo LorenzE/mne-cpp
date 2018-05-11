@@ -142,16 +142,6 @@ protected:
 
 private:
 
-    //=========================================================================================================
-    /**
-     * This function should be called whenever new (!) models were added. In order to keep execution time
-     * of "load"-functions (such as loadSurface) within reasonable limits, emission of signals
-     * (signal is newModelAvailable) is done in a different Thread.
-     *
-     * @param model The newly added / loaded model
-     */
-    void emitWrappedNewModelAvailable(QSharedPointer<AbstractModel> model);
-
     QHash<QString, QSharedPointer<AbstractModel> >        m_data;
 
 signals:
