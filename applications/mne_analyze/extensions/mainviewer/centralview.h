@@ -1,16 +1,14 @@
 //=============================================================================================================
 /**
-* @file     extensionmanager.cpp
-* @author   Christoph Dinh <chdinh@nmr.mgh.harvard.edu>;
-*           Lars Debor <lars.debor@tu-ilmenau.de>;
-*           Simon Heinke <simon.heinke@tu-ilmenau.de>;
+* @file     centralview.h
+* @author   Simon Heinke <simon.heinke@tu-ilmenau.de>;
 *           Matti Hamalainen <msh@nmr.mgh.harvard.edu>
 * @version  1.0
-* @date     February, 2017
+* @date     May, 2018
 *
 * @section  LICENSE
 *
-Copyright (C) 2017, Christoph Dinh, Lars Debor, Simon Heinke and Matti Hamalainen. All rights reserved.
+* Copyright (C) 2018, Simon Heinke and Matti Hamalainen. All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without modification, are permitted provided that
 * the following conditions are met:
@@ -31,18 +29,18 @@ Copyright (C) 2017, Christoph Dinh, Lars Debor, Simon Heinke and Matti Hamalaine
 * POSSIBILITY OF SUCH DAMAGE.
 *
 *
-* @brief    Definition of the ExtensionManager class.
+* @brief     CentralView class declaration.
 *
 */
+
+#ifndef MAINVIEWEREXTENSION_CENTRALVIEW_H
+#define MAINVIEWEREXTENSION_CENTRALVIEW_H
+
 
 //*************************************************************************************************************
 //=============================================================================================================
 // INCLUDES
 //=============================================================================================================
-
-#include "extensionmanager.h"
-#include "../Interfaces/IExtension.h"
-#include <iostream>
 
 
 //*************************************************************************************************************
@@ -50,87 +48,74 @@ Copyright (C) 2017, Christoph Dinh, Lars Debor, Simon Heinke and Matti Hamalaine
 // QT INCLUDES
 //=============================================================================================================
 
-#include <QDir>
-#include <QDebug>
+#include <QSharedPointer>
+#include <QWidget>
 
 
 //*************************************************************************************************************
 //=============================================================================================================
-// USED NAMESPACES
+// Eigen INCLUDES
 //=============================================================================================================
-
-using namespace ANSHAREDLIB;
 
 
 //*************************************************************************************************************
 //=============================================================================================================
-// DEFINE MEMBER METHODS
+// FORWARD DECLARATIONS
 //=============================================================================================================
 
-ExtensionManager::ExtensionManager(QObject *parent)
-: QPluginLoader(parent)
-{
 
-}
+//*************************************************************************************************************
+//=============================================================================================================
+// DEFINE NAMESPACE MAINVIEWEREXTENSION
+//=============================================================================================================
+
+namespace MAINVIEWEREXTENSION {
 
 
 //*************************************************************************************************************
+//=============================================================================================================
+// MAINVIEWEREXTENSION FORWARD DECLARATIONS
+//=============================================================================================================
 
-ExtensionManager::~ExtensionManager()
+
+//=============================================================================================================
+/**
+* Description of what this class is intended to do (in detail).
+*
+* @brief Brief description of this class.
+*/
+class CentralView : public QWidget
 {
-    for(IExtension* extension : m_qVecExtensions)
-    {
-        delete extension;
-    }
-}
+
+public:
+    typedef QSharedPointer<CentralView> SPtr;            /**< Shared pointer type for CentralView. */
+    typedef QSharedPointer<const CentralView> ConstSPtr; /**< Const shared pointer type for CentralView. */
+
+    //=========================================================================================================
+    /**
+    * Constructs a CentralView object.
+    */
+    CentralView();
+
+    //=========================================================================================================
+    /**
+    * Default destructor
+    */
+    ~CentralView();
+protected:
+
+private:
+
+
+};
 
 
 //*************************************************************************************************************
-
-void ExtensionManager::loadExtension(const QString& dir)
-{
-    QDir extensionsDir(dir);
-
-    foreach(const QString &file, extensionsDir.entryList(QDir::Files))
-    {
-        fprintf(stderr,"Loading Extension %s... ",file.toUtf8().constData());
-
-        this->setFileName(extensionsDir.absoluteFilePath(file));
-        std::cout << this->load() << std::endl;
-        QObject *pExtension = this->instance();
-
-        // IExtension
-        if(pExtension) {
-            fprintf(stderr,"Extension %s loaded.\n",file.toUtf8().constData());
-            m_qVecExtensions.push_back(qobject_cast<IExtension*>(pExtension));
-        }
-        else {
-            fprintf(stderr,"Extension %s could not be instantiated!\n",file.toUtf8().constData());
-        }
-    }
-}
+//=============================================================================================================
+// INLINE DEFINITIONS
+//=============================================================================================================
 
 
-//*************************************************************************************************************
+} // namespace MAINVIEWEREXTENSION
 
-void ExtensionManager::initExtensions(QSharedPointer<AnalyzeSettings> settings, QSharedPointer<AnalyzeData> data)
-{
-    for(IExtension* extension : m_qVecExtensions)
-    {
-        extension->setGlobalSettings(settings);
-        extension->setGlobalData(data);
-        extension->init();
-    }
-}
-
-//*************************************************************************************************************
-
-int ExtensionManager::findByName(const QString& name)
-{
-    QVector<IExtension*>::const_iterator it = m_qVecExtensions.begin();
-    for(int i = 0; it != m_qVecExtensions.end(); ++i, ++it)
-        if((*it)->getName() == name)
-            return i;
-
-    return -1;
-}
+#endif // MAINVIEWEREXTENSION_CENTRALVIEW_H

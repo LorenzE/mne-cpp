@@ -43,7 +43,8 @@ SUBDIRS += \
     stcbrowser \
     dipolefit \
     music \
-    invmne
+    invmne \
+    mainviewer \
 
 !isEmpty( CNTK_INCLUDE_DIR ) {
     SUBDIRS += \

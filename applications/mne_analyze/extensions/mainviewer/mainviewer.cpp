@@ -1,16 +1,15 @@
 //=============================================================================================================
 /**
-* @file     extensionmanager.cpp
-* @author   Christoph Dinh <chdinh@nmr.mgh.harvard.edu>;
+* @file     mainviewer.cpp
+* @author   Simon Heinke <simon.heinke@tu-ilmenau.de>;
 *           Lars Debor <lars.debor@tu-ilmenau.de>;
-*           Simon Heinke <simon.heinke@tu-ilmenau.de>;
 *           Matti Hamalainen <msh@nmr.mgh.harvard.edu>
 * @version  1.0
-* @date     February, 2017
+* @date     May, 2018
 *
 * @section  LICENSE
 *
-Copyright (C) 2017, Christoph Dinh, Lars Debor, Simon Heinke and Matti Hamalainen. All rights reserved.
+* Copyright (C) 2018, Simon Heinke, Lars Debor and Matti Hamalainen. All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without modification, are permitted provided that
 * the following conditions are met:
@@ -31,18 +30,23 @@ Copyright (C) 2017, Christoph Dinh, Lars Debor, Simon Heinke and Matti Hamalaine
 * POSSIBILITY OF SUCH DAMAGE.
 *
 *
-* @brief    Definition of the ExtensionManager class.
+* @brief    MainViewer class definition.
 *
 */
+
 
 //*************************************************************************************************************
 //=============================================================================================================
 // INCLUDES
 //=============================================================================================================
 
-#include "extensionmanager.h"
-#include "../Interfaces/IExtension.h"
-#include <iostream>
+#include "mainviewer.h"
+
+
+//*************************************************************************************************************
+//=============================================================================================================
+// INCLUDES
+//=============================================================================================================
 
 
 //*************************************************************************************************************
@@ -50,8 +54,11 @@ Copyright (C) 2017, Christoph Dinh, Lars Debor, Simon Heinke and Matti Hamalaine
 // QT INCLUDES
 //=============================================================================================================
 
-#include <QDir>
-#include <QDebug>
+
+//*************************************************************************************************************
+//=============================================================================================================
+// Eigen INCLUDES
+//=============================================================================================================
 
 
 //*************************************************************************************************************
@@ -59,7 +66,14 @@ Copyright (C) 2017, Christoph Dinh, Lars Debor, Simon Heinke and Matti Hamalaine
 // USED NAMESPACES
 //=============================================================================================================
 
+using namespace MAINVIEWEREXTENSION;
 using namespace ANSHAREDLIB;
+
+
+//*************************************************************************************************************
+//=============================================================================================================
+// DEFINE GLOBAL METHODS
+//=============================================================================================================
 
 
 //*************************************************************************************************************
@@ -67,8 +81,7 @@ using namespace ANSHAREDLIB;
 // DEFINE MEMBER METHODS
 //=============================================================================================================
 
-ExtensionManager::ExtensionManager(QObject *parent)
-: QPluginLoader(parent)
+MainViewer::MainViewer()
 {
 
 }
@@ -76,61 +89,105 @@ ExtensionManager::ExtensionManager(QObject *parent)
 
 //*************************************************************************************************************
 
-ExtensionManager::~ExtensionManager()
+MainViewer::~MainViewer()
 {
-    for(IExtension* extension : m_qVecExtensions)
-    {
-        delete extension;
+
+}
+
+
+//*************************************************************************************************************
+
+QSharedPointer<IExtension> MainViewer::clone() const
+{
+    QSharedPointer<MainViewer> pMainViewerClone = QSharedPointer<MainViewer>::create();
+    return pMainViewerClone;
+}
+
+
+//*************************************************************************************************************
+
+void MainViewer::init()
+{
+
+}
+
+
+//*************************************************************************************************************
+
+void MainViewer::unload()
+{
+
+}
+
+
+//*************************************************************************************************************
+
+QString MainViewer::getName() const
+{
+    return "MainViewer";
+}
+
+
+//*************************************************************************************************************
+
+QMenu *MainViewer::getMenu()
+{
+    return Q_NULLPTR;
+}
+
+
+//*************************************************************************************************************
+
+QDockWidget *MainViewer::getControl()
+{
+    if(!m_pControl) {
+        m_pControl = new QDockWidget(tr("Surfer Control"));
+        m_pControl->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
+        m_pControl->setMinimumWidth(180);
     }
+
+    return m_pControl;
 }
 
 
 //*************************************************************************************************************
 
-void ExtensionManager::loadExtension(const QString& dir)
+QWidget *MainViewer::getView()
 {
-    QDir extensionsDir(dir);
-
-    foreach(const QString &file, extensionsDir.entryList(QDir::Files))
-    {
-        fprintf(stderr,"Loading Extension %s... ",file.toUtf8().constData());
-
-        this->setFileName(extensionsDir.absoluteFilePath(file));
-        std::cout << this->load() << std::endl;
-        QObject *pExtension = this->instance();
-
-        // IExtension
-        if(pExtension) {
-            fprintf(stderr,"Extension %s loaded.\n",file.toUtf8().constData());
-            m_qVecExtensions.push_back(qobject_cast<IExtension*>(pExtension));
-        }
-        else {
-            fprintf(stderr,"Extension %s could not be instantiated!\n",file.toUtf8().constData());
-        }
+    /*
+    if(!m_pView) {
+        //
+        //Pial surface
+        //
+        m_pView = new View3DSurfer();
+        m_pView->setWindowTitle(QStringLiteral("Pial surface"));
+        m_pView->setModel(m_pSurfaceModel);
     }
+
+    return m_pView;
+    */
 }
 
 
 //*************************************************************************************************************
 
-void ExtensionManager::initExtensions(QSharedPointer<AnalyzeSettings> settings, QSharedPointer<AnalyzeData> data)
+void MainViewer::handleEvent(QSharedPointer<Event> e)
 {
-    for(IExtension* extension : m_qVecExtensions)
-    {
-        extension->setGlobalSettings(settings);
-        extension->setGlobalData(data);
-        extension->init();
-    }
+
 }
+
 
 //*************************************************************************************************************
 
-int ExtensionManager::findByName(const QString& name)
+QVector<EVENT_TYPE> MainViewer::getEventSubscriptions(void) const
 {
-    QVector<IExtension*>::const_iterator it = m_qVecExtensions.begin();
-    for(int i = 0; it != m_qVecExtensions.end(); ++i, ++it)
-        if((*it)->getName() == name)
-            return i;
+    return QVector<EVENT_TYPE>();
+}
 
-    return -1;
+
+//*************************************************************************************************************
+
+void MainViewer::onNewModelAvailable(QSharedPointer<AbstractModel> model)
+{
+
 }

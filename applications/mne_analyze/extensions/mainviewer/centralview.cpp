@@ -1,16 +1,14 @@
 //=============================================================================================================
 /**
-* @file     extensionmanager.cpp
-* @author   Christoph Dinh <chdinh@nmr.mgh.harvard.edu>;
-*           Lars Debor <lars.debor@tu-ilmenau.de>;
-*           Simon Heinke <simon.heinke@tu-ilmenau.de>;
+* @file     centralview.cpp
+* @author   Simon Heinke <simon.heinke@tu-ilmenau.de>;
 *           Matti Hamalainen <msh@nmr.mgh.harvard.edu>
 * @version  1.0
-* @date     February, 2017
+* @date     May, 2018
 *
 * @section  LICENSE
 *
-Copyright (C) 2017, Christoph Dinh, Lars Debor, Simon Heinke and Matti Hamalainen. All rights reserved.
+* Copyright (C) 2018, Simon Heinke and Matti Hamalainen. All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without modification, are permitted provided that
 * the following conditions are met:
@@ -31,18 +29,23 @@ Copyright (C) 2017, Christoph Dinh, Lars Debor, Simon Heinke and Matti Hamalaine
 * POSSIBILITY OF SUCH DAMAGE.
 *
 *
-* @brief    Definition of the ExtensionManager class.
+* @brief    CentralView class definition.
 *
 */
+
 
 //*************************************************************************************************************
 //=============================================================================================================
 // INCLUDES
 //=============================================================================================================
 
-#include "extensionmanager.h"
-#include "../Interfaces/IExtension.h"
-#include <iostream>
+#include "centralview.h"
+
+
+//*************************************************************************************************************
+//=============================================================================================================
+// INCLUDES
+//=============================================================================================================
 
 
 //*************************************************************************************************************
@@ -50,8 +53,11 @@ Copyright (C) 2017, Christoph Dinh, Lars Debor, Simon Heinke and Matti Hamalaine
 // QT INCLUDES
 //=============================================================================================================
 
-#include <QDir>
-#include <QDebug>
+
+//*************************************************************************************************************
+//=============================================================================================================
+// Eigen INCLUDES
+//=============================================================================================================
 
 
 //*************************************************************************************************************
@@ -59,7 +65,13 @@ Copyright (C) 2017, Christoph Dinh, Lars Debor, Simon Heinke and Matti Hamalaine
 // USED NAMESPACES
 //=============================================================================================================
 
-using namespace ANSHAREDLIB;
+using namespace MAINVIEWEREXTENSION;
+
+
+//*************************************************************************************************************
+//=============================================================================================================
+// DEFINE GLOBAL METHODS
+//=============================================================================================================
 
 
 //*************************************************************************************************************
@@ -67,70 +79,9 @@ using namespace ANSHAREDLIB;
 // DEFINE MEMBER METHODS
 //=============================================================================================================
 
-ExtensionManager::ExtensionManager(QObject *parent)
-: QPluginLoader(parent)
+CentralView::CentralView()
 {
-
 }
 
 
 //*************************************************************************************************************
-
-ExtensionManager::~ExtensionManager()
-{
-    for(IExtension* extension : m_qVecExtensions)
-    {
-        delete extension;
-    }
-}
-
-
-//*************************************************************************************************************
-
-void ExtensionManager::loadExtension(const QString& dir)
-{
-    QDir extensionsDir(dir);
-
-    foreach(const QString &file, extensionsDir.entryList(QDir::Files))
-    {
-        fprintf(stderr,"Loading Extension %s... ",file.toUtf8().constData());
-
-        this->setFileName(extensionsDir.absoluteFilePath(file));
-        std::cout << this->load() << std::endl;
-        QObject *pExtension = this->instance();
-
-        // IExtension
-        if(pExtension) {
-            fprintf(stderr,"Extension %s loaded.\n",file.toUtf8().constData());
-            m_qVecExtensions.push_back(qobject_cast<IExtension*>(pExtension));
-        }
-        else {
-            fprintf(stderr,"Extension %s could not be instantiated!\n",file.toUtf8().constData());
-        }
-    }
-}
-
-
-//*************************************************************************************************************
-
-void ExtensionManager::initExtensions(QSharedPointer<AnalyzeSettings> settings, QSharedPointer<AnalyzeData> data)
-{
-    for(IExtension* extension : m_qVecExtensions)
-    {
-        extension->setGlobalSettings(settings);
-        extension->setGlobalData(data);
-        extension->init();
-    }
-}
-
-//*************************************************************************************************************
-
-int ExtensionManager::findByName(const QString& name)
-{
-    QVector<IExtension*>::const_iterator it = m_qVecExtensions.begin();
-    for(int i = 0; it != m_qVecExtensions.end(); ++i, ++it)
-        if((*it)->getName() == name)
-            return i;
-
-    return -1;
-}
