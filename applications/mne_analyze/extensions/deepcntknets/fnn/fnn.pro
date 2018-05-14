@@ -76,7 +76,8 @@ else {
             -ldeepcntk
 }
 
-DESTDIR = $${MNE_BINARY_DIR}/mne_analyze_extensions/deepcntknets
+win32: DLLDESTDIR = $${MNE_BINARY_DIR}/mne_analyze_extensions/deepcntknets
+unix: DESTDIR = $${MNE_BINARY_DIR}/mne_analyze_extensions/deepcntknets
 
 SOURCES += \
     fnn.cpp

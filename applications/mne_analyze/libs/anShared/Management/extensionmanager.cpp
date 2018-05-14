@@ -96,7 +96,6 @@ void ExtensionManager::loadExtension(const QString& dir)
         fprintf(stderr,"Loading Extension %s... ",file.toUtf8().constData());
 
         this->setFileName(extensionsDir.absoluteFilePath(file));
-        this->load();
         QObject *pExtension = this->instance();
 
         // IExtension

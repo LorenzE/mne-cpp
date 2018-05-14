@@ -75,7 +75,8 @@ else {
             -lCntk.Core-2.0
 }
 
-DESTDIR = $${MNE_BINARY_DIR}/mne_analyze_extensions
+win32: DLLDESTDIR = $${MNE_BINARY_DIR}/mne_analyze_extensions
+unix: DESTDIR = $${MNE_BINARY_DIR}/mne_analyze_extensions
 
 SOURCES += \
     deepcntk.cpp \
