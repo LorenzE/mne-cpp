@@ -140,13 +140,14 @@ QMenu *MainViewer::getMenu()
 
 QDockWidget *MainViewer::getControl()
 {
-    if(!m_pControl) {
-        m_pControl = new QDockWidget(tr("Surfer Control"));
-        m_pControl->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
-        m_pControl->setMinimumWidth(180);
-    }
+//    if(!m_pControl) {
+//        m_pControl = new QDockWidget(tr("Surfer Control"));
+//        m_pControl->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
+//        m_pControl->setMinimumWidth(180);
+//    }
 
-    return m_pControl;
+//    return m_pControl;
+    return nullptr;
 }
 
 
@@ -166,6 +167,7 @@ QWidget *MainViewer::getView()
 
     return m_pView;
     */
+    return nullptr;
 }
 
 

@@ -96,7 +96,7 @@ void ExtensionManager::loadExtension(const QString& dir)
         fprintf(stderr,"Loading Extension %s... ",file.toUtf8().constData());
 
         this->setFileName(extensionsDir.absoluteFilePath(file));
-        std::cout << this->load() << std::endl;
+        this->load();
         QObject *pExtension = this->instance();
 
         // IExtension

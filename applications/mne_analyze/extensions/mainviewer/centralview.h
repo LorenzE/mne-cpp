@@ -101,7 +101,7 @@ public:
     /**
     * Default destructor
     */
-    ~CentralView();
+    ~CentralView() = default;
 protected:
 
 private:
