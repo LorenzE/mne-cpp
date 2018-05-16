@@ -50,6 +50,8 @@
 
 #include <QSharedPointer>
 #include <QWidget>
+#include <QGridLayout>
+#include <Qt3DCore>
 
 
 //*************************************************************************************************************
@@ -62,6 +64,22 @@
 //=============================================================================================================
 // FORWARD DECLARATIONS
 //=============================================================================================================
+
+namespace Qt3DRender {
+    class QPickEvent;
+}
+
+namespace Qt3DCore {
+    class QEntity;
+}
+
+namespace Qt3DExtras {
+    class QSphereMesh;
+}
+
+namespace DISP3DLIB {
+    class CustomMesh;
+}
 
 
 //*************************************************************************************************************
@@ -106,7 +124,44 @@ protected:
 
 private:
 
+    //=========================================================================================================
+    /**
+    * Initializes the 3D view.
+    */
+    void init();
 
+    //=========================================================================================================
+    /**
+    * Creates the initial QEntity tree for the scene.
+    *
+    * @return root enity of the scene tree.
+    */
+    Qt3DCore::QEntity *createEntityTree();
+
+    //=========================================================================================================
+    /**
+    * Creates the QEntity tree with light entities.
+    *
+    * @return Root entity of the light tree.
+    */
+    Qt3DCore::QEntity *createLightEntity();
+
+    //=========================================================================================================
+    /**
+    * This function is used for handling user input
+    *
+    * @param[in]    The pick information.
+    */
+    void userClicked(Qt3DRender::QPickEvent *event);
+
+
+    QWidget *m_view3d_container;
+    QGridLayout *m_view3d_gridlayout;
+
+    DISP3DLIB::CustomMesh *m_pSurfaceMesh;
+
+    Qt3DExtras::QSphereMesh *m_pointMesh;
+    Qt3DCore::QTransform *pSphereTransform;
 };
 
 

@@ -45,6 +45,7 @@
 
 #include "mainviewer_global.h"
 #include <anShared/Interfaces/IExtension.h>
+#include "centralview.h"
 
 
 //*************************************************************************************************************
@@ -130,7 +131,7 @@ private:
 
     QDockWidget*        m_pControl; /**< Control Widget */
 
-
+    CentralView*        m_pView; /**< View */
     // QSharedPointer<ANSHAREDLIB::ViewerListModel>    m_pSurfaceModel;
 };
 

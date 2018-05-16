@@ -82,6 +82,8 @@ using namespace ANSHAREDLIB;
 //=============================================================================================================
 
 MainViewer::MainViewer()
+    : m_pControl(Q_NULLPTR),
+      m_pView(Q_NULLPTR)
 {
 
 }
@@ -140,14 +142,13 @@ QMenu *MainViewer::getMenu()
 
 QDockWidget *MainViewer::getControl()
 {
-//    if(!m_pControl) {
-//        m_pControl = new QDockWidget(tr("Surfer Control"));
-//        m_pControl->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
-//        m_pControl->setMinimumWidth(180);
-//    }
+    if(!m_pControl) {
+        m_pControl = new QDockWidget(tr("Main View Control"));
+        m_pControl->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
+        m_pControl->setMinimumWidth(180);
+    }
 
-//    return m_pControl;
-    return nullptr;
+    return m_pControl;
 }
 
 
@@ -155,19 +156,12 @@ QDockWidget *MainViewer::getControl()
 
 QWidget *MainViewer::getView()
 {
-    /*
     if(!m_pView) {
-        //
-        //Pial surface
-        //
-        m_pView = new View3DSurfer();
-        m_pView->setWindowTitle(QStringLiteral("Pial surface"));
-        m_pView->setModel(m_pSurfaceModel);
+        m_pView = new CentralView();
+        m_pView->setWindowTitle(QStringLiteral("Main display"));
     }
 
     return m_pView;
-    */
-    return nullptr;
 }
 
 
