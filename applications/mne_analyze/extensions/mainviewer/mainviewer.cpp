@@ -169,7 +169,12 @@ QWidget *MainViewer::getView()
 
 void MainViewer::handleEvent(QSharedPointer<Event> e)
 {
-
+    switch(e->getType())
+    {
+    case EVENT_TYPE::EXTENSION_INIT_FINISHED:
+        updateEntityTree();
+        break;
+    }
 }
 
 
@@ -177,7 +182,10 @@ void MainViewer::handleEvent(QSharedPointer<Event> e)
 
 QVector<EVENT_TYPE> MainViewer::getEventSubscriptions(void) const
 {
-    return QVector<EVENT_TYPE>();
+    QVector<EVENT_TYPE> events;
+    // we need to know when all extensions are finished creating their initial 3D stuff
+    events.push_back(EVENT_TYPE::EXTENSION_INIT_FINISHED);
+    return events;
 }
 
 
@@ -185,5 +193,12 @@ QVector<EVENT_TYPE> MainViewer::getEventSubscriptions(void) const
 
 void MainViewer::onNewModelAvailable(QSharedPointer<AbstractModel> model)
 {
+
+}
+
+void MainViewer::updateEntityTree()
+{
+    // fetch currently available / valid QEntity trees from AnalyzeData
+    // ...
 
 }

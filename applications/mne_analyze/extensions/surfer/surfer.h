@@ -45,7 +45,6 @@
 //=============================================================================================================
 
 #include "surfer_global.h"
-#include "Views/view3dsurfer.h"
 #include <anShared/Interfaces/IExtension.h>
 
 
@@ -57,12 +56,30 @@
 #include <QtWidgets>
 #include <QtCore/QtPlugin>
 #include <QDebug>
+#include <QPickingSettings>
 
 
 //*************************************************************************************************************
 //=============================================================================================================
 // FORWARD DECLARATIONS
 //=============================================================================================================
+
+namespace Qt3DCore {
+    class QEntity;
+    class QTransform;
+}
+
+namespace Qt3DExtras {
+    class QSphereMesh;
+}
+
+namespace Qt3DRender {
+    class QPickEvent;
+}
+
+namespace DISP3DLIB {
+    class CustomMesh;
+}
 
 namespace ANSHAREDLIB {
     class SurfaceModel;
@@ -117,13 +134,45 @@ public:
     virtual void onNewModelAvailable(QSharedPointer<ANSHAREDLIB::AbstractModel> model) override;
 
 private:
+
+    //=========================================================================================================
+    /**
+    * Returns the squared of x.
+    *
+    * @param[in]    the number that should be squared.
+    *
+    * @returns the squared of x.
+    */
+    inline float squared(float x);
+
+    void updateSurfaceModelMesh();
+
+    void setSelectionModel(QItemSelectionModel *pSelectionModel);
+
+    void onClick(Qt3DRender::QPickEvent *event);
+
     // Control
     QDockWidget*        m_pControl; /**< Control Widget */
 
-    // View
-    View3DSurfer*      m_pView;    /**< Control View */
+
     QSharedPointer<ANSHAREDLIB::SurfaceModel>    m_pSurfaceModel;
+    DISP3DLIB::CustomMesh *m_pSurfaceMesh;
+     Qt3DCore::QEntity *m_pSurferRoot;
+
+    Qt3DExtras::QSphereMesh *m_pointMesh;
+    Qt3DCore::QTransform *pSphereTransform;
 };
+
+//*************************************************************************************************************
+//=============================================================================================================
+// INLINE DEFINITIONS
+//=============================================================================================================
+
+
+inline float Surfer::squared(float x)
+{
+    return x * x;
+}
 
 } // NAMESPACE
 

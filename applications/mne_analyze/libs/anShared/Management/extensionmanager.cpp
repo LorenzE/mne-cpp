@@ -42,6 +42,7 @@ Copyright (C) 2017, Christoph Dinh, Lars Debor, Simon Heinke and Matti Hamalaine
 
 #include "extensionmanager.h"
 #include "../Interfaces/IExtension.h"
+#include "communicator.h"
 #include <iostream>
 
 
@@ -120,6 +121,9 @@ void ExtensionManager::initExtensions(QSharedPointer<AnalyzeSettings> settings, 
         extension->setGlobalData(data);
         extension->init();
     }
+    // @TODO consider communicator as class member, since this is kinda nasty
+    Communicator con;
+    con.publishEvent(EVENT_TYPE::EXTENSION_INIT_FINISHED);
 }
 
 //*************************************************************************************************************

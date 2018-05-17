@@ -129,6 +129,8 @@ protected:
 
 private:
 
+    void updateEntityTree();
+
     QDockWidget*        m_pControl; /**< Control Widget */
 
     CentralView*        m_pView; /**< View */

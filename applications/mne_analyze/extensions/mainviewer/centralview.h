@@ -132,36 +132,17 @@ private:
 
     //=========================================================================================================
     /**
-    * Creates the initial QEntity tree for the scene.
-    *
-    * @return root enity of the scene tree.
-    */
-    Qt3DCore::QEntity *createEntityTree();
-
-    //=========================================================================================================
-    /**
-    * Creates the QEntity tree with light entities.
-    *
-    * @return Root entity of the light tree.
-    */
-    Qt3DCore::QEntity *createLightEntity();
-
-    //=========================================================================================================
-    /**
     * This function is used for handling user input
     *
     * @param[in]    The pick information.
     */
-    void userClicked(Qt3DRender::QPickEvent *event);
+    void onClick(Qt3DRender::QPickEvent *event);
 
 
     QWidget *m_view3d_container;
     QGridLayout *m_view3d_gridlayout;
 
-    DISP3DLIB::CustomMesh *m_pSurfaceMesh;
-
-    Qt3DExtras::QSphereMesh *m_pointMesh;
-    Qt3DCore::QTransform *pSphereTransform;
+    Qt3DCore::QEntity *m_pRootEntity;
 };
 
 
