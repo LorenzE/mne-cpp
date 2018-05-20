@@ -1,15 +1,14 @@
 //=============================================================================================================
 /**
-* @file     mainviewer.h
+* @file     qentitylistmodel.cpp
 * @author   Simon Heinke <simon.heinke@tu-ilmenau.de>;
-*           Lars Debor <lars.debor@tu-ilmenau.de>;
 *           Matti Hamalainen <msh@nmr.mgh.harvard.edu>
 * @version  1.0
 * @date     May, 2018
 *
 * @section  LICENSE
 *
-* Copyright (C) 2018, Simon Heinke, Lars Debor and Matti Hamalainen. All rights reserved.
+* Copyright (C) 2018, Simon Heinke and Matti Hamalainen. All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without modification, are permitted provided that
 * the following conditions are met:
@@ -30,12 +29,9 @@
 * POSSIBILITY OF SUCH DAMAGE.
 *
 *
-* @brief     MainViewer class declaration.
+* @brief    QEntityListModel class definition.
 *
 */
-
-#ifndef MAINVIEWEREXTENSION_MAINVIEWER_H
-#define MAINVIEWEREXTENSION_MAINVIEWER_H
 
 
 //*************************************************************************************************************
@@ -43,20 +39,15 @@
 // INCLUDES
 //=============================================================================================================
 
-#include "mainviewer_global.h"
-#include <anShared/Interfaces/IExtension.h>
-#include "centralview.h"
-#include "../../libs/anShared/Management/communicator.h"
+#include "qentitylistmodel.h"
+#include "../Utils/metatypes.h"
+#include <iostream>
 
 
 //*************************************************************************************************************
 //=============================================================================================================
 // QT INCLUDES
 //=============================================================================================================
-
-#include <QSharedPointer>
-#include <QtWidgets>
-#include <QtCore/QtPlugin>
 
 
 //*************************************************************************************************************
@@ -67,85 +58,145 @@
 
 //*************************************************************************************************************
 //=============================================================================================================
-// FORWARD DECLARATIONS
+// USED NAMESPACES
+//=============================================================================================================
+
+using namespace ANSHAREDLIB;
+using namespace Qt3DCore;
+
+
+//*************************************************************************************************************
+//=============================================================================================================
+// DEFINE GLOBAL METHODS
 //=============================================================================================================
 
 
 //*************************************************************************************************************
 //=============================================================================================================
-// DEFINE NAMESPACE MAINVIEWEREXTENSION
+// DEFINE MEMBER METHODS
 //=============================================================================================================
 
-namespace MAINVIEWEREXTENSION {
-
-
-//*************************************************************************************************************
-//=============================================================================================================
-// MAINVIEWEREXTENSION FORWARD DECLARATIONS
-//=============================================================================================================
-
-
-//=============================================================================================================
-/**
-* This extension is the main device of displaying 3D content.
-*
-* @brief This extension is the main device of displaying 3D content.
-*/
-class MAINVIEWERSHARED_EXPORT MainViewer : public ANSHAREDLIB::IExtension
+QEntityListModel::QEntityListModel(QObject *pParent)
+    : AbstractModel(pParent)
 {
-    Q_OBJECT
-    Q_PLUGIN_METADATA(IID "ansharedlib/1.0" FILE "mainviewer.json") //New Qt5 Plugin system replaces Q_EXPORT_PLUGIN2 macro
-    // Use the Q_INTERFACES() macro to tell Qt's meta-object system about the interfaces
-    Q_INTERFACES(ANSHAREDLIB::IExtension)
 
-public:
-    typedef QSharedPointer<MainViewer> SPtr;            /**< Shared pointer type for MainViewer. */
-    typedef QSharedPointer<const MainViewer> ConstSPtr; /**< Const shared pointer type for MainViewer. */
-
-    //=========================================================================================================
-    /**
-    * Constructs a MainViewer object.
-    */
-    MainViewer();
-
-    //=========================================================================================================
-    /**
-    * Destroys the MainViewer
-    */
-    ~MainViewer();
-
-    // IExtension functions
-    virtual QSharedPointer<IExtension> clone() const override;
-    virtual void init() override;
-    virtual void unload() override;
-    virtual QString getName() const override;
-    virtual QMenu* getMenu() override;
-    virtual QDockWidget* getControl() override;
-    virtual QWidget* getView() override;
-    virtual void handleEvent(QSharedPointer<ANSHAREDLIB::Event> e) override;
-    virtual QVector<ANSHAREDLIB::EVENT_TYPE> getEventSubscriptions() const override;
-    virtual void onNewModelAvailable(QSharedPointer<ANSHAREDLIB::AbstractModel> model) override;
-
-protected:
-
-private:
-
-    void updateEntityTree();
-
-    QDockWidget*                m_pControl; /**< Control Widget */
-
-    CentralView*                m_pView; /**< View */
-
-    ANSHAREDLIB::Communicator*  m_pCommu;
-};
+}
 
 
 //*************************************************************************************************************
-//=============================================================================================================
-// INLINE DEFINITIONS
-//=============================================================================================================
+
+QVariant QEntityListModel::data(const QModelIndex &index, int role) const
+{
+    QVariant output;
+    if(index.isValid() && role == Qt::DisplayRole) {
+        if (index.row() < m_vEntries.size())
+        {
+            output.setValue(m_vEntries.at(index.row()).second);
+        }
+    }
+    return output;
+}
+
+//*************************************************************************************************************
+
+Qt::ItemFlags QEntityListModel::flags(const QModelIndex &index) const
+{
+    return QAbstractItemModel::flags(index);
+}
+
+//*************************************************************************************************************
+
+QModelIndex QEntityListModel::index(int row, int column, const QModelIndex &parent) const
+{
+    if(!parent.isValid()) {
+        return createIndex(row, column);
+    }
+    else {
+        return QModelIndex();
+    }
+}
+
+//*************************************************************************************************************
+
+QModelIndex QEntityListModel::parent(const QModelIndex &index) const
+{
+    //Only the root node has childeren, therefore all parents are an invalid model index
+    return QModelIndex();
+}
+
+//*************************************************************************************************************
+
+int QEntityListModel::rowCount(const QModelIndex &parent) const
+{
+    //if parent == root node
+    if(!parent.isValid()) {
+        return 1;
+    }
+    else {
+        // only the root node has children
+        return 0;
+    }
+}
 
 
-} // namespace MAINVIEWEREXTENSION
+//*************************************************************************************************************
 
-#endif // MAINVIEWEREXTENSION_MAINVIEWER_H
+int QEntityListModel::columnCount(const QModelIndex &parent) const
+{
+    //if parent == root node
+    if(!parent.isValid()) {
+        return m_vEntries.size();
+    }
+    else {
+        // only the root node has children
+        return 0;
+    }
+}
+
+
+//*************************************************************************************************************
+
+bool QEntityListModel::hasChildren(const QModelIndex &parent) const
+{
+    //if parent == root node
+    if(!parent.isValid()) {
+        return true;
+    }
+    else {
+        return false;
+    }
+}
+
+
+//*************************************************************************************************************
+
+bool QEntityListModel::addEntityTree(QSharedPointer<QEntity> pTree, QString sIdentifier)
+{
+    for (const QPair<QString, QSharedPointer<QEntity> >& pair : m_vEntries)
+    {
+        if (sIdentifier.compare(pair.first) == 0)
+        {
+            // identifier already used, return false
+            return false;
+        }
+    }
+    m_vEntries.push_back(qMakePair<QString, QSharedPointer<QEntity> >(sIdentifier, pTree));
+    return true;
+}
+
+
+//*************************************************************************************************************
+
+bool QEntityListModel::removeEntityTree(QString sIdentifier)
+{
+    for (int i = 0; i < m_vEntries.size(); ++i)
+    {
+        if (sIdentifier.compare(m_vEntries.at(i).first) == 0)
+        {
+            // identifier found, remove and return true
+            m_vEntries.remove(i);
+            return true;
+        }
+    }
+    return false;
+}

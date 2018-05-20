@@ -43,6 +43,7 @@
 #include <disp3D/engine/model/3dhelpers/custommesh.h>
 #include <mne/mne_bem.h>
 #include <mne/mne_bem_surface.h>
+#include <iostream>
 
 
 //*************************************************************************************************************
@@ -124,4 +125,9 @@ void CentralView::init()
     m_view3d_container->setFocusPolicy(Qt::TabFocus);
     //The loaded surfaces, as a QWindow is added to the created container
     m_view3d_gridlayout->addWidget(m_view3d_container);
+}
+
+void CentralView::addEntity(QSharedPointer<QEntity> pEntity)
+{
+    pEntity->setParent(m_pRootEntity);
 }

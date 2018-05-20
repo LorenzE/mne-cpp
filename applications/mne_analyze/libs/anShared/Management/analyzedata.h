@@ -47,6 +47,7 @@
 #include "../Model/abstractmodel.h"
 #include "../Model/surfacemodel.h"
 #include "../Utils/types.h"
+#include "../Model/qentitylistmodel.h"
 
 
 //*************************************************************************************************************
@@ -55,6 +56,7 @@
 //=============================================================================================================
 
 #include <QSharedPointer>
+#include <QString>
 
 
 //*************************************************************************************************************
@@ -62,6 +64,9 @@
 // FORWARD DECLARATIONS
 //=============================================================================================================
 
+namespace Qt3DCore {
+    class QEntity;
+}
 
 
 //*************************************************************************************************************
@@ -138,9 +143,16 @@ public:
     */
     QSharedPointer<SurfaceModel> loadSurface(const QString &subject_id, qint32 hemi, const QString &surf, const QString &subjects_dir);
 
+    bool registerEntityTree(QString sTargetDisplay, QString sID, QSharedPointer<Qt3DCore::QEntity> pTree);
+    bool removeEntityTree(QString sTargetDisplay, QString sID);
+    inline QSharedPointer<QEntityListModel> getQEntityListModel();
+
 protected:
 
 private:
+
+    // we need an internal identifier for the QEntityListModel that is used for communicating 3D objects to a display
+    static const QString m_sIDEntityListModel;
 
     QHash<QString, QSharedPointer<AbstractModel> >        m_data;
 
@@ -153,6 +165,16 @@ signals:
 //=============================================================================================================
 // INLINE DEFINITIONS
 //=============================================================================================================
+
+QSharedPointer<QEntityListModel> AnalyzeData::getQEntityListModel()
+{
+    // check if we already created the necessary model
+    if (m_data.contains(m_sIDEntityListModel) == false)
+    {
+        m_data.insert(m_sIDEntityListModel, qSharedPointerCast<AbstractModel>(QSharedPointer<QEntityListModel>::create()));
+    }
+    return qSharedPointerDynamicCast<QEntityListModel>(m_data.value(m_sIDEntityListModel));
+}
 
 } //Namespace
 

@@ -162,6 +162,8 @@ void Surfer::init()
         pPointLight->setIntensity(lightIntensity);
         pLightEntity->addComponent(pPointLight);
     }
+    m_analyzeData->registerEntityTree(QString("mainViewer"), QString("surfer"), QSharedPointer<QEntity>(m_pSurferRoot));
+    updateSurfaceModelMesh();
 }
 
 

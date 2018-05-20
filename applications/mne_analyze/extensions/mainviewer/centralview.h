@@ -120,6 +120,8 @@ public:
     * Default destructor
     */
     ~CentralView() = default;
+
+    void addEntity(QSharedPointer<Qt3DCore::QEntity> pEntity);
 protected:
 
 private:

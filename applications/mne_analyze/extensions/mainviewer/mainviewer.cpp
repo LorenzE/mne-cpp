@@ -48,11 +48,15 @@
 // INCLUDES
 //=============================================================================================================
 
+#include <iostream>
+
 
 //*************************************************************************************************************
 //=============================================================================================================
 // QT INCLUDES
 //=============================================================================================================
+
+#include <Qt3DCore/QEntity>
 
 
 //*************************************************************************************************************
@@ -68,6 +72,7 @@
 
 using namespace MAINVIEWEREXTENSION;
 using namespace ANSHAREDLIB;
+using namespace Qt3DCore;
 
 
 //*************************************************************************************************************
@@ -83,7 +88,8 @@ using namespace ANSHAREDLIB;
 
 MainViewer::MainViewer()
     : m_pControl(Q_NULLPTR),
-      m_pView(Q_NULLPTR)
+      m_pView(Q_NULLPTR),
+      m_pCommu(Q_NULLPTR)
 {
 
 }
@@ -110,7 +116,12 @@ QSharedPointer<IExtension> MainViewer::clone() const
 
 void MainViewer::init()
 {
+    m_pCommu = new Communicator(this);
 
+    if(!m_pView) {
+        m_pView = new CentralView();
+        m_pView->setWindowTitle(QStringLiteral("Main display"));
+    }
 }
 
 
@@ -199,6 +210,11 @@ void MainViewer::onNewModelAvailable(QSharedPointer<AbstractModel> model)
 void MainViewer::updateEntityTree()
 {
     // fetch currently available / valid QEntity trees from AnalyzeData
-    // ...
-
+    QSharedPointer<QEntityListModel> entities = m_analyzeData->getQEntityListModel();
+    if (entities->columnCount() >= 1)
+    {
+        QModelIndex dataIndex = entities->index(0, 0);
+        QSharedPointer<QEntity> data = entities->data(dataIndex, Qt::DisplayRole).value<QSharedPointer<QEntity> >();
+        m_pView->addEntity(data);
+    }
 }

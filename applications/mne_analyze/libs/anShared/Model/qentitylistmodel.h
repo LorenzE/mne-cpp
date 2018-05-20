@@ -1,15 +1,14 @@
 //=============================================================================================================
 /**
-* @file     mainviewer.h
+* @file     qentitylistmodel.h
 * @author   Simon Heinke <simon.heinke@tu-ilmenau.de>;
-*           Lars Debor <lars.debor@tu-ilmenau.de>;
 *           Matti Hamalainen <msh@nmr.mgh.harvard.edu>
 * @version  1.0
 * @date     May, 2018
 *
 * @section  LICENSE
 *
-* Copyright (C) 2018, Simon Heinke, Lars Debor and Matti Hamalainen. All rights reserved.
+* Copyright (C) 2018, Simon Heinke and Matti Hamalainen. All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without modification, are permitted provided that
 * the following conditions are met:
@@ -30,12 +29,12 @@
 * POSSIBILITY OF SUCH DAMAGE.
 *
 *
-* @brief     MainViewer class declaration.
+* @brief     QEntityListModel class declaration.
 *
 */
 
-#ifndef MAINVIEWEREXTENSION_MAINVIEWER_H
-#define MAINVIEWEREXTENSION_MAINVIEWER_H
+#ifndef ANSHAREDLIB_QENTITYLISTMODEL_H
+#define ANSHAREDLIB_QENTITYLISTMODEL_H
 
 
 //*************************************************************************************************************
@@ -43,10 +42,8 @@
 // INCLUDES
 //=============================================================================================================
 
-#include "mainviewer_global.h"
-#include <anShared/Interfaces/IExtension.h>
-#include "centralview.h"
-#include "../../libs/anShared/Management/communicator.h"
+#include "abstractmodel.h"
+#include "../Utils/types.h"
 
 
 //*************************************************************************************************************
@@ -54,9 +51,10 @@
 // QT INCLUDES
 //=============================================================================================================
 
+#include <QVector>
+#include <QPair>
+#include <QString>
 #include <QSharedPointer>
-#include <QtWidgets>
-#include <QtCore/QtPlugin>
 
 
 //*************************************************************************************************************
@@ -70,73 +68,127 @@
 // FORWARD DECLARATIONS
 //=============================================================================================================
 
+namespace Qt3DCore {
+    class QEntity;
+}
 
 //*************************************************************************************************************
 //=============================================================================================================
-// DEFINE NAMESPACE MAINVIEWEREXTENSION
+// DEFINE NAMESPACE ANSHAREDLIB
 //=============================================================================================================
 
-namespace MAINVIEWEREXTENSION {
+namespace ANSHAREDLIB {
 
 
 //*************************************************************************************************************
 //=============================================================================================================
-// MAINVIEWEREXTENSION FORWARD DECLARATIONS
+// ANSHAREDLIB FORWARD DECLARATIONS
 //=============================================================================================================
 
 
 //=============================================================================================================
 /**
-* This extension is the main device of displaying 3D content.
+* Description of what this class is intended to do (in detail).
 *
-* @brief This extension is the main device of displaying 3D content.
+* @brief Brief description of this class.
 */
-class MAINVIEWERSHARED_EXPORT MainViewer : public ANSHAREDLIB::IExtension
+class QEntityListModel : public AbstractModel
 {
     Q_OBJECT
-    Q_PLUGIN_METADATA(IID "ansharedlib/1.0" FILE "mainviewer.json") //New Qt5 Plugin system replaces Q_EXPORT_PLUGIN2 macro
-    // Use the Q_INTERFACES() macro to tell Qt's meta-object system about the interfaces
-    Q_INTERFACES(ANSHAREDLIB::IExtension)
 
 public:
-    typedef QSharedPointer<MainViewer> SPtr;            /**< Shared pointer type for MainViewer. */
-    typedef QSharedPointer<const MainViewer> ConstSPtr; /**< Const shared pointer type for MainViewer. */
+    typedef QSharedPointer<QEntityListModel> SPtr;            /**< Shared pointer type for QEntityListModel. */
+    typedef QSharedPointer<const QEntityListModel> ConstSPtr; /**< Const shared pointer type for QEntityListModel. */
 
     //=========================================================================================================
     /**
-    * Constructs a MainViewer object.
+    * Constructs a QEntityListModel object.
     */
-    MainViewer();
+    QEntityListModel(QObject* pParent = nullptr);
 
     //=========================================================================================================
     /**
-    * Destroys the MainViewer
+    * Default destructor.
     */
-    ~MainViewer();
+    ~QEntityListModel() = default;
 
-    // IExtension functions
-    virtual QSharedPointer<IExtension> clone() const override;
-    virtual void init() override;
-    virtual void unload() override;
-    virtual QString getName() const override;
-    virtual QMenu* getMenu() override;
-    virtual QDockWidget* getControl() override;
-    virtual QWidget* getView() override;
-    virtual void handleEvent(QSharedPointer<ANSHAREDLIB::Event> e) override;
-    virtual QVector<ANSHAREDLIB::EVENT_TYPE> getEventSubscriptions() const override;
-    virtual void onNewModelAvailable(QSharedPointer<ANSHAREDLIB::AbstractModel> model) override;
+    //=========================================================================================================
+    /**
+    * Returns the data stored under the given role for the index.
+    * Currently only Qt::DisplayRole is supported
+    *
+    * @param[in] index   The index that referres to the requested item.
+    * @param[in] role    The requested role.
+    */
+    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
+
+    //=========================================================================================================
+    /**
+    * Returns the item flags for the given index.
+    *
+    * @param[in] index   The index that referres to the requested item.
+    */
+    Qt::ItemFlags flags(const QModelIndex &index) const override;
+
+    //=========================================================================================================
+    /**
+    * Returns the index for the item in the model specified by the given row, column and parent index.
+    *
+    * @param[in] row      The specified row.
+    * @param[in] column   The specified column.
+    * @param[in] parent   The parent index.
+    */
+    QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const override;
+
+    //=========================================================================================================
+    /**
+    * Returns the parent index of the given index.
+    * In this Model the parent index in always QModelIndex().
+    *
+    * @param[in] index   The index that referres to the child.
+    */
+    QModelIndex parent(const QModelIndex &index) const override;
+
+    //=========================================================================================================
+    /**
+    * Returns the number of childeren for the parent node.
+    *
+    * @param[in] parent     The parent index.
+    */
+    int rowCount(const QModelIndex &parent = QModelIndex()) const override;
+
+    //=========================================================================================================
+    /**
+    * Returns the number of objects stored in the node.
+    *
+    * @param[in] parent     The index of the requested node.
+    */
+    int columnCount(const QModelIndex &parent = QModelIndex()) const override;
+
+    //=========================================================================================================
+    /**
+    * Returns true if parent has any children; otherwise returns false.
+    *
+    * @param[in] parent     The index of the parent node.
+    */
+    bool hasChildren(const QModelIndex &parent = QModelIndex()) const override;
+
+    //=========================================================================================================
+    /**
+    * @brief getType The type of this model (SurfaceModel)
+    * @return The type of this model (SurfaceModel)
+    */
+    inline MODEL_TYPE getType() const override;
+
+    bool addEntityTree(QSharedPointer<Qt3DCore::QEntity> pTree, QString sIdentifier);
+    bool removeEntityTree(QString sIdentifier);
 
 protected:
 
 private:
 
-    void updateEntityTree();
+    QVector<QPair<QString, QSharedPointer<Qt3DCore::QEntity> > > m_vEntries;
 
-    QDockWidget*                m_pControl; /**< Control Widget */
-
-    CentralView*                m_pView; /**< View */
-
-    ANSHAREDLIB::Communicator*  m_pCommu;
 };
 
 
@@ -145,7 +197,11 @@ private:
 // INLINE DEFINITIONS
 //=============================================================================================================
 
+inline MODEL_TYPE QEntityListModel::getType() const
+{
+    return MODEL_TYPE::ANSHAREDLIB_QENTITYLIST_MODEL;
+}
 
-} // namespace MAINVIEWEREXTENSION
+} // namespace ANSHAREDLIB
 
-#endif // MAINVIEWEREXTENSION_MAINVIEWER_H
+#endif // ANSHAREDLIB_QENTITYLISTMODEL_H
