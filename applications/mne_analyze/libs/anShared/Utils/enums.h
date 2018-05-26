@@ -47,7 +47,8 @@ namespace ANSHAREDLIB {
     */
     enum MODEL_TYPE
     {
-        FSLIB_SURFACE_MODEL
+        FSLIB_SURFACE_MODEL,
+        INVERSE_ECDSET_MODEL
     };
 
     //=========================================================================================================

@@ -1,12 +1,11 @@
 //=============================================================================================================
 /**
-* @file     types.h
+* @file     ecdsetmodel.cpp
 * @author   Lars Debor <lars.debor@tu-ilmenau.de>;
 *           Simon Heinke <simon.heinke@tu-ilmenau.de>;
-*           Matti Hamalainen <msh@nmr.mgh.harvard.edu>;
-*
+*           Matti Hamalainen <msh@nmr.mgh.harvard.edu>
 * @version  1.0
-* @date     March, 2018
+* @date     May, 2018
 *
 * @section  LICENSE
 *
@@ -31,27 +30,31 @@
 * POSSIBILITY OF SUCH DAMAGE.
 *
 *
-* @brief    Contains general application specific types
+* @brief    EcdSetModel class definition.
 *
 */
-#ifndef ANSHARED_TYPES_H
-#define ANSHARED_TYPES_H
+
 
 //*************************************************************************************************************
 //=============================================================================================================
 // INCLUDES
 //=============================================================================================================
 
-#include <inverse/dipoleFit/ecd.h>
-#include <Eigen/Core>
+#include "ecdsetmodel.h"
+#include <inverse/dipoleFit/ecd_set.h>
+#include "../Utils/types.h"
 
 
 //*************************************************************************************************************
 //=============================================================================================================
-// Qt INCLUDES
+// QT INCLUDES
 //=============================================================================================================
 
-#include <QSharedPointer>
+
+//*************************************************************************************************************
+//=============================================================================================================
+// Eigen INCLUDES
+//=============================================================================================================
 
 
 //*************************************************************************************************************
@@ -59,22 +62,91 @@
 // USED NAMESPACES
 //=============================================================================================================
 
-using namespace Eigen;
+using namespace ANSHAREDLIB;
 
 
 //*************************************************************************************************************
 //=============================================================================================================
-// DEFINE NAMESPACE MNEANALYZE
+// DEFINE GLOBAL METHODS
 //=============================================================================================================
 
-namespace MNEANALYZE
+
+//*************************************************************************************************************
+//=============================================================================================================
+// DEFINE MEMBER METHODS
+//=============================================================================================================
+
+EcdSetModel::EcdSetModel(QObject *pParent)
+    :AbstractModel(pParent)
 {
-
-} //NAMESPACE
-
-Q_DECLARE_METATYPE(Eigen::Vector3f);
-Q_DECLARE_METATYPE(Eigen::Vector3i);
-Q_DECLARE_METATYPE(INVERSELIB::ECD);
+}
 
 
-#endif // TYPES_H
+//*************************************************************************************************************
+
+QVariant EcdSetModel::data(const QModelIndex &index, int role) const
+{
+    //TODO test out of bound?
+    if(index.isValid() && role == Qt::DisplayRole) {
+        return QVariant::fromValue(m_ecdSet[index.row()]);
+    }
+
+    return QVariant();
+}
+
+
+//*************************************************************************************************************
+
+Qt::ItemFlags EcdSetModel::flags(const QModelIndex &index) const
+{
+    Qt::ItemFlags flags = QAbstractItemModel::flags(index);
+
+    if (index.isValid()) {
+        flags |= Qt::ItemNeverHasChildren;
+    }
+
+    return flags;
+}
+
+
+//*************************************************************************************************************
+
+QModelIndex EcdSetModel::index(int row, int column, const QModelIndex &parent) const
+{
+    return hasIndex(row, column, parent) ? createIndex(row, column) : QModelIndex();
+}
+
+
+//*************************************************************************************************************
+
+QModelIndex EcdSetModel::parent(const QModelIndex &index) const
+{
+    return QModelIndex();
+}
+
+
+//*************************************************************************************************************
+
+int EcdSetModel::rowCount(const QModelIndex &parent) const
+{
+    return m_ecdSet.size();
+}
+
+
+//*************************************************************************************************************
+
+int EcdSetModel::columnCount(const QModelIndex &parent) const
+{
+    return 1;
+}
+
+
+//*************************************************************************************************************
+
+MODEL_TYPE EcdSetModel::getType() const
+{
+    return MODEL_TYPE::INVERSE_ECDSET_MODEL;
+}
+
+
+//*************************************************************************************************************
