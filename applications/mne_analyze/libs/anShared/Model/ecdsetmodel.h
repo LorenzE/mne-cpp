@@ -69,6 +69,7 @@
 
 namespace INVERSELIB {
     class ECDSet;
+    class DipoleFitSettings;
 }
 
 //*************************************************************************************************************
@@ -93,6 +94,7 @@ namespace ANSHAREDLIB {
 */
 class ANSHAREDSHARED_EXPORT EcdSetModel : public AbstractModel
 {
+    Q_OBJECT
 
 public:
     typedef QSharedPointer<EcdSetModel> SPtr;            /**< Shared pointer type for EcdSetModel. */
@@ -100,10 +102,32 @@ public:
 
     //=========================================================================================================
     /**
-    * Constructs a EcdSetModel object.
+    * Deleted default constructor.
     */
-    explicit EcdSetModel(QObject *pParent = nullptr);
+    EcdSetModel() = delete;
 
+    //=========================================================================================================
+    /**
+    * Constructs a EcdSetModel object from DipoleFitSettings.
+    *
+    * @param[in] pDipolSettings     The settings used for construction.
+    * @param[in] pParent            Pointer to the parent object.
+    */
+    EcdSetModel(INVERSELIB::DipoleFitSettings *pDipolSettings, QObject *pParent = nullptr);
+
+    //=========================================================================================================
+    /**
+    * Constructs a EcdSetModel object from a dip format file compatible with mrilab.
+    *
+    * @param[in] sDipFileName       The dip format file name.
+    * @param[in] pParent        Pointer to the parent object.
+    */
+    EcdSetModel(const QString &sDipFileName, QObject *pParent = nullptr);
+
+    //=========================================================================================================
+    /**
+    * Default destructor.
+    */
     ~EcdSetModel() = default;
 
     //=========================================================================================================

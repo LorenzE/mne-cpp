@@ -41,8 +41,10 @@
 //=============================================================================================================
 
 #include "ecdsetmodel.h"
-#include <inverse/dipoleFit/ecd_set.h>
 #include "../Utils/types.h"
+#include <inverse/dipoleFit/ecd_set.h>
+#include <inverse/dipoleFit/dipole_fit.h>
+#include <inverse/dipoleFit/dipole_fit_settings.h>
 
 
 //*************************************************************************************************************
@@ -63,6 +65,7 @@
 //=============================================================================================================
 
 using namespace ANSHAREDLIB;
+using namespace INVERSELIB;
 
 
 //*************************************************************************************************************
@@ -76,9 +79,19 @@ using namespace ANSHAREDLIB;
 // DEFINE MEMBER METHODS
 //=============================================================================================================
 
-EcdSetModel::EcdSetModel(QObject *pParent)
+EcdSetModel::EcdSetModel(DipoleFitSettings *pDipolSettings, QObject *pParent)
     :AbstractModel(pParent)
 {
+    DipoleFit dipFit(pDipolSettings);
+    m_ecdSet = dipFit.calculateFit();
+}
+
+
+//*************************************************************************************************************
+
+EcdSetModel::EcdSetModel(const QString &sDipFileName, QObject *pParent)
+{
+    m_ecdSet = ECDSet::read_dipoles_dip(sDipFileName);
 }
 
 
