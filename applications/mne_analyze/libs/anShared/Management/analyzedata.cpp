@@ -102,70 +102,43 @@ QVector<QSharedPointer<AbstractModel> > AnalyzeData::getObjectsOfType(MODEL_TYPE
 
 //*************************************************************************************************************
 
-QSharedPointer<SurfaceModel> AnalyzeData::loadSurface(const QString &path)
+QSharedPointer<SurfaceModel> AnalyzeData::loadSurfaceModel(const QString& path)
 {
-    //TODO rewrite as template
-    // check if file was already loaded:
-    if (m_data.contains(path))
-    {
-        return qSharedPointerDynamicCast<SurfaceModel>(m_data.value(path));
-    }
-    else
-    {
-        QSharedPointer<SurfaceModel> sm = QSharedPointer<SurfaceModel>::create(path);
-        QSharedPointer<AbstractModel> temp = qSharedPointerCast<AbstractModel>(sm);
-        m_data.insert(path, temp);
-        emit this->newModelAvailable(temp);
-        return sm;
-    }
+    return loadModel<SurfaceModel>(path);
 }
 
 
 //*************************************************************************************************************
 
-QSharedPointer<SurfaceModel> AnalyzeData::loadSurface(const QString &subject_id, qint32 hemi, const QString &surf, const QString &subjects_dir)
+QSharedPointer<SurfaceModel> AnalyzeData::loadSurfaceModel(const QString &subject_id, qint32 hemi, const QString &surf, const QString &subjects_dir)
 {
     // copied from Surface::read
     QString p_sFile = QString("%1/%2/surf/%3.%4").arg(subjects_dir).arg(subject_id).arg(hemi == 0 ? "lh" : "rh").arg(surf);
-    return loadSurface(p_sFile);
+    return loadSurfaceModel(p_sFile);
 }
 
 
 //*************************************************************************************************************
 
-bool AnalyzeData::registerEntityTree(QString sTargetDisplay, QString sID, QSharedPointer<Qt3DCore::QEntity> pTree)
+QSharedPointer<QEntityListModel> AnalyzeData::createQEntityListModel(const QString &modelIdentifier)
 {
-    // check if we already created the necessary model
-    if (m_data.contains(m_sIDEntityListModel) == false)
-    {
-        m_data.insert(m_sIDEntityListModel, qSharedPointerCast<AbstractModel>(QSharedPointer<QEntityListModel>::create()));
-    }
-    // build internal identifier
-    QString finalID = sTargetDisplay;
-    finalID.append("/");
-    finalID.append(sID);
-    return qSharedPointerDynamicCast<QEntityListModel>(m_data.value(m_sIDEntityListModel))->addEntityTree(pTree, finalID);
+    return loadModel<QEntityListModel>(modelIdentifier);
 }
 
 
 //*************************************************************************************************************
 
-bool AnalyzeData::removeEntityTree(QString sTargetDisplay, QString sID)
+QVector<QSharedPointer<QEntityListModel> > AnalyzeData::availableDisplays() const
 {
-    // check if we already created the necessary model
-    if (m_data.contains(m_sIDEntityListModel) == false)
+    // similiar to "getObjectOfType"
+    QVector<QSharedPointer<QEntityListModel> > result;
+    QHash<QString, QSharedPointer<AbstractModel> >::ConstIterator iter = m_data.begin();
+    for (; iter != m_data.end(); iter++)
     {
-        m_data.insert(m_sIDEntityListModel, qSharedPointerCast<AbstractModel>(QSharedPointer<QEntityListModel>::create()));
+        if (iter.value()->getType() == MODEL_TYPE::ANSHAREDLIB_QENTITYLIST_MODEL)
+        {
+            result.push_back(qSharedPointerDynamicCast<QEntityListModel>(iter.value()));
+        }
     }
-    // build internal identifier
-    QString finalID = sTargetDisplay;
-    finalID.append("/");
-    finalID.append(sID);
-    return qSharedPointerDynamicCast<QEntityListModel>(m_data.value(m_sIDEntityListModel))->removeEntityTree(finalID);
+    return result;
 }
-
-//=============================================================================================================
-// DEFINE STATIC MEMBERS
-//=============================================================================================================
-
-const QString AnalyzeData::m_sIDEntityListModel("ENTITY_DISPLAY_MODEL");

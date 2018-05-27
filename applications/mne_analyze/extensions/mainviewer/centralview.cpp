@@ -127,7 +127,53 @@ void CentralView::init()
     m_view3d_gridlayout->addWidget(m_view3d_container);
 }
 
+
+//*************************************************************************************************************
+
 void CentralView::addEntity(QSharedPointer<QEntity> pEntity)
 {
+    // simply insert below root
     pEntity->setParent(m_pRootEntity);
+    // std::cout << "added entity !" << std::endl;
+}
+
+
+//*************************************************************************************************************
+
+void CentralView::removeEntity(const QString &sIdentifier)
+{
+    // only direct children, since we only add stuff directly below the root node
+    QEntity* temp = m_pRootEntity->findChild<QEntity* >(sIdentifier, Qt::FindDirectChildrenOnly);
+    if (temp) {
+        // Qt documentation says that this will remove the entity from the scene
+        // cast is necessary because of ambiguity
+        temp->setParent((QEntity* ) Q_NULLPTR);
+        // need to update the scene so that the widget no longer tries to access the deleted child
+        update();
+        // std::cout << "removed entity !" << std::endl;
+    }
+    else {
+        std::cout << "[CentralView] Could not find child named " << sIdentifier.toStdString() << std::endl;
+    }
+}
+
+
+//*************************************************************************************************************
+
+void CentralView::closeEvent(QCloseEvent *event)
+{
+    QNodeVector vec = m_pRootEntity->childNodes();
+    for (QNode* pNode : vec)
+    {
+        QEntity* temp = (QEntity*) pNode;
+        if (temp)
+        {
+            // Qt documentation says that this will remove the entity from the scene
+            // cast is necessary because of ambiguity
+            temp->setParent((QEntity* ) Q_NULLPTR);
+            // need to update the scene so that the widget no longer tries to access the deleted child
+        }
+    }
+    update();
+    repaint();
 }

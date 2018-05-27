@@ -46,6 +46,7 @@
 #include <anShared/Management/analyzedata.h>
 #include "anShared/Utils/metatypes.h"
 #include <disp3D/engine/model/3dhelpers/custommesh.h>
+#include <iostream>
 
 
 //*************************************************************************************************************
@@ -65,6 +66,7 @@
 //=============================================================================================================
 
 using namespace SURFEREXTENSION;
+using namespace ANSHAREDLIB;
 using namespace DISP3DLIB;
 using namespace ANSHAREDLIB;
 using namespace Qt3DRender;
@@ -77,9 +79,10 @@ using namespace Qt3DCore;
 //=============================================================================================================
 
 Surfer::Surfer()
-: m_pControl(Q_NULLPTR)
+: m_pCommu(Q_NULLPTR)
+, m_pControl(Q_NULLPTR)
 , m_pSurfaceMesh(new CustomMesh)
-, m_pSurferRoot(new QEntity)
+, m_pSurferRoot(Q_NULLPTR)
 {
 
 }
@@ -106,10 +109,17 @@ QSharedPointer<IExtension> Surfer::clone() const
 
 void Surfer::init()
 {
-    m_pSurfaceModel = m_analyzeData->loadSurface(QStringLiteral("./MNE-sample-data/subjects/sample/surf/rh.pial"));
+    m_pSurferRoot = QSharedPointer<QEntity>::create();
+    m_pSurferRoot->setObjectName(QString("SurferEntityTree"));
+
+    // connect to event system
+    m_pCommu = new Communicator(this);
+
+    // load model
+    m_pSurfaceModel = m_analyzeData->loadSurfaceModel(QStringLiteral("./MNE-sample-data/subjects/sample/surf/rh.pial"));
     // initialize 3D stuff:
     //Create mesh entity
-    QEntity *pMeshEntity = new QEntity(m_pSurferRoot);
+    QEntity *pMeshEntity = new QEntity(m_pSurferRoot.data());
     pMeshEntity->addComponent(m_pSurfaceMesh);
 
     Qt3DExtras::QPerVertexColorMaterial *pMaterial = new Qt3DExtras::QPerVertexColorMaterial();
@@ -127,7 +137,7 @@ void Surfer::init()
     pMeshEntity->addComponent(pObjectPicker);
 
     //Create click point
-    QEntity *pSphereEntity = new QEntity(m_pSurferRoot);
+    QEntity *pSphereEntity = new QEntity(m_pSurferRoot.data());
     m_pointMesh = new Qt3DExtras::QSphereMesh;
     m_pointMesh->setRadius(0.001f);
     pSphereTransform = new Qt3DCore::QTransform();
@@ -138,7 +148,7 @@ void Surfer::init()
     pSphereEntity->addComponent(pSphereMat);
 
     // add lighting
-    QEntity *pLightRoot = new QEntity(m_pSurferRoot);
+    QEntity *pLightRoot = new QEntity(m_pSurferRoot.data());
     //Setup light positions, intensities and color
     QList<QVector3D> lLightPositions;
     const QColor lightColor(255,255,255);
@@ -162,7 +172,8 @@ void Surfer::init()
         pPointLight->setIntensity(lightIntensity);
         pLightEntity->addComponent(pPointLight);
     }
-    m_analyzeData->registerEntityTree(QString("mainViewer"), QString("surfer"), QSharedPointer<QEntity>(m_pSurferRoot));
+
+    // fill the mesh with data loaded from the surface model
     updateSurfaceModelMesh();
 }
 
@@ -216,7 +227,21 @@ QWidget *Surfer::getView()
 
 void Surfer::handleEvent(QSharedPointer<Event> e)
 {
-
+    switch(e->getType())
+    {
+    case EVENT_TYPE::EXTENSION_INIT_FINISHED:
+    {
+        QVector<QSharedPointer<QEntityListModel> > availableDisplays = m_analyzeData->availableDisplays();
+        if (availableDisplays.size() >= 1)
+        {
+            availableDisplays.at(0)->addEntityTree(m_pSurferRoot);
+        }
+        break;
+    }
+    default:
+        std::cout << "Surfer received an Event that is not handled by switch-cases" << std::endl;
+        break;
+    }
 }
 
 
@@ -224,7 +249,9 @@ void Surfer::handleEvent(QSharedPointer<Event> e)
 
 QVector<EVENT_TYPE> Surfer::getEventSubscriptions(void) const
 {
-    return QVector<EVENT_TYPE>();
+    QVector<EVENT_TYPE> temp;
+    temp.push_back(EVENT_TYPE::EXTENSION_INIT_FINISHED);
+    return temp;
 }
 
 

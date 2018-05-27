@@ -41,14 +41,7 @@
 //=============================================================================================================
 
 #include "mainviewer.h"
-
-
-//*************************************************************************************************************
-//=============================================================================================================
-// INCLUDES
-//=============================================================================================================
-
-#include <iostream>
+#include "../../libs/anShared/Utils/metatypes.h"
 
 
 //*************************************************************************************************************
@@ -89,7 +82,7 @@ using namespace Qt3DCore;
 MainViewer::MainViewer()
     : m_pControl(Q_NULLPTR),
       m_pView(Q_NULLPTR),
-      m_pCommu(Q_NULLPTR)
+      m_pModel(Q_NULLPTR)
 {
 
 }
@@ -116,12 +109,16 @@ QSharedPointer<IExtension> MainViewer::clone() const
 
 void MainViewer::init()
 {
-    m_pCommu = new Communicator(this);
-
     if(!m_pView) {
         m_pView = new CentralView();
         m_pView->setWindowTitle(QStringLiteral("Main display"));
     }
+
+    // create our QEntity model and connect it
+    m_pModel = m_analyzeData->createQEntityListModel(QString("MAINVIEWER"));
+    QObject::connect(m_pModel.data(), &QEntityListModel::entityTreeAdded, this, &MainViewer::onEntityTreeAdded);
+    // direct connection in case somebody directly deletes the entity tree after calling "removeEntityTree".
+    QObject::connect(m_pModel.data(), &QEntityListModel::entityTreeRemoved, this, &MainViewer::onEntityTreeRemoved, Qt::DirectConnection);
 }
 
 
@@ -180,12 +177,7 @@ QWidget *MainViewer::getView()
 
 void MainViewer::handleEvent(QSharedPointer<Event> e)
 {
-    switch(e->getType())
-    {
-    case EVENT_TYPE::EXTENSION_INIT_FINISHED:
-        updateEntityTree();
-        break;
-    }
+
 }
 
 
@@ -193,10 +185,7 @@ void MainViewer::handleEvent(QSharedPointer<Event> e)
 
 QVector<EVENT_TYPE> MainViewer::getEventSubscriptions(void) const
 {
-    QVector<EVENT_TYPE> events;
-    // we need to know when all extensions are finished creating their initial 3D stuff
-    events.push_back(EVENT_TYPE::EXTENSION_INIT_FINISHED);
-    return events;
+    return QVector<EVENT_TYPE>();
 }
 
 
@@ -207,14 +196,14 @@ void MainViewer::onNewModelAvailable(QSharedPointer<AbstractModel> model)
 
 }
 
-void MainViewer::updateEntityTree()
+void MainViewer::onEntityTreeAdded(const QModelIndex& index)
 {
-    // fetch currently available / valid QEntity trees from AnalyzeData
-    QSharedPointer<QEntityListModel> entities = m_analyzeData->getQEntityListModel();
-    if (entities->columnCount() >= 1)
-    {
-        QModelIndex dataIndex = entities->index(0, 0);
-        QSharedPointer<QEntity> data = entities->data(dataIndex, Qt::DisplayRole).value<QSharedPointer<QEntity> >();
-        m_pView->addEntity(data);
-    }
+    // retrieve data from model, extract shared pointer and pass it to view
+    m_pView->addEntity(m_pModel->data(index, Qt::DisplayRole).value<QSharedPointer<QEntity> >());
+}
+
+void MainViewer::onEntityTreeRemoved(const QString& sIdentifier)
+{
+    // simply pass on to view:
+    m_pView->removeEntity(sIdentifier);
 }

@@ -46,7 +46,7 @@
 #include "mainviewer_global.h"
 #include <anShared/Interfaces/IExtension.h>
 #include "centralview.h"
-#include "../../libs/anShared/Management/communicator.h"
+#include "../../libs/anShared/Model/qentitylistmodel.h"
 
 
 //*************************************************************************************************************
@@ -128,15 +128,31 @@ public:
 
 protected:
 
+private slots:
+
+    //=========================================================================================================
+    /**
+    * This gets connected to the QEntityListmodel m_pModel, so that we will get notified when a new QEntity
+    * been added to the scene.
+    *
+    * @param index An index to the newly added QEntity that is stored inside m_pModel
+    */
+    void onEntityTreeAdded(const QModelIndex& index);
+
+    //=========================================================================================================
+    /**
+    * This gets connected to the QEntityListModel m_pModel, so that we will be notified when a QEntity should
+    * be removed from the scene.
+    *
+    * @param sIdentifier The name of the QEntity to remove.
+    */
+    void onEntityTreeRemoved(const QString &sIdentifier);
+
 private:
 
-    void updateEntityTree();
-
-    QDockWidget*                m_pControl; /**< Control Widget */
-
-    CentralView*                m_pView; /**< View */
-
-    ANSHAREDLIB::Communicator*  m_pCommu;
+    QDockWidget*                                    m_pControl; /**< Control Widget */
+    CentralView*                                    m_pView; /**< View */
+    QSharedPointer<ANSHAREDLIB::QEntityListModel>   m_pModel; /**< Other extension register their stuff here */
 };
 
 

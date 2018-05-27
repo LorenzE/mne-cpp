@@ -76,7 +76,7 @@ namespace ANSHAREDLIB
     */
     enum MODEL_TYPE
     {
-        FSLIB_SURFACE_MODEL,
+        ANSHAREDLIB_SURFACE_MODEL,
         ANSHAREDLIB_QENTITYLIST_MODEL
     };
 

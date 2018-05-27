@@ -46,6 +46,7 @@
 
 #include "surfer_global.h"
 #include <anShared/Interfaces/IExtension.h>
+#include <anShared/Management/communicator.h>
 
 
 //*************************************************************************************************************
@@ -151,13 +152,15 @@ private:
 
     void onClick(Qt3DRender::QPickEvent *event);
 
+    ANSHAREDLIB::Communicator* m_pCommu;
+
     // Control
     QDockWidget*        m_pControl; /**< Control Widget */
 
 
     QSharedPointer<ANSHAREDLIB::SurfaceModel>    m_pSurfaceModel;
     DISP3DLIB::CustomMesh *m_pSurfaceMesh;
-     Qt3DCore::QEntity *m_pSurferRoot;
+    QSharedPointer<Qt3DCore::QEntity> m_pSurferRoot;
 
     Qt3DExtras::QSphereMesh *m_pointMesh;
     Qt3DCore::QTransform *pSphereTransform;

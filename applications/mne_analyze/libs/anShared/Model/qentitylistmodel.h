@@ -88,9 +88,12 @@ namespace ANSHAREDLIB {
 
 //=============================================================================================================
 /**
-* Description of what this class is intended to do (in detail).
-*
-* @brief Brief description of this class.
+* This model is not a real model. It enables other extensions to register their 3D content in order to display
+* it. This model is responsible for keeping identifiers unique and communicating with the responsible Extension
+* (or view). Since we need to keep track of all registered children inside the views tree structure and must be
+* able to safely remove them as well, every entry must be named with a unique identifier. A model index is
+* passed whenever a new Entity is registered (since I was not able to pass a QSharedPointer using signals /slots)
+* and a QString is passed when an Entity is removed.
 */
 class QEntityListModel : public AbstractModel
 {
@@ -104,7 +107,7 @@ public:
     /**
     * Constructs a QEntityListModel object.
     */
-    QEntityListModel(QObject* pParent = nullptr);
+    QEntityListModel(const QString& modelIdentifier, QObject* pParent = nullptr);
 
     //=========================================================================================================
     /**
@@ -180,15 +183,53 @@ public:
     */
     inline MODEL_TYPE getType() const override;
 
-    bool addEntityTree(QSharedPointer<Qt3DCore::QEntity> pTree, QString sIdentifier);
-    bool removeEntityTree(QString sIdentifier);
+    //=========================================================================================================
+    /**
+    * This is called whenever somebody wants to display smth using this model.
+    * The newly added Entity must be named. Its name must not already be registered in this model.
+    * This method will add the Entity to the model, notify the responsible view and return true when all of
+    * the above conditions are met. Otherwise it will return false.
+    *
+    * @param pTree The Entity to be added.
+    * @return Whether the Entity was successfully added
+    */
+    bool addEntityTree(QSharedPointer<Qt3DCore::QEntity> pTree);
+
+    //=========================================================================================================
+    /**
+    * This is called whenever somebody wants to remove an Entity that was previously registered.
+    * In case the Entity's name can be found, the Entity will be removed from this model, the responsible view
+    * will be notified and updated and the method will return true. Otherwise, it will return false.
+    *
+    * @param pTree The Entity to remove.
+    * @return Whether the Entity was successfully removed.
+    */
+    bool removeEntityTree(QSharedPointer<Qt3DCore::QEntity> pTree);
+
+signals:
+
+    //=========================================================================================================
+    /**
+    * This is emitted when a Entity Tree was successfully registered.
+    *
+    * @param index An index to the newly registered Entity
+    */
+    void entityTreeAdded(const QModelIndex& index);
+
+    //=========================================================================================================
+    /**
+     * This is emitted when an Entity was successfully removed from the model.
+     *
+     * @param sIdentifier The name of the Entity to be removed.
+     */
+    void entityTreeRemoved(const QString& sIdentifier);
 
 protected:
 
 private:
 
-    QVector<QPair<QString, QSharedPointer<Qt3DCore::QEntity> > > m_vEntries;
-
+    QString m_name;                                         /**< Name of the model */
+    QVector<QSharedPointer<Qt3DCore::QEntity> > m_vData;    /**< All registered QEntities */
 };
 
 

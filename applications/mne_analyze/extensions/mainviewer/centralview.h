@@ -52,6 +52,7 @@
 #include <QWidget>
 #include <QGridLayout>
 #include <Qt3DCore>
+#include <QCloseEvent>
 
 
 //*************************************************************************************************************
@@ -121,7 +122,30 @@ public:
     */
     ~CentralView() = default;
 
+    //=========================================================================================================
+    /**
+    * This will insert the passed QEntity below the views root.
+    *
+    * @param pEntity The QEntity to be added.
+    */
     void addEntity(QSharedPointer<Qt3DCore::QEntity> pEntity);
+
+    //=========================================================================================================
+    /**
+    * This will remove the child named with sIdentifier or give out a warning in case the child could not be found.
+    *
+    * @param sIdentifier The name of the child to be removed.
+    */
+    void removeEntity(const QString& sIdentifier);
+
+    //=========================================================================================================
+    /**
+    * We override this since the default implementation crashes
+    *
+    * @param event The event that has happened
+    */
+    void closeEvent(QCloseEvent *event) override;
+
 protected:
 
 private:
@@ -141,10 +165,10 @@ private:
     void onClick(Qt3DRender::QPickEvent *event);
 
 
-    QWidget *m_view3d_container;
-    QGridLayout *m_view3d_gridlayout;
+    QWidget *m_view3d_container;            /**< Container */
+    QGridLayout *m_view3d_gridlayout;       /**< Layout */
 
-    Qt3DCore::QEntity *m_pRootEntity;
+    Qt3DCore::QEntity *m_pRootEntity;       /**< Root entity */
 };
 
 

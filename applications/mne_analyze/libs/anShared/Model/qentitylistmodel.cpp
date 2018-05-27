@@ -76,8 +76,9 @@ using namespace Qt3DCore;
 // DEFINE MEMBER METHODS
 //=============================================================================================================
 
-QEntityListModel::QEntityListModel(QObject *pParent)
-    : AbstractModel(pParent)
+QEntityListModel::QEntityListModel(const QString &modelIdentifier, QObject *pParent)
+    : AbstractModel(pParent),
+      m_name(modelIdentifier)
 {
 
 }
@@ -89,9 +90,9 @@ QVariant QEntityListModel::data(const QModelIndex &index, int role) const
 {
     QVariant output;
     if(index.isValid() && role == Qt::DisplayRole) {
-        if (index.row() < m_vEntries.size())
+        if (index.row() < m_vData.size())
         {
-            output.setValue(m_vEntries.at(index.row()).second);
+            output.setValue(m_vData.at(index.row()));
         }
     }
     return output;
@@ -145,7 +146,7 @@ int QEntityListModel::columnCount(const QModelIndex &parent) const
 {
     //if parent == root node
     if(!parent.isValid()) {
-        return m_vEntries.size();
+        return m_vData.size();
     }
     else {
         // only the root node has children
@@ -170,33 +171,51 @@ bool QEntityListModel::hasChildren(const QModelIndex &parent) const
 
 //*************************************************************************************************************
 
-bool QEntityListModel::addEntityTree(QSharedPointer<QEntity> pTree, QString sIdentifier)
+bool QEntityListModel::addEntityTree(QSharedPointer<QEntity> pTree)
 {
-    for (const QPair<QString, QSharedPointer<QEntity> >& pair : m_vEntries)
+    // check whether entity name is valid
+    if (pTree->objectName().size() > 0)
     {
-        if (sIdentifier.compare(pair.first) == 0)
+        // check whether name is already taken
+        for (const QSharedPointer<QEntity>& p : m_vData)
         {
-            // identifier already used, return false
-            return false;
+            if (p->objectName().compare(pTree->objectName()) == 0)
+            {
+                // name found, return false
+                return false;
+            }
         }
+        // could not find name, insert into record
+        m_vData.push_back(pTree);
+        // emit signal for connected display
+        emit entityTreeAdded(createIndex(0, m_vData.size() - 1));
+        return true;
     }
-    m_vEntries.push_back(qMakePair<QString, QSharedPointer<QEntity> >(sIdentifier, pTree));
-    return true;
+    else {
+        return false;
+    }
 }
 
 
 //*************************************************************************************************************
 
-bool QEntityListModel::removeEntityTree(QString sIdentifier)
+bool QEntityListModel::removeEntityTree(QSharedPointer<QEntity> pTree)
 {
-    for (int i = 0; i < m_vEntries.size(); ++i)
+    // check whether entity name is valid
+    if (pTree->objectName().size() > 0)
     {
-        if (sIdentifier.compare(m_vEntries.at(i).first) == 0)
+        // check whether name can be found in record
+        for (int i = 0; i < m_vData.size(); ++i)
         {
-            // identifier found, remove and return true
-            m_vEntries.remove(i);
-            return true;
+            if (m_vData.at(i)->objectName().compare(pTree->objectName()) == 0)
+            {
+                // name found
+                emit entityTreeRemoved(pTree->objectName());
+                m_vData.remove(i);
+                return true;
+            }
         }
+        // could not find name, will return false
     }
     return false;
 }

@@ -221,7 +221,7 @@ private:
 
 inline MODEL_TYPE SurfaceModel::getType() const
 {
-    return MODEL_TYPE::FSLIB_SURFACE_MODEL;
+    return MODEL_TYPE::ANSHAREDLIB_SURFACE_MODEL;
 }
 
 } // namespace ANSHAREDLIB
