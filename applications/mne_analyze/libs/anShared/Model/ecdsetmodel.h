@@ -137,7 +137,7 @@ public:
     virtual QModelIndex index(int row, int column = 0, const QModelIndex &parent = QModelIndex()) const override;
     virtual QModelIndex parent(const QModelIndex &index) const override;
     virtual int rowCount(const QModelIndex &parent = QModelIndex()) const override;
-    virtual int columnCount(const QModelIndex &parent = QModelIndex()) const override;
+    virtual bool hasChildren(const QModelIndex &parent) const override;
 
     //=========================================================================================================
     /**
@@ -149,6 +149,9 @@ public:
 protected:
 
 private:
+
+    virtual int columnCount(const QModelIndex &parent = QModelIndex()) const override;
+
 
     INVERSELIB::ECDSet  m_ecdSet;
 
