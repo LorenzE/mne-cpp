@@ -81,7 +81,13 @@ class Communicator;
 /**
 * DECLARE CLASS EventManager
 *
-* @brief EventManager for Event communication. Holds a routing table that keeps track of Event subscriptions
+* EvenManager for Event communication. Holds a routing table that keeps track of Event subscriptions.
+* Event-ownership is still a bit problematic: The communicator simply wraps the passed data in a shared pointer
+* and passes it on to the EventManager. There it gets stored in a queue until the next processing circle. It
+* then is dequeued and distributed to all subscribed communicators via a Qt::DirectConnection. First problem:
+* Changing the connection to any other than a DirectConnection would require QSharedPointer<Event> to be de-
+* clared as a qmetatype. Second, this might disable the current implementation, since the dequeued pointer leaves
+* scope after distribution. Depending on the queing of arguments in QtConnections, this might be a problem.
 */
 class ANSHAREDSHARED_EXPORT EventManager : public QThread
 {
@@ -135,24 +141,28 @@ public:
     /**
     * Removes (and thus disconnects) a Communicator and all its subscriptions from the routing table
     *
-    * @param[in] commu The communicator to remove.
+    * @param[in] commu          The communicator to remove.
     */
     void removeCommunicator(Communicator* commu);
 
     //=========================================================================================================
     /**
-    * Starts the EventManagers thread that processes buffered events. The EventManager will try maintain the
+    * Starts the EventManagers thread that processes buffered events. The EventManager will try to maintain the
     * specified frequency of dealing with buffered events (frequency in Hz)
     *
-    * @param frequency The frequency in Hz to start working through all buffered events.
+    * @param frequency          The frequency in Hz to start working through all buffered events.
+    * @return                   Whether starting was successfull
     */
-    void startEventHandling(float frequency);
+    bool startEventHandling(float frequency);
 
     //=========================================================================================================
     /**
-    * Stops the EventThread.
+    * Stops the EventThread. Depending on the specified event-processing frequency, this might take some time
+    * (up to one waiting period, to be precise. Example: EventManager running on 20 Hz -> up to 50 ms shutdown).
+    *
+    * @return                   Whether stopping was successfull
     */
-    void stopEventHandling();
+    bool stopEventHandling();
 
     //=========================================================================================================
     /**
@@ -186,7 +196,7 @@ private:
 
     //=========================================================================================================
     /**
-    * Overrides QThread::run. This executes the main loop for handling events. Never try to manually call this.
+    * Overrides QThread::run. This executes the main loop for handling events. Never try to call this manually.
     */
     void run() override;
 
@@ -196,6 +206,7 @@ private:
     QMutex m_eventQMutex;                                   /**< Guarding mutex for the event queue */
     QMutex m_routingTableMutex;                             /**< Guarding mutex for the routing table */
     volatile long m_sleepTime;                              /**< Controlling execution frequency of main loop */
+    volatile bool m_running;                                /**< Flag for remembering whether the EventManager is currently started or stopped */
 };
 
 } // namespace

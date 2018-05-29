@@ -190,7 +190,7 @@ public:
     * This method will add the Entity to the model, notify the responsible view and return true when all of
     * the above conditions are met. Otherwise it will return false.
     *
-    * @param pTree The Entity to be added.
+    * @param[in] pTree The Entity to be added.
     * @return Whether the Entity was successfully added
     */
     bool addEntityTree(QSharedPointer<Qt3DCore::QEntity> pTree);
@@ -201,7 +201,7 @@ public:
     * In case the Entity's name can be found, the Entity will be removed from this model, the responsible view
     * will be notified and updated and the method will return true. Otherwise, it will return false.
     *
-    * @param pTree The Entity to remove.
+    * @param[in] pTree The Entity to remove.
     * @return Whether the Entity was successfully removed.
     */
     bool removeEntityTree(QSharedPointer<Qt3DCore::QEntity> pTree);

@@ -135,7 +135,7 @@ private slots:
     * This gets connected to the QEntityListmodel m_pModel, so that we will get notified when a new QEntity
     * been added to the scene.
     *
-    * @param index An index to the newly added QEntity that is stored inside m_pModel
+    * @param[in] index An index to the newly added QEntity that is stored inside m_pModel
     */
     void onEntityTreeAdded(const QModelIndex& index);
 
@@ -144,7 +144,7 @@ private slots:
     * This gets connected to the QEntityListModel m_pModel, so that we will be notified when a QEntity should
     * be removed from the scene.
     *
-    * @param sIdentifier The name of the QEntity to remove.
+    * @param[in] sIdentifier The name of the QEntity to remove.
     */
     void onEntityTreeRemoved(const QString &sIdentifier);
 

@@ -70,7 +70,8 @@ EventManager::EventManager()
       m_eventQ(),
       m_eventQMutex(),
       m_routingTableMutex(),
-      m_sleepTime(40l)
+      m_sleepTime(40l),
+      m_running(false)
 {
 
 }
@@ -112,13 +113,9 @@ void EventManager::addSubscriptions(Communicator* commu, QVector<EVENT_TYPE> new
 void EventManager::updateSubscriptions(Communicator* commu,const QVector<EVENT_TYPE> &subs)
 {
     // remove old subscriptions from EventManager routing table
-    EventManager::removeCommunicator(commu);
+    removeCommunicator(commu);
     // add new key-value-pairs into map
-    QMutexLocker temp(&m_routingTableMutex);
-    for(const EVENT_TYPE& etype : subs)
-    {
-        m_routingTable.insert(etype, commu);
-    }
+    addSubscriptions(commu, subs);
 }
 
 //*************************************************************************************************************
@@ -142,20 +139,39 @@ void EventManager::removeCommunicator(Communicator* commu)
 //*************************************************************************************************************
 
 
-void EventManager::startEventHandling(float frequency)
+bool EventManager::startEventHandling(float frequency)
 {
-    m_sleepTime = (long) (1000.0f / frequency);
-    // start qthread
-    start();
+    if (m_running)
+    {
+        std::cout << "[EventManager] Warning somebody tried to call startEventHandling when already running..." << std::endl;
+        return false;
+    }
+    else {
+        m_sleepTime = (long) (1000.0f / frequency);
+        m_running = true;
+        // start qthread
+        start();
+        return true;
+    }
+
 }
 
 //*************************************************************************************************************
 
 
-void EventManager::stopEventHandling()
+bool EventManager::stopEventHandling()
 {
-    requestInterruption();
-    wait();
+    if (m_running)
+    {
+        m_running = false;
+        requestInterruption();
+        wait();
+        return true;
+    }
+    else {
+        std::cout << "[EventManager] Warning somebody tried to call stopEventHandling when already stopped..." << std::endl;
+        return false;
+    }
 }
 
 //*************************************************************************************************************
@@ -229,6 +245,5 @@ void EventManager::run()
 
 void EventManager::shutdown()
 {
-    requestInterruption();
-    wait();
+    stopEventHandling();
 }

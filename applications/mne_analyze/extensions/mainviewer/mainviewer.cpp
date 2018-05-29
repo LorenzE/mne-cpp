@@ -100,8 +100,8 @@ MainViewer::~MainViewer()
 
 QSharedPointer<IExtension> MainViewer::clone() const
 {
-    QSharedPointer<MainViewer> pMainViewerClone = QSharedPointer<MainViewer>::create();
-    return pMainViewerClone;
+    // cloning the main viewer might cause a lot of trouble, so let us not even try to
+    return Q_NULLPTR;
 }
 
 
@@ -114,8 +114,9 @@ void MainViewer::init()
         m_pView->setWindowTitle(QStringLiteral("Main display"));
     }
 
-    // create our QEntity model and connect it
+    // create our QEntity model and register it in AnalyzeData
     m_pModel = m_analyzeData->createQEntityListModel(QString("MAINVIEWER"));
+    // do the necessary connects so that we get notified when new 3D stuff needs to be added / removed
     QObject::connect(m_pModel.data(), &QEntityListModel::entityTreeAdded, this, &MainViewer::onEntityTreeAdded);
     // direct connection in case somebody directly deletes the entity tree after calling "removeEntityTree".
     QObject::connect(m_pModel.data(), &QEntityListModel::entityTreeRemoved, this, &MainViewer::onEntityTreeRemoved, Qt::DirectConnection);

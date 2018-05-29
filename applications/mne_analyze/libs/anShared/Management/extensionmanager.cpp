@@ -121,6 +121,7 @@ void ExtensionManager::initExtensions(QSharedPointer<AnalyzeSettings> settings, 
         extension->setGlobalData(data);
         extension->init();
     }
+    // tell everyone that INIT-phase is finished
     // @TODO consider communicator as class member, since this is kinda nasty
     Communicator con;
     con.publishEvent(EVENT_TYPE::EXTENSION_INIT_FINISHED);

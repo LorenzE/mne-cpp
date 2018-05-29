@@ -126,7 +126,7 @@ public:
     /**
     * This will insert the passed QEntity below the views root.
     *
-    * @param pEntity The QEntity to be added.
+    * @param[in] pEntity The QEntity to be added.
     */
     void addEntity(QSharedPointer<Qt3DCore::QEntity> pEntity);
 
@@ -134,7 +134,7 @@ public:
     /**
     * This will remove the child named with sIdentifier or give out a warning in case the child could not be found.
     *
-    * @param sIdentifier The name of the child to be removed.
+    * @param[in] sIdentifier The name of the child to be removed.
     */
     void removeEntity(const QString& sIdentifier);
 
@@ -142,7 +142,7 @@ public:
     /**
     * We override this since the default implementation crashes
     *
-    * @param event The event that has happened
+    * @param[in] event The event that has happened
     */
     void closeEvent(QCloseEvent *event) override;
 
@@ -155,15 +155,6 @@ private:
     * Initializes the 3D view.
     */
     void init();
-
-    //=========================================================================================================
-    /**
-    * This function is used for handling user input
-    *
-    * @param[in]    The pick information.
-    */
-    void onClick(Qt3DRender::QPickEvent *event);
-
 
     QWidget *m_view3d_container;            /**< Container */
     QGridLayout *m_view3d_gridlayout;       /**< Layout */

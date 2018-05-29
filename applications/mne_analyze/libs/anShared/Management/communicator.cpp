@@ -97,6 +97,7 @@ Communicator::~Communicator()
 void Communicator::publishEvent(EVENT_TYPE etype, const QVariant &data) const
 {
     // simply wrap in smart pointer and pass on to EventManager
+    // CAUTION this could become a problem as soon as the implementation of the EventManager changes, maybe rework this
     EventManager::getEventManager().issueEvent(QSharedPointer<Event>::create(etype, this, data));
 }
 

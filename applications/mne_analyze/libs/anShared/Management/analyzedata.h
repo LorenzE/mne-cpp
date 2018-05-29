@@ -194,6 +194,11 @@ private:
 
 signals:
 
+    /**
+    * This is emitted whenever a new model is loaded.
+    *
+    * @param[in] model The newly available model
+    */
     void newModelAvailable(QSharedPointer<AbstractModel> model);
 };
 

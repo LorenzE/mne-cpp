@@ -87,7 +87,6 @@ namespace ANSHAREDLIB
     enum EVENT_TYPE
     {
         PING,
-        DEFAULT,
         EXTENSION_INIT_FINISHED
     };
 } //NAMESPACE

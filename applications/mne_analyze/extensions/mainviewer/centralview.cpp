@@ -134,6 +134,7 @@ void CentralView::addEntity(QSharedPointer<QEntity> pEntity)
 {
     // simply insert below root
     pEntity->setParent(m_pRootEntity);
+    update();
     // std::cout << "added entity !" << std::endl;
 }
 
@@ -162,6 +163,7 @@ void CentralView::removeEntity(const QString &sIdentifier)
 
 void CentralView::closeEvent(QCloseEvent *event)
 {
+    // remove all children of root (should be all children that were added)
     QNodeVector vec = m_pRootEntity->childNodes();
     for (QNode* pNode : vec)
     {
@@ -171,9 +173,9 @@ void CentralView::closeEvent(QCloseEvent *event)
             // Qt documentation says that this will remove the entity from the scene
             // cast is necessary because of ambiguity
             temp->setParent((QEntity* ) Q_NULLPTR);
-            // need to update the scene so that the widget no longer tries to access the deleted child
         }
     }
+    // need to update the scene so that the widget no longer tries to access the deleted child
     update();
     repaint();
 }

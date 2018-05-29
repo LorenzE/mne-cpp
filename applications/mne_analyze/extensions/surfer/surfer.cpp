@@ -109,11 +109,12 @@ QSharedPointer<IExtension> Surfer::clone() const
 
 void Surfer::init()
 {
+    // connect to event system, since we need to know when we can register our 3D stuff in a display view
+    m_pCommu = new Communicator(this);
+
+    // create entity tree root node and name it
     m_pSurferRoot = QSharedPointer<QEntity>::create();
     m_pSurferRoot->setObjectName(QString("SurferEntityTree"));
-
-    // connect to event system
-    m_pCommu = new Communicator(this);
 
     // load model
     m_pSurfaceModel = m_analyzeData->loadSurfaceModel(QStringLiteral("./MNE-sample-data/subjects/sample/surf/rh.pial"));

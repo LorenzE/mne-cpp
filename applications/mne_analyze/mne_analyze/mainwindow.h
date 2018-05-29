@@ -117,9 +117,9 @@ public:
 
     //=========================================================================================================
     /**
-     * This is called when the user presses the "close" button
+     * This is called when the user presses the "close" button. It notifies the AnalyzeCore via a QtConnect.
      *
-     * @param event The event that has happened
+     * @param[in] event The event that has happened
      */
     void closeEvent(QCloseEvent *event) override;
 
