@@ -124,7 +124,6 @@ public:
     virtual QWidget* getView() override;
     virtual void handleEvent(QSharedPointer<ANSHAREDLIB::Event> e) override;
     virtual QVector<ANSHAREDLIB::EVENT_TYPE> getEventSubscriptions() const override;
-    virtual void onNewModelAvailable(QSharedPointer<ANSHAREDLIB::AbstractModel> model) override;
 
 protected:
 
@@ -150,9 +149,33 @@ private slots:
 
 private:
 
+    //=========================================================================================================
+    /**
+    * Call this when you want to hide the MainViewer.
+    */
+    void hide();
+
+    //=========================================================================================================
+    /**
+    * Call this when you want to (re)open the MainViewer's display.
+    */
+    void show();
+
+    //=========================================================================================================
+    /**
+    * Helper function for initializing all the needed GUI elements.
+    */
+    void createDisplay();
+
+
     QDockWidget*                                    m_pControl; /**< Control Widget */
-    CentralView*                                    m_pView; /**< View */
     QSharedPointer<ANSHAREDLIB::QEntityListModel>   m_pModel; /**< Other extension register their stuff here */
+
+    // views / GUI stuff
+    CentralView*                                    m_pView; /**< Main 3D View */
+    QWidget*                                        m_pContainer; /**< Container for wrapping 3D Window in a widget */
+    QMdiSubWindow*                                  m_pSubWindow; /**< Window that wraps the container */
+    bool                                            m_bDisplayCreated; /**< Flag for remembering whether or not the display was already created */
 };
 
 

@@ -172,14 +172,6 @@ QVector<EVENT_TYPE> InvMNE::getEventSubscriptions(void) const
 
 //*************************************************************************************************************
 
-void InvMNE::onNewModelAvailable(QSharedPointer<AbstractModel> model)
-{
-
-}
-
-
-//*************************************************************************************************************
-
 void InvMNE::calculate()
 {
 //    printf("Data contains %d sets\n",evokedSet.evoked.size());

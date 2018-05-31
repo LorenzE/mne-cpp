@@ -40,9 +40,6 @@
 //=============================================================================================================
 
 #include "centralview.h"
-#include <disp3D/engine/model/3dhelpers/custommesh.h>
-#include <mne/mne_bem.h>
-#include <mne/mne_bem_surface.h>
 #include <iostream>
 
 
@@ -72,6 +69,7 @@ using namespace MAINVIEWEREXTENSION;
 using namespace DISP3DLIB;
 using namespace Qt3DRender;
 using namespace Qt3DCore;
+using namespace Qt3DExtras;
 
 
 //*************************************************************************************************************
@@ -86,45 +84,24 @@ using namespace Qt3DCore;
 //=============================================================================================================
 
 CentralView::CentralView()
-    : QWidget(),
-      m_view3d_container(nullptr),
-      m_view3d_gridlayout(nullptr),
+    : Qt3DWindow(),
       m_pRootEntity(new QEntity)
 {
     init();
 }
 
-
 //*************************************************************************************************************
 
 void CentralView::init()
 {
-    //Resizing the created QMdiSubwindow to fit the minimun size of the container used later
-    this->resize(256,256);
-    //QGridLayout is used so the container constantly resizes to the size of the QMdiSubwindow
-    m_view3d_gridlayout = new QGridLayout(this);
+    // initialize 3D Window
+    setRootEntity(m_pRootEntity);
 
-    Qt3DExtras::Qt3DWindow *pWindow = new Qt3DExtras::Qt3DWindow();
-    pWindow->setRootEntity(m_pRootEntity);
-
-    QPickingSettings *pPickSettings = pWindow->renderSettings()->pickingSettings();
-    pPickSettings->setFaceOrientationPickingMode(QPickingSettings::FrontAndBackFace);
-    pPickSettings->setPickMethod(QPickingSettings::TrianglePicking);
-    pPickSettings->setPickResultMode(QPickingSettings::NearestPick);
-
-    QCamera *pCamera = pWindow->camera();
+    QCamera *pCamera = camera();
     pCamera->setPosition(QVector3D(0,0,1));
 
-    Qt3DExtras::QFirstPersonCameraController *pCamController = new Qt3DExtras::QFirstPersonCameraController(m_pRootEntity);
+    QFirstPersonCameraController *pCamController = new QFirstPersonCameraController(m_pRootEntity);
     pCamController->setCamera(pCamera);
-
-    //A container is created to contain the QWindow that comes from BrainView, then a minimum size is set
-    m_view3d_container = QWidget::createWindowContainer(pWindow);
-    m_view3d_container->setMinimumSize(256,256);
-    //m_view3d_container->setMaximumSize(256,256);
-    m_view3d_container->setFocusPolicy(Qt::TabFocus);
-    //The loaded surfaces, as a QWindow is added to the created container
-    m_view3d_gridlayout->addWidget(m_view3d_container);
 }
 
 
@@ -134,8 +111,8 @@ void CentralView::addEntity(QSharedPointer<QEntity> pEntity)
 {
     // simply insert below root
     pEntity->setParent(m_pRootEntity);
-    update();
-    // std::cout << "added entity !" << std::endl;
+    // remember shared pointer
+    m_vPointerStorage.push_back(pEntity);
 }
 
 
@@ -149,21 +126,28 @@ void CentralView::removeEntity(const QString &sIdentifier)
         // Qt documentation says that this will remove the entity from the scene
         // cast is necessary because of ambiguity
         temp->setParent((QEntity* ) Q_NULLPTR);
-        // need to update the scene so that the widget no longer tries to access the deleted child
-        update();
-        // std::cout << "removed entity !" << std::endl;
     }
     else {
         std::cout << "[CentralView] Could not find child named " << sIdentifier.toStdString() << std::endl;
+    }
+
+    // remove from pointer storage
+    for (int i = 0; i < m_vPointerStorage.size(); ++i)
+    {
+        if (m_vPointerStorage.at(i)->objectName().compare(sIdentifier) == 0)
+        {
+            m_vPointerStorage.remove(i);
+            // we trust in uniqueness of identifiers, break
+            break;
+        }
     }
 }
 
 
 //*************************************************************************************************************
 
-void CentralView::closeEvent(QCloseEvent *event)
+void CentralView::dissasEntityTree()
 {
-    // remove all children of root (should be all children that were added)
     QNodeVector vec = m_pRootEntity->childNodes();
     for (QNode* pNode : vec)
     {
@@ -175,7 +159,4 @@ void CentralView::closeEvent(QCloseEvent *event)
             temp->setParent((QEntity* ) Q_NULLPTR);
         }
     }
-    // need to update the scene so that the widget no longer tries to access the deleted child
-    update();
-    repaint();
 }

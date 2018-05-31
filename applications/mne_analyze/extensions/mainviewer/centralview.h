@@ -29,8 +29,10 @@
 * POSSIBILITY OF SUCH DAMAGE.
 *
 *
-* @brief     CentralView class declaration.
-*
+* This view is the display for 3D content in MNEAnalyze. It inherits Qt3DExtras::Qt3DWindow and specifies
+* camera, initial view angle, camera controller etc.
+* It keeps track of a QEntity-Tree that reflects all registered content.
+* Registered SharedPointers are copied into a vector to keep their reference-count mechanism working.
 */
 
 #ifndef MAINVIEWEREXTENSION_CENTRALVIEW_H
@@ -49,10 +51,11 @@
 //=============================================================================================================
 
 #include <QSharedPointer>
-#include <QWidget>
 #include <QGridLayout>
 #include <Qt3DCore>
 #include <QCloseEvent>
+#include <QVector>
+#include <Qt3DExtras>
 
 
 //*************************************************************************************************************
@@ -103,9 +106,9 @@ namespace MAINVIEWEREXTENSION {
 *
 * @brief Brief description of this class.
 */
-class CentralView : public QWidget
+class CentralView : public Qt3DExtras::Qt3DWindow
 {
-
+    Q_OBJECT
 public:
     typedef QSharedPointer<CentralView> SPtr;            /**< Shared pointer type for CentralView. */
     typedef QSharedPointer<const CentralView> ConstSPtr; /**< Const shared pointer type for CentralView. */
@@ -140,11 +143,9 @@ public:
 
     //=========================================================================================================
     /**
-    * We override this since the default implementation crashes
-    *
-    * @param[in] event The event that has happened
+    * This is called during shutdown of the program in order to prevent double frees
     */
-    void closeEvent(QCloseEvent *event) override;
+    void dissasEntityTree();
 
 protected:
 
@@ -156,10 +157,13 @@ private:
     */
     void init();
 
-    QWidget *m_view3d_container;            /**< Container */
-    QGridLayout *m_view3d_gridlayout;       /**< Layout */
+    Qt3DCore::QEntity *m_pRootEntity;           /**< Root entity */
 
-    Qt3DCore::QEntity *m_pRootEntity;       /**< Root entity */
+    /**
+    * Since parent-child connections inside the tree are based on normal pointers, we need to keep track of
+    * shared pointers in order for the reference-count mechanism to work correctly
+    */
+    QVector<QSharedPointer<Qt3DCore::QEntity> > m_vPointerStorage;
 };
 
 

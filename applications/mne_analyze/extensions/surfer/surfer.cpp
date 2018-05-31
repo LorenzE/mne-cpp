@@ -230,7 +230,7 @@ void Surfer::handleEvent(QSharedPointer<Event> e)
 {
     switch(e->getType())
     {
-    case EVENT_TYPE::EXTENSION_INIT_FINISHED:
+    case EXTENSION_INIT_FINISHED:
     {
         QVector<QSharedPointer<QEntityListModel> > availableDisplays = m_analyzeData->availableDisplays();
         if (availableDisplays.size() >= 1)
@@ -251,16 +251,8 @@ void Surfer::handleEvent(QSharedPointer<Event> e)
 QVector<EVENT_TYPE> Surfer::getEventSubscriptions(void) const
 {
     QVector<EVENT_TYPE> temp;
-    temp.push_back(EVENT_TYPE::EXTENSION_INIT_FINISHED);
+    temp.push_back(EXTENSION_INIT_FINISHED);
     return temp;
-}
-
-
-//*************************************************************************************************************
-
-void Surfer::onNewModelAvailable(QSharedPointer<AbstractModel> model)
-{
-
 }
 
 

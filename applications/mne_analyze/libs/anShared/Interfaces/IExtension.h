@@ -183,14 +183,6 @@ public slots:
     */
     virtual void handleEvent(QSharedPointer<Event> e) = 0;
 
-    //=========================================================================================================
-    /**
-     * Called by AnalyzeData whenever new models have been loaded.
-     *
-     * @param model The new model
-     */
-    virtual void onNewModelAvailable(QSharedPointer<AbstractModel> model) = 0;
-
 protected:
     QSharedPointer<AnalyzeData> m_analyzeData;              /**< Pointer to the global data base */
     QSharedPointer<AnalyzeSettings> m_analyzeSettings;      /**< Pointer to the global analyze settings */
@@ -204,7 +196,6 @@ protected:
 
 void IExtension::setGlobalData(QSharedPointer<AnalyzeData> globalData)
 {
-    QObject::connect(globalData.data(), &AnalyzeData::newModelAvailable, this, &IExtension::onNewModelAvailable);
     m_analyzeData = globalData;
 }
 

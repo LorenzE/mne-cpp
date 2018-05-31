@@ -173,4 +173,5 @@ void AnalyzeCore::onMainWindowClosed()
 {
     EventManager::getEventManager().shutdown();
     // shutdown every extension, empty analzye data etc.
+    m_pExtensionManager->shutdown();
 }

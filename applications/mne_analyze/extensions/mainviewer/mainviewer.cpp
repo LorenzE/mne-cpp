@@ -81,8 +81,11 @@ using namespace Qt3DCore;
 
 MainViewer::MainViewer()
     : m_pControl(Q_NULLPTR),
+      m_pModel(Q_NULLPTR),
       m_pView(Q_NULLPTR),
-      m_pModel(Q_NULLPTR)
+      m_pContainer(Q_NULLPTR),
+      m_pSubWindow(Q_NULLPTR),
+      m_bDisplayCreated(false)
 {
 
 }
@@ -109,9 +112,8 @@ QSharedPointer<IExtension> MainViewer::clone() const
 
 void MainViewer::init()
 {
-    if(!m_pView) {
-        m_pView = new CentralView();
-        m_pView->setWindowTitle(QStringLiteral("Main display"));
+    if(m_bDisplayCreated == false) {
+        createDisplay();
     }
 
     // create our QEntity model and register it in AnalyzeData
@@ -127,7 +129,8 @@ void MainViewer::init()
 
 void MainViewer::unload()
 {
-
+    // we need to call this to prevent double frees during shutdown
+    m_pView->dissasEntityTree();
 }
 
 
@@ -165,12 +168,12 @@ QDockWidget *MainViewer::getControl()
 
 QWidget *MainViewer::getView()
 {
-    if(!m_pView) {
-        m_pView = new CentralView();
-        m_pView->setWindowTitle(QStringLiteral("Main display"));
+    if (m_bDisplayCreated == false)
+    {
+        createDisplay();
     }
 
-    return m_pView;
+    return m_pSubWindow;
 }
 
 
@@ -192,19 +195,62 @@ QVector<EVENT_TYPE> MainViewer::getEventSubscriptions(void) const
 
 //*************************************************************************************************************
 
-void MainViewer::onNewModelAvailable(QSharedPointer<AbstractModel> model)
-{
-
-}
-
 void MainViewer::onEntityTreeAdded(const QModelIndex& index)
 {
     // retrieve data from model, extract shared pointer and pass it to view
     m_pView->addEntity(m_pModel->data(index, Qt::DisplayRole).value<QSharedPointer<QEntity> >());
+    m_pContainer->update();
 }
+
+
+//*************************************************************************************************************
 
 void MainViewer::onEntityTreeRemoved(const QString& sIdentifier)
 {
     // simply pass on to view:
     m_pView->removeEntity(sIdentifier);
+    m_pContainer->update();
+}
+
+
+//*************************************************************************************************************
+
+void MainViewer::hide()
+{
+    m_pSubWindow->hide();
+}
+
+
+//*************************************************************************************************************
+
+void MainViewer::show()
+{
+    m_pSubWindow->show();
+    // container state is not considered when this is run through a QtConnection, we need to call it explicitly
+    m_pContainer->show();
+}
+
+
+//*************************************************************************************************************
+
+void MainViewer::createDisplay()
+{
+    // a 3D window is created
+    m_pView = new CentralView();
+
+    // a container is created to contain the Qt3DWindow, then a minimum size is set
+    m_pContainer = QWidget::createWindowContainer(m_pView);
+    m_pContainer->setMinimumSize(256, 256);
+    m_pContainer->setFocusPolicy(Qt::TabFocus);
+    m_pContainer->setAttribute(Qt::WA_DeleteOnClose, false);
+
+    // we need this since the top-level main window runs "QMdiView::addSubWindow()", which requires a subwindow
+    // to be passed (if a window would be passed, QMdiView would silently create a new QMidSubWindow )
+    m_pSubWindow = new QMdiSubWindow();
+    m_pSubWindow->setWidget(m_pContainer);
+    m_pSubWindow->setWindowTitle(QString("Main Display"));
+    m_pSubWindow->setAttribute(Qt::WA_DeleteOnClose, false);
+
+    // remember that the display was built
+    m_bDisplayCreated = true;
 }

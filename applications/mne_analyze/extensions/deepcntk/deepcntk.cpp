@@ -278,14 +278,6 @@ QVector<EVENT_TYPE> DeepCNTK::getEventSubscriptions(void) const
 
 //*************************************************************************************************************
 
-void DeepCNTK::onNewModelAvailable(QSharedPointer<AbstractModel> model)
-{
-
-}
-
-
-//*************************************************************************************************************
-
 void DeepCNTK::trainingFinished()
 {
     QString configName = m_pDeepCNTKManager->currentDeepConfiguration()->getName();

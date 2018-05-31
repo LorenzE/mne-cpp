@@ -136,6 +136,13 @@ public:
     */
     inline const QVector<IExtension*>& getExtensions();
 
+    //=========================================================================================================
+    /**
+    * This is called during main-program shutdown.
+    * It simply calls the unload-method for every extension.
+    */
+    void shutdown();
+
 private:
     QVector<IExtension*>    m_qVecExtensions;       /**< Vector containing all extensions. */
 };

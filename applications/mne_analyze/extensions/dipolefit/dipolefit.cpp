@@ -150,11 +150,3 @@ QVector<EVENT_TYPE> DipoleFit::getEventSubscriptions(void) const
 {
     return QVector<EVENT_TYPE>();
 }
-
-
-//*************************************************************************************************************
-
-void DipoleFit::onNewModelAvailable(QSharedPointer<AbstractModel> model)
-{
-
-}

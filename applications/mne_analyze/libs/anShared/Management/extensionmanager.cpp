@@ -138,3 +138,14 @@ int ExtensionManager::findByName(const QString& name)
 
     return -1;
 }
+
+
+//*************************************************************************************************************
+
+void ExtensionManager::shutdown()
+{
+    for(IExtension* extension : m_qVecExtensions)
+    {
+        extension->unload();
+    }
+}

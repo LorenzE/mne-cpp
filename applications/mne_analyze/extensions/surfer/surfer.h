@@ -132,7 +132,6 @@ public:
     virtual QWidget* getView() override;
     virtual void handleEvent(QSharedPointer<ANSHAREDLIB::Event> e) override;
     virtual QVector<ANSHAREDLIB::Event::EVENT_TYPE> getEventSubscriptions() const override;
-    virtual void onNewModelAvailable(QSharedPointer<ANSHAREDLIB::AbstractModel> model) override;
 
 private:
 
