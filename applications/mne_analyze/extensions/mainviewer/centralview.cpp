@@ -97,6 +97,11 @@ void CentralView::init()
     // initialize 3D Window
     setRootEntity(m_pRootEntity);
 
+    QPickingSettings *pPickSettings = renderSettings()->pickingSettings();
+    pPickSettings->setFaceOrientationPickingMode(QPickingSettings::FrontAndBackFace);
+    pPickSettings->setPickMethod(QPickingSettings::TrianglePicking);
+    pPickSettings->setPickResultMode(QPickingSettings::NearestPick);
+
     QCamera *pCamera = camera();
     pCamera->setPosition(QVector3D(0,0,1));
 
