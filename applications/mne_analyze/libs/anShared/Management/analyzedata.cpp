@@ -88,8 +88,8 @@ QVector<QSharedPointer<AbstractModel> > AnalyzeData::getObjectsOfType(MODEL_TYPE
 {
     // simply iterate over map, number of objects in memory should be small enough
     QVector<QSharedPointer<AbstractModel> > result;
-    QHash<QString, QSharedPointer<AbstractModel> >::ConstIterator iter = m_data.begin();
-    for (; iter != m_data.end(); iter++)
+    QHash<QString, QSharedPointer<AbstractModel> >::const_iterator iter = m_data.cbegin();
+    for (; iter != m_data.cend(); iter++)
     {
         if (iter.value()->getType() == mtype)
         {
@@ -132,8 +132,8 @@ QVector<QSharedPointer<QEntityListModel> > AnalyzeData::availableDisplays() cons
 {
     // similiar to "getObjectOfType"
     QVector<QSharedPointer<QEntityListModel> > result;
-    QHash<QString, QSharedPointer<AbstractModel> >::ConstIterator iter = m_data.begin();
-    for (; iter != m_data.end(); iter++)
+    QHash<QString, QSharedPointer<AbstractModel> >::const_iterator iter = m_data.cbegin();
+    for (; iter != m_data.cend(); iter++)
     {
         if (iter.value()->getType() == MODEL_TYPE::ANSHAREDLIB_QENTITYLIST_MODEL)
         {

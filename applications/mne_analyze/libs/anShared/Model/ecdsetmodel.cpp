@@ -42,6 +42,7 @@
 
 #include "ecdsetmodel.h"
 #include "../Utils/types.h"
+#include "../Utils/metatypes.h"
 #include <inverse/dipoleFit/ecd_set.h>
 #include <inverse/dipoleFit/dipole_fit.h>
 #include <inverse/dipoleFit/dipole_fit_settings.h>

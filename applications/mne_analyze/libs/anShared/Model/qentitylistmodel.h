@@ -42,6 +42,7 @@
 // INCLUDES
 //=============================================================================================================
 
+#include "../anshared_global.h"
 #include "abstractmodel.h"
 #include "../Utils/types.h"
 
@@ -72,6 +73,7 @@ namespace Qt3DCore {
     class QEntity;
 }
 
+
 //*************************************************************************************************************
 //=============================================================================================================
 // DEFINE NAMESPACE ANSHAREDLIB
@@ -95,7 +97,7 @@ namespace ANSHAREDLIB {
 * passed whenever a new Entity is registered (since I was not able to pass a QSharedPointer using signals /slots)
 * and a QString is passed when an Entity is removed.
 */
-class QEntityListModel : public AbstractModel
+class ANSHAREDSHARED_EXPORT QEntityListModel : public AbstractModel
 {
     Q_OBJECT
 

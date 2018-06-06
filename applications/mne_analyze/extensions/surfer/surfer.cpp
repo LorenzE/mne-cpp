@@ -43,6 +43,7 @@
 #include "surfer.h"
 #include <anShared/Model/surfacemodel.h>
 #include <anShared/Data/surfacedata.h>
+#include <anShared/Model/qentitylistmodel.h>
 #include <anShared/Management/analyzedata.h>
 #include "anShared/Utils/metatypes.h"
 #include <disp3D/engine/model/3dhelpers/custommesh.h>

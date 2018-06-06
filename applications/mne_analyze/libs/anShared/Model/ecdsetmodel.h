@@ -167,7 +167,7 @@ private:
 
 inline MODEL_TYPE EcdSetModel::getType() const
 {
-    return MODEL_TYPE::INVERSE_ECDSET_MODEL;
+    return MODEL_TYPE::ANSHAREDLIB_ECDSET_MODEL;
 }
 
 
