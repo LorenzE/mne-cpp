@@ -123,6 +123,7 @@ Qt::ItemFlags EcdSetModel::flags(const QModelIndex &index) const
 
     if (index.isValid()) {
         flags |= Qt::ItemNeverHasChildren;
+        flags |= Qt::ItemIsEditable;
     }
 
     return flags;
@@ -160,6 +161,26 @@ bool EcdSetModel::hasChildren(const QModelIndex &parent) const
     return parent.isValid() ? false : (rowCount() > 0);
 }
 
+
+//*************************************************************************************************************
+
+bool EcdSetModel::setData(const QModelIndex &index, const QVariant &value, int role)
+{
+    if(!index.isValid() || index.row() >= m_ecdSet.size() || index.row() < 0) {
+        return false;
+    }
+
+    if(role == Qt::DisplayRole) {
+        if(value.canConvert<ECD>()) {
+            m_ecdSet[index.row()] = value.value<ECD>();
+            emit dataChanged(index, index, QVector<int>{role});
+            return true;
+        }
+    }
+
+    return false;
+}
+
 //*************************************************************************************************************
 
 int EcdSetModel::columnCount(const QModelIndex &parent) const
@@ -168,14 +189,6 @@ int EcdSetModel::columnCount(const QModelIndex &parent) const
 }
 
 
-
-
-//*************************************************************************************************************
-
-MODEL_TYPE EcdSetModel::getType() const
-{
-    return MODEL_TYPE::INVERSE_ECDSET_MODEL;
-}
 
 
 //*************************************************************************************************************

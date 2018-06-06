@@ -138,6 +138,8 @@ public:
     virtual QModelIndex parent(const QModelIndex &index) const override;
     virtual int rowCount(const QModelIndex &parent = QModelIndex()) const override;
     virtual bool hasChildren(const QModelIndex &parent) const override;
+    //fucntions for an editable model
+    virtual bool setData(const QModelIndex &index, const QVariant &value, int role = Qt::DisplayRole) override;
 
     //=========================================================================================================
     /**
@@ -163,6 +165,13 @@ private:
 // INLINE DEFINITIONS
 //=============================================================================================================
 
+inline MODEL_TYPE EcdSetModel::getType() const
+{
+    return MODEL_TYPE::INVERSE_ECDSET_MODEL;
+}
+
+
+//*************************************************************************************************************
 
 } // namespace ANSHAREDLIB
 

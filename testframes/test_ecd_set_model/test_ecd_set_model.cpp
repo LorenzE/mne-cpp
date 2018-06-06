@@ -83,6 +83,10 @@ private slots:
     void initTestCase();
     void testChildCounts();
     void testDataAccess();
+    void testDataChanging();
+
+    //TODO write a test for setData()
+
 
     void cleanupTestCase();
 
@@ -168,6 +172,30 @@ void TestEcdSetModel::testDataAccess()
 
     QModelIndex outOfBoundIndex = m_EcdSetModel->index(m_refEcdSet.size());
     QVERIFY(m_EcdSetModel->data(outOfBoundIndex, Qt::DisplayRole) == QVariant());
+}
+
+
+//*************************************************************************************************************
+
+void TestEcdSetModel::testDataChanging()
+{
+
+    std::cout << ">>>>>>>>>>>>>>>>>>>>>>>>> Test the changing of data >>>>>>>>>>>>>>>>>>>>>>>>>\n";
+
+    ECD testEcd = m_refEcdSet[0];
+    QModelIndex dataIndex = m_EcdSetModel->index(1);
+
+    connect(m_EcdSetModel.data(), &QAbstractItemModel::dataChanged,
+            this, [testEcd, this](const QModelIndex &TopLeft, const QModelIndex &bottomRight, const QVector<int> roles) {
+
+        QVERIFY(TopLeft == bottomRight);
+        QVERIFY(m_EcdSetModel->data(TopLeft).value<ECD>().rd == testEcd.rd);
+    });
+    bool dataWasChanged = m_EcdSetModel->setData(dataIndex,QVariant::fromValue(testEcd));
+
+    //check this to confirm that the data changed test was executed
+    QVERIFY(dataWasChanged == true);
+
 }
 
 
