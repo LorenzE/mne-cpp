@@ -42,6 +42,7 @@
 
 #include "mainviewer.h"
 #include "../../libs/anShared/Utils/metatypes.h"
+#include <iostream>
 
 
 //*************************************************************************************************************
@@ -253,4 +254,26 @@ void MainViewer::createDisplay()
 
     // remember that the display was built
     m_bDisplayCreated = true;
+}
+
+
+//*************************************************************************************************************
+
+void MainViewer::toggleVisibility(bool checked)
+{
+    if(checked)
+    {
+        // window should become visible
+        if(m_pSubWindow->isVisible() == false)
+        {
+            show();
+        }
+    }
+    else {
+        // window should become invisible
+        if(m_pSubWindow->isVisible())
+        {
+            hide();
+        }
+    }
 }
