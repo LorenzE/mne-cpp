@@ -160,7 +160,7 @@ QMenu *MainViewer::getMenu()
         m_pToggleVisibility->setStatusTip(tr(QString("Toggle " + getName() + " visibility").toStdString().c_str()));
         connect(m_pToggleVisibility, &QAction::triggered, this, &MainViewer::toggleVisibility);
         m_pMenu->addAction(m_pToggleVisibility);
-    }
+}
 
     return m_pMenu;
 }

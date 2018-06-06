@@ -98,6 +98,9 @@ MainWindow::MainWindow(QSharedPointer<ANSHAREDLIB::ExtensionManager> pExtensionM
     else {
         std::cerr << "ERROR MainWindow::MainWindow extension manager is nullptr" << std::endl;
     }
+
+    createActions(pExtensionManager);
+    createMenus();
 }
 
 
@@ -121,7 +124,7 @@ void MainWindow::closeEvent(QCloseEvent *event)
 
 //*************************************************************************************************************
 
-void MainWindow::createActions()
+void MainWindow::createActions(QSharedPointer<ANSHAREDLIB::ExtensionManager> pExtensionManager)
 {
     //File QMenu
     m_pActionOpenDataFile = new QAction(tr("&Open Fiff File"), this);
@@ -152,6 +155,20 @@ void MainWindow::createActions()
     m_pActionAbout = new QAction(tr("&About"), this);
     m_pActionAbout->setStatusTip(tr("Show the application's About box"));
     connect(m_pActionAbout, &QAction::triggered, this, &MainWindow::about);
+
+
+    // experimental
+    for(IExtension* ex : pExtensionManager->getExtensions())
+    {
+        QAction* temp = new QAction(tr(ex->getName().toStdString().c_str()));
+        temp->setCheckable(true);
+        // we assume that every extension is visible on start
+        temp->setChecked(true);
+        temp->setStatusTip(tr(QString("Toggle " + ex->getName() + " visibility").toStdString().c_str()));
+        connect(temp, &QAction::triggered, ex, &IExtension::toggleVisibility);
+        connect(ex, &IExtension::visibilityChanged, temp, &QAction::setChecked);
+        toggleExtensionVisibilities.push_back(temp);
+    }
 }
 
 
@@ -168,6 +185,14 @@ void MainWindow::createMenus(QSharedPointer<ANSHAREDLIB::ExtensionManager> pExte
     m_pMenuView->addAction(m_pActionCascade);
     m_pMenuView->addAction(m_pActionTile);
     m_pMenuView->addSeparator();
+
+    m_pSubMenuExtensions = m_pMenuView->addMenu("Extensions");
+    for(QAction* qact : toggleExtensionVisibilities)
+    {
+        m_pSubMenuExtensions->addAction(qact);
+    }
+    m_pMenuView->addSeparator();
+
     m_pMenuView->addAction(m_pActionPrint);
 
     menuBar()->addSeparator();
@@ -182,7 +207,7 @@ void MainWindow::createMenus(QSharedPointer<ANSHAREDLIB::ExtensionManager> pExte
         if(pMenu)
         {
             menuBar()->addMenu(pMenu);
-        }
+}
     }
 }
 

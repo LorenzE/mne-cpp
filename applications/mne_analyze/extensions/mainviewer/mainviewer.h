@@ -124,6 +124,7 @@ public:
     virtual QWidget* getView() override;
     virtual void handleEvent(QSharedPointer<ANSHAREDLIB::Event> e) override;
     virtual QVector<ANSHAREDLIB::EVENT_TYPE> getEventSubscriptions() const override;
+    virtual void toggleVisibility(bool checked) override;
 
 protected:
 

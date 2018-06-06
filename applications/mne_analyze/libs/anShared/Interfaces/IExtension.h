@@ -183,6 +183,11 @@ public slots:
     */
     virtual void handleEvent(QSharedPointer<Event> e) = 0;
 
+    virtual void toggleVisibility(bool checked)
+    {
+
+    }
+
 protected:
     QSharedPointer<AnalyzeData> m_analyzeData;              /**< Pointer to the global data base */
     QSharedPointer<AnalyzeSettings> m_analyzeSettings;      /**< Pointer to the global analyze settings */
