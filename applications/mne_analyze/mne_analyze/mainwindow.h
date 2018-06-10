@@ -128,8 +128,8 @@ signals:
     void mainWindowClosed();
 
 private:
-    void createActions(QSharedPointer<ANSHAREDLIB::ExtensionManager> pExtensionManager);       /**< Creates all actions for user interface of MainWindow class. */
-    void createMenus();         /**< Creates all menus for user interface of MainWindow class. */
+    void createActions();       /**< Creates all actions for user interface of MainWindow class. */
+    void createMenus(QSharedPointer<ANSHAREDLIB::ExtensionManager> pExtensionManager);         /**< Creates all menus for user interface of MainWindow class. */
     void createDockWindows(QSharedPointer<ANSHAREDLIB::ExtensionManager> pExtensionManager);   /**< Creates all dock windows for user interface of MainWindow class. */
     void createMdiView(QSharedPointer<ANSHAREDLIB::ExtensionManager> pExtensionManager);       /**< Creates all Windows within the MDI View for user interface of MainWindow class. */
 
@@ -144,9 +144,6 @@ private:
     QAction*                            m_pActionTile;              /**< view tile action */
 
     QAction*                            m_pActionAbout;             /**< show about dialog action */
-
-    QVector<QAction*> toggleExtensionVisibilities;
-    QMenu* m_pSubMenuExtensions;
 
     //Main Window Menu
     QMenu*                              m_pMenuFile;        /**< Holds the file menu.*/

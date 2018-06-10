@@ -124,7 +124,6 @@ public:
     virtual QWidget* getView() override;
     virtual void handleEvent(QSharedPointer<ANSHAREDLIB::Event> e) override;
     virtual QVector<ANSHAREDLIB::EVENT_TYPE> getEventSubscriptions() const override;
-    virtual void toggleVisibility(bool checked) override;
 
 protected:
 
@@ -168,6 +167,11 @@ private:
     */
     void createDisplay();
 
+    //=========================================================================================================
+    /**
+    * This is called when the user interacts with the QAction in the QMenu for MainViewer
+    */
+    virtual void toggleVisibility(bool checked);
 
     QDockWidget*                                    m_pControl; /**< Control Widget */
     QSharedPointer<ANSHAREDLIB::QEntityListModel>   m_pModel; /**< Other extension register their stuff here */
@@ -177,6 +181,9 @@ private:
     QWidget*                                        m_pContainer; /**< Container for wrapping 3D Window in a widget */
     QMdiSubWindow*                                  m_pSubWindow; /**< Window that wraps the container */
     bool                                            m_bDisplayCreated; /**< Flag for remembering whether or not the display was already created */
+
+    QMenu*                                          m_pMenu;
+    QAction*                                        m_pToggleVisibility;
 };
 
 

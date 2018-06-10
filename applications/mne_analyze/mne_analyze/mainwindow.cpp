@@ -92,13 +92,12 @@ MainWindow::MainWindow(QSharedPointer<ANSHAREDLIB::ExtensionManager> pExtensionM
     if(!pExtensionManager.isNull()) {
         createDockWindows(pExtensionManager);
         createMdiView(pExtensionManager);
+        createActions();
+        createMenus(pExtensionManager);
     }
     else {
         std::cerr << "ERROR MainWindow::MainWindow extension manager is nullptr" << std::endl;
     }
-
-    createActions(pExtensionManager);
-    createMenus();
 }
 
 
@@ -122,7 +121,7 @@ void MainWindow::closeEvent(QCloseEvent *event)
 
 //*************************************************************************************************************
 
-void MainWindow::createActions(QSharedPointer<ANSHAREDLIB::ExtensionManager> pExtensionManager)
+void MainWindow::createActions()
 {
     //File QMenu
     m_pActionOpenDataFile = new QAction(tr("&Open Fiff File"), this);
@@ -153,26 +152,12 @@ void MainWindow::createActions(QSharedPointer<ANSHAREDLIB::ExtensionManager> pEx
     m_pActionAbout = new QAction(tr("&About"), this);
     m_pActionAbout->setStatusTip(tr("Show the application's About box"));
     connect(m_pActionAbout, &QAction::triggered, this, &MainWindow::about);
-
-
-    // experimental
-    for(IExtension* ex : pExtensionManager->getExtensions())
-    {
-        QAction* temp = new QAction(tr(ex->getName().toStdString().c_str()));
-        temp->setCheckable(true);
-        // we assume that every extension is visible on start
-        temp->setChecked(true);
-        temp->setStatusTip(tr(QString("Toggle " + ex->getName() + " visibility").toStdString().c_str()));
-        connect(temp, &QAction::triggered, ex, &IExtension::toggleVisibility);
-        connect(ex, &IExtension::visibilityChanged, temp, &QAction::setChecked);
-        toggleExtensionVisibilities.push_back(temp);
-    }
 }
 
 
 //*************************************************************************************************************
 
-void MainWindow::createMenus()
+void MainWindow::createMenus(QSharedPointer<ANSHAREDLIB::ExtensionManager> pExtensionManager)
 {
     m_pMenuFile = menuBar()->addMenu(tr("&File"));
     m_pMenuFile->addAction(m_pActionOpenDataFile);
@@ -183,20 +168,22 @@ void MainWindow::createMenus()
     m_pMenuView->addAction(m_pActionCascade);
     m_pMenuView->addAction(m_pActionTile);
     m_pMenuView->addSeparator();
-
-    m_pSubMenuExtensions = m_pMenuView->addMenu("Extensions");
-    for(QAction* qact : toggleExtensionVisibilities)
-    {
-        m_pSubMenuExtensions->addAction(qact);
-    }
-    m_pMenuView->addSeparator();
-
     m_pMenuView->addAction(m_pActionPrint);
 
     menuBar()->addSeparator();
 
     m_pMenuHelp = menuBar()->addMenu(tr("&Help"));
     m_pMenuHelp->addAction(m_pActionAbout);
+
+    // add extensions menus
+    for(IExtension* ex : pExtensionManager->getExtensions())
+    {
+        QMenu* pMenu = ex->getMenu();
+        if(pMenu)
+        {
+            menuBar()->addMenu(pMenu);
+        }
+    }
 }
 
 

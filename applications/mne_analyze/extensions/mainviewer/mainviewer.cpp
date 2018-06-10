@@ -86,7 +86,9 @@ MainViewer::MainViewer()
       m_pView(Q_NULLPTR),
       m_pContainer(Q_NULLPTR),
       m_pSubWindow(Q_NULLPTR),
-      m_bDisplayCreated(false)
+      m_bDisplayCreated(false),
+      m_pMenu(Q_NULLPTR),
+      m_pToggleVisibility(Q_NULLPTR)
 {
 
 }
@@ -147,7 +149,20 @@ QString MainViewer::getName() const
 
 QMenu *MainViewer::getMenu()
 {
-    return Q_NULLPTR;
+    if(!m_pMenu)
+    {
+        m_pMenu = new QMenu(getName().toStdString().c_str());
+        // Action for toggling visibility
+        m_pToggleVisibility = new QAction(tr((std::string("Show ") + getName().toStdString()).c_str()));
+        m_pToggleVisibility->setCheckable(true);
+        // we assume that mainviewer is visible on start
+        m_pToggleVisibility->setChecked(true);
+        m_pToggleVisibility->setStatusTip(tr(QString("Toggle " + getName() + " visibility").toStdString().c_str()));
+        connect(m_pToggleVisibility, &QAction::triggered, this, &MainViewer::toggleVisibility);
+        m_pMenu->addAction(m_pToggleVisibility);
+    }
+
+    return m_pMenu;
 }
 
 
@@ -270,10 +285,18 @@ void MainViewer::toggleVisibility(bool checked)
         }
     }
     else {
-        // window should become invisible
+        // window should become invisible, depending on consistency of window visibility and checked-ness of
+        // the toggleVisibility action in MainViewer menu
         if(m_pSubWindow->isVisible())
         {
+            // normal case, simply hide
             hide();
+        }
+        else {
+            // user has clicked 'x'-close Button, and since we do not override m_pSubWindow's closeEvent method,
+            // we simply show the mainviewer again and set the action on checked
+            show();
+            m_pToggleVisibility->setChecked(true);
         }
     }
 }
