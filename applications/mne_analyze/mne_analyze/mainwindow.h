@@ -145,9 +145,6 @@ private:
 
     QAction*                            m_pActionAbout;             /**< show about dialog action */
 
-    QVector<QAction*> toggleExtensionVisibilities;
-    QMenu* m_pSubMenuExtensions;
-
     //Main Window Menu
     QMenu*                              m_pMenuFile;        /**< Holds the file menu.*/
     QMenu*                              m_pMenuView;        /**< Holds the view menu.*/
