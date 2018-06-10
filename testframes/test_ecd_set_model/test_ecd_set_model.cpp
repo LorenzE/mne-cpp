@@ -45,6 +45,7 @@
 #include <inverse/dipoleFit/dipole_fit.h>
 #include "../applications/mne_analyze/libs/anShared/Model/ecdsetmodel.h"
 #include "../applications/mne_analyze/libs/anShared/Utils/types.h"
+#include "../applications/mne_analyze/libs/anShared/Utils/metatypes.h"
 #include "../applications/mne_analyze/libs/anShared/Management/analyzedata.h"
 #include <iostream>
 
