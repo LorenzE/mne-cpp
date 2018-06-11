@@ -100,11 +100,7 @@ EcdSetModel::EcdSetModel(const QString &sDipFileName, QObject *pParent)
 
 QVariant EcdSetModel::data(const QModelIndex &index, int role) const
 {
-    if(!index.isValid()) {
-        return QVariant();
-    }
-
-    if(index.row() >= m_ecdSet.size() || index.row() < 0) {
+    if(!index.isValid() || index.row() >= m_ecdSet.size() || index.row() < 0) {
         return QVariant();
     }
 
@@ -182,14 +178,13 @@ bool EcdSetModel::setData(const QModelIndex &index, const QVariant &value, int r
     return false;
 }
 
+
 //*************************************************************************************************************
 
 int EcdSetModel::columnCount(const QModelIndex &parent) const
 {
     return parent.isValid() ? 0 : 1;
 }
-
-
 
 
 //*************************************************************************************************************

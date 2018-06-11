@@ -72,6 +72,7 @@ namespace INVERSELIB {
     class DipoleFitSettings;
 }
 
+
 //*************************************************************************************************************
 //=============================================================================================================
 // DEFINE NAMESPACE ANSHAREDLIB
@@ -88,9 +89,10 @@ namespace ANSHAREDLIB {
 
 //=============================================================================================================
 /**
-* Description of what this class is intended to do (in detail).
+* This model stores a Electric Current Dipole Set.
+* It uses a list model structure to access each ECD.
 *
-* @brief Brief description of this class.
+* @brief This model stores a Electric Current Dipole Set.
 */
 class ANSHAREDSHARED_EXPORT EcdSetModel : public AbstractModel
 {
