@@ -190,7 +190,7 @@ bool QEntityListModel::addEntityTree(QSharedPointer<QEntity> pTree)
         // could not find name, insert into record
         m_vData.push_back(pTree);
         // emit signal for connected display
-        emit entityTreeAdded(createIndex(0, m_vData.size() - 1));
+        emit entityTreeAdded(createIndex(m_vData.size() - 1, 0));
         return true;
     }
     else {
