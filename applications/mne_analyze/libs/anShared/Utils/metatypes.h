@@ -39,11 +39,12 @@
 
 #include <Qt3DCore/QEntity>
 #include <inverse/dipoleFit/ecd.h>
+#include <Eigen/Core>
 
 
 
 
-Q_DECLARE_METATYPE(Eigen::Vector3f)
+Q_DECLARE_METATYPE(Eigen::Vector3f);
 Q_DECLARE_METATYPE(Eigen::Vector3i);
 Q_DECLARE_METATYPE(QSharedPointer<Qt3DCore::QEntity>);
 Q_DECLARE_METATYPE(INVERSELIB::ECD);

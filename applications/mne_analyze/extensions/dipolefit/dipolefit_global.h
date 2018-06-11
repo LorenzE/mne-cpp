@@ -33,8 +33,8 @@
 *
 */
 
-#ifndef DIPOLEFIT_GLOBAL_H
-#define DIPOLEFIT_GLOBAL_H
+#ifndef DIPOLEFITEXTENSION_DIPOLEFIT_GLOBAL_H
+#define DIPOLEFITEXTENSION_DIPOLEFIT_GLOBAL_H
 
 
 //*************************************************************************************************************
@@ -56,4 +56,4 @@
 #  define DIPOLEFITSHARED_EXPORT Q_DECL_IMPORT   /**< Q_DECL_IMPORT must be added to the declarations of symbols used when compiling a client that uses the shared library. */
 #endif
 
-#endif // DIPOLEFIT_GLOBAL_H
+#endif // DIPOLEFITEEXTENSION_DIPOLEFIT_GLOBAL_H

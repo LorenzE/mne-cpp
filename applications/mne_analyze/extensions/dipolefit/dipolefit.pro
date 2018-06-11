@@ -41,7 +41,7 @@ CONFIG += plugin
 
 DEFINES += DIPOLEFIT_LIBRARY
 
-QT += gui widgets
+QT += gui widgets 3dextras
 
 TARGET = dipolefit
 CONFIG(debug, debug|release) {
@@ -54,6 +54,7 @@ CONFIG(debug, debug|release) {
             -lMNE$${MNE_LIB_VERSION}Fsd \
             -lMNE$${MNE_LIB_VERSION}Fiffd \
             -lMNE$${MNE_LIB_VERSION}Mned \
+            -lMNE$${MNE_LIB_VERSION}Inversed \
             -lanSharedd
 }
 else {
@@ -61,6 +62,7 @@ else {
             -lMNE$${MNE_LIB_VERSION}Fs \
             -lMNE$${MNE_LIB_VERSION}Fiff \
             -lMNE$${MNE_LIB_VERSION}Mne \
+            -lMNE$${MNE_LIB_VERSION}Inverse \
             -lanShared
 }
 
