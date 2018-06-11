@@ -46,6 +46,7 @@
 #include "dipolefit_global.h"
 
 #include <anShared/Interfaces/IExtension.h>
+#include <inverse/dipoleFit/dipole_fit_settings.h>
 
 
 //*************************************************************************************************************
@@ -63,6 +64,10 @@
 //=============================================================================================================
 
 class DipoleFitControl;
+
+namespace INVERSELIB {
+    class DipoleFitSettings;
+}
 
 namespace ANSHAREDLIB {
     class Communicator;
@@ -128,9 +133,32 @@ public:
     virtual void handleEvent(QSharedPointer<ANSHAREDLIB::Event> e) override;
     virtual QVector<ANSHAREDLIB::EVENT_TYPE> getEventSubscriptions() const override;
 
+signals:
+    void measFilePathChanged(const QString &path);
+    void settingIsRawChanged(bool value);
+    void settingSetNumChanged(int setNum);
+    void settingIncludeMegChanged(bool value);
+    void settingIncludeEegChanged(bool value);
+    void settingTMaxChanged(double value);
+    void settingTMinChanged(double value);
+    void settingBMaxChanged(double value);
+    void settingBMinChanged(double value);
+
 protected:
 
 private:
+
+    void onBrowseButtonClicked();
+
+    void setSettingIsRaw(bool value);
+    void setSettingSetNum(int value);
+    void setSettingIncludeMeg(bool value);
+    void setSettingIncludeEeg(bool value);
+    void setSettingTMax(double value);
+    void setSettingTMin(double value);
+    void setSettingBMax(double value);
+    void setSettingBMin(double value);
+
     // Control
     QDockWidget*        m_pControl;             /**< Control Widget */
     DipoleFitControl*   m_pDipoleFitControl;    /**< The Dipole Fit Control Widget */
@@ -139,6 +167,18 @@ private:
 
     QSharedPointer<ANSHAREDLIB::EcdSetModel> m_pEcdSetModel;
     QSharedPointer<Qt3DCore::QEntity> m_pDipoleRoot;
+
+    //Dipole settings
+    INVERSELIB::DipoleFitSettings m_dipoleSettings;
+    QString m_sMeasFilePath;
+    bool m_bDipolSettIsRaw;
+    int m_iDipolSettSetNum;
+    bool m_bDipolSettIncMeg;
+    bool m_bDipolSettIncEeg;
+    double m_dDipolSettTMax;
+    double m_dDipolSettTMin;
+    double m_dDipolSettBMax;
+    double m_dDipolSettBMin;
 };
 
 } // NAMESPACE

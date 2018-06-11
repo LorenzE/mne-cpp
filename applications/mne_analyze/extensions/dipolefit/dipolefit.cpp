@@ -57,6 +57,7 @@
 #include <Qt3DExtras/QConeMesh>
 #include <Qt3DExtras/QPhongMaterial>
 #include <Qt3DCore/QTransform>
+#include <QFileDialog>
 
 
 //*************************************************************************************************************
@@ -105,6 +106,35 @@ QSharedPointer<IExtension> DipoleFit::clone() const
 void DipoleFit::init()
 {
     m_pDipoleFitControl = new DipoleFitControl;
+    connect(m_pDipoleFitControl, &DipoleFitControl::browseButtonClicked,
+            this, &DipoleFit::onBrowseButtonClicked);
+    connect(this, &DipoleFit::measFilePathChanged,
+            m_pDipoleFitControl, &DipoleFitControl::setMeasFilePath);
+    connect(this, &DipoleFit::settingIsRawChanged,
+            m_pDipoleFitControl, &DipoleFitControl::setUseRaw);
+    connect(this, &DipoleFit::settingSetNumChanged,
+            m_pDipoleFitControl, &DipoleFitControl::setSetNumber);
+    connect(this, &DipoleFit::settingIncludeMegChanged,
+            m_pDipoleFitControl, &DipoleFitControl::setIncludeMeg);
+    connect(this, &DipoleFit::settingIncludeEegChanged,
+            m_pDipoleFitControl, &DipoleFitControl::setIncludeEeg);
+    connect(this, &DipoleFit::settingTMaxChanged,
+            m_pDipoleFitControl, &DipoleFitControl::setTMax);
+    connect(this, &DipoleFit::settingTMinChanged,
+            m_pDipoleFitControl, &DipoleFitControl::setTMin);
+    connect(this, &DipoleFit::settingBMaxChanged,
+            m_pDipoleFitControl, &DipoleFitControl::setBMax);
+    connect(this, &DipoleFit::settingBMinChanged,
+            m_pDipoleFitControl, &DipoleFitControl::setBMin);
+
+    setSettingIsRaw(false);
+    setSettingSetNum(1);
+    setSettingIncludeMeg(true);
+    setSettingIncludeEeg(true);
+    setSettingTMax(148.0f/1000.0f);
+    setSettingTMin(32.0f/1000.0f);
+    setSettingBMax(0.0f/1000.0f);
+    setSettingBMin(-100.0f/1000.0f);
 
     // connect to event system, since we need to know when we can register our 3D stuff in a display view
     m_pCommu = new Communicator(this);
@@ -112,18 +142,19 @@ void DipoleFit::init()
     //TODO load the model with analyzeData
     QFile testFile;
 
+
     //Following is equivalent to: --meas ./mne-cpp-test-data/MEG/sample/sample_audvis-ave.fif --set 1 --meg --eeg --tmin 32 --tmax 148 --bmin -100 --bmax 0 --dip ./mne-cpp-test-data/Result/dip_fit.dat
     DipoleFitSettings settings;
     testFile.setFileName(QDir::currentPath()+"/MNE-sample-data/MEG/sample/sample_audvis-ave.fif");
     settings.measname = testFile.fileName();
-    settings.is_raw = false;
-    settings.setno = 1;
-    settings.include_meg = true;
-    settings.include_eeg = true;
-    settings.tmin = 32.0f/1000.0f;
-    settings.tmax = 148.0f/1000.0f;
-    settings.bmin = -100.0f/1000.0f;
-    settings.bmax = 0.0f/1000.0f;
+    settings.is_raw = m_bDipolSettIsRaw;
+    settings.setno = m_iDipolSettSetNum;
+    settings.include_meg = m_bDipolSettIncMeg;
+    settings.include_eeg = m_bDipolSettIncEeg;
+    settings.tmin = m_dDipolSettTMin;
+    settings.tmax = m_dDipolSettTMax;
+    settings.bmin = m_dDipolSettBMin;
+    settings.bmax = m_dDipolSettBMax;
     settings.dipname = QDir::currentPath()+"/MNE-sample-data/Result/dip_fit.dat";
 
     settings.checkIntegrity();
@@ -258,6 +289,93 @@ QVector<EVENT_TYPE> DipoleFit::getEventSubscriptions(void) const
 {
     QVector<EVENT_TYPE> temp {EXTENSION_INIT_FINISHED};
     return temp;
+}
+
+
+//*************************************************************************************************************
+
+void DipoleFit::onBrowseButtonClicked()
+{
+    qDebug() <<"browse clicked";
+    //Get the path
+    QString filePath = QFileDialog::getOpenFileName(m_pDipoleFitControl,
+                                tr("Open File"),
+                                QDir::currentPath()+"/MNE-sample-data",
+                                tr("fif File(*.fif)"));
+    if(!filePath.isNull()) {
+        m_sMeasFilePath = filePath;
+        emit measFilePathChanged(m_sMeasFilePath);
+    }
+}
+
+
+//*************************************************************************************************************
+
+void DipoleFit::setSettingIsRaw(bool value)
+{
+    m_bDipolSettIsRaw = value;
+    emit settingIsRawChanged(m_bDipolSettIsRaw);
+}
+
+
+//*************************************************************************************************************
+
+void DipoleFit::setSettingSetNum(int value)
+{
+    m_iDipolSettSetNum = value;
+    emit settingSetNumChanged(m_iDipolSettSetNum);
+}
+
+
+//*************************************************************************************************************
+
+void DipoleFit::setSettingIncludeMeg(bool value)
+{
+    m_bDipolSettIncMeg = value;
+    emit settingIncludeMegChanged(m_bDipolSettIncMeg);
+}
+
+
+//*************************************************************************************************************
+
+void DipoleFit::setSettingIncludeEeg(bool value)
+{
+    m_bDipolSettIncEeg = value;
+    emit settingIncludeEegChanged(m_bDipolSettIncEeg);
+}
+
+
+//*************************************************************************************************************
+
+void DipoleFit::setSettingTMax(double value)
+{
+    m_dDipolSettTMax = value;
+    emit settingTMaxChanged(value);
+}
+
+
+//*************************************************************************************************************
+
+void DipoleFit::setSettingTMin(double value)
+{
+    m_dDipolSettTMin = value;
+    emit settingTMinChanged(value);
+}
+
+
+//*************************************************************************************************************
+void DipoleFit::setSettingBMax(double value)
+{
+    m_dDipolSettBMax = value;
+    emit settingBMaxChanged(value);
+}
+
+
+//*************************************************************************************************************
+void DipoleFit::setSettingBMin(double value)
+{
+    m_dDipolSettBMin = value;
+    emit settingBMinChanged(value);
 }
 
 
