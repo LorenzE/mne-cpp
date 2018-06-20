@@ -38,6 +38,18 @@ signals:
 
     void browseButtonClicked();
 
+    //value changed signals
+    void useRawCheckStateChanged(bool checkState);
+
+    void setNumChanged(int setNum);
+
+    void includeMegChanged(bool checkState);
+    void includeEegChanged(bool checkState);
+    void tMaxChanged(double value);
+    void tMinChanged(double value);
+    void bMaxChanged(double value);
+    void bMinChanged(double value);
+
 private slots:
     //=========================================================================================================
     /**
@@ -50,6 +62,15 @@ private slots:
     * Called when browse button was pressed.
     */
     void on_m_qPushButtonBrowseMeasurementPath_released();
+
+    void on_m_qCheckBoxUseRaw_stateChanged(int state);
+    void on_m_qSpinBoxSetNumber_valueChanged(int value);
+    void on_m_qCheckBoxIncludeMeg_stateChanged(int state);
+    void on_m_qCheckBoxIncludeEeg_stateChanged(int state);
+    void on_m_qDoubleSpinBoxTMax_valueChanged(double value);
+    void on_m_qDoubleSpinBoxTMin_valueChanged(double value);
+    void on_m_qDoubleSpinBoxBMax_valueChanged(double value);
+    void on_m_qDoubleSpinBoxBMin_valueChanged(double value);
 
 private:
     Ui::DipoleFitControl *ui;

@@ -22,8 +22,7 @@ void DipoleFitControl::setMeasFilePath(const QString &path)
 
 void DipoleFitControl::setUseRaw(bool value)
 {
-    //TODO
-    //ui->m_qComboBoxUseRaw->set
+    ui->m_qCheckBoxUseRaw->setChecked(value);
 }
 
 void DipoleFitControl::setSetNumber(int number)
@@ -69,4 +68,59 @@ void DipoleFitControl::on_m_qPushButtonFit_released()
 void DipoleFitControl::on_m_qPushButtonBrowseMeasurementPath_released()
 {
     emit browseButtonClicked();
+}
+
+void DipoleFitControl::on_m_qCheckBoxUseRaw_stateChanged(int state)
+{
+    if(state == Qt::CheckState::Checked) {
+        emit useRawCheckStateChanged(true);
+    }
+    else if(state == Qt::CheckState::Unchecked) {
+        emit useRawCheckStateChanged(false);
+    }
+}
+
+void DipoleFitControl::on_m_qSpinBoxSetNumber_valueChanged(int value)
+{
+    emit setNumChanged(value);
+}
+
+void DipoleFitControl::on_m_qCheckBoxIncludeMeg_stateChanged(int state)
+{
+    if(state == Qt::CheckState::Checked) {
+        emit includeMegChanged(true);
+    }
+    else if(state == Qt::CheckState::Unchecked) {
+        emit includeMegChanged(false);
+    }
+}
+
+void DipoleFitControl::on_m_qCheckBoxIncludeEeg_stateChanged(int state)
+{
+    if(state == Qt::CheckState::Checked) {
+        emit includeEegChanged(true);
+    }
+    else if(state == Qt::CheckState::Unchecked) {
+        emit includeEegChanged(false);
+    }
+}
+
+void DipoleFitControl::on_m_qDoubleSpinBoxTMax_valueChanged(double value)
+{
+    emit tMaxChanged(value);
+}
+
+void DipoleFitControl::on_m_qDoubleSpinBoxTMin_valueChanged(double value)
+{
+    emit tMinChanged(value);
+}
+
+void DipoleFitControl::on_m_qDoubleSpinBoxBMax_valueChanged(double value)
+{
+    emit bMaxChanged(value);
+}
+
+void DipoleFitControl::on_m_qDoubleSpinBoxBMin_valueChanged(double value)
+{
+    emit bMinChanged(value);
 }
