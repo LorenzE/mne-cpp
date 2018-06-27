@@ -92,6 +92,25 @@ class ANSHAREDSHARED_EXPORT AbstractModel : public QAbstractItemModel
 {
     Q_OBJECT
 
+    //=========================================================================================================
+    /**
+    * This Structure is used to store the complete model path.
+    * The path has uses the following pattern:
+    *   sDirectoryPath/sModelName
+    */
+    struct ModelPath {
+        ModelPath() {
+            sDirectoryPath = QStringLiteral("");
+            sModelName = QStringLiteral("");
+        }
+        ModelPath(const QString &completePath) {
+            sModelName = completePath.section('/', -1);
+            sDirectoryPath = completePath.left(completePath.size() - sModelName.size());
+        }
+        QString sDirectoryPath;
+        QString sModelName;
+    };
+
 public:
     typedef QSharedPointer<AbstractModel> SPtr;            /**< Shared pointer type for AbstractModel. */
     typedef QSharedPointer<const AbstractModel> ConstSPtr; /**< Const shared pointer type for AbstractModel. */
@@ -102,6 +121,14 @@ public:
     */
     AbstractModel(QObject *pParent = nullptr)
         : QAbstractItemModel(pParent) {}
+
+    //=========================================================================================================
+    /**
+    * Constructs a AbstractModel object. It initializes the model path and passes potential parent object to super class.
+    */
+    AbstractModel(const QString &sPath, QObject *pParent = nullptr)
+        : QAbstractItemModel(pParent)
+        , m_modelPath(ModelPath(sPath)) {}
 
     //=========================================================================================================
     /**
@@ -118,6 +145,20 @@ public:
     virtual inline MODEL_TYPE getType() const = 0;
 
     //=========================================================================================================
+    /**
+    * Returns the a unique path for this model.
+    * If the model does not have an directory path a temporary path is used.
+    * Temporary path: MODELTYPE/ModelName
+    */
+    virtual inline QString getModelPath() const;
+
+    //=========================================================================================================
+    /**
+    * Returns name of the model. The name is not unique!
+    */
+    virtual inline QString getModelName() const;
+
+    //=========================================================================================================
     // Inherited by QAbstractItemModel:
     virtual QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override = 0;
     virtual Qt::ItemFlags flags(const QModelIndex &index) const override = 0;
@@ -130,7 +171,9 @@ protected:
 
 private:
 
+    ModelPath m_modelPath;
 };
+
 
 
 //*************************************************************************************************************
@@ -138,6 +181,18 @@ private:
 // INLINE DEFINITIONS
 //=============================================================================================================
 
+QString AbstractModel::getModelPath() const
+{
+    return m_modelPath.sDirectoryPath + m_modelPath.sModelName;
+}
+
+
+//*************************************************************************************************************
+
+QString AbstractModel::getModelName() const
+{
+    return m_modelPath.sModelName;
+}
 
 } // namespace ANSHAREDLIB
 
