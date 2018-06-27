@@ -68,6 +68,10 @@ namespace Qt3DCore {
     class QEntity;
 }
 
+namespace INVERSELIB {
+    class DipoleFitSettings;
+}
+
 
 //*************************************************************************************************************
 //=============================================================================================================
@@ -76,6 +80,7 @@ namespace Qt3DCore {
 
 namespace ANSHAREDLIB
 {
+    class EcdSetModel;
 
 
 //*************************************************************************************************************
@@ -118,6 +123,17 @@ public:
     * @return                       Vector of models that have the specified type
     */
     QVector<QSharedPointer<AbstractModel> > getObjectsOfType(MODEL_TYPE mtype);
+
+    //=========================================================================================================
+    /**
+    * Returns the requested model.
+    * If the path name is not used a nullptr is returned.
+    *
+    * @param[in] name               Model name
+    *
+    * @return                       Pointer to the model
+    */
+    QSharedPointer<AbstractModel> getModel(const QString &name);
 
     //=========================================================================================================
     /**
@@ -165,6 +181,28 @@ public:
     * @return                       SurfaceModel that contains the specified surface
     */
     QSharedPointer<SurfaceModel> loadSurfaceModel(const QString &subject_id, qint32 hemi, const QString &surf, const QString &subjects_dir);
+
+    //=========================================================================================================
+    /**
+    * Loads a ECD set from the specified filepath (only if the object is not loaded yet)
+    *
+    * @param[in] path               The path of the object to load
+    *
+    * @return                       EcdSetModel that contains the specified surface
+    */
+    QSharedPointer<EcdSetModel> loadEcdSetModel(const QString &path);
+
+    //=========================================================================================================
+    /**
+    * Creates a ECD set from the specified settings (only if the DIP path is not used yes).
+    * The function returns a nullptr when model loading fails.
+    *
+    * @param[in] pSettings          The settings used to construct the model.
+    * @param[in] sPath              The path where the Model is saved.
+    *
+    * @return                       EcdSetModel that contains the specified ECD set.
+    */
+    QSharedPointer<EcdSetModel> loadEcdSetModel(INVERSELIB::DipoleFitSettings *pSettings, const QString &sPath);
 
     //=========================================================================================================
     /**

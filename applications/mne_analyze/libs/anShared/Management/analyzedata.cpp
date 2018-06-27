@@ -41,6 +41,8 @@
 //=============================================================================================================
 
 #include "analyzedata.h"
+#include "../Model/ecdsetmodel.h"
+#include <inverse/dipoleFit/dipole_fit_settings.h>
 
 
 //*************************************************************************************************************
@@ -102,6 +104,14 @@ QVector<QSharedPointer<AbstractModel> > AnalyzeData::getObjectsOfType(MODEL_TYPE
 
 //*************************************************************************************************************
 
+QSharedPointer<AbstractModel> AnalyzeData::getModel(const QString &name)
+{
+    return m_data[name];
+}
+
+
+//*************************************************************************************************************
+
 QSharedPointer<SurfaceModel> AnalyzeData::loadSurfaceModel(const QString& path)
 {
     return loadModel<SurfaceModel>(path);
@@ -115,6 +125,33 @@ QSharedPointer<SurfaceModel> AnalyzeData::loadSurfaceModel(const QString &subjec
     // copied from Surface::read
     QString p_sFile = QString("%1/%2/surf/%3.%4").arg(subjects_dir).arg(subject_id).arg(hemi == 0 ? "lh" : "rh").arg(surf);
     return loadSurfaceModel(p_sFile);
+}
+
+
+//*************************************************************************************************************
+
+QSharedPointer<EcdSetModel> AnalyzeData::loadEcdSetModel(const QString &path)
+{
+    return loadModel<EcdSetModel>(path);
+}
+
+
+//*************************************************************************************************************
+
+QSharedPointer<EcdSetModel> AnalyzeData::loadEcdSetModel(INVERSELIB::DipoleFitSettings *pSettings, const QString &sPath)
+{
+    if(pSettings == nullptr || sPath.isEmpty()) {
+        qDebug() << "ERROR: AnalyzeData::loadEcdSetModel: could not load model!";
+        return QSharedPointer<EcdSetModel>();
+    }
+    if (m_data.contains(sPath)) {
+        return qSharedPointerDynamicCast<EcdSetModel>(m_data.value(sPath));
+    }
+
+    QSharedPointer<EcdSetModel> pModel = QSharedPointer<EcdSetModel>::create(pSettings, sPath);
+    m_data.insert(sPath, pModel);
+    emit newModelAvailable(pModel);
+    return pModel;
 }
 
 
