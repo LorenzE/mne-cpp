@@ -363,7 +363,7 @@ void Surfer::updateSurfaceModelMesh()
     Eigen::MatrixX3f colors;
     int rows = m_pSurfaceModel->columnCount(m_pSurfaceModel->index(0, 0, QModelIndex()));
     colors.resize(rows, 3);
-    colors.setConstant(rows, 3, 0.6);
+    colors.setConstant(rows, 3, 0.6f);
     m_pSurfaceMesh->setColor(colors);
 }
 

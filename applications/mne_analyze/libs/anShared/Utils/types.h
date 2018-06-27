@@ -71,6 +71,13 @@ namespace ANSHAREDLIB
 {
     //=========================================================================================================
     /**
+    * The following directory paths are only imaginary.
+    * They should be used for models that are not stored to the file system yet.
+    */
+    #define ECD_SET_MODEL_DEFAULT_DIR_PATH  QStringLiteral("*ECDSETMODEL/")
+
+    //=========================================================================================================
+    /**
     * The MODEL_TYPE enum lists all available model types.
     * Naming convention: NAMESPACE_CLASSNAME_MODEL
     */
