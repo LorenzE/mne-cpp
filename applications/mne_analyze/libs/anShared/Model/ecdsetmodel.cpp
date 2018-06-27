@@ -80,9 +80,10 @@ using namespace INVERSELIB;
 // DEFINE MEMBER METHODS
 //=============================================================================================================
 
-EcdSetModel::EcdSetModel(DipoleFitSettings *pDipolSettings, QObject *pParent)
-    :AbstractModel(pParent)
+EcdSetModel::EcdSetModel(DipoleFitSettings *pDipolSettings, const QString &sPath, QObject *pParent)
+    : AbstractModel(sPath, pParent)
 {
+    pDipolSettings->checkIntegrity();
     DipoleFit dipFit(pDipolSettings);
     m_ecdSet = dipFit.calculateFit();
 }

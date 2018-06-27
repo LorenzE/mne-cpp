@@ -113,9 +113,10 @@ public:
     * Constructs a EcdSetModel object from DipoleFitSettings.
     *
     * @param[in] pDipolSettings     The settings used for construction.
+    * @param[in] sPath              The path where the model is stored.
     * @param[in] pParent            Pointer to the parent object.
     */
-    EcdSetModel(INVERSELIB::DipoleFitSettings *pDipolSettings, QObject *pParent = nullptr);
+    EcdSetModel(INVERSELIB::DipoleFitSettings *pDipolSettings, const QString &sPath, QObject *pParent = nullptr);
 
     //=========================================================================================================
     /**
