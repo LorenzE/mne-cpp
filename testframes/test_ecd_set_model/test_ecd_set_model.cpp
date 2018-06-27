@@ -85,6 +85,7 @@ private slots:
     void testChildCounts();
     void testDataAccess();
     void testDataChanging();
+    void testModelName();
 
     //TODO write a test for setData()
 
@@ -94,7 +95,8 @@ private slots:
 private:
     ECDSet m_refEcdSet;
     QSharedPointer<EcdSetModel> m_EcdSetModel;
-    //AnalyzeData* m_analyzeData;
+    QString m_sModelDirPath;
+    QString m_sModelName;
 };
 
 //*************************************************************************************************************
@@ -108,6 +110,9 @@ TestEcdSetModel::TestEcdSetModel()
 
 void TestEcdSetModel::initTestCase()
 {
+    m_sModelDirPath = ECD_SET_MODEL_DEFAULT_DIR_PATH;
+    m_sModelName = QStringLiteral("Test_Model");
+
     // Dipole Fit Settings
 
     QFile testFile;
@@ -130,10 +135,12 @@ void TestEcdSetModel::initTestCase()
     settings.checkIntegrity();
 
     // create Model
-    m_EcdSetModel = QSharedPointer<EcdSetModel>::create(&settings);
+    m_EcdSetModel = QSharedPointer<EcdSetModel>::create(&settings, m_sModelDirPath + m_sModelName);
 
     DipoleFit dipFit(&settings);
     m_refEcdSet = dipFit.calculateFit();
+
+
 }
 
 
@@ -197,6 +204,17 @@ void TestEcdSetModel::testDataChanging()
     //check this to confirm that the data changed test was executed
     QVERIFY(dataWasChanged == true);
 
+}
+
+
+//*************************************************************************************************************
+
+void TestEcdSetModel::testModelName()
+{
+    std::cout << ">>>>>>>>>>>>>>>>>>>>>>>>> Test model name and path >>>>>>>>>>>>>>>>>>>>>>>>>\n";
+
+    QVERIFY(m_EcdSetModel->getModelName() == m_sModelName);
+    QVERIFY(m_EcdSetModel->getModelPath() == m_sModelDirPath + m_sModelName);
 }
 
 
