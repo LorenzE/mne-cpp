@@ -42,10 +42,13 @@
 
 #include "dipolefit.h"
 #include "FormFiles/dipolefitcontrol.h"
+#include <anShared/Data/dipolefitsettingswrapper.h>
 #include <inverse/dipoleFit/dipole_fit_settings.h>
 #include <anShared/Management/communicator.h>
 #include <anShared/Model/ecdsetmodel.h>
 #include <anShared/Utils/metatypes.h>
+
+#include <algorithm>
 
 
 //*************************************************************************************************************
@@ -105,63 +108,37 @@ QSharedPointer<IExtension> DipoleFit::clone() const
 
 void DipoleFit::init()
 {
-    m_pDipoleFitControl = new DipoleFitControl;
-    connect(m_pDipoleFitControl, &DipoleFitControl::browseButtonClicked,
-            this, &DipoleFit::onBrowseButtonClicked);
-    connect(this, &DipoleFit::measFilePathChanged,
-            m_pDipoleFitControl, &DipoleFitControl::setMeasFilePath);
-    connect(this, &DipoleFit::settingIsRawChanged,
-            m_pDipoleFitControl, &DipoleFitControl::setUseRaw);
-    connect(this, &DipoleFit::settingSetNumChanged,
-            m_pDipoleFitControl, &DipoleFitControl::setSetNumber);
-    connect(this, &DipoleFit::settingIncludeMegChanged,
-            m_pDipoleFitControl, &DipoleFitControl::setIncludeMeg);
-    connect(this, &DipoleFit::settingIncludeEegChanged,
-            m_pDipoleFitControl, &DipoleFitControl::setIncludeEeg);
-    connect(this, &DipoleFit::settingTMaxChanged,
-            m_pDipoleFitControl, &DipoleFitControl::setTMax);
-    connect(this, &DipoleFit::settingTMinChanged,
-            m_pDipoleFitControl, &DipoleFitControl::setTMin);
-    connect(this, &DipoleFit::settingBMaxChanged,
-            m_pDipoleFitControl, &DipoleFitControl::setBMax);
-    connect(this, &DipoleFit::settingBMinChanged,
-            m_pDipoleFitControl, &DipoleFitControl::setBMin);
-
-    setSettingIsRaw(false);
-    setSettingSetNum(1);
-    setSettingIncludeMeg(true);
-    setSettingIncludeEeg(true);
-    setSettingTMax(148.0f/1000.0f);
-    setSettingTMin(32.0f/1000.0f);
-    setSettingBMax(0.0f/1000.0f);
-    setSettingBMin(-100.0f/1000.0f);
-
     // connect to event system, since we need to know when we can register our 3D stuff in a display view
     m_pCommu = new Communicator(this);
+
+    m_pDipoleFitControl = new DipoleFitControl;
+
+    initGuiConnections();
+
+    connect(m_analyzeData.data(), &AnalyzeData::newModelAvailable,
+            this, &DipoleFit::onNewModelAvalible);
 
     //TODO load the model with analyzeData
     QFile testFile;
 
-
     //Following is equivalent to: --meas ./mne-cpp-test-data/MEG/sample/sample_audvis-ave.fif --set 1 --meg --eeg --tmin 32 --tmax 148 --bmin -100 --bmax 0 --dip ./mne-cpp-test-data/Result/dip_fit.dat
-    DipoleFitSettings settings;
     testFile.setFileName(QDir::currentPath()+"/MNE-sample-data/MEG/sample/sample_audvis-ave.fif");
-    settings.measname = testFile.fileName();
-    settings.is_raw = m_bDipolSettIsRaw;
-    settings.setno = m_iDipolSettSetNum;
-    settings.include_meg = m_bDipolSettIncMeg;
-    settings.include_eeg = m_bDipolSettIncEeg;
-    settings.tmin = m_dDipolSettTMin;
-    settings.tmax = m_dDipolSettTMax;
-    settings.bmin = m_dDipolSettBMin;
-    settings.bmax = m_dDipolSettBMax;
-    settings.dipname = QDir::currentPath()+"/MNE-sample-data/Result/dip_fit.dat";
 
-    settings.checkIntegrity();
+    m_dipoleSettings.setMeasurementFilePath(testFile.fileName());
+    m_dipoleSettings.setIsRaw(false);
+    m_dipoleSettings.setSetNum(1);
+    m_dipoleSettings.setIncludeMeg(true);
+    m_dipoleSettings.setIncludeEeg(true);
+    m_dipoleSettings.setTMax(148.0f/1000.0f);
+    m_dipoleSettings.setTMin(32.0f/1000.0f);
+    m_dipoleSettings.setBMax(0.0f/1000.0f);
+    m_dipoleSettings.setBMin(-100.0f/1000.0f);
+    m_dipoleSettings.setDipPath(QDir::currentPath()+"/MNE-sample-data/Result/dip_fit.dat");
 
     // create Model
-    m_pEcdSetModel = QSharedPointer<EcdSetModel>::create(&settings);
+    m_pActiveEcdSetModel = m_analyzeData->loadEcdSetModel(m_dipoleSettings.getSettings(), ECD_SET_MODEL_DEFAULT_DIR_PATH + QStringLiteral("Test"));
 
+    qDebug() << "DipoleFit: EcdSetModel size: " << m_pActiveEcdSetModel->rowCount();
 
     //Build the QEntity Tree
     m_pDipoleRoot = QSharedPointer<QEntity>::create();
@@ -171,9 +148,9 @@ void DipoleFit::init()
     from = QVector3D(0.0, 1.0, 0.0);
     double norm;
 
-    for(int i = 0; i < m_pEcdSetModel->rowCount(); ++i) {
-        QModelIndex dataIndex = m_pEcdSetModel->index(i);
-        INVERSELIB::ECD tempEcd = m_pEcdSetModel->data(dataIndex, Qt::DisplayRole).value<INVERSELIB::ECD>();
+    for(int i = 0; i < m_pActiveEcdSetModel->rowCount(); ++i) {
+        QModelIndex dataIndex = m_pActiveEcdSetModel->index(i);
+        INVERSELIB::ECD tempEcd = m_pActiveEcdSetModel->data(dataIndex, Qt::DisplayRole).value<INVERSELIB::ECD>();
 
         pos.setX(tempEcd.rd(0));
         pos.setY(tempEcd.rd(1));
@@ -294,6 +271,57 @@ QVector<EVENT_TYPE> DipoleFit::getEventSubscriptions(void) const
 
 //*************************************************************************************************************
 
+void DipoleFit::initGuiConnections()
+{
+    connect(m_pDipoleFitControl, &DipoleFitControl::browseButtonClicked,
+            this, &DipoleFit::onBrowseButtonClicked);
+    connect(m_pDipoleFitControl, &DipoleFitControl::fitButtonClicked,
+            this, &DipoleFit::onFitButtonClicked);
+    connect(m_pDipoleFitControl, &DipoleFitControl::activeModelSelected,
+            this, &DipoleFit::onActiveModelSelected);
+
+    //make output to gui connections
+    connect(&m_dipoleSettings, &DipoleFitSettingsWrapper::measurementFilePathChanged,
+            m_pDipoleFitControl, &DipoleFitControl::setMeasFilePath);
+    connect(&m_dipoleSettings, &DipoleFitSettingsWrapper::isRawChanged,
+            m_pDipoleFitControl, &DipoleFitControl::setUseRaw);
+    connect(&m_dipoleSettings, &DipoleFitSettingsWrapper::setNumChanged,
+            m_pDipoleFitControl, &DipoleFitControl::setSetNumber);
+    connect(&m_dipoleSettings, &DipoleFitSettingsWrapper::includeMegChanged,
+            m_pDipoleFitControl, &DipoleFitControl::setIncludeMeg);
+    connect(&m_dipoleSettings, &DipoleFitSettingsWrapper::includeEegChanged,
+            m_pDipoleFitControl, &DipoleFitControl::setIncludeEeg);
+    connect(&m_dipoleSettings, &DipoleFitSettingsWrapper::tMaxChanged,
+            m_pDipoleFitControl, &DipoleFitControl::setTMax);
+    connect(&m_dipoleSettings, &DipoleFitSettingsWrapper::tMinChanged,
+            m_pDipoleFitControl, &DipoleFitControl::setTMin);
+    connect(&m_dipoleSettings, &DipoleFitSettingsWrapper::bMaxChanged,
+            m_pDipoleFitControl, &DipoleFitControl::setBMax);
+    connect(&m_dipoleSettings, &DipoleFitSettingsWrapper::bMinChanged,
+            m_pDipoleFitControl, &DipoleFitControl::setBMin);
+
+    //make input from gui connections
+    connect(m_pDipoleFitControl, &DipoleFitControl::useRawCheckStateChanged,
+            &m_dipoleSettings, &DipoleFitSettingsWrapper::setIsRaw);
+    connect(m_pDipoleFitControl, &DipoleFitControl::setNumChanged,
+            &m_dipoleSettings, &DipoleFitSettingsWrapper::setSetNum);
+    connect(m_pDipoleFitControl, &DipoleFitControl::includeMegChanged,
+            &m_dipoleSettings, &DipoleFitSettingsWrapper::setIncludeMeg);
+    connect(m_pDipoleFitControl, &DipoleFitControl::includeEegChanged,
+            &m_dipoleSettings, &DipoleFitSettingsWrapper::setIncludeEeg);
+    connect(m_pDipoleFitControl, &DipoleFitControl::tMaxChanged,
+            &m_dipoleSettings, &DipoleFitSettingsWrapper::setTMax);
+    connect(m_pDipoleFitControl, &DipoleFitControl::tMinChanged,
+            &m_dipoleSettings, &DipoleFitSettingsWrapper::setTMin);
+    connect(m_pDipoleFitControl, &DipoleFitControl::bMaxChanged,
+            &m_dipoleSettings, &DipoleFitSettingsWrapper::setBMax);
+    connect(m_pDipoleFitControl, &DipoleFitControl::bMinChanged,
+            &m_dipoleSettings, &DipoleFitSettingsWrapper::setBMin);
+}
+
+
+//*************************************************************************************************************
+
 void DipoleFit::onBrowseButtonClicked()
 {
     qDebug() <<"browse clicked";
@@ -303,79 +331,55 @@ void DipoleFit::onBrowseButtonClicked()
                                 QDir::currentPath()+"/MNE-sample-data",
                                 tr("fif File(*.fif)"));
     if(!filePath.isNull()) {
-        m_sMeasFilePath = filePath;
-        emit measFilePathChanged(m_sMeasFilePath);
+        m_dipoleSettings.setMeasurementFilePath(filePath);
+
     }
 }
 
 
 //*************************************************************************************************************
 
-void DipoleFit::setSettingIsRaw(bool value)
+void DipoleFit::onFitButtonClicked()
 {
-    m_bDipolSettIsRaw = value;
-    emit settingIsRawChanged(m_bDipolSettIsRaw);
+    QString sFitName = m_pDipoleFitControl->getFitName();
+    QString sModelPath = ECD_SET_MODEL_DEFAULT_DIR_PATH + sFitName;
+    if(sFitName.isEmpty() || m_analyzeData->getModel(sModelPath) != nullptr) {
+        qDebug() << "ERROR: FitName invalid!";
+        return;
+    }
+
+    m_analyzeData->loadEcdSetModel(m_dipoleSettings.getSettings(), sFitName);
 }
 
 
 //*************************************************************************************************************
 
-void DipoleFit::setSettingSetNum(int value)
+void DipoleFit::onActiveModelSelected(const QString &sModelName)
 {
-    m_iDipolSettSetNum = value;
-    emit settingSetNumChanged(m_iDipolSettSetNum);
+    auto result = std::find_if(m_vEcdSetModels.cbegin(), m_vEcdSetModels.cend(),
+                 [sModelName]( const QSharedPointer<EcdSetModel> &model) {
+        return model->getModelName() == sModelName;
+    });
+
+    if(result != m_vEcdSetModels.end()) {
+        m_pActiveEcdSetModel = *result;
+        qDebug() << "New active model: " << m_pActiveEcdSetModel->getModelPath();
+        //TODO  build new entity tree and send to main viewer
+    }
+
+
 }
 
 
 //*************************************************************************************************************
 
-void DipoleFit::setSettingIncludeMeg(bool value)
+void DipoleFit::onNewModelAvalible(QSharedPointer<AbstractModel> pNewModel)
 {
-    m_bDipolSettIncMeg = value;
-    emit settingIncludeMegChanged(m_bDipolSettIncMeg);
-}
-
-
-//*************************************************************************************************************
-
-void DipoleFit::setSettingIncludeEeg(bool value)
-{
-    m_bDipolSettIncEeg = value;
-    emit settingIncludeEegChanged(m_bDipolSettIncEeg);
-}
-
-
-//*************************************************************************************************************
-
-void DipoleFit::setSettingTMax(double value)
-{
-    m_dDipolSettTMax = value;
-    emit settingTMaxChanged(value);
-}
-
-
-//*************************************************************************************************************
-
-void DipoleFit::setSettingTMin(double value)
-{
-    m_dDipolSettTMin = value;
-    emit settingTMinChanged(value);
-}
-
-
-//*************************************************************************************************************
-void DipoleFit::setSettingBMax(double value)
-{
-    m_dDipolSettBMax = value;
-    emit settingBMaxChanged(value);
-}
-
-
-//*************************************************************************************************************
-void DipoleFit::setSettingBMin(double value)
-{
-    m_dDipolSettBMin = value;
-    emit settingBMinChanged(value);
+    if(pNewModel->getType() == MODEL_TYPE::ANSHAREDLIB_ECDSET_MODEL) {
+        m_vEcdSetModels.push_back(qSharedPointerCast<EcdSetModel>(pNewModel));
+        m_pDipoleFitControl->addModel(pNewModel->getModelName());
+    }
+    qDebug() << "New model added to vector and menu: " << pNewModel->getModelPath();
 }
 
 

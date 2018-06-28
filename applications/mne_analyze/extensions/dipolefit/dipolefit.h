@@ -46,6 +46,7 @@
 #include "dipolefit_global.h"
 
 #include <anShared/Interfaces/IExtension.h>
+#include <anShared/Data/dipolefitsettingswrapper.h>
 #include <inverse/dipoleFit/dipole_fit_settings.h>
 
 
@@ -72,6 +73,7 @@ namespace INVERSELIB {
 namespace ANSHAREDLIB {
     class Communicator;
     class EcdSetModel;
+    class DipoleFitSettingsWrapper;
 }
 
 namespace Qt3DCore {
@@ -133,31 +135,35 @@ public:
     virtual void handleEvent(QSharedPointer<ANSHAREDLIB::Event> e) override;
     virtual QVector<ANSHAREDLIB::EVENT_TYPE> getEventSubscriptions() const override;
 
-signals:
-    void measFilePathChanged(const QString &path);
-    void settingIsRawChanged(bool value);
-    void settingSetNumChanged(int setNum);
-    void settingIncludeMegChanged(bool value);
-    void settingIncludeEegChanged(bool value);
-    void settingTMaxChanged(double value);
-    void settingTMinChanged(double value);
-    void settingBMaxChanged(double value);
-    void settingBMinChanged(double value);
-
 protected:
 
 private:
 
+    //=========================================================================================================
+    /**
+    * This functions creates all connection to the gui.
+    */
+    void initGuiConnections();
+
     void onBrowseButtonClicked();
 
-    void setSettingIsRaw(bool value);
-    void setSettingSetNum(int value);
-    void setSettingIncludeMeg(bool value);
-    void setSettingIncludeEeg(bool value);
-    void setSettingTMax(double value);
-    void setSettingTMin(double value);
-    void setSettingBMax(double value);
-    void setSettingBMin(double value);
+    void onFitButtonClicked();
+
+    //=========================================================================================================
+    /**
+    * This functions is called when a new active model is selected.
+    *
+    * @param[in]        The name of the selected model.
+    */
+    void onActiveModelSelected(const QString &sModelName);
+
+    //=========================================================================================================
+    /**
+    * This functions is called when a new model is added to AnalyzeData.
+    *
+    * @param[in]        Pointer to the model.
+    */
+    void onNewModelAvalible(QSharedPointer<ANSHAREDLIB::AbstractModel> pNewModel);
 
     // Control
     QDockWidget*        m_pControl;             /**< Control Widget */
@@ -165,20 +171,12 @@ private:
 
     ANSHAREDLIB::Communicator *m_pCommu;
 
-    QSharedPointer<ANSHAREDLIB::EcdSetModel> m_pEcdSetModel;
+    QVector<QSharedPointer<ANSHAREDLIB::EcdSetModel>> m_vEcdSetModels;      /**< This vector stores all loaded EcdSetModels. */
+    QSharedPointer<ANSHAREDLIB::EcdSetModel> m_pActiveEcdSetModel;          /**< The currently active / displayed EcdSetModel. */
     QSharedPointer<Qt3DCore::QEntity> m_pDipoleRoot;
 
     //Dipole settings
-    INVERSELIB::DipoleFitSettings m_dipoleSettings;
-    QString m_sMeasFilePath;
-    bool m_bDipolSettIsRaw;
-    int m_iDipolSettSetNum;
-    bool m_bDipolSettIncMeg;
-    bool m_bDipolSettIncEeg;
-    double m_dDipolSettTMax;
-    double m_dDipolSettTMin;
-    double m_dDipolSettBMax;
-    double m_dDipolSettBMin;
+    ANSHAREDLIB::DipoleFitSettingsWrapper m_dipoleSettings;
 };
 
 } // NAMESPACE
