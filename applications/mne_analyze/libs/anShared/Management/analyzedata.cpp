@@ -106,7 +106,7 @@ QVector<QSharedPointer<AbstractModel> > AnalyzeData::getObjectsOfType(MODEL_TYPE
 
 QSharedPointer<AbstractModel> AnalyzeData::getModel(const QString &name)
 {
-    return m_data[name];
+    return m_data.value(name);
 }
 
 
@@ -145,6 +145,7 @@ QSharedPointer<EcdSetModel> AnalyzeData::loadEcdSetModel(INVERSELIB::DipoleFitSe
         return QSharedPointer<EcdSetModel>();
     }
     if (m_data.contains(sPath)) {
+        qDebug() << "path already exists " << sPath;
         return qSharedPointerDynamicCast<EcdSetModel>(m_data.value(sPath));
     }
 

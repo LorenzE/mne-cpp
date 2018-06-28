@@ -73,6 +73,8 @@ namespace ANSHAREDLIB
     /**
     * The following directory paths are only imaginary.
     * They should be used for models that are not stored to the file system yet.
+    *
+    * Convention: Imaginary paths start with '*', end with '/' and all characters are upper case.
     */
     #define ECD_SET_MODEL_DEFAULT_DIR_PATH  QStringLiteral("*ECDSETMODEL/")
 

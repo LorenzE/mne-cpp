@@ -92,6 +92,7 @@ EcdSetModel::EcdSetModel(DipoleFitSettings *pDipolSettings, const QString &sPath
 //*************************************************************************************************************
 
 EcdSetModel::EcdSetModel(const QString &sDipFileName, QObject *pParent)
+    :AbstractModel(pParent)
 {
     m_ecdSet = ECDSet::read_dipoles_dip(sDipFileName);
 }
