@@ -141,53 +141,7 @@ void DipoleFit::init()
     qDebug() << "DipoleFit: EcdSetModel size: " << m_pActiveEcdSetModel->rowCount();
 
     //Build the QEntity Tree
-    m_pDipoleRoot = QSharedPointer<QEntity>::create();
-    m_pDipoleRoot->setObjectName(QString("DipoleEntityTree"));
-
-    QVector3D pos, to, from;
-    from = QVector3D(0.0, 1.0, 0.0);
-    double norm;
-
-    for(int i = 0; i < m_pActiveEcdSetModel->rowCount(); ++i) {
-        QModelIndex dataIndex = m_pActiveEcdSetModel->index(i);
-        INVERSELIB::ECD tempEcd = m_pActiveEcdSetModel->data(dataIndex, Qt::DisplayRole).value<INVERSELIB::ECD>();
-
-        pos.setX(tempEcd.rd(0));
-        pos.setY(tempEcd.rd(1));
-        pos.setZ(tempEcd.rd(2));
-
-        norm = sqrt(pow(tempEcd.Q(0),2)+pow(tempEcd.Q(1),2)+pow(tempEcd.Q(2),2));
-
-        to.setX(tempEcd.Q(0)/norm);
-        to.setY(tempEcd.Q(1)/norm);
-        to.setZ(tempEcd.Q(2)/norm);
-
-//        qDebug()<<"EcdDataTreeItem::plotDipoles - from" << from;
-//        qDebug()<<"EcdDataTreeItem::plotDipoles - to" << to;
-
-        QQuaternion final = QQuaternion::rotationTo(from, to);
-
-        //Set dipole position and orientation
-        QMatrix4x4 m;
-        m.translate(pos);
-        m.rotate(final);
-
-        Qt3DCore::QTransform *pTransform = new Qt3DCore::QTransform();
-        pTransform->setMatrix(m);
-
-        Qt3DExtras::QPhongMaterial *pMaterial = new Qt3DExtras::QPhongMaterial();
-        pMaterial->setAmbient(QColor(rand()%255, rand()%255, rand()%255));
-
-        Qt3DExtras::QConeMesh *pDipolGeometry = new Qt3DExtras::QConeMesh();
-        pDipolGeometry->setBottomRadius(0.001f);
-        pDipolGeometry->setLength(0.003f);
-
-        Qt3DCore::QEntity *pEntity = new QEntity(m_pDipoleRoot.data());
-
-        pEntity->addComponent(pTransform);
-        pEntity->addComponent(pMaterial);
-        pEntity->addComponent(pDipolGeometry);
-    }
+    m_pDipoleRoot = create3DEnityTree(m_pActiveEcdSetModel);
 }
 
 
@@ -322,6 +276,62 @@ void DipoleFit::initGuiConnections()
 
 //*************************************************************************************************************
 
+QSharedPointer<QEntity> DipoleFit::create3DEnityTree(QSharedPointer<EcdSetModel> pModel) const
+{
+    QSharedPointer<QEntity> pRootEntity = QSharedPointer<QEntity>::create();
+    pRootEntity->setObjectName(QString("DipoleEntityTree"));
+
+    QVector3D pos, to, from;
+    from = QVector3D(0.0, 1.0, 0.0);
+    double norm;
+
+    for(int i = 0; i < pModel->rowCount(); ++i) {
+        QModelIndex dataIndex = pModel->index(i);
+        INVERSELIB::ECD tempEcd = pModel->data(dataIndex, Qt::DisplayRole).value<INVERSELIB::ECD>();
+
+        pos.setX(tempEcd.rd(0));
+        pos.setY(tempEcd.rd(1));
+        pos.setZ(tempEcd.rd(2));
+
+        norm = sqrt(pow(tempEcd.Q(0),2)+pow(tempEcd.Q(1),2)+pow(tempEcd.Q(2),2));
+
+        to.setX(tempEcd.Q(0)/norm);
+        to.setY(tempEcd.Q(1)/norm);
+        to.setZ(tempEcd.Q(2)/norm);
+
+//        qDebug()<<"EcdDataTreeItem::plotDipoles - from" << from;
+//        qDebug()<<"EcdDataTreeItem::plotDipoles - to" << to;
+
+        QQuaternion final = QQuaternion::rotationTo(from, to);
+
+        //Set dipole position and orientation
+        QMatrix4x4 m;
+        m.translate(pos);
+        m.rotate(final);
+
+        Qt3DCore::QTransform *pTransform = new Qt3DCore::QTransform();
+        pTransform->setMatrix(m);
+
+        Qt3DExtras::QPhongMaterial *pMaterial = new Qt3DExtras::QPhongMaterial();
+        pMaterial->setAmbient(QColor(rand()%255, rand()%255, rand()%255));
+
+        Qt3DExtras::QConeMesh *pDipolGeometry = new Qt3DExtras::QConeMesh();
+        pDipolGeometry->setBottomRadius(0.001f);
+        pDipolGeometry->setLength(0.003f);
+
+        Qt3DCore::QEntity *pEntity = new QEntity(pRootEntity.data());
+
+        pEntity->addComponent(pTransform);
+        pEntity->addComponent(pMaterial);
+        pEntity->addComponent(pDipolGeometry);
+    }
+
+    return pRootEntity;
+}
+
+
+//*************************************************************************************************************
+
 void DipoleFit::onBrowseButtonClicked()
 {
     qDebug() <<"browse clicked";
@@ -343,12 +353,12 @@ void DipoleFit::onFitButtonClicked()
 {
     QString sFitName = m_pDipoleFitControl->getFitName();
     QString sModelPath = ECD_SET_MODEL_DEFAULT_DIR_PATH + sFitName;
-    if(sFitName.isEmpty() || m_analyzeData->getModel(sModelPath) != nullptr) {
+    if(sFitName.isEmpty()) {
         qDebug() << "ERROR: FitName invalid!";
         return;
     }
 
-    m_analyzeData->loadEcdSetModel(m_dipoleSettings.getSettings(), sFitName);
+    m_analyzeData->loadEcdSetModel(m_dipoleSettings.getSettings(), sModelPath);
 }
 
 
@@ -378,8 +388,8 @@ void DipoleFit::onNewModelAvalible(QSharedPointer<AbstractModel> pNewModel)
     if(pNewModel->getType() == MODEL_TYPE::ANSHAREDLIB_ECDSET_MODEL) {
         m_vEcdSetModels.push_back(qSharedPointerCast<EcdSetModel>(pNewModel));
         m_pDipoleFitControl->addModel(pNewModel->getModelName());
-    }
-    qDebug() << "New model added to vector and menu: " << pNewModel->getModelPath();
+        qDebug() << "New model added to vector and menu: " << pNewModel->getModelPath();
+    }   
 }
 
 

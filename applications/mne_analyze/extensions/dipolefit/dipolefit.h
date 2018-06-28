@@ -145,6 +145,14 @@ private:
     */
     void initGuiConnections();
 
+    //=========================================================================================================
+    /**
+    * Creates a new QEntity tree for the input model.
+    *
+    * @param[in] pModel     The input model.
+    */
+    QSharedPointer<Qt3DCore::QEntity> create3DEnityTree(QSharedPointer<ANSHAREDLIB::EcdSetModel> pModel) const;
+
     void onBrowseButtonClicked();
 
     void onFitButtonClicked();
