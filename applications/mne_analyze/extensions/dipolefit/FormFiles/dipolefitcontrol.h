@@ -15,6 +15,13 @@ public:
     explicit DipoleFitControl(QWidget *parent = 0);
     ~DipoleFitControl();
 
+    //=========================================================================================================
+    /**
+    * Add a new model name to the select active model menu.
+    * The new Model is also selected.
+    */
+    void addModel(const QString &modelName);
+
     void setMeasFilePath(const QString &path);
 
     void setUseRaw(bool value);
@@ -32,11 +39,15 @@ public:
     void setBMax(double value);
 
     void setBMin(double value);
+
+    QString getFitName();
 signals:
 
     void fitButtonClicked();
 
     void browseButtonClicked();
+
+    void activeModelSelected(const QString &modelName);
 
     //value changed signals
     void useRawCheckStateChanged(bool checkState);
@@ -62,6 +73,12 @@ private slots:
     * Called when browse button was pressed.
     */
     void on_m_qPushButtonBrowseMeasurementPath_released();
+
+    //=========================================================================================================
+    /**
+    * Called when a model is selected form the drop down menu.
+    */
+    void on_m_qComboBoxFitSelector_currentIndexChanged(const QString &text);
 
     void on_m_qCheckBoxUseRaw_stateChanged(int state);
     void on_m_qSpinBoxSetNumber_valueChanged(int value);
