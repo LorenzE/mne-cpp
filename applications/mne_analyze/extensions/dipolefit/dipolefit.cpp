@@ -82,6 +82,7 @@ using namespace INVERSELIB;
 DipoleFit::DipoleFit()
 : m_pControl(Q_NULLPTR)
 , m_pDipoleFitControl(Q_NULLPTR)
+, m_pMenu(Q_NULLPTR)
 {
 
 }
@@ -157,7 +158,7 @@ void DipoleFit::unload()
 
 QString DipoleFit::getName() const
 {
-    return "Dipole Fit";
+    return QStringLiteral("Dipole Fit");
 }
 
 
@@ -165,7 +166,22 @@ QString DipoleFit::getName() const
 
 QMenu *DipoleFit::getMenu()
 {
-    return Q_NULLPTR;
+    if(!m_pMenu) {
+        m_pMenu = new QMenu(tr("Dipole Fit"));
+
+        m_pLoadfitFromFile = new QAction(tr("Load dipole fit"));
+        m_pLoadfitFromFile->setStatusTip(tr("Load dipole fit"));
+        connect(m_pLoadfitFromFile, &QAction::triggered,
+                this, &DipoleFit::onLoadFitFilePressed);
+
+
+        m_pSaveFitToFile = new QAction(tr("Save dipole fit"));
+        m_pSaveFitToFile->setStatusTip(tr("Save dipole fit"));
+
+        m_pMenu->addAction(m_pLoadfitFromFile);
+        m_pMenu->addAction(m_pSaveFitToFile);
+    }
+    return m_pMenu;
 }
 
 
@@ -334,7 +350,6 @@ QSharedPointer<QEntity> DipoleFit::create3DEnityTree(QSharedPointer<EcdSetModel>
 
 void DipoleFit::onBrowseButtonClicked()
 {
-    qDebug() <<"browse clicked";
     //Get the path
     QString filePath = QFileDialog::getOpenFileName(m_pDipoleFitControl,
                                 tr("Open File"),
@@ -389,7 +404,22 @@ void DipoleFit::onNewModelAvalible(QSharedPointer<AbstractModel> pNewModel)
         m_vEcdSetModels.push_back(qSharedPointerCast<EcdSetModel>(pNewModel));
         m_pDipoleFitControl->addModel(pNewModel->getModelName());
         qDebug() << "New model added to vector and menu: " << pNewModel->getModelPath();
-    }   
+    }
+}
+
+
+//*************************************************************************************************************
+
+void DipoleFit::onLoadFitFilePressed()
+{
+    //Get the path
+    QString filePath = QFileDialog::getOpenFileName(m_pMenu,
+                                tr("Open File"),
+                                QDir::currentPath()+"/MNE-sample-data",
+                                tr("dip File(*.dip)"));
+    if(!filePath.isNull()) {
+        m_analyzeData->loadEcdSetModel(filePath);
+    }
 }
 
 

@@ -161,7 +161,7 @@ private:
     /**
     * This functions is called when a new active model is selected.
     *
-    * @param[in]        The name of the selected model.
+    * @param[in] sModelName       The name of the selected model.
     */
     void onActiveModelSelected(const QString &sModelName);
 
@@ -169,13 +169,23 @@ private:
     /**
     * This functions is called when a new model is added to AnalyzeData.
     *
-    * @param[in]        Pointer to the model.
+    * @param[in] pNewModel       Pointer to the model.
     */
     void onNewModelAvalible(QSharedPointer<ANSHAREDLIB::AbstractModel> pNewModel);
+
+    //=========================================================================================================
+    /**
+    * This functions is called when the "Load fit from file" button is pressed.
+    */
+    void onLoadFitFilePressed();
 
     // Control
     QDockWidget*        m_pControl;             /**< Control Widget */
     DipoleFitControl*   m_pDipoleFitControl;    /**< The Dipole Fit Control Widget */
+
+    QMenu *m_pMenu;     /**< The menu bar entry */
+    QAction *m_pLoadfitFromFile;
+    QAction *m_pSaveFitToFile;
 
     ANSHAREDLIB::Communicator *m_pCommu;
 
