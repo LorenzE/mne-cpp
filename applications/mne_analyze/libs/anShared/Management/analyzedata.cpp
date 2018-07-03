@@ -180,3 +180,28 @@ QVector<QSharedPointer<QEntityListModel> > AnalyzeData::availableDisplays() cons
     }
     return result;
 }
+
+
+//*************************************************************************************************************
+
+void AnalyzeData::removeModel(const QString &sModelPath)
+{
+    int numRemovedModels = m_data.remove(sModelPath);
+    if(numRemovedModels > 0) {
+        emit modelRemoved(sModelPath);
+    }
+}
+
+
+//*************************************************************************************************************
+
+void AnalyzeData::changeModelPath(const QString &sOldModelPath, const QString &sNewModelPath)
+{
+    QSharedPointer<AbstractModel> pModel = m_data.value(sOldModelPath);
+    if(!pModel.isNull()) {
+        m_data.remove(sOldModelPath);
+        m_data.insert(sNewModelPath, pModel);
+        pModel->setModelPath(sNewModelPath);
+        emit modelPathChanged(sOldModelPath, sNewModelPath);
+    }
+}

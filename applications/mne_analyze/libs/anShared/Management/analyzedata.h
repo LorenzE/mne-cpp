@@ -224,6 +224,23 @@ public:
     */
     QVector<QSharedPointer<QEntityListModel> > availableDisplays() const;
 
+    //=========================================================================================================
+    /**
+    * Removes model stored under the given path.
+    *
+    * @param[in] sModelPath     The model path.
+    */
+    void removeModel(const QString &sModelPath);
+
+    //=========================================================================================================
+    /**
+    * Changes the path where the model is stored.
+    *
+    * @param[in] sOldModelPath     The old model path.
+    * @param[in] sNewModelPath     The new model path.
+    */
+    void changeModelPath(const QString &sOldModelPath,const QString &sNewModelPath);
+
 protected:
 
 private:
@@ -232,12 +249,29 @@ private:
 
 signals:
 
+    //=========================================================================================================
     /**
     * This is emitted whenever a new model is loaded.
     *
     * @param[in] model The newly available model
     */
     void newModelAvailable(QSharedPointer<AbstractModel> model);
+
+    //=========================================================================================================
+    /**
+    * This is emitted whenever a model is removed.
+    *
+    * @param[in] modelPath      The path where the model is stored.
+    */
+    void modelRemoved(const QString &sModelPath);
+
+    //=========================================================================================================
+    /**
+    * This is emitted whenever a model changes its path.
+    *
+    * @param[in] sNewModelPath      The new path.
+    */
+    void modelPathChanged(const QString &sOldModelPath, const QString &sNewModelPath);
 };
 
 } //Namespace
