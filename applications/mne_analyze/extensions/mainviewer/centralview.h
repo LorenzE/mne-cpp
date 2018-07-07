@@ -157,6 +157,23 @@ private:
     */
     void init();
 
+    //=========================================================================================================
+    /**
+    * Helper function for creating a so-called "Anti Crash Node". These are necessary because QEntites apparently
+    * always need a valid parent (i.e. one that is not null) once they were assigned a non-null parent in the
+    * first place. The Anti Crash Nodes are collected and occasionally cleaned up (see checkForUnusedAntiCrashNodes)
+    */
+    Qt3DCore::QEntity* createNewAntiCrashNode();
+
+    //=========================================================================================================
+    /**
+    * This checks for Anti Crash Nodes that are no longer used because the user has set a new parent for the
+    * removed entity tree (e.g. by moving the Entity to another. This method does not need to be executed in
+    * a specific order, but should be called regularly and with a low frequency (e.g. whenever a new entity is
+    * added).
+    */
+    void checkForUnusedAntiCrashNodes();
+
     Qt3DCore::QEntity *m_pRootEntity;           /**< Root entity */
 
     /**
@@ -164,6 +181,7 @@ private:
     * shared pointers in order for the reference-count mechanism to work correctly
     */
     QVector<QSharedPointer<Qt3DCore::QEntity> > m_vEntities;
+    QVector<QSharedPointer<Qt3DCore::QEntity> > m_vAntiCrashNodes;
 };
 
 

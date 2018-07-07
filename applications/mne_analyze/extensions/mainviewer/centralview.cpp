@@ -122,6 +122,9 @@ void CentralView::addEntity(QSharedPointer<QEntity> pEntity)
 
     // simply insert below root
     pEntity->setParent(m_pRootEntity);
+
+    // use this as an opportunity to check for unused antiCrashNodes
+    checkForUnusedAntiCrashNodes();
 }
 
 
@@ -142,8 +145,8 @@ void CentralView::removeEntity(const QString &sIdentifier)
                 break;
             }
         }
-        // this is an obvious memory leak, but anything different wont work
-        temp->setParent(new QEntity);
+        // create a new entity and make it the new parent of the remove-candidate
+        temp->setParent(createNewAntiCrashNode());
     }
     else {
         qDebug() << "[CentralView] Could not find child named " << sIdentifier.toStdString().c_str();
@@ -161,8 +164,35 @@ void CentralView::dissasEntityTree()
         QEntity* temp = (QEntity*) pNode;
         if (temp)
         {
-            // avoid double frees on program shutdown. This is an obvious memory leak, but anything different wont work
-            temp->setParent(new QEntity);
+            // avoid double frees on program shutdown
+            temp->setParent(createNewAntiCrashNode());
+        }
+    }
+}
+
+
+//*************************************************************************************************************
+
+QEntity* CentralView::createNewAntiCrashNode()
+{
+    QSharedPointer<QEntity> antiCrashNode = QSharedPointer<QEntity>::create();
+    m_vAntiCrashNodes.push_back(antiCrashNode);
+    return antiCrashNode.data();
+}
+
+
+//*************************************************************************************************************
+
+void CentralView::checkForUnusedAntiCrashNodes()
+{
+    for (int i = 0; i < m_vAntiCrashNodes.size(); ++i)
+    {
+        if (m_vAntiCrashNodes.at(i)->childNodes().count() == 0)
+        {
+            // no longer needed, delete and remove
+            m_vAntiCrashNodes[i].clear();
+            m_vAntiCrashNodes.remove(i);
+            --i;
         }
     }
 }
