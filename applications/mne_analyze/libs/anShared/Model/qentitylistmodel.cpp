@@ -92,9 +92,9 @@ QVariant QEntityListModel::data(const QModelIndex &index, int role) const
 {
     QVariant output;
     if(index.isValid() && role == Qt::DisplayRole) {
-        if (index.row() < m_vData.size())
+        if (index.column() < m_vData.size())
         {
-            output.setValue(m_vData.at(index.row()));
+            output.setValue(m_vData.at(index.column()));
         }
     }
     return output;

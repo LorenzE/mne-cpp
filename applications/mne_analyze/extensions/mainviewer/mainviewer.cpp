@@ -124,7 +124,7 @@ void MainViewer::init()
     // do the necessary connects so that we get notified when new 3D stuff needs to be added / removed
     QObject::connect(m_pModel.data(), &QEntityListModel::entityTreeAdded, this, &MainViewer::onEntityTreeAdded);
     // direct connection in case somebody directly deletes the entity tree after calling "removeEntityTree".
-    QObject::connect(m_pModel.data(), &QEntityListModel::entityTreeRemoved, this, &MainViewer::onEntityTreeRemoved, Qt::DirectConnection);
+    QObject::connect(m_pModel.data(), &QEntityListModel::entityTreeRemoved, this, &MainViewer::onEntityTreeRemoved);
 }
 
 

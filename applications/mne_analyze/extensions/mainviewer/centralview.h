@@ -163,7 +163,7 @@ private:
     * Since parent-child connections inside the tree are based on normal pointers, we need to keep track of
     * shared pointers in order for the reference-count mechanism to work correctly
     */
-    QVector<QSharedPointer<Qt3DCore::QEntity> > m_vPointerStorage;
+    QVector<QSharedPointer<Qt3DCore::QEntity> > m_vEntities;
 };
 
 

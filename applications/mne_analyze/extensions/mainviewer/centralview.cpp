@@ -107,6 +107,9 @@ void CentralView::init()
 
     QFirstPersonCameraController *pCamController = new QFirstPersonCameraController(m_pRootEntity);
     pCamController->setCamera(pCamera);
+    // @TODO think about whether this still makes sense
+    pCamController->setObjectName("CameraController");
+    m_vEntities.push_back(QSharedPointer<QEntity>(pCamController));
 }
 
 
@@ -114,10 +117,11 @@ void CentralView::init()
 
 void CentralView::addEntity(QSharedPointer<QEntity> pEntity)
 {
+    // remember shared pointer
+    m_vEntities.push_back(pEntity);
+
     // simply insert below root
     pEntity->setParent(m_pRootEntity);
-    // remember shared pointer
-    m_vPointerStorage.push_back(pEntity);
 }
 
 
@@ -125,26 +129,24 @@ void CentralView::addEntity(QSharedPointer<QEntity> pEntity)
 
 void CentralView::removeEntity(const QString &sIdentifier)
 {
-    // only direct children, since we only add stuff directly below the root node
+    // only search for direct children, since entities are always added below root
     QEntity* temp = m_pRootEntity->findChild<QEntity* >(sIdentifier, Qt::FindDirectChildrenOnly);
     if (temp) {
-        // Qt documentation says that this will remove the entity from the scene
-        // cast is necessary because of ambiguity
-        temp->setParent((QEntity* ) Q_NULLPTR);
+        for (int i = 0; i < m_vEntities.size(); ++i)
+        {
+            if (m_vEntities.at(i)->objectName().compare(sIdentifier) == 0)
+            {
+                // remove from pointer storage
+                m_vEntities.remove(i);
+                // we trust in uniqueness of identifiers, break
+                break;
+            }
+        }
+        // this is an obvious memory leak, but anything different wont work
+        temp->setParent(new QEntity);
     }
     else {
-        std::cout << "[CentralView] Could not find child named " << sIdentifier.toStdString() << std::endl;
-    }
-
-    // remove from pointer storage
-    for (int i = 0; i < m_vPointerStorage.size(); ++i)
-    {
-        if (m_vPointerStorage.at(i)->objectName().compare(sIdentifier) == 0)
-        {
-            m_vPointerStorage.remove(i);
-            // we trust in uniqueness of identifiers, break
-            break;
-        }
+        qDebug() << "[CentralView] Could not find child named " << sIdentifier.toStdString().c_str();
     }
 }
 
@@ -159,9 +161,8 @@ void CentralView::dissasEntityTree()
         QEntity* temp = (QEntity*) pNode;
         if (temp)
         {
-            // Qt documentation says that this will remove the entity from the scene
-            // cast is necessary because of ambiguity
-            temp->setParent((QEntity* ) Q_NULLPTR);
+            // avoid double frees on program shutdown. This is an obvious memory leak, but anything different wont work
+            temp->setParent(new QEntity);
         }
     }
 }
