@@ -147,9 +147,18 @@ public:
     //=========================================================================================================
     /**
     * Returns the type of this model (SurfaceModel)
+    *
     * @return The type of this model (SurfaceModel)
     */
     inline MODEL_TYPE getType() const override;
+
+    //=========================================================================================================
+    /**
+    * Saves model to the current model path if possible.
+    *
+    * @returns      True if saving was successful
+    */
+    bool saveToFile() override;
 
 protected:
 

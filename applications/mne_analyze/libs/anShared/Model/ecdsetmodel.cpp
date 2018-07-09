@@ -183,6 +183,19 @@ bool EcdSetModel::setData(const QModelIndex &index, const QVariant &value, int r
 
 //*************************************************************************************************************
 
+bool EcdSetModel::saveToFile()
+{
+    if(m_modelPath.sDirectoryPath == ECD_SET_MODEL_DEFAULT_DIR_PATH) {
+        qDebug() << "Can not save to " << getModelPath();
+        return false;
+    }
+
+    return m_ecdSet.save_dipoles_dip(getModelPath());
+}
+
+
+//*************************************************************************************************************
+
 int EcdSetModel::columnCount(const QModelIndex &parent) const
 {
     return parent.isValid() ? 0 : 1;

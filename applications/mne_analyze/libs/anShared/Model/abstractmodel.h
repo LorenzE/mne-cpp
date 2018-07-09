@@ -54,6 +54,7 @@
 
 #include <QSharedPointer>
 #include <QAbstractItemModel>
+#include <QDebug>
 
 
 //*************************************************************************************************************
@@ -189,8 +190,6 @@ public:
     virtual int columnCount(const QModelIndex &parent = QModelIndex()) const override = 0;
 
 protected:
-
-private:
 
     ModelPath m_modelPath;
 };
