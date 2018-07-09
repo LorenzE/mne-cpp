@@ -175,9 +175,26 @@ private:
 
     //=========================================================================================================
     /**
+    * This functions is called when a model changes it's name.
+    *
+    * @param[in] pModel             Pointer to the model.
+    * @param[in] sOldModelPath      Old model path.
+    * @param[in] sNewModelPath      New model path.
+    */
+    void onModelPathChanged(QSharedPointer<ANSHAREDLIB::AbstractModel> pModel,
+                            const QString &sOldModelPath, const QString &sNewModelPath);
+
+    //=========================================================================================================
+    /**
     * This functions is called when the "Load fit from file" button is pressed.
     */
     void onLoadFitFilePressed();
+
+    //=========================================================================================================
+    /**
+    * This functions is called when the "Save fit to file" button is pressed.
+    */
+    void onSaveFitToFilePressed();
 
     // Control
     QDockWidget*        m_pControl;             /**< Control Widget */

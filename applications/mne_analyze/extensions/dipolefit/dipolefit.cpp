@@ -118,6 +118,8 @@ void DipoleFit::init()
 
     connect(m_analyzeData.data(), &AnalyzeData::newModelAvailable,
             this, &DipoleFit::onNewModelAvalible);
+    connect(m_analyzeData.data(), &AnalyzeData::modelPathChanged,
+            this, &DipoleFit::onModelPathChanged);
 
     //TODO load the model with analyzeData
     QFile testFile;
@@ -177,6 +179,8 @@ QMenu *DipoleFit::getMenu()
 
         m_pSaveFitToFile = new QAction(tr("Save dipole fit"));
         m_pSaveFitToFile->setStatusTip(tr("Save dipole fit"));
+        connect(m_pSaveFitToFile, &QAction::triggered,
+                this, &DipoleFit::onSaveFitToFilePressed);
 
         m_pMenu->addAction(m_pLoadfitFromFile);
         m_pMenu->addAction(m_pSaveFitToFile);
@@ -410,6 +414,17 @@ void DipoleFit::onNewModelAvalible(QSharedPointer<AbstractModel> pNewModel)
 
 //*************************************************************************************************************
 
+void DipoleFit::onModelPathChanged(QSharedPointer<AbstractModel> pModel, const QString &sOldModelPath, const QString &sNewModelPath)
+{
+    if(pModel->getType() == MODEL_TYPE::ANSHAREDLIB_ECDSET_MODEL && m_vEcdSetModels.contains(qSharedPointerCast<EcdSetModel>(pModel))) {
+        m_pDipoleFitControl->removeModel(sOldModelPath.section('/', -1));
+        m_pDipoleFitControl->addModel(pModel->getModelName());
+    }
+}
+
+
+//*************************************************************************************************************
+
 void DipoleFit::onLoadFitFilePressed()
 {
     //Get the path
@@ -419,6 +434,26 @@ void DipoleFit::onLoadFitFilePressed()
                                 tr("dip File(*.dip)"));
     if(!filePath.isNull()) {
         m_analyzeData->loadEcdSetModel(filePath);
+    }
+}
+
+
+//*************************************************************************************************************
+
+void DipoleFit::onSaveFitToFilePressed()
+{
+    QString filePath = QFileDialog::getSaveFileName(m_pMenu, tr("Save File"),
+                               QDir::currentPath(),
+                               tr("Dipole Fits (*.dip)"));
+    if(!filePath.isNull()) {
+        qDebug() << "save to " << filePath;
+
+        //check if name change is needed
+        if(filePath != m_pActiveEcdSetModel->getModelPath()) {
+            m_analyzeData->changeModelPath(m_pActiveEcdSetModel->getModelPath(), filePath);
+        }
+
+        m_pActiveEcdSetModel->saveToFile();
     }
 }
 

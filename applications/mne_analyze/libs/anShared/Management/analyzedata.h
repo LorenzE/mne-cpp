@@ -269,9 +269,11 @@ signals:
     /**
     * This is emitted whenever a model changes its path.
     *
-    * @param[in] sNewModelPath      The new path.
+    * @param[in] pModel             Pointer to the model.
+    * @param[in] sOldModelPath      Old model path.
+    * @param[in] sNewModelPath      New model path.
     */
-    void modelPathChanged(const QString &sOldModelPath, const QString &sNewModelPath);
+    void modelPathChanged(QSharedPointer<AbstractModel> pModel, const QString &sOldModelPath, const QString &sNewModelPath);
 };
 
 } //Namespace

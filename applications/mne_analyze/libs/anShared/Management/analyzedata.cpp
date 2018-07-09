@@ -202,7 +202,7 @@ void AnalyzeData::changeModelPath(const QString &sOldModelPath, const QString &s
         m_data.remove(sOldModelPath);
         m_data.insert(sNewModelPath, pModel);
         pModel->setModelPath(sNewModelPath);
-        emit modelPathChanged(sOldModelPath, sNewModelPath);
+        emit modelPathChanged(pModel, sOldModelPath, sNewModelPath);
     }
     else {
         qDebug() << "ERROR: Changing model name from " << sOldModelPath <<

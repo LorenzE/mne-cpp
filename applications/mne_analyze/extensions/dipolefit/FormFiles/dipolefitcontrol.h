@@ -22,6 +22,12 @@ public:
     */
     void addModel(const QString &modelName);
 
+    //=========================================================================================================
+    /**
+    * Removes model name from the select active model menu.
+    */
+    void removeModel(const QString &modelName);
+
     void setMeasFilePath(const QString &path);
 
     void setUseRaw(bool value);

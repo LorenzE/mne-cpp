@@ -22,6 +22,12 @@ void DipoleFitControl::addModel(const QString &modelName)
     ui->m_qComboBoxFitSelector->setCurrentIndex(index);
 }
 
+void DipoleFitControl::removeModel(const QString &modelName)
+{
+    qint32 index = ui->m_qComboBoxFitSelector->findText(modelName);
+    ui->m_qComboBoxFitSelector->removeItem(index);
+}
+
 void DipoleFitControl::setMeasFilePath(const QString &path)
 {
     ui->m_qLineEditSTCFile->setText(path);
