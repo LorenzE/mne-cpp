@@ -103,10 +103,17 @@ class ANSHAREDSHARED_EXPORT AbstractModel : public QAbstractItemModel
             sDirectoryPath = QStringLiteral("");
             sModelName = QStringLiteral("");
         }
-        ModelPath(const QString &completePath) {
-            sModelName = completePath.section('/', -1);
-            sDirectoryPath = completePath.left(completePath.size() - sModelName.size());
+
+        ModelPath(const QString &sCompletePath) {
+            setCompleteModelPath(sCompletePath);
         }
+
+        void setCompleteModelPath(const QString &sCompleteModelPath) {
+            sModelName = sCompleteModelPath.section('/', -1);
+            sDirectoryPath = sCompleteModelPath.left(sCompleteModelPath.size() - sModelName.size());
+        }
+
+    public:
         QString sDirectoryPath;
         QString sModelName;
     };
@@ -154,9 +161,23 @@ public:
 
     //=========================================================================================================
     /**
+    * Sets a new path for the model.
+    */
+    virtual inline void setModelPath(const QString &sNewPath);
+
+    //=========================================================================================================
+    /**
     * Returns name of the model. The name is not unique!
     */
     virtual inline QString getModelName() const;
+
+    //=========================================================================================================
+    /**
+    * Saves model to the current model path if possible.
+    *
+    * @returns      True if saving was successful
+    */
+    virtual inline bool saveToFile();
 
     //=========================================================================================================
     // Inherited by QAbstractItemModel:
@@ -189,9 +210,26 @@ QString AbstractModel::getModelPath() const
 
 //*************************************************************************************************************
 
+void AbstractModel::setModelPath(const QString &sNewPath)
+{
+    m_modelPath.setCompleteModelPath(sNewPath);
+}
+
+
+//*************************************************************************************************************
+
 QString AbstractModel::getModelName() const
 {
     return m_modelPath.sModelName;
+}
+
+
+//*************************************************************************************************************
+
+bool AbstractModel::saveToFile()
+{
+    qDebug() << "Saving to file is not implemented for MODELTYPE = " << getType();
+    return false;
 }
 
 } // namespace ANSHAREDLIB
