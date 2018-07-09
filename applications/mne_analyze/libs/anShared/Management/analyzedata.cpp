@@ -198,10 +198,17 @@ void AnalyzeData::removeModel(const QString &sModelPath)
 void AnalyzeData::changeModelPath(const QString &sOldModelPath, const QString &sNewModelPath)
 {
     QSharedPointer<AbstractModel> pModel = m_data.value(sOldModelPath);
-    if(!pModel.isNull()) {
+    if(!pModel.isNull() && !m_data.contains(sNewModelPath)) {
         m_data.remove(sOldModelPath);
         m_data.insert(sNewModelPath, pModel);
         pModel->setModelPath(sNewModelPath);
         emit modelPathChanged(sOldModelPath, sNewModelPath);
     }
+    else {
+        qDebug() << "ERROR: Changing model name from " << sOldModelPath <<
+                    " to " << sNewModelPath << " unsuccessful!";
+    }
 }
+
+
+//*************************************************************************************************************
