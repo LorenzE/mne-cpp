@@ -31,7 +31,7 @@
 * POSSIBILITY OF SUCH DAMAGE.
 *
 *
-* @brief    Contains the declaration of the FiffIO class.
+* @brief    Contains the declaration of the DipoleFit class.
 *
 */
 
