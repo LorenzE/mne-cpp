@@ -133,7 +133,7 @@ void MainViewer::init()
 void MainViewer::unload()
 {
     // we need to call this to prevent double frees during shutdown
-    m_pView->dissasEntityTree();
+    m_pView->shutdown();
 }
 
 

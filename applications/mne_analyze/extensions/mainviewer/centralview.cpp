@@ -40,7 +40,6 @@
 //=============================================================================================================
 
 #include "centralview.h"
-#include <iostream>
 
 
 //*************************************************************************************************************
@@ -66,7 +65,6 @@
 //=============================================================================================================
 
 using namespace MAINVIEWEREXTENSION;
-using namespace DISP3DLIB;
 using namespace Qt3DRender;
 using namespace Qt3DCore;
 using namespace Qt3DExtras;
@@ -95,8 +93,6 @@ CentralView::CentralView()
 void CentralView::init()
 {
     // initialize 3D Window
-    setRootEntity(m_pRootEntity);
-
     QPickingSettings *pPickSettings = renderSettings()->pickingSettings();
     pPickSettings->setFaceOrientationPickingMode(QPickingSettings::FrontAndBackFace);
     pPickSettings->setPickMethod(QPickingSettings::TrianglePicking);
@@ -107,9 +103,11 @@ void CentralView::init()
 
     QFirstPersonCameraController *pCamController = new QFirstPersonCameraController(m_pRootEntity);
     pCamController->setCamera(pCamera);
-    // @TODO think about whether this still makes sense
-    pCamController->setObjectName("CameraController");
+    // we introduced the convention that every entity below root should be named
+    pCamController->setObjectName("MainViewer/CameraController");
     m_vEntities.push_back(QSharedPointer<QEntity>(pCamController));
+
+    setRootEntity(m_pRootEntity);
 }
 
 
@@ -123,7 +121,7 @@ void CentralView::addEntity(QSharedPointer<QEntity> pEntity)
     // simply insert below root
     pEntity->setParent(m_pRootEntity);
 
-    // use this as an opportunity to check for unused antiCrashNodes
+    // use this as an opportunity to check for unused anti crash nodes
     checkForUnusedAntiCrashNodes();
 }
 
@@ -156,20 +154,41 @@ void CentralView::removeEntity(const QString &sIdentifier)
 
 //*************************************************************************************************************
 
-void CentralView::dissasEntityTree()
+void CentralView::shutdown()
 {
-    QNodeVector vec = m_pRootEntity->childNodes();
-    for (QNode* pNode : vec)
+    // dissassemble the used entity tree
+    QNodeVector vChildren = m_pRootEntity->childNodes();
+    for (QNode* pNode : vChildren)
     {
         QEntity* temp = (QEntity*) pNode;
         if (temp)
         {
-            // avoid double frees on program shutdown
-            temp->setParent(createNewAntiCrashNode());
+            // avoid double frees on program shutdown, caused by shared ownership
+            temp->setParent((QEntity*) nullptr);
+        }
+    }
+
+    // take care of dangling anti crash nodes
+    for (int i = 0; i < m_vAntiCrashNodes.size(); ++i)
+    {
+        int numChildren = m_vAntiCrashNodes.at(i)->childNodes().count();
+        if (numChildren == 0) {
+            // not used anymore, simply wait for vector destructor
+        }
+        else if (numChildren == 1) {
+            // still used, need to seperate the child from the anti crash nodes in order to avoid double frees
+            m_vAntiCrashNodes.at(i)->childNodes().at(0)->setParent((QEntity*) nullptr);
+        }
+        else {
+            qDebug() << "[CentralView] FATAL Shutdown: found anti crash node with more than one child !";
+            // best thing we can do is to seperate the parent anti crash node from every child
+            for (QNode* qn : m_vAntiCrashNodes.at(i)->childNodes())
+            {
+                qn->setParent((QEntity*) nullptr);
+            }
         }
     }
 }
-
 
 //*************************************************************************************************************
 
@@ -190,7 +209,7 @@ void CentralView::checkForUnusedAntiCrashNodes()
         if (m_vAntiCrashNodes.at(i)->childNodes().count() == 0)
         {
             // no longer needed, delete and remove
-            m_vAntiCrashNodes[i].clear();
+            m_vAntiCrashNodes[i]->deleteLater();
             m_vAntiCrashNodes.remove(i);
             --i;
         }
