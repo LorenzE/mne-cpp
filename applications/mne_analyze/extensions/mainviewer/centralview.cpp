@@ -131,8 +131,8 @@ void CentralView::addEntity(QSharedPointer<QEntity> pEntity)
 void CentralView::removeEntity(const QString &sIdentifier)
 {
     // only search for direct children, since entities are always added below root
-    QEntity* temp = m_pRootEntity->findChild<QEntity* >(sIdentifier, Qt::FindDirectChildrenOnly);
-    if (temp) {
+    QEntity* pTemp = m_pRootEntity->findChild<QEntity* >(sIdentifier, Qt::FindDirectChildrenOnly);
+    if (pTemp) {
         for (int i = 0; i < m_vEntities.size(); ++i)
         {
             if (m_vEntities.at(i)->objectName().compare(sIdentifier) == 0)
@@ -144,10 +144,10 @@ void CentralView::removeEntity(const QString &sIdentifier)
             }
         }
         // create a new entity and make it the new parent of the remove-candidate
-        temp->setParent(createNewAntiCrashNode());
+        pTemp->setParent(createNewAntiCrashNode());
     }
     else {
-        qDebug() << "[CentralView] Could not find child named " << sIdentifier.toStdString().c_str();
+        qDebug() << "[CentralView] Could not find child named " << sIdentifier;
     }
 }
 
@@ -160,31 +160,31 @@ void CentralView::shutdown()
     QNodeVector vChildren = m_pRootEntity->childNodes();
     for (QNode* pNode : vChildren)
     {
-        QEntity* temp = (QEntity*) pNode;
-        if (temp)
+        QEntity* pTemp = (QEntity*) pNode;
+        if (pTemp)
         {
             // avoid double frees on program shutdown, caused by shared ownership
-            temp->setParent((QEntity*) nullptr);
+            pTemp->setParent((QEntity*) nullptr);
         }
     }
 
     // take care of dangling anti crash nodes
     for (int i = 0; i < m_vAntiCrashNodes.size(); ++i)
     {
-        int numChildren = m_vAntiCrashNodes.at(i)->childNodes().count();
-        if (numChildren == 0) {
+        int iNumChildren = m_vAntiCrashNodes.at(i)->childNodes().count();
+        if (iNumChildren == 0) {
             // not used anymore, simply wait for vector destructor
         }
-        else if (numChildren == 1) {
+        else if (iNumChildren == 1) {
             // still used, need to seperate the child from the anti crash nodes in order to avoid double frees
             m_vAntiCrashNodes.at(i)->childNodes().at(0)->setParent((QEntity*) nullptr);
         }
         else {
             qDebug() << "[CentralView] FATAL Shutdown: found anti crash node with more than one child !";
             // best thing we can do is to seperate the parent anti crash node from every child
-            for (QNode* qn : m_vAntiCrashNodes.at(i)->childNodes())
+            for (QNode* pNode : m_vAntiCrashNodes.at(i)->childNodes())
             {
-                qn->setParent((QEntity*) nullptr);
+                pNode->setParent((QEntity*) nullptr);
             }
         }
     }
@@ -194,9 +194,9 @@ void CentralView::shutdown()
 
 QEntity* CentralView::createNewAntiCrashNode()
 {
-    QSharedPointer<QEntity> antiCrashNode = QSharedPointer<QEntity>::create();
-    m_vAntiCrashNodes.push_back(antiCrashNode);
-    return antiCrashNode.data();
+    QSharedPointer<QEntity> pAntiCrashNode = QSharedPointer<QEntity>::create();
+    m_vAntiCrashNodes.push_back(pAntiCrashNode);
+    return pAntiCrashNode.data();
 }
 
 
