@@ -90,13 +90,14 @@ const char* extensionsDir = "/mne_analyze_extensions";        /**< holds path to
 AnalyzeCore::AnalyzeCore(QObject* parent)
     : QObject(parent)
 {
+    registerMetaTypes();
+
     initGlobalSettings();
     initGlobalData();
 
     initEventSystem();
     initExtensionManager();
     initMainWindow();
-
 }
 
 
@@ -164,6 +165,14 @@ void AnalyzeCore::initMainWindow()
 {
     m_pMainWindow = new MainWindow(m_pExtensionManager);
     QObject::connect(m_pMainWindow, &MainWindow::mainWindowClosed, this, &AnalyzeCore::onMainWindowClosed);
+}
+
+
+//*************************************************************************************************************
+
+void AnalyzeCore::registerMetaTypes()
+{
+    qRegisterMetaType<QSharedPointer<Event>>("QSharedPointer<Event>");
 }
 
 

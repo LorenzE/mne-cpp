@@ -142,6 +142,12 @@ private:
     void initExtensionManager();
     void initMainWindow();
 
+    //=========================================================================================================
+    /**
+    * This function call qRegisterMetatype() on all custom types that are used in QObject::connect() calls.
+    */
+    void registerMetaTypes();
+
 
 
     QSharedPointer<ANSHAREDLIB::ExtensionManager>   m_pExtensionManager;    /**< Holds extension manager.*/

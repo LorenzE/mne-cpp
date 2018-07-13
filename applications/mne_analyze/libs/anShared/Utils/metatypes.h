@@ -40,14 +40,17 @@
 #include <Qt3DCore/QEntity>
 #include <inverse/dipoleFit/ecd.h>
 #include <Eigen/Core>
+#include "../Management/event.h"
 
-
-
+// Important: Also used qRegisterMetaTypes in AnalyzeCore::registerMetatypes
+// to use custom types in QObject::connect() calls.
 
 Q_DECLARE_METATYPE(Eigen::Vector3f);
 Q_DECLARE_METATYPE(Eigen::Vector3i);
 Q_DECLARE_METATYPE(QSharedPointer<Qt3DCore::QEntity>);
 Q_DECLARE_METATYPE(INVERSELIB::ECD);
+Q_DECLARE_METATYPE(QSharedPointer<ANSHAREDLIB::Event>);
+
 
 namespace ANSHAREDLIB {
 
