@@ -76,11 +76,8 @@ Communicator::Communicator(const QVector<EVENT_TYPE> &subs)
 Communicator::Communicator(IExtension* extension)
     : Communicator(extension->getEventSubscriptions())
 {
-    QObject::connect(this,
-                     SIGNAL(receivedEvent(QSharedPointer<Event>)),
-                     extension,
-                     SLOT(handleEvent(QSharedPointer<Event>)),
-                     Qt::DirectConnection);
+    QObject::connect(this, &Communicator::receivedEvent,
+                     extension, &IExtension::handleEvent);
 }
 
 //*************************************************************************************************************

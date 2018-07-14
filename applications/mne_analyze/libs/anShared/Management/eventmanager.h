@@ -84,10 +84,7 @@ class Communicator;
 * EvenManager for Event communication. Holds a routing table that keeps track of Event subscriptions.
 * Event-ownership is still a bit problematic: The communicator simply wraps the passed data in a shared pointer
 * and passes it on to the EventManager. There it gets stored in a queue until the next processing circle. It
-* then is dequeued and distributed to all subscribed communicators via a Qt::DirectConnection. First problem:
-* Changing the connection to any other than a DirectConnection would require QSharedPointer<Event> to be de-
-* clared as a qmetatype. Second, this might disable the current implementation, since the dequeued pointer leaves
-* scope after distribution. Depending on the queing of arguments in QtConnections, this might be a problem.
+* then is dequeued and distributed to all subscribed communicators.
 */
 class ANSHAREDSHARED_EXPORT EventManager : public QThread
 {

@@ -94,7 +94,6 @@ public:
     /**
     * Constructs a Communicator object that emits a signal (receivedEvent) when one of the passed list of events
     * happens. A further QtConnect IS necessary (See implementation of second constructor for more details.
-    * Qt::DirectConnection is recommended.
     *
     * @param[in] subs           The list of relevant events.
     */
@@ -102,8 +101,7 @@ public:
 
     //=========================================================================================================
     /**
-    * Constructs a Communicator object that is connected to the Extensions' handleEvent method
-    * via a Qt::DirectConnection.
+    * Constructs a Communicator object that is connected to the Extensions' handleEvent method.
     *
     * @param[in] extension      The Extensions to connect to.
     */
