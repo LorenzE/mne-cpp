@@ -299,7 +299,7 @@ void DipoleFit::initGuiConnections()
 QSharedPointer<QEntity> DipoleFit::create3DEnityTree(QSharedPointer<EcdSetModel> pModel) const
 {
     QSharedPointer<QEntity> pRootEntity = QSharedPointer<QEntity>::create();
-    pRootEntity->setObjectName(QString("DipoleEntityTree"));
+    pRootEntity->setObjectName(QStringLiteral("DipoleEntityTree"));
 
     QVector3D pos, to, from;
     from = QVector3D(0.0, 1.0, 0.0);
