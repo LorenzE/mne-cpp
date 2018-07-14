@@ -58,6 +58,8 @@
 #include <QtCore/QtPlugin>
 #include <QDebug>
 #include <QPickingSettings>
+#include <QMap>
+#include <QPair>
 
 
 //*************************************************************************************************************
@@ -65,13 +67,11 @@
 // FORWARD DECLARATIONS
 //=============================================================================================================
 
+class SurferControl;
+
 namespace Qt3DCore {
     class QEntity;
     class QTransform;
-}
-
-namespace Qt3DExtras {
-    class QSphereMesh;
 }
 
 namespace Qt3DRender {
@@ -94,6 +94,9 @@ namespace ANSHAREDLIB {
 
 namespace SURFEREXTENSION
 {
+
+
+typedef QPair<QSharedPointer<ANSHAREDLIB::SurfaceModel>, QSharedPointer<Qt3DCore::QEntity> > LoadedSurface;
 
 
 //=============================================================================================================
@@ -133,6 +136,34 @@ public:
     virtual void handleEvent(QSharedPointer<ANSHAREDLIB::Event> e) override;
     virtual QVector<ANSHAREDLIB::Event::EVENT_TYPE> getEventSubscriptions() const override;
 
+private slots:
+
+    //=========================================================================================================
+    /**
+    * This is called by the SurferControl (via a connect).
+    * It opens a file dialog so that the user can choose the file to load.
+    */
+    void onLoadNewSurface();
+
+    //=========================================================================================================
+    /**
+    * This is called by the SurferControl (via a connect).
+    * It toggles visibility for the corresponding surface (see m_mLoadedSurfaces).
+    *
+    * @param[in] pItem The Item that was changed.
+    */
+    void onSurfaceSelectionChanged(const QListWidgetItem* pItem);
+
+    //=========================================================================================================
+    /**
+    * This is called by the SurferControl (via a connect).
+    * It removes the corresponding surface (see m_mLoadedSurfaces) and destructs its entity tree.
+    * CAUTION this method will DELETE the passed pointer.
+    *
+    * @param pItem The Item that was removed.
+    */
+    void onRemoveSurface(QListWidgetItem* pItem);
+
 private:
 
     //=========================================================================================================
@@ -145,24 +176,57 @@ private:
     */
     inline float squared(float x);
 
-    void updateSurfaceModelMesh();
+    //=========================================================================================================
+    /**
+    * This is a helper function for loading a new surface. This includes registration whithin AnalyzeData,
+    * creation of a new item inside SurferControl's listview and construction of a new entity tree that is added
+    * below the Surfer's root.
+    *
+    * @param[in] filePath The path of the surface to load.
+    */
+    void helpLoadNewSurface(const QString& filePath);
 
+    //=========================================================================================================
+    /**
+    * This fills the passed mesh with data taken from the passed SurfaceModel.
+    *
+    * @param pModel The model that the data is read from.
+    * @param pMesh The mesh to be filled.
+    */
+    void updateSurfaceModelMesh(QSharedPointer<ANSHAREDLIB::SurfaceModel> pModel, DISP3DLIB::CustomMesh* pMesh);
+
+    //=========================================================================================================
+    /**
+    * @brief setSelectionModel
+    * @param pSelectionModel
+    */
     void setSelectionModel(QItemSelectionModel *pSelectionModel);
 
+    //=========================================================================================================
+    /**
+    * This enables user interaction
+    *
+    * @param event The event that has happened
+    */
     void onClick(Qt3DRender::QPickEvent *event);
 
-    ANSHAREDLIB::Communicator* m_pCommu;
+    //=========================================================================================================
+
+    ANSHAREDLIB::Communicator* m_pCommu;                /**< Connection to the event system */
 
     // Control
-    QDockWidget*        m_pControl; /**< Control Widget */
+    QDockWidget*        m_pControl;                     /**< Control Dock */
+    SurferControl*      m_pSurferControl;               /**< Control Widget */
 
+    // entity tree root
+    QSharedPointer<Qt3DCore::QEntity> m_pSurferRoot;    /**< Surfer root */
 
-    QSharedPointer<ANSHAREDLIB::SurfaceModel>    m_pSurfaceModel;
-    DISP3DLIB::CustomMesh *m_pSurfaceMesh;
-    QSharedPointer<Qt3DCore::QEntity> m_pSurferRoot;
-
-    Qt3DExtras::QSphereMesh *m_pointMesh;
-    Qt3DCore::QTransform *pSphereTransform;
+    /**
+    * This connects the SurferControl's item list with the data stored inside the Surfer.
+    * It utilizes pointers to items for keys, this enables easy communication and synchronisation between
+    * SurferControl and Surfer.
+    */
+    QMap<const QListWidgetItem*, LoadedSurface> m_mLoadedSurfaces;
 };
 
 //*************************************************************************************************************

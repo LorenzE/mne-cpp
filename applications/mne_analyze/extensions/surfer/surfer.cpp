@@ -31,7 +31,7 @@
 * POSSIBILITY OF SUCH DAMAGE.
 *
 *
-* @brief    Definition of the Surfer class.
+* @brief    Contains the implementation of the Surfer class.
 *
 */
 
@@ -41,13 +41,15 @@
 //=============================================================================================================
 
 #include "surfer.h"
+#include "FormFiles/surfercontrol.h"
+
 #include <anShared/Model/surfacemodel.h>
 #include <anShared/Data/surfacedata.h>
 #include <anShared/Model/qentitylistmodel.h>
 #include <anShared/Management/analyzedata.h>
-#include "anShared/Utils/metatypes.h"
+#include <anShared/Utils/metatypes.h>
+
 #include <disp3D/engine/model/3dhelpers/custommesh.h>
-#include <iostream>
 
 
 //*************************************************************************************************************
@@ -82,8 +84,9 @@ using namespace Qt3DCore;
 Surfer::Surfer()
 : m_pCommu(Q_NULLPTR)
 , m_pControl(Q_NULLPTR)
-, m_pSurfaceMesh(new CustomMesh)
+, m_pSurferControl(Q_NULLPTR)
 , m_pSurferRoot(Q_NULLPTR)
+, m_mLoadedSurfaces()
 {
 
 }
@@ -117,38 +120,6 @@ void Surfer::init()
     m_pSurferRoot = QSharedPointer<QEntity>::create();
     m_pSurferRoot->setObjectName(QStringLiteral("SurferEntityTree"));
 
-    // load model
-    m_pSurfaceModel = m_analyzeData->loadSurfaceModel(QStringLiteral("./MNE-sample-data/subjects/sample/surf/rh.pial"));
-    // initialize 3D stuff:
-    //Create mesh entity
-    QEntity *pMeshEntity = new QEntity(m_pSurferRoot.data());
-    pMeshEntity->addComponent(m_pSurfaceMesh);
-
-    Qt3DExtras::QPerVertexColorMaterial *pMaterial = new Qt3DExtras::QPerVertexColorMaterial();
-    pMeshEntity->addComponent(pMaterial);
-
-    Qt3DCore::QTransform *pTransform = new Qt3DCore::QTransform();
-    pMeshEntity->addComponent(pTransform);
-
-    //Add object picker
-    QObjectPicker *pObjectPicker = new QObjectPicker;
-    pObjectPicker->setDragEnabled(false);
-    pObjectPicker->setHoverEnabled(false);
-    connect(pObjectPicker, &QObjectPicker::pressed,
-            this, &Surfer::onClick);
-    pMeshEntity->addComponent(pObjectPicker);
-
-    //Create click point
-    QEntity *pSphereEntity = new QEntity(m_pSurferRoot.data());
-    m_pointMesh = new Qt3DExtras::QSphereMesh;
-    m_pointMesh->setRadius(0.001f);
-    pSphereTransform = new Qt3DCore::QTransform();
-    pSphereEntity->addComponent(m_pointMesh);
-    pSphereEntity->addComponent(pSphereTransform);
-    Qt3DExtras::QPhongMaterial *pSphereMat = new Qt3DExtras::QPhongMaterial;
-    pSphereMat->setAmbient(Qt::blue);
-    pSphereEntity->addComponent(pSphereMat);
-
     // add lighting
     QEntity *pLightRoot = new QEntity(m_pSurferRoot.data());
     //Setup light positions, intensities and color
@@ -175,8 +146,29 @@ void Surfer::init()
         pLightEntity->addComponent(pPointLight);
     }
 
-    // fill the mesh with data loaded from the surface model
-    updateSurfaceModelMesh();
+    // build control widget
+    if (! m_pSurferControl) {
+        m_pSurferControl = new SurferControl;
+        connect(m_pSurferControl,
+                &SurferControl::loadNewSurface,
+                this,
+                &Surfer::onLoadNewSurface);
+        connect(m_pSurferControl,
+                &SurferControl::surfaceSelectionChanged,
+                this,
+                &Surfer::onSurfaceSelectionChanged);
+        connect(m_pSurferControl,
+                &SurferControl::removeSurface,
+                this,
+                &Surfer::onRemoveSurface);
+    }
+
+    // load initially displayed surfaces:
+    QString lh(QDir::currentPath() + "/MNE-sample-data/subjects/sample/surf/lh.pial");
+    QString rh(QDir::currentPath() + "/MNE-sample-data/subjects/sample/surf/rh.pial");
+
+    helpLoadNewSurface(lh);
+    helpLoadNewSurface(rh);
 }
 
 
@@ -211,6 +203,9 @@ QDockWidget *Surfer::getControl()
         m_pControl = new QDockWidget(tr("Surfer Control"));
         m_pControl->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
         m_pControl->setMinimumWidth(180);
+        if (m_pSurferControl) {
+            m_pControl->setWidget(m_pSurferControl);
+        }
     }
 
     return m_pControl;
@@ -234,14 +229,16 @@ void Surfer::handleEvent(QSharedPointer<Event> e)
     case EXTENSION_INIT_FINISHED:
     {
         QVector<QSharedPointer<QEntityListModel> > availableDisplays = m_analyzeData->availableDisplays();
-        if (availableDisplays.size() >= 1)
-        {
+        if (availableDisplays.size() >= 1) {
             availableDisplays.at(0)->addEntityTree(m_pSurferRoot);
+        }
+        else {
+            qDebug() << "[Surfer] Could not find any displays...";
         }
         break;
     }
     default:
-        std::cout << "Surfer received an Event that is not handled by switch-cases" << std::endl;
+        qDebug() << "[Surfer] Received an Event that is not handled by switch-cases";
         break;
     }
 }
@@ -254,6 +251,176 @@ QVector<EVENT_TYPE> Surfer::getEventSubscriptions(void) const
     QVector<EVENT_TYPE> temp;
     temp.push_back(EXTENSION_INIT_FINISHED);
     return temp;
+}
+
+
+//*************************************************************************************************************
+
+void Surfer::onLoadNewSurface()
+{
+    QString filePath = QFileDialog::getOpenFileName(m_pControl,
+                                                    tr("Open Surface File"),
+                                                    QDir::currentPath() + "/MNE-sample-data");
+    if (filePath.isEmpty() == false) {
+        helpLoadNewSurface(filePath);
+    }
+    else {
+        qDebug() << "[Surfer] Empty filepath, returning...";
+        return;
+    }
+}
+
+
+//*************************************************************************************************************
+
+void Surfer::onSurfaceSelectionChanged(const QListWidgetItem *pItem)
+{
+    // reestablish consistency of visibility
+    QSharedPointer<QEntity> pEntity = m_mLoadedSurfaces.value(pItem).second;
+    if (pItem->checkState() == Qt::Checked) {
+        if (pEntity->isEnabled() == false) {
+            pEntity->setEnabled(true);
+        }
+    }
+    else {
+        if (pEntity->isEnabled()) {
+            pEntity->setEnabled(false);
+        }
+    }
+}
+
+
+//*************************************************************************************************************
+
+void Surfer::onRemoveSurface(QListWidgetItem *pItem)
+{
+    // we leave the model loaded in AnalyzeData, so we only have to care about the entity tree
+    QSharedPointer<QEntity> pEntity = m_mLoadedSurfaces.value(pItem).second;
+    // until we find a better solution, we use the same trick as in MainViewer/CentralView
+    pEntity->setParent(new QEntity);    // setParent(nullptr) would break the Qt3D backend
+    pEntity->parent()->deleteLater();
+
+    // remove from record
+    m_mLoadedSurfaces.remove(pItem);
+
+    // Qt does not take care of deletion of items, do it manually.
+    // This is not a problem since it was removed by calling takeItem
+    delete pItem;
+}
+
+
+//*************************************************************************************************************
+
+void Surfer::helpLoadNewSurface(const QString& filePath)
+{
+    // request model from AnalyzeData
+    QSharedPointer<SurfaceModel> pModel = m_analyzeData->loadSurfaceModel(filePath);
+    // prepare entity tree
+    QSharedPointer<QEntity> pEntity = QSharedPointer<QEntity>::create();
+    // name is technically superfluous, since surfer root is named
+    pEntity->setObjectName(filePath);
+
+    // add mesh entity
+    QEntity *pMeshEntity = new QEntity(pEntity.data());
+    CustomMesh* pMesh = new CustomMesh;
+    pMeshEntity->addComponent(pMesh);
+
+    Qt3DExtras::QPerVertexColorMaterial *pMaterial = new Qt3DExtras::QPerVertexColorMaterial();
+    pMeshEntity->addComponent(pMaterial);
+
+    Qt3DCore::QTransform *pTransform = new Qt3DCore::QTransform();
+    pMeshEntity->addComponent(pTransform);
+
+    //Add object picker
+    QObjectPicker *pObjectPicker = new QObjectPicker;
+    pObjectPicker->setDragEnabled(false);
+    pObjectPicker->setHoverEnabled(false);
+    connect(pObjectPicker,
+            &QObjectPicker::pressed,
+            this,
+            &Surfer::onClick);
+    pMeshEntity->addComponent(pObjectPicker);
+
+    // fill mesh with data from model
+    updateSurfaceModelMesh(pModel, pMesh);
+
+    // tell UI about new surface and insert into record
+    QListWidgetItem* pTempItem = m_pSurferControl->addSurface(filePath);
+    m_mLoadedSurfaces.insert(pTempItem, LoadedSurface(pModel, pEntity));
+
+    // add newly loaded surface to surfer entity tree
+    pEntity->setParent(m_pSurferRoot.data());
+}
+
+
+//*************************************************************************************************************
+
+void Surfer::updateSurfaceModelMesh(QSharedPointer<SurfaceModel> pModel, CustomMesh* pMesh)
+{
+    if (! pModel) {
+        qDebug() << "[Surfer] updateSurfaceModelMesh: model is null";
+        return;
+    }
+
+    if (! pMesh) {
+        qDebug() << "[Surfer] updateSurfaceModelMesh: mesh is null";
+        return;
+    }
+
+    //TODO refactor the initialization  template with Matrix<T,Dynamic,Dynamic> ?
+    // Vertices
+    QModelIndex dataIndex = pModel->index(0, 0, QModelIndex());
+    Eigen::MatrixX3f vertices(pModel->columnCount(dataIndex), 3);
+
+    for(int i = 0; i < pModel->columnCount(dataIndex); ++i) {
+        dataIndex = pModel->index(0, i, QModelIndex());
+        Eigen::Vector3f tempVec = pModel->data(dataIndex, Qt::DisplayRole).value<Eigen::Vector3f>();
+        vertices(i, 0) = tempVec[0];
+        vertices(i, 1) = tempVec[1];
+        vertices(i, 2) = tempVec[2];
+    }
+    pMesh->setVertex(vertices);
+
+    // Normals
+    dataIndex = pModel->index(1, 0, QModelIndex());
+    Eigen::MatrixX3f normals(pModel->columnCount(dataIndex), 3);
+
+    for(int i = 0; i < pModel->columnCount(dataIndex); ++i) {
+        dataIndex = pModel->index(1, i, QModelIndex());
+        Eigen::Vector3f tempVec = pModel->data(dataIndex, Qt::DisplayRole).value<Eigen::Vector3f>();
+        normals(i, 0) = tempVec[0];
+        normals(i, 1) = tempVec[1];
+        normals(i, 2) = tempVec[2];
+    }
+    pMesh->setNormals(normals);
+
+    // Tris
+    dataIndex = pModel->index(2, 0, QModelIndex());
+    Eigen::MatrixX3i tris(pModel->columnCount(dataIndex), 3);
+
+    for(int i = 0; i < pModel->columnCount(dataIndex); ++i) {
+        dataIndex = pModel->index(2, i, QModelIndex());
+        Eigen::Vector3i tempVec = pModel->data(dataIndex, Qt::DisplayRole).value<Eigen::Vector3i>();
+        tris(i, 0) = tempVec[0];
+        tris(i, 1) = tempVec[1];
+        tris(i, 2) = tempVec[2];
+    }
+    pMesh->setIndex(tris);
+
+    // Colors
+    Eigen::MatrixX3f colors;
+    int rows = pModel->columnCount(pModel->index(0, 0, QModelIndex()));
+    colors.resize(rows, 3);
+    colors.setConstant(rows, 3, 0.6);
+    pMesh->setColor(colors);
+}
+
+
+//*************************************************************************************************************
+
+void Surfer::setSelectionModel(QItemSelectionModel *pSelectionModel)
+{
+    //TODO implement this
 }
 
 
@@ -305,70 +472,3 @@ void Surfer::onClick(QPickEvent *event)
         qDebug() << "failed";
     }
 }
-
-
-//*************************************************************************************************************
-
-void Surfer::updateSurfaceModelMesh()
-{
-    if(m_pSurfaceModel == nullptr) {
-        return;
-    }
-
-    if(m_pSurfaceMesh == nullptr) {
-        m_pSurfaceMesh = new CustomMesh;
-    }
-
-    //TODO refactor the initialization  template with Matrix<T,Dynamic,Dynamic> ?
-    // Vertices
-    QModelIndex dataIndex = m_pSurfaceModel->index(0, 0, QModelIndex());
-    Eigen::MatrixX3f vertices(m_pSurfaceModel->columnCount(dataIndex), 3);
-
-    for(int i = 0; i < m_pSurfaceModel->columnCount(dataIndex); ++i) {
-        dataIndex = m_pSurfaceModel->index(0, i, QModelIndex());
-        Eigen::Vector3f tempVec = m_pSurfaceModel->data(dataIndex, Qt::DisplayRole).value<Eigen::Vector3f>();
-        vertices(i, 0) = tempVec[0];
-        vertices(i, 1) = tempVec[1];
-        vertices(i, 2) = tempVec[2];
-    }
-    m_pSurfaceMesh->setVertex(vertices);
-
-    // Normals
-    dataIndex = m_pSurfaceModel->index(1, 0, QModelIndex());
-    Eigen::MatrixX3f normals(m_pSurfaceModel->columnCount(dataIndex), 3);
-
-    for(int i = 0; i < m_pSurfaceModel->columnCount(dataIndex); ++i) {
-        dataIndex = m_pSurfaceModel->index(1, i, QModelIndex());
-        Eigen::Vector3f tempVec = m_pSurfaceModel->data(dataIndex, Qt::DisplayRole).value<Eigen::Vector3f>();
-        normals(i, 0) = tempVec[0];
-        normals(i, 1) = tempVec[1];
-        normals(i, 2) = tempVec[2];
-    }
-    m_pSurfaceMesh->setNormals(normals);
-
-    // Tris
-    dataIndex = m_pSurfaceModel->index(2, 0, QModelIndex());
-    Eigen::MatrixX3i tris(m_pSurfaceModel->columnCount(dataIndex), 3);
-
-    for(int i = 0; i < m_pSurfaceModel->columnCount(dataIndex); ++i) {
-        dataIndex = m_pSurfaceModel->index(2, i, QModelIndex());
-        Eigen::Vector3i tempVec = m_pSurfaceModel->data(dataIndex, Qt::DisplayRole).value<Eigen::Vector3i>();
-        tris(i, 0) = tempVec[0];
-        tris(i, 1) = tempVec[1];
-        tris(i, 2) = tempVec[2];
-    }
-    m_pSurfaceMesh->setIndex(tris);
-
-    // Colors
-    Eigen::MatrixX3f colors;
-    int rows = m_pSurfaceModel->columnCount(m_pSurfaceModel->index(0, 0, QModelIndex()));
-    colors.resize(rows, 3);
-    colors.setConstant(rows, 3, 0.6f);
-    m_pSurfaceMesh->setColor(colors);
-}
-
-void Surfer::setSelectionModel(QItemSelectionModel *pSelectionModel)
-{
-    //TODO implement this
-}
-

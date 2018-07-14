@@ -80,11 +80,13 @@ win32: DLLDESTDIR = $${MNE_BINARY_DIR}/mne_analyze_extensions
 unix: DESTDIR = $${MNE_BINARY_DIR}/mne_analyze_extensions
 
 SOURCES += \
-    surfer.cpp
+    surfer.cpp \
+    FormFiles/surfercontrol.cpp
 
 HEADERS += \
     surfer_global.h \
-    surfer.h
+    surfer.h \
+    FormFiles/surfercontrol.h
 
 INCLUDEPATH += $${EIGEN_INCLUDE_DIR}
 INCLUDEPATH += $${MNE_INCLUDE_DIR}
@@ -99,6 +101,9 @@ unix: QMAKE_CXXFLAGS += -isystem $$EIGEN_INCLUDE_DIR
 
 # suppress visibility warnings
 unix: QMAKE_CXXFLAGS += -Wno-attributes
+
+FORMS += \
+    FormFiles/surfercontrol.ui
 
 unix:!macx {
     # === Unix ===
