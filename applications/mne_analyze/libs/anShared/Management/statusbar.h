@@ -1,12 +1,11 @@
 //=============================================================================================================
 /**
-* @file     types.h
+* @file     statusbar.h
 * @author   Lars Debor <lars.debor@tu-ilmenau.de>;
 *           Simon Heinke <simon.heinke@tu-ilmenau.de>;
-*           Matti Hamalainen <msh@nmr.mgh.harvard.edu>;
-*
+*           Matti Hamalainen <msh@nmr.mgh.harvard.edu>
 * @version  1.0
-* @date     March, 2018
+* @date     July, 2018
 *
 * @section  LICENSE
 *
@@ -31,81 +30,117 @@
 * POSSIBILITY OF SUCH DAMAGE.
 *
 *
-* @brief    Contains general application specific types
+* @brief     StatusBar class declaration.
 *
 */
-#ifndef ANSHARED_TYPES_H
-#define ANSHARED_TYPES_H
+
+#ifndef ANSHAREDLIB_STATUSBAR_H
+#define ANSHAREDLIB_STATUSBAR_H
+
 
 //*************************************************************************************************************
 //=============================================================================================================
 // INCLUDES
 //=============================================================================================================
 
-#include <inverse/dipoleFit/ecd.h>
-#include <Eigen/Core>
+#include "anShared/anshared_global.h"
 
 
 //*************************************************************************************************************
 //=============================================================================================================
-// Qt INCLUDES
+// QT INCLUDES
 //=============================================================================================================
 
 #include <QSharedPointer>
+#include <QStatusBar>
+#include <QLabel>
 
 
 //*************************************************************************************************************
 //=============================================================================================================
-// USED NAMESPACES
+// FORWARD DECLARATIONS
 //=============================================================================================================
 
-using namespace Eigen;
+class QLabel;
 
 
 //*************************************************************************************************************
 //=============================================================================================================
-// DEFINE NAMESPACE MNEANALYZE
+// DEFINE NAMESPACE ANSHAREDLIB
 //=============================================================================================================
 
-namespace ANSHAREDLIB
+namespace ANSHAREDLIB {
+
+
+//*************************************************************************************************************
+//=============================================================================================================
+// ANSHAREDLIB FORWARD DECLARATIONS
+//=============================================================================================================
+
+class Communicator;
+class Event;
+
+
+//=============================================================================================================
+/**
+* Description of what this class is intended to do (in detail).
+*
+* @brief Brief description of this class.
+*/
+class ANSHAREDSHARED_EXPORT StatusBar : public QStatusBar
 {
+    Q_OBJECT
+
+public:
+    typedef QSharedPointer<StatusBar> SPtr;            /**< Shared pointer type for StatusBar. */
+    typedef QSharedPointer<const StatusBar> ConstSPtr; /**< Const shared pointer type for StatusBar. */
+
     //=========================================================================================================
     /**
-    * The following directory paths are only imaginary.
-    * They should be used for models that are not stored to the file system yet.
+    * Constructs a StatusBar object.
+    */
+    StatusBar(QWidget *pParent = nullptr);
+
+    //=========================================================================================================
+    /**
+    * Destructor
+    */
+    ~StatusBar();
+
+
+    //=========================================================================================================
+    /**
+    * Sets a new timeout for messages in milliseconds.
     *
-    * Convention: Imaginary paths start with '*', end with '/' and all characters are upper case.
+    * @param[in] iTimeout       New timeout
     */
-    #define ECD_SET_MODEL_DEFAULT_DIR_PATH  QStringLiteral("*ECDSETMODEL/")
+    void setMsgTimeout(int iTimeout);
+
+protected:
+
+private:
 
     //=========================================================================================================
     /**
-    * The MODEL_TYPE enum lists all available model types.
-    * Naming convention: NAMESPACE_CLASSNAME_MODEL
+    * This functions gets called when a new message is received from the event system.
+    *
+    * @param[in] pEvent        The received event.
     */
-    enum MODEL_TYPE
-    {
-        ANSHAREDLIB_SURFACE_MODEL,
-        ANSHAREDLIB_QENTITYLIST_MODEL,
-        ANSHAREDLIB_ECDSET_MODEL
-    };
-
-    //=========================================================================================================
-    /**
-    * Public enum for all available Event types.
-    */
-    enum EVENT_TYPE
-    {
-        PING,
-        EXTENSION_INIT_FINISHED,    //send when all extensions finished initializing
-        STATUS_BAR_MSG              //Sending a message to the status bar(part of gui)
-
-    };
-} //NAMESPACE
-
-Q_DECLARE_METATYPE(Eigen::Vector3f);
-Q_DECLARE_METATYPE(Eigen::Vector3i);
-Q_DECLARE_METATYPE(INVERSELIB::ECD);
+    void onNewMessageReceived(const QSharedPointer<ANSHAREDLIB::Event> pEvent);
 
 
-#endif // TYPES_H
+    ANSHAREDLIB::Communicator *m_pCommunicator;         /**< Vector containing all extensions. */
+
+    int m_iMsgTimeout;                                  /**< Timeout of one message in milliseconds. */
+};
+
+
+//*************************************************************************************************************
+//=============================================================================================================
+// INLINE DEFINITIONS
+//=============================================================================================================
+
+
+} // namespace ANSHAREDLIB
+
+#endif // ANSHAREDLIB_STATUSBAR_H

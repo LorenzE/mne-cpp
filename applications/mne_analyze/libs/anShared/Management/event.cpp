@@ -71,9 +71,3 @@ Event::Event(const EVENT_TYPE type, const Communicator *sender, const QVariant& 
 }
 
 //*************************************************************************************************************
-
-
-Event::~Event()
-{
-
-}

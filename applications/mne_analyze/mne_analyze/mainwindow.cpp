@@ -43,8 +43,10 @@
 #include "mdiview.h"
 #include "../libs/anShared/Interfaces/IExtension.h"
 #include "../libs/anShared/Management/extensionmanager.h"
+#include "../libs/anShared/Management/statusbar.h"
 
 #include <iostream>
+
 
 //*************************************************************************************************************
 //=============================================================================================================
@@ -98,6 +100,8 @@ MainWindow::MainWindow(QSharedPointer<ANSHAREDLIB::ExtensionManager> pExtensionM
     else {
         std::cerr << "ERROR MainWindow::MainWindow extension manager is nullptr" << std::endl;
     }
+
+    this->setStatusBar(new StatusBar());
 }
 
 

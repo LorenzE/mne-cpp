@@ -1,12 +1,11 @@
 //=============================================================================================================
 /**
-* @file     types.h
+* @file     statusbar.cpp
 * @author   Lars Debor <lars.debor@tu-ilmenau.de>;
 *           Simon Heinke <simon.heinke@tu-ilmenau.de>;
-*           Matti Hamalainen <msh@nmr.mgh.harvard.edu>;
-*
+*           Matti Hamalainen <msh@nmr.mgh.harvard.edu>
 * @version  1.0
-* @date     March, 2018
+* @date     July, 2018
 *
 * @section  LICENSE
 *
@@ -31,27 +30,29 @@
 * POSSIBILITY OF SUCH DAMAGE.
 *
 *
-* @brief    Contains general application specific types
+* @brief    StatusBar class definition.
 *
 */
-#ifndef ANSHARED_TYPES_H
-#define ANSHARED_TYPES_H
+
 
 //*************************************************************************************************************
 //=============================================================================================================
 // INCLUDES
 //=============================================================================================================
 
-#include <inverse/dipoleFit/ecd.h>
-#include <Eigen/Core>
+#include "statusbar.h"
+#include <anShared/Management/communicator.h>
+#include <anShared/Management/event.h>
+#include <anShared/Utils/metatypes.h>
 
 
 //*************************************************************************************************************
 //=============================================================================================================
-// Qt INCLUDES
+// QT INCLUDES
 //=============================================================================================================
 
-#include <QSharedPointer>
+#include <QLabel>
+#include <QDebug>
 
 
 //*************************************************************************************************************
@@ -59,53 +60,59 @@
 // USED NAMESPACES
 //=============================================================================================================
 
-using namespace Eigen;
+using namespace ANSHAREDLIB;
 
 
 //*************************************************************************************************************
 //=============================================================================================================
-// DEFINE NAMESPACE MNEANALYZE
+// DEFINE GLOBAL METHODS
 //=============================================================================================================
 
-namespace ANSHAREDLIB
+
+//*************************************************************************************************************
+//=============================================================================================================
+// DEFINE MEMBER METHODS
+//=============================================================================================================
+
+StatusBar::StatusBar(QWidget *pParent)
+    : QStatusBar(pParent)
+    , m_iMsgTimeout(20000)
 {
-    //=========================================================================================================
-    /**
-    * The following directory paths are only imaginary.
-    * They should be used for models that are not stored to the file system yet.
-    *
-    * Convention: Imaginary paths start with '*', end with '/' and all characters are upper case.
-    */
-    #define ECD_SET_MODEL_DEFAULT_DIR_PATH  QStringLiteral("*ECDSETMODEL/")
+    QVector<EVENT_TYPE> vSubs = {EVENT_TYPE::STATUS_BAR_MSG};
+    m_pCommunicator = new Communicator(std::move(vSubs));
 
-    //=========================================================================================================
-    /**
-    * The MODEL_TYPE enum lists all available model types.
-    * Naming convention: NAMESPACE_CLASSNAME_MODEL
-    */
-    enum MODEL_TYPE
-    {
-        ANSHAREDLIB_SURFACE_MODEL,
-        ANSHAREDLIB_QENTITYLIST_MODEL,
-        ANSHAREDLIB_ECDSET_MODEL
-    };
+    this->setStyleSheet("QStatusBar { color: red}");
 
-    //=========================================================================================================
-    /**
-    * Public enum for all available Event types.
-    */
-    enum EVENT_TYPE
-    {
-        PING,
-        EXTENSION_INIT_FINISHED,    //send when all extensions finished initializing
-        STATUS_BAR_MSG              //Sending a message to the status bar(part of gui)
-
-    };
-} //NAMESPACE
-
-Q_DECLARE_METATYPE(Eigen::Vector3f);
-Q_DECLARE_METATYPE(Eigen::Vector3i);
-Q_DECLARE_METATYPE(INVERSELIB::ECD);
+    connect(m_pCommunicator, &Communicator::receivedEvent,
+            this, &StatusBar::onNewMessageReceived);
+}
 
 
-#endif // TYPES_H
+//*************************************************************************************************************
+
+StatusBar::~StatusBar()
+{
+    delete m_pCommunicator;
+}
+
+
+//*************************************************************************************************************
+
+void StatusBar::onNewMessageReceived(const QSharedPointer<Event> pEvent)
+{
+    switch(pEvent->getType()) {
+        case EVENT_TYPE::STATUS_BAR_MSG: {
+        if(pEvent->getData().canConvert<QString>()) {
+            showMessage(pEvent->getData().toString(), m_iMsgTimeout);
+            break;
+        }
+
+        }
+        default:
+            qDebug() << "StatusBar received an Event that is not handled by switch-cases";
+            break;
+    }
+}
+
+
+//*************************************************************************************************************

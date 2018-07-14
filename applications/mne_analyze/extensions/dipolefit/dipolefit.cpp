@@ -228,7 +228,7 @@ void DipoleFit::handleEvent(QSharedPointer<Event> e)
         break;
     }
     default:
-        qDebug() << "Surfer received an Event that is not handled by switch-cases";
+        qDebug() << "DipoleFit received an Event that is not handled by switch-cases";
         break;
     }
 }
@@ -373,7 +373,7 @@ void DipoleFit::onFitButtonClicked()
     QString sFitName = m_pDipoleFitControl->getFitName();
     QString sModelPath = ECD_SET_MODEL_DEFAULT_DIR_PATH + sFitName;
     if(sFitName.isEmpty()) {
-        qDebug() << "ERROR: FitName invalid!";
+        m_pCommu->publishEvent(STATUS_BAR_MSG, QStringLiteral("Fit name invalid"));
         return;
     }
 

@@ -99,6 +99,12 @@ public:
 
     //=========================================================================================================
     /**
+    * @brief Destructor
+    */
+    ~Event() = default;
+
+    //=========================================================================================================
+    /**
     * Getter for Event type.
     *
     * @return Type of the Event.
@@ -115,9 +121,11 @@ public:
 
     //=========================================================================================================
     /**
-    * @brief Destructor
+    * Getter for Event data.
+    *
+    * @return Data of the Event.
     */
-    ~Event();
+    inline QVariant getData() const;
 
 private:
     EVENT_TYPE m_eventType;             /**< Type of the respective Event instance. */
@@ -141,6 +149,14 @@ inline EVENT_TYPE Event::getType() const
 inline const Communicator* Event::getSender() const
 {
     return m_sender;
+}
+
+
+//*************************************************************************************************************
+
+QVariant Event::getData() const
+{
+    return m_data;
 }
 
 } // NAMESPACE

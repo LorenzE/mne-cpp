@@ -81,7 +81,8 @@ SOURCES += \
     Management/eventmanager.cpp \
     Model/ecdsetmodel.cpp
     Model/qentitylistmodel.cpp \
-    Data/dipolefitsettingswrapper.cpp
+    Data/dipolefitsettingswrapper.cpp \
+    Management/statusbar.cpp
 
 HEADERS += \
     anshared_global.h \
@@ -105,7 +106,8 @@ HEADERS += \
     Model/ecdsetmodel.h
     Utils/metatypes.h \
     Model/qentitylistmodel.h \
-    Data/dipolefitsettingswrapper.h
+    Data/dipolefitsettingswrapper.h \
+    Management/statusbar.h
 
 
 INCLUDEPATH += $${EIGEN_INCLUDE_DIR}
