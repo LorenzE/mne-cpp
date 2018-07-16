@@ -57,6 +57,7 @@
 
 #include <QtWidgets>
 #include <QtCore/QtPlugin>
+#include <QPair>
 
 
 //*************************************************************************************************************
@@ -74,6 +75,7 @@ namespace ANSHAREDLIB {
     class Communicator;
     class EcdSetModel;
     class DipoleFitSettingsWrapper;
+    class QEntityListModel;
 }
 
 namespace Qt3DCore {
@@ -206,7 +208,11 @@ private:
 
     ANSHAREDLIB::Communicator *m_pCommu;
 
-    QVector<QSharedPointer<ANSHAREDLIB::EcdSetModel>> m_vEcdSetModels;      /**< This vector stores all loaded EcdSetModels. */
+    QSharedPointer<ANSHAREDLIB::QEntityListModel> m_pDisplayModel;
+
+    bool m_bInitFinished;
+
+    QVector<QPair<QSharedPointer<ANSHAREDLIB::EcdSetModel>, QSharedPointer<Qt3DCore::QEntity>>> m_vEcdSetModels;      /**< This vector stores all loaded EcdSetModels and their QEnity tree if it exists. */
     QSharedPointer<ANSHAREDLIB::EcdSetModel> m_pActiveEcdSetModel;          /**< The currently active / displayed EcdSetModel. */
     QSharedPointer<Qt3DCore::QEntity> m_pDipoleRoot;
 

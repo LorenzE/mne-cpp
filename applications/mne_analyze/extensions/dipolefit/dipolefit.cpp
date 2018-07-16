@@ -83,6 +83,7 @@ DipoleFit::DipoleFit()
 : m_pControl(Q_NULLPTR)
 , m_pDipoleFitControl(Q_NULLPTR)
 , m_pMenu(Q_NULLPTR)
+, m_bInitFinished(false)
 {
 
 }
@@ -223,7 +224,9 @@ void DipoleFit::handleEvent(QSharedPointer<Event> e)
         QVector<QSharedPointer<QEntityListModel> > availableDisplays = m_analyzeData->availableDisplays();
         if (availableDisplays.size() >= 1)
         {
-            availableDisplays.at(0)->addEntityTree(m_pDipoleRoot);
+            m_pDisplayModel = availableDisplays.at(0);
+            m_pDisplayModel->addEntityTree(m_pDipoleRoot);
+            m_bInitFinished = true;
         }
         break;
     }
@@ -385,18 +388,37 @@ void DipoleFit::onFitButtonClicked()
 
 void DipoleFit::onActiveModelSelected(const QString &sModelName)
 {
-    auto result = std::find_if(m_vEcdSetModels.cbegin(), m_vEcdSetModels.cend(),
-                 [sModelName]( const QSharedPointer<EcdSetModel> &model) {
-        return model->getModelName() == sModelName;
+    if(m_bInitFinished == false) {
+        return;
+    }
+
+    //find selected model
+    auto result = std::find_if(m_vEcdSetModels.begin(), m_vEcdSetModels.end(),
+                 [sModelName]( const QPair<QSharedPointer<EcdSetModel>, QSharedPointer<QEntity>> &modelPair) {
+        return modelPair.first->getModelName() == sModelName;
     });
 
     if(result != m_vEcdSetModels.end()) {
-        m_pActiveEcdSetModel = *result;
+        //change visible 3D-model
+        bool removeSuccessful = m_pDisplayModel->removeEntityTree(m_pDipoleRoot);
+        if(removeSuccessful) {
+            m_pActiveEcdSetModel = result->first;
+
+            if(result->second.isNull()) {
+                //create qentity tree if non exists
+                result->second = create3DEnityTree(m_pActiveEcdSetModel);
+                qDebug() << "new DipoleFit entity tree created";
+            }
+
+            m_pDipoleRoot = result->second;
+            m_pDisplayModel->addEntityTree(m_pDipoleRoot);
+        }
+        else {
+            qDebug() << "DipoleFit: Unable to remove current 3D-Model!";
+        }
+
         qDebug() << "New active model: " << m_pActiveEcdSetModel->getModelPath();
-        //TODO  build new entity tree and send to main viewer
     }
-
-
 }
 
 
@@ -405,7 +427,8 @@ void DipoleFit::onActiveModelSelected(const QString &sModelName)
 void DipoleFit::onNewModelAvalible(QSharedPointer<AbstractModel> pNewModel)
 {
     if(pNewModel->getType() == MODEL_TYPE::ANSHAREDLIB_ECDSET_MODEL) {
-        m_vEcdSetModels.push_back(qSharedPointerCast<EcdSetModel>(pNewModel));
+        //add the new model to the list with no 3d entity tree
+        m_vEcdSetModels.push_back(qMakePair(qSharedPointerCast<EcdSetModel>(pNewModel), QSharedPointer<QEntity>()));
         m_pDipoleFitControl->addModel(pNewModel->getModelName());
         qDebug() << "New model added to vector and menu: " << pNewModel->getModelPath();
     }
@@ -416,7 +439,14 @@ void DipoleFit::onNewModelAvalible(QSharedPointer<AbstractModel> pNewModel)
 
 void DipoleFit::onModelPathChanged(QSharedPointer<AbstractModel> pModel, const QString &sOldModelPath, const QString &sNewModelPath)
 {
-    if(pModel->getType() == MODEL_TYPE::ANSHAREDLIB_ECDSET_MODEL && m_vEcdSetModels.contains(qSharedPointerCast<EcdSetModel>(pModel))) {
+    //find model
+    auto result = std::find_if(m_vEcdSetModels.cbegin(), m_vEcdSetModels.cend(),
+                 [pModel]( const QPair<QSharedPointer<EcdSetModel>, QSharedPointer<QEntity>> &modelPair) {
+        return modelPair.first == pModel;
+    });
+
+    if(pModel->getType() == MODEL_TYPE::ANSHAREDLIB_ECDSET_MODEL && result != m_vEcdSetModels.end()) {
+        //update gui
         m_pDipoleFitControl->removeModel(sOldModelPath.section('/', -1));
         m_pDipoleFitControl->addModel(pModel->getModelName());
     }
