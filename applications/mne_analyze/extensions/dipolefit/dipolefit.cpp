@@ -93,7 +93,8 @@ DipoleFit::DipoleFit()
 
 DipoleFit::~DipoleFit()
 {
-
+    delete m_pCommu;
+    delete m_pDipoleFitControl;
 }
 
 
@@ -445,7 +446,7 @@ void DipoleFit::onModelPathChanged(QSharedPointer<AbstractModel> pModel, const Q
         return modelPair.first == pModel;
     });
 
-    if(pModel->getType() == MODEL_TYPE::ANSHAREDLIB_ECDSET_MODEL && result != m_vEcdSetModels.end()) {
+    if(pModel->getType() == MODEL_TYPE::ANSHAREDLIB_ECDSET_MODEL && result != m_vEcdSetModels.cend()) {
         //update gui
         m_pDipoleFitControl->removeModel(sOldModelPath.section('/', -1));
         m_pDipoleFitControl->addModel(pModel->getModelName());

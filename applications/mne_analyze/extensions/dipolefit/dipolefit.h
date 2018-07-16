@@ -155,8 +155,16 @@ private:
     */
     QSharedPointer<Qt3DCore::QEntity> create3DEnityTree(QSharedPointer<ANSHAREDLIB::EcdSetModel> pModel) const;
 
+    //=========================================================================================================
+    /**
+    * This function gets called when the user presses the browse button.
+    */
     void onBrowseButtonClicked();
 
+    //=========================================================================================================
+    /**
+    * This function gets called when the user presses the Fit button.
+    */
     void onFitButtonClicked();
 
     //=========================================================================================================
@@ -202,22 +210,21 @@ private:
     QDockWidget*        m_pControl;             /**< Control Widget */
     DipoleFitControl*   m_pDipoleFitControl;    /**< The Dipole Fit Control Widget */
 
-    QMenu *m_pMenu;     /**< The menu bar entry */
-    QAction *m_pLoadfitFromFile;
-    QAction *m_pSaveFitToFile;
+    QMenu *m_pMenu;                             /**< The menu bar entry */
+    QAction *m_pLoadfitFromFile;                /**< Load file button in the menu */
+    QAction *m_pSaveFitToFile;                  /**< Save file button in the menu */
 
-    ANSHAREDLIB::Communicator *m_pCommu;
+    ANSHAREDLIB::Communicator *m_pCommu;        /**< Local commuicator */
 
-    QSharedPointer<ANSHAREDLIB::QEntityListModel> m_pDisplayModel;
+    QSharedPointer<ANSHAREDLIB::QEntityListModel> m_pDisplayModel;      /**< Pointer to the QEntityListModel of Mainviewer. */
 
-    bool m_bInitFinished;
+    bool m_bInitFinished;                                               /**< Is True if the EXTENSION_INIT_FINISHED event was received. */
 
     QVector<QPair<QSharedPointer<ANSHAREDLIB::EcdSetModel>, QSharedPointer<Qt3DCore::QEntity>>> m_vEcdSetModels;      /**< This vector stores all loaded EcdSetModels and their QEnity tree if it exists. */
     QSharedPointer<ANSHAREDLIB::EcdSetModel> m_pActiveEcdSetModel;          /**< The currently active / displayed EcdSetModel. */
-    QSharedPointer<Qt3DCore::QEntity> m_pDipoleRoot;
+    QSharedPointer<Qt3DCore::QEntity> m_pDipoleRoot;                        /**< The currently active qEntity root. */
 
-    //Dipole settings
-    ANSHAREDLIB::DipoleFitSettingsWrapper m_dipoleSettings;
+    ANSHAREDLIB::DipoleFitSettingsWrapper m_dipoleSettings;                 /**< The settings for the next dipole fit. */
 };
 
 } // NAMESPACE
