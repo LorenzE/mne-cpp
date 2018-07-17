@@ -136,7 +136,7 @@ private slots:
     *
     * @param[in] index An index to the newly added QEntity that is stored inside m_pModel
     */
-    void onEntityTreeAdded(const QModelIndex& index);
+    void onEntityTreeAdded(QSharedPointer<Qt3DCore::QEntity> pEntity);
 
     //=========================================================================================================
     /**
@@ -145,7 +145,7 @@ private slots:
     *
     * @param[in] sIdentifier The name of the QEntity to remove.
     */
-    void onEntityTreeRemoved(const QString &sIdentifier);
+    void onEntityTreeRemoved(QSharedPointer<Qt3DCore::QEntity> pEntity);
 
 private:
 

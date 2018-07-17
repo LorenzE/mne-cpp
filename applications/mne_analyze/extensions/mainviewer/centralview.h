@@ -29,12 +29,8 @@
 * POSSIBILITY OF SUCH DAMAGE.
 *
 *
-* This view is the display for 3D content in MNEAnalyze. It inherits Qt3DExtras::Qt3DWindow and specifies
-* camera, initial view angle, camera controller etc.
-* It keeps track of a QEntity-Tree that reflects all registered content. Unfortunately, the Qt3D backend
-* is a f-ing nightmare to use for dynamic scene managing, so there are quite a few things to pay attention
-* to. Read the documentation for methods addEntityTree and removeEntityTree for more details.
-* Registered SharedPointers are copied into a vector to keep their reference-count mechanism working.
+* @brief     CentralView class declaration.
+*
 */
 
 #ifndef MAINVIEWEREXTENSION_CENTRALVIEW_H
@@ -87,6 +83,14 @@ namespace MAINVIEWEREXTENSION {
 //=============================================================================================================
 /**
 * The CentralView class manages the registration and usage of entity trees within MNE-Analzye.
+* It is the main display for 3D content in MNEAnalyze. It inherits Qt3DExtras::Qt3DWindow and specifies
+* camera, initial view angle, camera controller etc.
+* It keeps track of a QEntity-Tree that reflects all registered content. Unfortunately, the Qt3D backend
+* is a nightmare to use for dynamic scene managing, so there are quite a few things to pay attention
+* to. Read the documentation for methods addEntityTree and removeEntityTree for more details.
+* Best thing to do is to register your EntityTree once and then work with setEnabled or similiar methods, that
+* do not change the structure above your trees root node.
+* Registered SharedPointers are copied into a vector to keep their reference-count mechanism working.
 */
 class CentralView : public Qt3DExtras::Qt3DWindow
 {
@@ -127,10 +131,13 @@ public:
     * aware that the root of your entity tree will have a new parent. This parent gets created by the CentralView
     * upon removal and is necessary in order to keep the Qt3D backend alive. Best practice is to act as if you did
     * not read this, meaning that you should just pass the "old" root to any further use cases.
+    * Also practise caution when restructuring your entity tree or while overwriting it with a new QEntity tree.
+    * Depending on your implementation, this may easily cause double frees or other memory corruptions.
+    * If you want to overwrite your QEntity root, make sure to separate every child first.
     *
     * @param[in] sIdentifier The name of the child to be removed.
     */
-    void removeEntity(const QString& sIdentifier);
+    void removeEntity(QSharedPointer<Qt3DCore::QEntity> pEntity);
 
     //=========================================================================================================
     /**

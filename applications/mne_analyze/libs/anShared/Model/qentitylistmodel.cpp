@@ -41,7 +41,6 @@
 
 #include "qentitylistmodel.h"
 #include "../Utils/metatypes.h"
-#include <iostream>
 
 
 //*************************************************************************************************************
@@ -90,14 +89,8 @@ QEntityListModel::QEntityListModel(const QString &modelIdentifier, QObject *pPar
 
 QVariant QEntityListModel::data(const QModelIndex &index, int role) const
 {
-    QVariant output;
-    if(index.isValid() && role == Qt::DisplayRole) {
-        if (index.column() < m_vData.size())
-        {
-            output.setValue(m_vData.at(index.column()));
-        }
-    }
-    return output;
+    // this is not a real model
+    return QVariant();
 }
 
 //*************************************************************************************************************
@@ -111,19 +104,15 @@ Qt::ItemFlags QEntityListModel::flags(const QModelIndex &index) const
 
 QModelIndex QEntityListModel::index(int row, int column, const QModelIndex &parent) const
 {
-    if(!parent.isValid()) {
-        return createIndex(row, column);
-    }
-    else {
-        return QModelIndex();
-    }
+    // this is not a real model
+    return QModelIndex();
 }
 
 //*************************************************************************************************************
 
 QModelIndex QEntityListModel::parent(const QModelIndex &index) const
 {
-    //Only the root node has childeren, therefore all parents are an invalid model index
+    // this is not a real model
     return QModelIndex();
 }
 
@@ -131,14 +120,8 @@ QModelIndex QEntityListModel::parent(const QModelIndex &index) const
 
 int QEntityListModel::rowCount(const QModelIndex &parent) const
 {
-    //if parent == root node
-    if(!parent.isValid()) {
-        return 1;
-    }
-    else {
-        // only the root node has children
-        return 0;
-    }
+    // this is not a real model
+    return 0;
 }
 
 
@@ -146,14 +129,8 @@ int QEntityListModel::rowCount(const QModelIndex &parent) const
 
 int QEntityListModel::columnCount(const QModelIndex &parent) const
 {
-    //if parent == root node
-    if(!parent.isValid()) {
-        return m_vData.size();
-    }
-    else {
-        // only the root node has children
-        return 0;
-    }
+    // this is not a real model
+    return 0;
 }
 
 
@@ -161,63 +138,24 @@ int QEntityListModel::columnCount(const QModelIndex &parent) const
 
 bool QEntityListModel::hasChildren(const QModelIndex &parent) const
 {
-    //if parent == root node
-    if(!parent.isValid()) {
-        return true;
-    }
-    else {
-        return false;
-    }
-}
-
-
-//*************************************************************************************************************
-
-bool QEntityListModel::addEntityTree(QSharedPointer<QEntity> pTree)
-{
-    // check whether entity name is valid
-    if (pTree->objectName().size() > 0)
-    {
-        // check whether name is already taken
-        for (const QSharedPointer<QEntity>& p : m_vData)
-        {
-            if (p->objectName().compare(pTree->objectName()) == 0)
-            {
-                // name found, return false
-                return false;
-            }
-        }
-        // could not find name, insert into record
-        m_vData.push_back(pTree);
-        // emit signal for connected display
-        emit entityTreeAdded(createIndex(0, m_vData.size() - 1));
-        return true;
-    }
-    else {
-        return false;
-    }
-}
-
-
-//*************************************************************************************************************
-
-bool QEntityListModel::removeEntityTree(QSharedPointer<QEntity> pTree)
-{
-    // check whether entity name is valid
-    if (pTree->objectName().size() > 0)
-    {
-        // check whether name can be found in record
-        for (int i = 0; i < m_vData.size(); ++i)
-        {
-            if (m_vData.at(i)->objectName().compare(pTree->objectName()) == 0)
-            {
-                // name found
-                emit entityTreeRemoved(pTree->objectName());
-                m_vData.remove(i);
-                return true;
-            }
-        }
-        // could not find name, will return false
-    }
+    // this is not a real model
     return false;
+}
+
+
+//*************************************************************************************************************
+
+void QEntityListModel::addEntityTree(QSharedPointer<QEntity> pEntity)
+{
+    // simply emit signal for connected display
+    emit entityTreeAdded(pEntity);
+}
+
+
+//*************************************************************************************************************
+
+void QEntityListModel::removeEntityTree(QSharedPointer<QEntity> pEntity)
+{
+    // simply emit signal for connected display
+    emit entityTreeRemoved(pEntity);
 }

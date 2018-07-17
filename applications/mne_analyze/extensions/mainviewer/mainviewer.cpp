@@ -115,6 +115,13 @@ QSharedPointer<IExtension> MainViewer::clone() const
 
 void MainViewer::init()
 {
+
+    // @TODO MOVE THIS AFTER MERGING WITH Lars Debor !!!
+    qRegisterMetaType<QSharedPointer<QEntity> >("QSharedPointer<QEntity>");
+
+
+
+
     if(m_bDisplayCreated == false) {
         createDisplay();
     }
@@ -211,20 +218,20 @@ QVector<EVENT_TYPE> MainViewer::getEventSubscriptions(void) const
 
 //*************************************************************************************************************
 
-void MainViewer::onEntityTreeAdded(const QModelIndex& index)
+void MainViewer::onEntityTreeAdded(QSharedPointer<QEntity> pEntity)
 {
     // retrieve data from model, extract shared pointer and pass it to view
-    m_pView->addEntity(m_pModel->data(index, Qt::DisplayRole).value<QSharedPointer<QEntity> >());
+    m_pView->addEntity(pEntity);
     m_pContainer->update();
 }
 
 
 //*************************************************************************************************************
 
-void MainViewer::onEntityTreeRemoved(const QString& sIdentifier)
+void MainViewer::onEntityTreeRemoved(QSharedPointer<QEntity> pEntity)
 {
     // simply pass on to view:
-    m_pView->removeEntity(sIdentifier);
+    m_pView->removeEntity(pEntity);
     m_pContainer->update();
 }
 
@@ -261,7 +268,7 @@ void MainViewer::createDisplay()
     m_pContainer->setAttribute(Qt::WA_DeleteOnClose, false);
 
     // we need this since the top-level main window runs "QMdiView::addSubWindow()", which requires a subwindow
-    // to be passed (if a window would be passed, QMdiView would silently create a new QMidSubWindow )
+    // to be passed (if a non-window would be passed, QMdiView would silently create a new QMidSubWindow )
     m_pSubWindow = new QMdiSubWindow();
     m_pSubWindow->setWidget(m_pContainer);
     m_pSubWindow->setWindowTitle(QString("Main Display"));
