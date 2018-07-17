@@ -231,6 +231,7 @@ void Surfer::handleEvent(QSharedPointer<Event> e)
         QVector<QSharedPointer<QEntityListModel> > availableDisplays = m_analyzeData->availableDisplays();
         if (availableDisplays.size() >= 1) {
             availableDisplays.at(0)->addEntityTree(m_pSurferRoot);
+            qDebug() << "[Surfer] successfully registered Surfer root";
         }
         else {
             qDebug() << "[Surfer] Could not find any displays...";

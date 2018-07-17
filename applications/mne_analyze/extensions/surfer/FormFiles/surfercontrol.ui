@@ -65,7 +65,7 @@
     </rect>
    </property>
    <property name="text">
-    <string>Selected Surface</string>
+    <string>Highlighted Surface</string>
    </property>
   </widget>
   <widget class="QLabel" name="label_3">

@@ -101,9 +101,9 @@ typedef QPair<QSharedPointer<ANSHAREDLIB::SurfaceModel>, QSharedPointer<Qt3DCore
 
 //=============================================================================================================
 /**
-* Surfer Extension
+* The surfer extension allows loading, managing and displaying of surface files.
+* It communicates with an instance of SurferControl in order to pass user arguments back and forth.
 *
-* @brief The Surfer class provides a Disp3D Views.
 */
 class SURFERSHARED_EXPORT Surfer : public ANSHAREDLIB::IExtension
 {
