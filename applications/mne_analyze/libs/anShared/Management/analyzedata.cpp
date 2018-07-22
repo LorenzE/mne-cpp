@@ -69,8 +69,8 @@ using namespace ANSHAREDLIB;
 // DEFINE MEMBER METHODS
 //=============================================================================================================
 
-AnalyzeData::AnalyzeData(QObject *parent)
-: QObject(parent)
+AnalyzeData::AnalyzeData(QObject *pParent)
+: QObject(pParent)
 {
 
 }
@@ -104,35 +104,35 @@ QVector<QSharedPointer<AbstractModel> > AnalyzeData::getObjectsOfType(MODEL_TYPE
 
 //*************************************************************************************************************
 
-QSharedPointer<AbstractModel> AnalyzeData::getModel(const QString &name)
+QSharedPointer<AbstractModel> AnalyzeData::getModel(const QString &sName)
 {
-    return m_data.value(name);
+    return m_data.value(sName);
 }
 
 
 //*************************************************************************************************************
 
-QSharedPointer<SurfaceModel> AnalyzeData::loadSurfaceModel(const QString& path)
+QSharedPointer<SurfaceModel> AnalyzeData::loadSurfaceModel(const QString& sPath)
 {
-    return loadModel<SurfaceModel>(path);
+    return loadModel<SurfaceModel>(sPath);
 }
 
 
 //*************************************************************************************************************
 
-QSharedPointer<SurfaceModel> AnalyzeData::loadSurfaceModel(const QString &subject_id, qint32 hemi, const QString &surf, const QString &subjects_dir)
+QSharedPointer<SurfaceModel> AnalyzeData::loadSurfaceModel(const QString &sSubject_id, qint32 iHemi, const QString &sSurf, const QString &sSubjects_dir)
 {
     // copied from Surface::read
-    QString p_sFile = QString("%1/%2/surf/%3.%4").arg(subjects_dir).arg(subject_id).arg(hemi == 0 ? "lh" : "rh").arg(surf);
+    QString p_sFile = QString("%1/%2/surf/%3.%4").arg(sSubjects_dir).arg(sSubject_id).arg(iHemi == 0 ? "lh" : "rh").arg(sSurf);
     return loadSurfaceModel(p_sFile);
 }
 
 
 //*************************************************************************************************************
 
-QSharedPointer<EcdSetModel> AnalyzeData::loadEcdSetModel(const QString &path)
+QSharedPointer<EcdSetModel> AnalyzeData::loadEcdSetModel(const QString &sPath)
 {
-    return loadModel<EcdSetModel>(path);
+    return loadModel<EcdSetModel>(sPath);
 }
 
 
@@ -141,11 +141,11 @@ QSharedPointer<EcdSetModel> AnalyzeData::loadEcdSetModel(const QString &path)
 QSharedPointer<EcdSetModel> AnalyzeData::loadEcdSetModel(INVERSELIB::DipoleFitSettings *pSettings, const QString &sPath)
 {
     if(pSettings == nullptr || sPath.isEmpty()) {
-        qDebug() << "ERROR: AnalyzeData::loadEcdSetModel: could not load model!";
+        qDebug() << "[AnalyzeData] load EcdSetModel: could not load model!";
         return QSharedPointer<EcdSetModel>();
     }
     if (m_data.contains(sPath)) {
-        qDebug() << "path already exists " << sPath;
+        qDebug() << "[AnalyzeData] loadEcdSetModel: path already exists " << sPath;
         return qSharedPointerDynamicCast<EcdSetModel>(m_data.value(sPath));
     }
 
@@ -158,9 +158,9 @@ QSharedPointer<EcdSetModel> AnalyzeData::loadEcdSetModel(INVERSELIB::DipoleFitSe
 
 //*************************************************************************************************************
 
-QSharedPointer<QEntityListModel> AnalyzeData::createQEntityListModel(const QString &modelIdentifier)
+QSharedPointer<QEntityListModel> AnalyzeData::createQEntityListModel(const QString &sModelIdentifier)
 {
-    return loadModel<QEntityListModel>(modelIdentifier);
+    return loadModel<QEntityListModel>(sModelIdentifier);
 }
 
 
@@ -205,7 +205,7 @@ void AnalyzeData::changeModelPath(const QString &sOldModelPath, const QString &s
         emit modelPathChanged(pModel, sOldModelPath, sNewModelPath);
     }
     else {
-        qDebug() << "ERROR: Changing model name from " << sOldModelPath <<
+        qDebug() << "[AnalyzeData] changeModelPath: Changing model name from " << sOldModelPath <<
                     " to " << sNewModelPath << " unsuccessful!";
     }
 }

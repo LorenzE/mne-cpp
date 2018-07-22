@@ -185,6 +185,7 @@ bool EcdSetModel::setData(const QModelIndex &index, const QVariant &value, int r
 
 bool EcdSetModel::saveToFile()
 {
+    //Check if the current model path is imaginary
     if(m_modelPath.sDirectoryPath == ECD_SET_MODEL_DEFAULT_DIR_PATH) {
         qDebug() << "Can not save to " << getModelPath();
         return false;

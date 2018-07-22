@@ -153,7 +153,7 @@ private:
     *
     * @param[in] pModel     The input model.
     */
-    QSharedPointer<Qt3DCore::QEntity> create3DEnityTree(QSharedPointer<ANSHAREDLIB::EcdSetModel> pModel) const;
+    QSharedPointer<Qt3DCore::QEntity> create3DEntityTree(QSharedPointer<ANSHAREDLIB::EcdSetModel> pModel) const;
 
     //=========================================================================================================
     /**

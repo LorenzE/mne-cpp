@@ -123,7 +123,6 @@ void DipoleFit::init()
     connect(m_analyzeData.data(), &AnalyzeData::modelPathChanged,
             this, &DipoleFit::onModelPathChanged);
 
-    //TODO load the model with analyzeData
     QFile testFile;
 
     //Following is equivalent to: --meas ./mne-cpp-test-data/MEG/sample/sample_audvis-ave.fif --set 1 --meg --eeg --tmin 32 --tmax 148 --bmin -100 --bmax 0 --dip ./mne-cpp-test-data/Result/dip_fit.dat
@@ -146,7 +145,7 @@ void DipoleFit::init()
     qDebug() << "DipoleFit: EcdSetModel size: " << m_pActiveEcdSetModel->rowCount();
 
     //Build the QEntity Tree
-    m_pDipoleRoot = create3DEnityTree(m_pActiveEcdSetModel);
+    m_pDipoleRoot = create3DEntityTree(m_pActiveEcdSetModel);
 }
 
 
@@ -300,7 +299,7 @@ void DipoleFit::initGuiConnections()
 
 //*************************************************************************************************************
 
-QSharedPointer<QEntity> DipoleFit::create3DEnityTree(QSharedPointer<EcdSetModel> pModel) const
+QSharedPointer<QEntity> DipoleFit::create3DEntityTree(QSharedPointer<EcdSetModel> pModel) const
 {
     QSharedPointer<QEntity> pRootEntity = QSharedPointer<QEntity>::create();
     pRootEntity->setObjectName(QStringLiteral("DipoleEntityTree"));
@@ -381,6 +380,7 @@ void DipoleFit::onFitButtonClicked()
         return;
     }
 
+    //AnalzyeData will notify the DipoleFit about the model via the newModelAvailable signal.
     m_analyzeData->loadEcdSetModel(m_dipoleSettings.getSettings(), sModelPath);
 }
 
@@ -400,6 +400,7 @@ void DipoleFit::onActiveModelSelected(const QString &sModelName)
     });
 
     if(result != m_vEcdSetModels.end()) {
+        //TODO condsider useing the QEntity::setEnabled function to change the visibility
         //change visible 3D-model
         bool removeSuccessful = m_pDisplayModel->removeEntityTree(m_pDipoleRoot);
         if(removeSuccessful) {
@@ -407,8 +408,8 @@ void DipoleFit::onActiveModelSelected(const QString &sModelName)
 
             if(result->second.isNull()) {
                 //create qentity tree if non exists
-                result->second = create3DEnityTree(m_pActiveEcdSetModel);
-                qDebug() << "new DipoleFit entity tree created";
+                result->second = create3DEntityTree(m_pActiveEcdSetModel);
+                qDebug() << "DipoleFit: New entity tree created";
             }
 
             m_pDipoleRoot = result->second;
@@ -418,7 +419,7 @@ void DipoleFit::onActiveModelSelected(const QString &sModelName)
             qDebug() << "DipoleFit: Unable to remove current 3D-Model!";
         }
 
-        qDebug() << "New active model: " << m_pActiveEcdSetModel->getModelPath();
+        qDebug() << "DipoleFit: New active model: " << m_pActiveEcdSetModel->getModelPath();
     }
 }
 
@@ -431,7 +432,7 @@ void DipoleFit::onNewModelAvalible(QSharedPointer<AbstractModel> pNewModel)
         //add the new model to the list with no 3d entity tree
         m_vEcdSetModels.push_back(qMakePair(qSharedPointerCast<EcdSetModel>(pNewModel), QSharedPointer<QEntity>()));
         m_pDipoleFitControl->addModel(pNewModel->getModelName());
-        qDebug() << "New model added to vector and menu: " << pNewModel->getModelPath();
+        qDebug() << "DipoleFit: New model added to vector and menu: " << pNewModel->getModelPath();
     }
 }
 

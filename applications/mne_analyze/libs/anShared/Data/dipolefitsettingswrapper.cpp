@@ -127,73 +127,73 @@ void DipoleFitSettingsWrapper::setMeasurementFilePath(const QString &sPath)
 
 //*************************************************************************************************************
 
-void DipoleFitSettingsWrapper::setIsRaw(bool value)
+void DipoleFitSettingsWrapper::setIsRaw(bool bValue)
 {
-    m_pSettings->is_raw = value;
-    emit isRawChanged(value);
+    m_pSettings->is_raw = bValue;
+    emit isRawChanged(bValue);
 }
 
 
 //*************************************************************************************************************
 
-void DipoleFitSettingsWrapper::setSetNum(int value)
+void DipoleFitSettingsWrapper::setSetNum(int iValue)
 {
-    m_pSettings->setno = value;
-    emit setNumChanged(value);
+    m_pSettings->setno = iValue;
+    emit setNumChanged(iValue);
 }
 
 
 //*************************************************************************************************************
 
-void DipoleFitSettingsWrapper::setIncludeMeg(bool value)
+void DipoleFitSettingsWrapper::setIncludeMeg(bool bValue)
 {
-    m_pSettings->include_meg = value;
-    emit includeMegChanged(value);
+    m_pSettings->include_meg = bValue;
+    emit includeMegChanged(bValue);
 }
 
 
 //*************************************************************************************************************
 
-void DipoleFitSettingsWrapper::setIncludeEeg(bool value)
+void DipoleFitSettingsWrapper::setIncludeEeg(bool bValue)
 {
-    m_pSettings->include_eeg = value;
-    emit includeEegChanged(value);
+    m_pSettings->include_eeg = bValue;
+    emit includeEegChanged(bValue);
 }
 
 
 //*************************************************************************************************************
 
-void DipoleFitSettingsWrapper::setTMax(double value)
+void DipoleFitSettingsWrapper::setTMax(double dValue)
 {
-    m_pSettings->tmax = value;
-    emit tMaxChanged(value);
+    m_pSettings->tmax = dValue;
+    emit tMaxChanged(dValue);
 }
 
 
 //*************************************************************************************************************
 
-void DipoleFitSettingsWrapper::setTMin(double value)
+void DipoleFitSettingsWrapper::setTMin(double dValue)
 {
-    m_pSettings->tmin = value;
-    emit tMinChanged(value);
+    m_pSettings->tmin = dValue;
+    emit tMinChanged(dValue);
 }
 
 
 //*************************************************************************************************************
 
-void DipoleFitSettingsWrapper::setBMax(double value)
+void DipoleFitSettingsWrapper::setBMax(double dValue)
 {
-    m_pSettings->bmax = value;
-    emit bMaxChanged(value);
+    m_pSettings->bmax = dValue;
+    emit bMaxChanged(dValue);
 }
 
 
 //*************************************************************************************************************
 
-void DipoleFitSettingsWrapper::setBMin(double value)
+void DipoleFitSettingsWrapper::setBMin(double dValue)
 {
-    m_pSettings->bmin = value;
-    emit bMinChanged(value);
+    m_pSettings->bmin = dValue;
+    emit bMinChanged(dValue);
 }
 
 

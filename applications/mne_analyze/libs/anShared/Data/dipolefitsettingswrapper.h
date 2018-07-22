@@ -136,27 +136,27 @@ public:
 
     //TODO Docu
     void setMeasurementFilePath(const QString &sPath);
-    void setIsRaw(bool value);
-    void setSetNum(int value);
-    void setIncludeMeg(bool value);
-    void setIncludeEeg(bool value);
-    void setTMax(double value);
-    void setTMin(double value);
-    void setBMax(double value);
-    void setBMin(double value);
+    void setIsRaw(bool bValue);
+    void setSetNum(int iValue);
+    void setIncludeMeg(bool bValue);
+    void setIncludeEeg(bool bValue);
+    void setTMax(double dValue);
+    void setTMin(double dValue);
+    void setBMax(double dValue);
+    void setBMin(double dValue);
     void setDipPath(const QString &sDipName);
 
 signals:
     //TODO Docu
-    void measurementFilePathChanged(const QString &path);
-    void isRawChanged(bool value);
-    void setNumChanged(int setNum);
-    void includeMegChanged(bool value);
-    void includeEegChanged(bool value);
-    void tMaxChanged(double value);
-    void tMinChanged(double value);
-    void bMaxChanged(double value);
-    void bMinChanged(double value);
+    void measurementFilePathChanged(const QString &sPath);
+    void isRawChanged(bool bValue);
+    void setNumChanged(int iSetNum);
+    void includeMegChanged(bool bValue);
+    void includeEegChanged(bool bValue);
+    void tMaxChanged(double dValue);
+    void tMinChanged(double dValue);
+    void bMaxChanged(double dValue);
+    void bMinChanged(double dValue);
     void dipPathChanged(const QString &sDipName);
 
 private:
