@@ -400,24 +400,20 @@ void DipoleFit::onActiveModelSelected(const QString &sModelName)
     });
 
     if(result != m_vEcdSetModels.end()) {
-        //TODO condsider useing the QEntity::setEnabled function to change the visibility
+        //TODO consider using the QEntity::setEnabled function to change the visibility
         //change visible 3D-model
-        bool removeSuccessful = m_pDisplayModel->removeEntityTree(m_pDipoleRoot);
-        if(removeSuccessful) {
-            m_pActiveEcdSetModel = result->first;
+        m_pDisplayModel->removeEntityTree(m_pDipoleRoot);
 
-            if(result->second.isNull()) {
-                //create qentity tree if non exists
-                result->second = create3DEntityTree(m_pActiveEcdSetModel);
-                qDebug() << "DipoleFit: New entity tree created";
-            }
+        m_pActiveEcdSetModel = result->first;
 
-            m_pDipoleRoot = result->second;
-            m_pDisplayModel->addEntityTree(m_pDipoleRoot);
+        if(result->second.isNull()) {
+            //create qentity tree if none exists
+            result->second = create3DEntityTree(m_pActiveEcdSetModel);
+            qDebug() << "DipoleFit: New entity tree created";
         }
-        else {
-            qDebug() << "DipoleFit: Unable to remove current 3D-Model!";
-        }
+
+        m_pDipoleRoot = result->second;
+        m_pDisplayModel->addEntityTree(m_pDipoleRoot);
 
         qDebug() << "DipoleFit: New active model: " << m_pActiveEcdSetModel->getModelPath();
     }
