@@ -115,13 +115,6 @@ QSharedPointer<IExtension> MainViewer::clone() const
 
 void MainViewer::init()
 {
-
-    // @TODO MOVE THIS AFTER MERGING WITH Lars Debor !!!
-    qRegisterMetaType<QSharedPointer<QEntity> >("QSharedPointer<QEntity>");
-
-
-
-
     if(m_bDisplayCreated == false) {
         createDisplay();
     }

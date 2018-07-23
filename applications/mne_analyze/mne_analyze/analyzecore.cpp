@@ -57,6 +57,7 @@
 //=============================================================================================================
 
 #include <QtWidgets>
+#include <Qt3DCore/QEntity>
 
 
 //*************************************************************************************************************
@@ -173,6 +174,7 @@ void AnalyzeCore::initMainWindow()
 void AnalyzeCore::registerMetaTypes()
 {
     qRegisterMetaType<QSharedPointer<Event>>("QSharedPointer<Event>");
+    qRegisterMetaType<QSharedPointer<Qt3DCore::QEntity> >("QSharedPointer<QEntity>");
 }
 
 

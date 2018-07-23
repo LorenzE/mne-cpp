@@ -135,7 +135,7 @@ public:
     * Depending on your implementation, this may easily cause double frees or other memory corruptions.
     * If you want to overwrite your QEntity root, make sure to separate every child first.
     *
-    * @param[in] sIdentifier The name of the child to be removed.
+    * @param[in] pEntity The QEntity that should be removed
     */
     void removeEntity(QSharedPointer<Qt3DCore::QEntity> pEntity);
 
