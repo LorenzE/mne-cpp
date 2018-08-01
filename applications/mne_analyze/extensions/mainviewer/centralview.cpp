@@ -41,6 +41,7 @@
 //=============================================================================================================
 
 #include "centralview.h"
+#include "../../../libraries/disp3D/engine/view/orbitalcameracontroller.h"
 
 
 //*************************************************************************************************************
@@ -69,6 +70,7 @@ using namespace MAINVIEWEREXTENSION;
 using namespace Qt3DRender;
 using namespace Qt3DCore;
 using namespace Qt3DExtras;
+using namespace DISP3DLIB;
 
 
 //*************************************************************************************************************
@@ -85,6 +87,7 @@ using namespace Qt3DExtras;
 CentralView::CentralView()
     : Qt3DWindow(),
       m_pRootEntity(new QEntity),
+      m_pCamera(this->camera()),
       m_vEntities(),
       m_vAntiCrashNodes()
 {
@@ -101,11 +104,15 @@ void CentralView::init()
     pPickSettings->setPickMethod(QPickingSettings::TrianglePicking);
     pPickSettings->setPickResultMode(QPickingSettings::NearestPick);
 
-    QCamera *pCamera = camera();
-    pCamera->setPosition(QVector3D(0,0,1));
+    m_pCamera->lens()->setPerspectiveProjection(45.0f, 16.0f/9.0f, 0.0001f, 100000.0f);
+    m_pCamera->setPosition(QVector3D(0.0f, -0.4f, -0.25f));
+    m_pCamera->setViewCenter(QVector3D(0.0f, 0.0f, 0.0f));
+    m_pCamera->setUpVector(QVector3D(0.0f, 1.0f, 0.0f));
+    m_pCamera->tiltAboutViewCenter(180);
 
-    QFirstPersonCameraController *pCamController = new QFirstPersonCameraController(m_pRootEntity);
-    pCamController->setCamera(pCamera);
+    OrbitalCameraController *pCamController = new OrbitalCameraController(m_pRootEntity);
+    pCamController->setCamera(m_pCamera);
+
     // we introduced the convention that every entity below root should be named
     pCamController->setObjectName("MainViewer/CameraController");
     m_vEntities.push_back(QSharedPointer<QEntity>(pCamController));

@@ -51,6 +51,7 @@
 #include <QSharedPointer>
 #include <Qt3DExtras/Qt3DWindow>
 #include <Qt3DCore/QEntity>
+#include <Qt3DRender/QCamera>
 #include <QVector>
 
 
@@ -171,6 +172,9 @@ private:
     void checkForUnusedAntiCrashNodes();
 
     Qt3DCore::QEntity *m_pRootEntity;           /**< Root entity */
+
+    Qt3DRender::QCamera *m_pCamera;             /**< Camera */
+
 
     /**
     * Since parent-child connections inside the tree are based on normal pointers, we need to keep track of
