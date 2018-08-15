@@ -103,8 +103,10 @@ public:
     /**
     * Constructs a MainWindow which is a child of parent.
     *
-    * @param [in] pointer to the extension manager. It is needed to display subwindows froms extensions.
-    * @param [in] parent pointer to parent widget; If parent is Q_NULLPTR, the new MainWindow becomes a window. If parent is another widget, MainWindow becomes a child window inside parent. MainWindow is deleted when its parent is deleted.
+    * @param [in] pExtensionManager Pointer to the extension manager. It is needed to display subwindows froms extensions.
+    * @param [in] parent Pointer to parent widget; If parent is Q_NULLPTR, the new MainWindow becomes a window.
+    *                    If parent is another widget, MainWindow becomes a child window inside parent.
+    *                    MainWindow is deleted when its parent is deleted.
     */
     MainWindow(QSharedPointer<ANSHAREDLIB::ExtensionManager> pExtensionManager, QWidget *parent = Q_NULLPTR);
 
@@ -135,7 +137,6 @@ private:
 
     void tabifyDockWindows();   /**< Tabify all dock windows */
 
-    QAction*                            m_pActionOpenDataFile;      /**< open data file action */
     QAction*                            m_pActionExit;              /**< exit application action */
 
 
@@ -153,17 +154,11 @@ private:
     QSharedPointer<QWidget>             m_pAboutWindow;     /**< Holds the widget containing the about information.*/
 
 private:
-    //Open a FIFF file
-    void openFiffFile();            /**< Implements open fiff action. TODO: Move to fiffio*/
-    //FIFF File management
-    QString                 m_fiffFileName;  /**< TODO: Move to fiffio */
-
     void about();                   /**< Implements about action.*/
 
 private:
     //MDI Central View
     MdiView *m_pMdiView;            /**< The Central MDI View.*/
-
 
 };
 

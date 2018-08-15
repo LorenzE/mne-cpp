@@ -113,7 +113,7 @@ void MdiView::removeSubWindow(QWidget *widget)
 
 void MdiView::cascadeSubWindows()
 {
-    //Arrange subwindows in a Tile mode    //Arrange subwindows in a Tile mode
+    // Arrange all the child windows in a cascade pattern.
     this->m_mdiArea->cascadeSubWindows();
 }
 
@@ -122,7 +122,7 @@ void MdiView::cascadeSubWindows()
 
 void MdiView::tileSubWindows()
 {
-    //Arrange subwindows in a Tile mode
+    // Arrange subwindows in a Tile mode
     this->m_mdiArea->tileSubWindows();
 }
 
@@ -151,4 +151,3 @@ void MdiView::printCurrentSubWindow()
 #endif
 
 }
-
