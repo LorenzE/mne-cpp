@@ -81,14 +81,13 @@ using namespace Qt3DCore;
 //=============================================================================================================
 
 MainViewer::MainViewer()
-    : m_pControl(Q_NULLPTR),
+    : m_pMainViewerControl(Q_NULLPTR),
+      m_pDock(Q_NULLPTR),
       m_pModel(Q_NULLPTR),
       m_pView(Q_NULLPTR),
       m_pContainer(Q_NULLPTR),
       m_pSubWindow(Q_NULLPTR),
-      m_bDisplayCreated(false),
-      m_pMenu(Q_NULLPTR),
-      m_pToggleVisibility(Q_NULLPTR)
+      m_bDisplayCreated(false)
 {
 
 }
@@ -125,6 +124,16 @@ void MainViewer::init()
     QObject::connect(m_pModel.data(), &QEntityListModel::entityTreeAdded, this, &MainViewer::onEntityTreeAdded);
     // direct connection in case somebody directly deletes the entity tree after calling "removeEntityTree".
     QObject::connect(m_pModel.data(), &QEntityListModel::entityTreeRemoved, this, &MainViewer::onEntityTreeRemoved);
+
+    // build control widget
+    if (! m_pMainViewerControl) {
+        m_pMainViewerControl = new MainViewerControl;
+
+        connect(m_pMainViewerControl,
+                &MainViewerControl::visibilityChanged,
+                this,
+                &MainViewer::onVisibilityChanged);
+    }
 }
 
 
@@ -149,6 +158,7 @@ QString MainViewer::getName() const
 
 QMenu *MainViewer::getMenu()
 {
+    /*
     if(!m_pMenu)
     {
         m_pMenu = new QMenu(getName().toStdString().c_str());
@@ -163,6 +173,8 @@ QMenu *MainViewer::getMenu()
     }
 
     return m_pMenu;
+    */
+    return Q_NULLPTR;
 }
 
 
@@ -170,13 +182,16 @@ QMenu *MainViewer::getMenu()
 
 QDockWidget *MainViewer::getControl()
 {
-    if(!m_pControl) {
-        m_pControl = new QDockWidget(tr("Main View Control"));
-        m_pControl->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
-        m_pControl->setMinimumWidth(180);
+    if(!m_pDock) {
+        m_pDock = new QDockWidget(tr("MainViewer Control"));
+        m_pDock->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
+        m_pDock->setMinimumWidth(180);
+        if (m_pMainViewerControl) {
+            m_pDock->setWidget(m_pMainViewerControl);
+        }
     }
 
-    return m_pControl;
+    return m_pDock;
 }
 
 
@@ -231,6 +246,31 @@ void MainViewer::onEntityTreeRemoved(QSharedPointer<QEntity> pEntity)
 
 //*************************************************************************************************************
 
+void MainViewer::onVisibilityChanged(bool visible)
+{
+    if(visible) {
+        // window should become visible
+        if(m_pSubWindow->isVisible() == false) {
+            show();
+        }
+    }
+    else {
+        // window should become invisible, depending on consistency of window visibility and checked-ness of
+        // the toggleVisibility component in the MainViewers Dock Widget
+        if(m_pSubWindow->isVisible()) {
+            // normal case, simply hide
+            hide();
+        }
+        else {
+            // user has probably clicked 'x'-button of MainViewers window. This leads to a minor inconsistency
+            // in checked-ness of the respective GUI-component. In order to restore consistency, we ignore this case
+        }
+    }
+}
+
+
+//*************************************************************************************************************
+
 void MainViewer::hide()
 {
     m_pSubWindow->hide();
@@ -269,34 +309,4 @@ void MainViewer::createDisplay()
 
     // remember that the display was built
     m_bDisplayCreated = true;
-}
-
-
-//*************************************************************************************************************
-
-void MainViewer::toggleVisibility(bool checked)
-{
-    if(checked)
-    {
-        // window should become visible
-        if(m_pSubWindow->isVisible() == false)
-        {
-            show();
-        }
-    }
-    else {
-        // window should become invisible, depending on consistency of window visibility and checked-ness of
-        // the toggleVisibility action in MainViewer menu
-        if(m_pSubWindow->isVisible())
-        {
-            // normal case, simply hide
-            hide();
-        }
-        else {
-            // user has clicked 'x'-close Button, and since we do not override m_pSubWindow's closeEvent method,
-            // we simply show the mainviewer again and set the action on checked
-            show();
-            m_pToggleVisibility->setChecked(true);
-        }
-    }
 }

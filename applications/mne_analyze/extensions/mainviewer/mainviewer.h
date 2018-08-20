@@ -44,6 +44,7 @@
 //=============================================================================================================
 
 #include "mainviewer_global.h"
+#include "FormFiles/mainviewercontrol.h"
 #include <anShared/Interfaces/IExtension.h>
 #include "centralview.h"
 #include "../../libs/anShared/Model/qentitylistmodel.h"
@@ -147,6 +148,14 @@ private slots:
     */
     void onEntityTreeRemoved(QSharedPointer<Qt3DCore::QEntity> pEntity);
 
+    //=========================================================================================================
+    /**
+    * This is called when the user interacts with the QAction in the QMenu for MainViewer
+    *
+    * @param[in] visible Whether or not the MainViewer should currently be displayed.
+    */
+    void onVisibilityChanged(bool visible);
+
 private:
 
     //=========================================================================================================
@@ -167,23 +176,17 @@ private:
     */
     void createDisplay();
 
-    //=========================================================================================================
-    /**
-    * This is called when the user interacts with the QAction in the QMenu for MainViewer
-    */
-    virtual void toggleVisibility(bool checked);
 
-    QDockWidget*                                    m_pControl; /**< Control Widget */
     QSharedPointer<ANSHAREDLIB::QEntityListModel>   m_pModel; /**< Other extension register their stuff here */
 
     // views / GUI stuff
+    QDockWidget*                                    m_pDock; /**< Dock Widget */
+    MainViewerControl*                              m_pMainViewerControl; /**< Control Widget */
+
     CentralView*                                    m_pView; /**< Main 3D View */
     QWidget*                                        m_pContainer; /**< Container for wrapping 3D Window in a widget */
     QMdiSubWindow*                                  m_pSubWindow; /**< Window that wraps the container */
     bool                                            m_bDisplayCreated; /**< Flag for remembering whether or not the display was already created */
-
-    QMenu*                                          m_pMenu;
-    QAction*                                        m_pToggleVisibility;
 };
 
 

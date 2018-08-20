@@ -80,12 +80,14 @@ unix: DESTDIR = $${MNE_BINARY_DIR}/mne_analyze_extensions
 
 SOURCES += \
     mainviewer.cpp \
-    centralview.cpp
+    centralview.cpp \
+    FormFiles/mainviewercontrol.cpp
 
 HEADERS += \
     mainviewer_global.h \
     mainviewer.h \
-    centralview.h
+    centralview.h \
+    FormFiles/mainviewercontrol.h
 
 
 INCLUDEPATH += $${EIGEN_INCLUDE_DIR}
@@ -101,4 +103,7 @@ unix: QMAKE_CXXFLAGS += -isystem $$EIGEN_INCLUDE_DIR
 
 # suppress visibility warnings
 unix: QMAKE_CXXFLAGS += -Wno-attributes
+
+FORMS += \
+    FormFiles/mainviewercontrol.ui
 
