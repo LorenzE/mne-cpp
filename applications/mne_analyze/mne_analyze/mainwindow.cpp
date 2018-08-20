@@ -45,14 +45,13 @@
 #include "../libs/anShared/Management/extensionmanager.h"
 #include "../libs/anShared/Management/statusbar.h"
 
-#include <iostream>
-
 
 //*************************************************************************************************************
 //=============================================================================================================
 // QT INCLUDES
 //=============================================================================================================
 
+#include <QDebug>
 #include <QtWidgets>
 #include <QMenu>
 #include <QMenuBar>
@@ -97,7 +96,7 @@ MainWindow::MainWindow(QSharedPointer<ANSHAREDLIB::ExtensionManager> pExtensionM
         createMenus(pExtensionManager);
     }
     else {
-        std::cerr << "[MainWindow] CTor: FATAL: extension manager is nullptr" << std::endl;
+        qDebug() << "[MainWindow] CTor: FATAL: extension manager is nullptr";
     }
 
     this->setStatusBar(new StatusBar());

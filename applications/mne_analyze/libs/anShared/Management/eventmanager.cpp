@@ -41,7 +41,6 @@
 
 #include "eventmanager.h"
 #include "communicator.h"
-#include <iostream>
 #include <chrono>
 
 
@@ -50,6 +49,7 @@
 // QT INCLUDES
 //=============================================================================================================
 
+#include <QDebug>
 #include <QMutexLocker>
 
 //*************************************************************************************************************
@@ -130,8 +130,8 @@ void EventManager::removeCommunicator(Communicator* commu)
         // consistency check:
         if (removed != 1)
         {
-            std::cerr << "EventManager: WARNING ! Found " << removed << " entries instead of 1 for event type ";
-            std::cerr << etype << " and communicator ID " << commu->getID() << std::endl;
+            qDebug() << "EventManager: WARNING ! Found " << removed << " entries instead of 1 for event type ";
+            qDebug() << etype << " and communicator ID " << commu->getID();
         }
     }
 }
@@ -143,7 +143,7 @@ bool EventManager::startEventHandling(float frequency)
 {
     if (m_running)
     {
-        std::cout << "[EventManager] Warning somebody tried to call startEventHandling when already running..." << std::endl;
+        qDebug() << "[EventManager] Warning somebody tried to call startEventHandling when already running...";
         return false;
     }
     else {
@@ -169,7 +169,7 @@ bool EventManager::stopEventHandling()
         return true;
     }
     else {
-        std::cout << "[EventManager] Warning somebody tried to call stopEventHandling when already stopped..." << std::endl;
+        qDebug() << "[EventManager] Warning somebody tried to call stopEventHandling when already stopped...";
         return false;
     }
 }
@@ -231,7 +231,7 @@ void EventManager::run()
         else
         {
             // issue warning
-            std::cout << "[EventManager] WARNING, running behind on event handling...";
+            qDebug() << "[EventManager] WARNING, running behind on event handling...";
         }
         if (isInterruptionRequested())
         {

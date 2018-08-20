@@ -42,7 +42,6 @@
 
 #include "mainviewer.h"
 #include "../../libs/anShared/Utils/metatypes.h"
-#include <iostream>
 
 
 //*************************************************************************************************************
