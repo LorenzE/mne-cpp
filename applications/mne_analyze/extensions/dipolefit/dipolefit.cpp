@@ -83,7 +83,6 @@ using namespace INVERSELIB;
 DipoleFit::DipoleFit()
 : m_pControl(Q_NULLPTR)
 , m_pDipoleFitControl(Q_NULLPTR)
-, m_pMenu(Q_NULLPTR)
 , m_bInitFinished(false)
 {
 
@@ -463,7 +462,7 @@ void DipoleFit::onModelPathChanged(QSharedPointer<AbstractModel> pModel, const Q
 void DipoleFit::onLoadFitFilePressed()
 {
     //Get the path
-    QString filePath = QFileDialog::getOpenFileName(m_pMenu,
+    QString filePath = QFileDialog::getOpenFileName(m_pControl,
                                 tr("Open File"),
                                 QDir::currentPath()+"/MNE-sample-data",
                                 tr("dip File(*.dip)"));
@@ -477,7 +476,7 @@ void DipoleFit::onLoadFitFilePressed()
 
 void DipoleFit::onSaveFitToFilePressed()
 {
-    QString filePath = QFileDialog::getSaveFileName(m_pMenu, tr("Save File"),
+    QString filePath = QFileDialog::getSaveFileName(m_pControl, tr("Save File"),
                                QDir::currentPath(),
                                tr("Dipole Fits (*.dip)"));
     if(!filePath.isNull()) {

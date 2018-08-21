@@ -84,11 +84,11 @@ SurferControl::SurferControl(QWidget *parent) :
     connect(ui->loadedSurfaces,
             &QListWidget::itemChanged,
             this,
-            &SurferControl::onSelectedSurfacesChanged);
+            &SurferControl::onVisibleSurfacesChanged);
     connect(ui->loadedSurfaces,
             &QListWidget::currentItemChanged,
             this,
-            &SurferControl::onCurrentSurfaceChanged);
+            &SurferControl::onChosenSurfaceChanged);
 }
 
 
@@ -115,16 +115,16 @@ QListWidgetItem* SurferControl::addSurface(const QString &sName)
 
 //*************************************************************************************************************
 
-void SurferControl::onSelectedSurfacesChanged(QListWidgetItem* pItem)
+void SurferControl::onVisibleSurfacesChanged(QListWidgetItem* pItem)
 {
     // tell surfer extension that user changed visibility of surface
-    emit surfaceSelectionChanged(pItem);
+    emit surfaceVisibilityChanged(pItem);
 }
 
 
 //*************************************************************************************************************
 
-void SurferControl::onCurrentSurfaceChanged(QListWidgetItem* pItem)
+void SurferControl::onChosenSurfaceChanged(QListWidgetItem* pItem)
 {
     if (pItem) {
         ui->surfaceNameEdit->setText(pItem->text());

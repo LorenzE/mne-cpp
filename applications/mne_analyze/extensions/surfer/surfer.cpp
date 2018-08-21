@@ -156,9 +156,9 @@ void Surfer::init()
                 this,
                 &Surfer::onLoadNewSurface);
         connect(m_pSurferControl,
-                &SurferControl::surfaceSelectionChanged,
+                &SurferControl::surfaceVisibilityChanged,
                 this,
-                &Surfer::onSurfaceSelectionChanged);
+                &Surfer::onSurfaceVisibilityChanged);
         connect(m_pSurferControl,
                 &SurferControl::removeSurface,
                 this,
@@ -276,7 +276,7 @@ void Surfer::onLoadNewSurface()
 
 //*************************************************************************************************************
 
-void Surfer::onSurfaceSelectionChanged(const QListWidgetItem *pItem)
+void Surfer::onSurfaceVisibilityChanged(const QListWidgetItem *pItem)
 {
     // reestablish consistency of visibility
     QSharedPointer<QEntity> pEntity = m_mLoadedSurfaces.value(pItem).second;

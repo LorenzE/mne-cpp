@@ -6,102 +6,24 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>226</width>
+    <width>231</width>
     <height>525</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Form</string>
   </property>
-  <widget class="QPushButton" name="loadNewSurfaceButton">
-   <property name="geometry">
-    <rect>
-     <x>10</x>
-     <y>240</y>
-     <width>211</width>
-     <height>25</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>Load New Surface</string>
-   </property>
-  </widget>
-  <widget class="QListWidget" name="loadedSurfaces">
-   <property name="geometry">
-    <rect>
-     <x>10</x>
-     <y>40</y>
-     <width>211</width>
-     <height>192</height>
-    </rect>
-   </property>
-   <property name="selectionBehavior">
-    <enum>QAbstractItemView::SelectItems</enum>
-   </property>
-   <property name="selectionRectVisible">
-    <bool>false</bool>
-   </property>
-  </widget>
   <widget class="Line" name="line">
    <property name="geometry">
     <rect>
      <x>0</x>
      <y>270</y>
-     <width>711</width>
+     <width>1091</width>
      <height>16</height>
     </rect>
    </property>
    <property name="orientation">
     <enum>Qt::Horizontal</enum>
-   </property>
-  </widget>
-  <widget class="QLabel" name="label_2">
-   <property name="geometry">
-    <rect>
-     <x>10</x>
-     <y>290</y>
-     <width>141</width>
-     <height>17</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>Highlighted Surface</string>
-   </property>
-  </widget>
-  <widget class="QLabel" name="label_3">
-   <property name="geometry">
-    <rect>
-     <x>10</x>
-     <y>10</y>
-     <width>171</width>
-     <height>17</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>Loaded Surfaces</string>
-   </property>
-  </widget>
-  <widget class="QLineEdit" name="surfaceNameEdit">
-   <property name="geometry">
-    <rect>
-     <x>10</x>
-     <y>310</y>
-     <width>211</width>
-     <height>25</height>
-    </rect>
-   </property>
-  </widget>
-  <widget class="QPushButton" name="removeSurfaceButton">
-   <property name="geometry">
-    <rect>
-     <x>10</x>
-     <y>380</y>
-     <width>211</width>
-     <height>25</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>Remove Surface</string>
    </property>
   </widget>
   <widget class="Line" name="line_2">
@@ -116,6 +38,84 @@
    <property name="orientation">
     <enum>Qt::Horizontal</enum>
    </property>
+  </widget>
+  <widget class="QGroupBox" name="chosenSurfaceGroupBox">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>280</y>
+     <width>231</width>
+     <height>141</height>
+    </rect>
+   </property>
+   <property name="title">
+    <string>Chosen Surface</string>
+   </property>
+   <widget class="QLineEdit" name="surfaceNameEdit">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>30</y>
+      <width>211</width>
+      <height>25</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="removeSurfaceButton">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>60</y>
+      <width>211</width>
+      <height>25</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Remove Surface</string>
+    </property>
+   </widget>
+  </widget>
+  <widget class="QGroupBox" name="loadedSurfacesGroupBox">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>10</y>
+     <width>231</width>
+     <height>261</height>
+    </rect>
+   </property>
+   <property name="title">
+    <string>Loaded Surfaces</string>
+   </property>
+   <widget class="QPushButton" name="loadNewSurfaceButton">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>230</y>
+      <width>211</width>
+      <height>25</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Load New Surface</string>
+    </property>
+   </widget>
+   <widget class="QListWidget" name="loadedSurfaces">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>30</y>
+      <width>211</width>
+      <height>192</height>
+     </rect>
+    </property>
+    <property name="selectionBehavior">
+     <enum>QAbstractItemView::SelectItems</enum>
+    </property>
+    <property name="selectionRectVisible">
+     <bool>false</bool>
+    </property>
+   </widget>
   </widget>
  </widget>
  <resources/>

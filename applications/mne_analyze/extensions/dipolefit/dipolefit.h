@@ -210,10 +210,6 @@ private:
     QDockWidget*        m_pControl;             /**< Control Widget */
     DipoleFitControl*   m_pDipoleFitControl;    /**< The Dipole Fit Control Widget */
 
-    QMenu *m_pMenu;                             /**< The menu bar entry */
-    QAction *m_pLoadfitFromFile;                /**< Load file button in the menu */
-    QAction *m_pSaveFitToFile;                  /**< Save file button in the menu */
-
     ANSHAREDLIB::Communicator *m_pCommu;        /**< Local commuicator */
 
     QSharedPointer<ANSHAREDLIB::QEntityListModel> m_pDisplayModel;      /**< Pointer to the QEntityListModel of Mainviewer. */

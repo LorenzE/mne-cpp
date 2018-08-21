@@ -114,7 +114,7 @@ signals:
     *
     * @param pItem The corresponding item in the list view
     */
-    void surfaceSelectionChanged(const QListWidgetItem* pItem);
+    void surfaceVisibilityChanged(const QListWidgetItem* pItem);
 
     //=========================================================================================================
     /**
@@ -132,7 +132,7 @@ private slots:
     *
     * @param pItem The item that was toggled
     */
-    void onSelectedSurfacesChanged(QListWidgetItem* pItem);
+    void onVisibleSurfacesChanged(QListWidgetItem* pItem);
 
     //=========================================================================================================
     /**
@@ -140,7 +140,7 @@ private slots:
     *
     * @param pItem The item that was clicked (not toggled) / highlighted
     */
-    void onCurrentSurfaceChanged(QListWidgetItem* pItem);
+    void onChosenSurfaceChanged(QListWidgetItem* pItem);
 
     // auto-generated:
     void on_loadNewSurfaceButton_released();
