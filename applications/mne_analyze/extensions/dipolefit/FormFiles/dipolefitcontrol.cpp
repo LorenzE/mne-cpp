@@ -350,3 +350,16 @@ void DipoleFitControl::on_m_qDoubleSpinBoxBMin_valueChanged(double value)
 
 
 //*************************************************************************************************************
+
+void DipoleFitControl::on_loadDipoleButton_released()
+{
+    emit loadFitFile();
+}
+
+
+//*************************************************************************************************************
+
+void DipoleFitControl::on_saveDipoleFitButton_released()
+{
+    emit saveFitFile();
+}

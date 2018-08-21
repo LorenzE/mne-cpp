@@ -243,7 +243,7 @@ private:
     ANSHAREDLIB::Communicator* m_pCommu;                /**< Connection to the event system */
 
     // Control
-    QDockWidget*        m_pControl;                     /**< Control Dock */
+    QDockWidget*        m_pDock;                     /**< Control Dock */
     SurferControl*      m_pSurferControl;               /**< Control Widget */
 
     // entity tree root

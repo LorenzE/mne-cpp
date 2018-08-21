@@ -83,7 +83,7 @@ using namespace Qt3DCore;
 
 Surfer::Surfer()
 : m_pCommu(Q_NULLPTR)
-, m_pControl(Q_NULLPTR)
+, m_pDock(Q_NULLPTR)
 , m_pSurferControl(Q_NULLPTR)
 , m_pSurferRoot(Q_NULLPTR)
 , m_mLoadedSurfaces()
@@ -96,7 +96,8 @@ Surfer::Surfer()
 
 Surfer::~Surfer()
 {
-
+    delete m_pCommu;
+    delete m_pSurferControl;
 }
 
 
@@ -199,16 +200,16 @@ QMenu *Surfer::getMenu()
 
 QDockWidget *Surfer::getControl()
 {
-    if(!m_pControl) {
-        m_pControl = new QDockWidget(tr("Surfer Control"));
-        m_pControl->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
-        m_pControl->setMinimumWidth(180);
+    if(!m_pDock) {
+        m_pDock = new QDockWidget(tr("Surfer Control"));
+        m_pDock->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
+        m_pDock->setMinimumWidth(180);
         if (m_pSurferControl) {
-            m_pControl->setWidget(m_pSurferControl);
+            m_pDock->setWidget(m_pSurferControl);
         }
     }
 
-    return m_pControl;
+    return m_pDock;
 }
 
 
@@ -259,7 +260,7 @@ QVector<EVENT_TYPE> Surfer::getEventSubscriptions(void) const
 
 void Surfer::onLoadNewSurface()
 {
-    QString filePath = QFileDialog::getOpenFileName(m_pControl,
+    QString filePath = QFileDialog::getOpenFileName(m_pDock,
                                                     tr("Open Surface File"),
                                                     QDir::currentPath() + "/MNE-sample-data");
     if (filePath.isEmpty() == false) {

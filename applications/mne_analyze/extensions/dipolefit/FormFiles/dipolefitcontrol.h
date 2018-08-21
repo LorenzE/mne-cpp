@@ -268,6 +268,19 @@ signals:
     */
     void bMinChanged(double value);
 
+
+    //=========================================================================================================
+    /**
+    * Signal is emitted when user wants to load a Dipole Fit from a file
+    */
+    void loadFitFile();
+
+    //=========================================================================================================
+    /**
+    * Signal is emitted when user wants to save a Dipole Fit to a file
+    */
+    void saveFitFile();
+
 private slots:
     //=========================================================================================================
     /**
@@ -334,6 +347,18 @@ private slots:
     * Called when the bMin value changed.
     */
     void on_m_qDoubleSpinBoxBMin_valueChanged(double value);
+
+    //=========================================================================================================
+    /**
+    * Called when user wants to load a Dipole Fit
+    */
+    void on_loadDipoleButton_released();
+
+    //=========================================================================================================
+    /**
+    * Called when user wants to save a Dipole Fit
+    */
+    void on_saveDipoleFitButton_released();
 
 private:
 

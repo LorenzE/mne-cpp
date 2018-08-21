@@ -96,7 +96,7 @@ MainViewer::MainViewer()
 
 MainViewer::~MainViewer()
 {
-
+    delete m_pMainViewerControl;
 }
 
 

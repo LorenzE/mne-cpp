@@ -169,6 +169,7 @@ QString DipoleFit::getName() const
 
 QMenu *DipoleFit::getMenu()
 {
+    /*
     if(!m_pMenu) {
         m_pMenu = new QMenu(tr("Dipole Fit"));
 
@@ -186,7 +187,8 @@ QMenu *DipoleFit::getMenu()
         m_pMenu->addAction(m_pLoadfitFromFile);
         m_pMenu->addAction(m_pSaveFitToFile);
     }
-    return m_pMenu;
+    */
+    return Q_NULLPTR;
 }
 
 
@@ -256,6 +258,10 @@ void DipoleFit::initGuiConnections()
             this, &DipoleFit::onFitButtonClicked);
     connect(m_pDipoleFitControl, &DipoleFitControl::activeModelSelected,
             this, &DipoleFit::onActiveModelSelected);
+    connect(m_pDipoleFitControl, &DipoleFitControl::loadFitFile,
+            this, &DipoleFit::onLoadFitFilePressed);
+    connect(m_pDipoleFitControl, &DipoleFitControl::saveFitFile,
+            this, &DipoleFit::onSaveFitToFilePressed);
 
     //make output to gui connections
     connect(&m_dipoleSettings, &DipoleFitSettingsWrapper::measurementFilePathChanged,
