@@ -50,6 +50,7 @@
 // QT INCLUDES
 //=============================================================================================================
 
+#include <QDebug>
 #include <QVector>
 #include <QSharedPointer>
 #include <QString>
@@ -141,11 +142,11 @@ QSharedPointer<EcdSetModel> AnalyzeData::loadEcdSetModel(const QString &sPath)
 QSharedPointer<EcdSetModel> AnalyzeData::loadEcdSetModel(INVERSELIB::DipoleFitSettings *pSettings, const QString &sPath)
 {
     if(pSettings == nullptr || sPath.isEmpty()) {
-        qDebug() << "[AnalyzeData] load EcdSetModel: could not load model!";
+        qDebug() << "[AnalyzeData::loadEcdSetModel] Could not load model!";
         return QSharedPointer<EcdSetModel>();
     }
     if (m_data.contains(sPath)) {
-        qDebug() << "[AnalyzeData] loadEcdSetModel: path already exists " << sPath;
+        qDebug() << "[AnalyzeData::loadEcdSetModel] Path already exists " << sPath;
         return qSharedPointerDynamicCast<EcdSetModel>(m_data.value(sPath));
     }
 
@@ -205,7 +206,7 @@ void AnalyzeData::changeModelPath(const QString &sOldModelPath, const QString &s
         emit modelPathChanged(pModel, sOldModelPath, sNewModelPath);
     }
     else {
-        qDebug() << "[AnalyzeData] changeModelPath: Changing model name from " << sOldModelPath <<
+        qDebug() << "[AnalyzeData::changeModelPath] Changing model name from " << sOldModelPath <<
                     " to " << sNewModelPath << " unsuccessful!";
     }
 }

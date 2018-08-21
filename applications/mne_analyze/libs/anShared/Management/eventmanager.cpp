@@ -130,7 +130,7 @@ void EventManager::removeCommunicator(Communicator* commu)
         // consistency check:
         if (removed != 1)
         {
-            qDebug() << "EventManager: WARNING ! Found " << removed << " entries instead of 1 for event type ";
+            qDebug() << "[EventManager::removeCommunicator] WARNING ! Found " << removed << " entries instead of 1 for event type ";
             qDebug() << etype << " and communicator ID " << commu->getID();
         }
     }
@@ -143,7 +143,7 @@ bool EventManager::startEventHandling(float frequency)
 {
     if (m_running)
     {
-        qDebug() << "[EventManager] Warning somebody tried to call startEventHandling when already running...";
+        qDebug() << "[EventManager::startEventHandling] WARNING ! somebody tried to call startEventHandling when already running...";
         return false;
     }
     else {
@@ -169,7 +169,7 @@ bool EventManager::stopEventHandling()
         return true;
     }
     else {
-        qDebug() << "[EventManager] Warning somebody tried to call stopEventHandling when already stopped...";
+        qDebug() << "[EventManager] WARNING ! Somebody tried to call stopEventHandling when already stopped...";
         return false;
     }
 }
@@ -231,7 +231,7 @@ void EventManager::run()
         else
         {
             // issue warning
-            qDebug() << "[EventManager] WARNING, running behind on event handling...";
+            qDebug() << "[EventManager::run] WARNING ! Running behind on event handling...";
         }
         if (isInterruptionRequested())
         {

@@ -56,7 +56,6 @@
 
 #include <QtWidgets>
 #include <QtCore/QtPlugin>
-#include <QDebug>
 #include <QPickingSettings>
 #include <QMap>
 #include <QPair>

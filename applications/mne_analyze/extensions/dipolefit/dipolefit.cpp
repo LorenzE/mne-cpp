@@ -56,6 +56,7 @@
 // QT INCLUDES
 //=============================================================================================================
 
+#include <QDebug>
 #include <Qt3DCore/QEntity>
 #include <Qt3DExtras/QConeMesh>
 #include <Qt3DExtras/QPhongMaterial>
@@ -142,7 +143,7 @@ void DipoleFit::init()
     // create Model
     m_pActiveEcdSetModel = m_analyzeData->loadEcdSetModel(m_dipoleSettings.getSettings(), ECD_SET_MODEL_DEFAULT_DIR_PATH + QStringLiteral("Test"));
 
-    qDebug() << "DipoleFit: EcdSetModel size: " << m_pActiveEcdSetModel->rowCount();
+    qDebug() << "[DipoleFit::init] EcdSetModel size: " << m_pActiveEcdSetModel->rowCount();
 
     //Build the QEntity Tree
     m_pDipoleRoot = create3DEntityTree(m_pActiveEcdSetModel);
@@ -233,7 +234,7 @@ void DipoleFit::handleEvent(QSharedPointer<Event> e)
         break;
     }
     default:
-        qDebug() << "DipoleFit received an Event that is not handled by switch-cases";
+        qDebug() << "[DipoleFit::handleEvent] Received an Event that is not handled by switch-cases";
         break;
     }
 }
@@ -415,13 +416,13 @@ void DipoleFit::onActiveModelSelected(const QString &sModelName)
         if(result->second.isNull()) {
             //create qentity tree if none exists
             result->second = create3DEntityTree(m_pActiveEcdSetModel);
-            qDebug() << "DipoleFit: New entity tree created";
+            qDebug() << "[DipoleFit::onActiveModelSelected] New entity tree created";
         }
 
         m_pDipoleRoot = result->second;
         m_pDisplayModel->addEntityTree(m_pDipoleRoot);
 
-        qDebug() << "DipoleFit: New active model: " << m_pActiveEcdSetModel->getModelPath();
+        qDebug() << "[DipoleFit::onActiveModelSelected] New active model: " << m_pActiveEcdSetModel->getModelPath();
     }
 }
 
@@ -434,7 +435,7 @@ void DipoleFit::onNewModelAvalible(QSharedPointer<AbstractModel> pNewModel)
         //add the new model to the list with no 3d entity tree
         m_vEcdSetModels.push_back(qMakePair(qSharedPointerCast<EcdSetModel>(pNewModel), QSharedPointer<QEntity>()));
         m_pDipoleFitControl->addModel(pNewModel->getModelName());
-        qDebug() << "DipoleFit: New model added to vector and menu: " << pNewModel->getModelPath();
+        qDebug() << "[DipoleFit::onNewModelAvailable] New model added to vector and menu: " << pNewModel->getModelPath();
     }
 }
 
@@ -480,7 +481,7 @@ void DipoleFit::onSaveFitToFilePressed()
                                QDir::currentPath(),
                                tr("Dipole Fits (*.dip)"));
     if(!filePath.isNull()) {
-        qDebug() << "save to " << filePath;
+        qDebug() << "[DipoleFit::onSaveFitToFilePressed] Save to: " << filePath;
 
         //check if name change is needed
         if(filePath != m_pActiveEcdSetModel->getModelPath()) {

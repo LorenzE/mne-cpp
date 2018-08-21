@@ -227,7 +227,7 @@ QString AbstractModel::getModelName() const
 
 bool AbstractModel::saveToFile()
 {
-    qDebug() << "Saving to file is not implemented for MODELTYPE = " << getType();
+    qDebug() << "[AbstractModel::saveToFile] Saving to file is not implemented for MODELTYPE = " << getType();
     return false;
 }
 

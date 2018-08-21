@@ -43,7 +43,6 @@ Copyright (C) 2017, Christoph Dinh, Lars Debor, Simon Heinke and Matti Hamalaine
 #include "extensionmanager.h"
 #include "../Interfaces/IExtension.h"
 #include "communicator.h"
-#include <iostream>
 
 
 //*************************************************************************************************************
@@ -94,18 +93,18 @@ void ExtensionManager::loadExtension(const QString& dir)
 
     foreach(const QString &file, extensionsDir.entryList(QDir::Files))
     {
-        fprintf(stderr,"Loading Extension %s... ",file.toUtf8().constData());
+        qDebug() << "[ExtensionManager::loadExtension] Loading Extension " << file.toUtf8().constData() << "... ";
 
         this->setFileName(extensionsDir.absoluteFilePath(file));
         QObject *pExtension = this->instance();
 
         // IExtension
         if(pExtension) {
-            fprintf(stderr,"Extension %s loaded.\n",file.toUtf8().constData());
+            qDebug() << "[ExtensionManager::loadExtension] Extension " << file.toUtf8().constData() << " loaded.";
             m_qVecExtensions.push_back(qobject_cast<IExtension*>(pExtension));
         }
         else {
-            fprintf(stderr,"Extension %s could not be instantiated!\n",file.toUtf8().constData());
+            qDebug() << "[ExtensionManager::loadExtension] Extension " << file.toUtf8().constData() << " could not be instantiated!";
         }
     }
 }

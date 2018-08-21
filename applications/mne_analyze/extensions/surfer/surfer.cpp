@@ -61,6 +61,7 @@
 #include <Qt3DRender>
 #include <Qt3DExtras>
 #include <QEntity>
+#include <QDebug>
 
 
 //*************************************************************************************************************
@@ -232,15 +233,15 @@ void Surfer::handleEvent(QSharedPointer<Event> e)
         QVector<QSharedPointer<QEntityListModel> > availableDisplays = m_analyzeData->availableDisplays();
         if (availableDisplays.size() >= 1) {
             availableDisplays.at(0)->addEntityTree(m_pSurferRoot);
-            qDebug() << "[Surfer] successfully registered Surfer root";
+            qDebug() << "[Surfer::handleEvent] Registered Surfer root";
         }
         else {
-            qDebug() << "[Surfer] Could not find any displays...";
+            qDebug() << "[Surfer::handleEvent] Could not find any displays...";
         }
         break;
     }
     default:
-        qDebug() << "[Surfer] Received an Event that is not handled by switch-cases";
+        qDebug() << "[Surfer::handleEvent] Received an Event that is not handled by switch-cases";
         break;
     }
 }
@@ -267,7 +268,7 @@ void Surfer::onLoadNewSurface()
         helpLoadNewSurface(filePath);
     }
     else {
-        qDebug() << "[Surfer] Empty filepath, returning...";
+        qDebug() << "[Surfer::onLoadNewSurface] Empty filepath, returning...";
         return;
     }
 }
@@ -360,12 +361,12 @@ void Surfer::helpLoadNewSurface(const QString& filePath)
 void Surfer::updateSurfaceModelMesh(QSharedPointer<SurfaceModel> pModel, CustomMesh* pMesh)
 {
     if (! pModel) {
-        qDebug() << "[Surfer] updateSurfaceModelMesh: model is null";
+        qDebug() << "[Surfer::updateSurfaceModelMesh] Model is null";
         return;
     }
 
     if (! pMesh) {
-        qDebug() << "[Surfer] updateSurfaceModelMesh: mesh is null";
+        qDebug() << "[Surfer::updateSurfaceModelMesh] Mesh is null";
         return;
     }
 
@@ -431,7 +432,7 @@ void Surfer::setSelectionModel(QItemSelectionModel *pSelectionModel)
 void Surfer::onClick(QPickEvent *event)
 {
     if(QPickTriangleEvent* tri = dynamic_cast<QPickTriangleEvent*>(event)) {
-        qDebug() << "picked triangle index: " << tri->triangleIndex();
+        qDebug() << "[Surfer::onClick] Picked triangle index: " << tri->triangleIndex();
         qDebug() << tri->vertex1Index() << " " << tri->vertex2Index() << " " << tri->vertex3Index() << " ";
         //qDebug() << m_surface.tris(tri->triangleIndex(), 0);
         qDebug() << "local intersection " << tri->localIntersection();
@@ -471,6 +472,6 @@ void Surfer::onClick(QPickEvent *event)
 
     }
     else {
-        qDebug() << "failed";
+        qDebug() << "[Surfer::onClick] Failed";
     }
 }

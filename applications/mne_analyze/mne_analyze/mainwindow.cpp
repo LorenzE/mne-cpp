@@ -96,7 +96,7 @@ MainWindow::MainWindow(QSharedPointer<ANSHAREDLIB::ExtensionManager> pExtensionM
         createMenus(pExtensionManager);
     }
     else {
-        qDebug() << "[MainWindow] CTor: FATAL: extension manager is nullptr";
+        qDebug() << "[MainWindow::MainWindow] CRITICAL ! Extension manager is nullptr";
     }
 
     this->setStatusBar(new StatusBar());
@@ -191,11 +191,10 @@ void MainWindow::createDockWindows(QSharedPointer<ANSHAREDLIB::ExtensionManager>
 
     //Add Extension views to mdi
     for(IExtension* pExtension : pExtensionManager->getExtensions()) {
-        qDebug() << "create dock" << pExtension->getName();
-
         QDockWidget* pControl = pExtension->getControl();
         if(pControl) {
-            addDockWidget(Qt::LeftDockWidgetArea,pControl);
+            addDockWidget(Qt::LeftDockWidgetArea, pControl);
+            qDebug() << "[MainWindow::createDockWindows] Found and added dock widget for " << pExtension->getName();
         }
     }
 
@@ -212,11 +211,10 @@ void MainWindow::createMdiView(QSharedPointer<ExtensionManager> pExtensionManage
 
     //Add Extension views to mdi
     for(IExtension* pExtension : pExtensionManager->getExtensions()) {
-        qDebug() << "create mdi" << pExtension->getName();
-
         QWidget* pView = pExtension->getView();
         if(pView) {
             m_pMdiView->addSubWindow(pView);
+            qDebug() << "[MainWindow::createMdiView] Found and added subwindow for " << pExtension->getName();
         }
     }
 
@@ -260,7 +258,7 @@ void MainWindow::tabifyDockWindows()
             area = Qt::BottomDockWidgetArea;
             break;
         default:
-            qDebug() << "[MainWindow] tabifyDockWindows: Unhandled dock widget area";
+            qDebug() << "[MainWindow::tabifyDockWindows] Unhandled dock widget area";
             break;
         }
         removeDockWidget(pDockWidget);

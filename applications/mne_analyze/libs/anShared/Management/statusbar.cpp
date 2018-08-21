@@ -109,7 +109,7 @@ void StatusBar::onNewMessageReceived(const QSharedPointer<Event> pEvent)
 
         }
         default:
-            qDebug() << "StatusBar received an Event that is not handled by switch-cases";
+            qDebug() << "[StatusBar::onNewMessageReceived] Received a message/event that is not handled by switch-cases";
             break;
     }
 }

@@ -53,6 +53,7 @@
 #include <Qt3DExtras>
 #include <QPickingSettings>
 #include <QCamera>
+#include <QDebug>
 
 
 //*************************************************************************************************************
@@ -127,16 +128,16 @@ void CentralView::addEntity(QSharedPointer<QEntity> pEntity)
 {
     // check if passed entity tree fulfills specified requirements
     if (pEntity->objectName().size() == 0) {
-        qDebug() << "[CentralView] addEntity: Received Entity without a name !";
+        qDebug() << "[CentralView::addEntity] Received Entity without a name !";
         return;
     }
 
     for (const QSharedPointer<QEntity> pStoredEntity : m_vEntities) {
         if (pStoredEntity == pEntity) {
-            qDebug() << "[CentralView] addEntity: The Entity named " << pEntity->objectName() << " is already in the record !";
+            qDebug() << "[CentralView::addEntity] The Entity named " << pEntity->objectName() << " is already in the record !";
             return;
         } else if (pStoredEntity->objectName().compare(pEntity->objectName()) == 0) {
-            qDebug() << "[CentralView] addEntity: There is a different Entity named " << pEntity->objectName();
+            qDebug() << "[CentralView::addEntity] There is a different Entity named " << pEntity->objectName();
             return;
         }
     }
@@ -161,14 +162,14 @@ void CentralView::removeEntity(QSharedPointer<QEntity> pEntity)
     // see if we can find the same QEntity by name
     const QString& sIdentifier = pEntity->objectName();
     if (sIdentifier.length() == 0) {
-        qDebug() << "[CentralView] removeEntity: passed entity does not have a name, returning...";
+        qDebug() << "[CentralView::removeEntity] Passed entity does not have a name, returning...";
         return;
     }
     // only search for direct children, since entities are always added below root
     QEntity* pActualChild = m_pRootEntity->findChild<QEntity* >(sIdentifier, Qt::FindDirectChildrenOnly);
     if (pActualChild) {
         if (pActualChild != pSupposedChild) {
-            qDebug() << "[CentralView] removeEntity: CRITICAL: Inconsistency in identifiers ! Removing both sides !";
+            qDebug() << "[CentralView::removeEntity] CRITICAL: Inconsistency in identifiers ! Removing both sides !";
             // best thing we can do is remove both QEntities from this View:
             pSupposedChild->setParent(createNewAntiCrashNode());
             pActualChild->setParent(createNewAntiCrashNode());
@@ -177,7 +178,7 @@ void CentralView::removeEntity(QSharedPointer<QEntity> pEntity)
     } else {
         // this is not as bad as the above inconsistency, might be caused by calling removeEntity prior to addEntity
         // just give out a warning:
-        qDebug() << "[CentralView] Could not find child named " << sIdentifier << " ! Did you call addEntity ?";
+        qDebug() << "[CentralView::removeEntity] Could not find child named " << sIdentifier << " ! Did you call addEntity ?";
         return;
     }
 
@@ -216,7 +217,7 @@ void CentralView::shutdown()
             m_vAntiCrashNodes.at(i)->childNodes().at(0)->setParent((QEntity*) nullptr);
         }
         else {
-            qDebug() << "[CentralView] FATAL Shutdown: found anti crash node with more than one child !";
+            qDebug() << "[CentralView::shutdown] CRITICAL: found anti crash node with more than one child !";
             // best thing we can do is to seperate the parent anti crash node from every child
             for (QNode* pNode : m_vAntiCrashNodes.at(i)->childNodes())
             {
