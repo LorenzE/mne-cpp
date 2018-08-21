@@ -43,7 +43,6 @@
 #include <fs/surface.h>
 #include <fs/surfaceset.h>
 #include "../applications/mne_analyze/libs/anShared/Model/surfacemodel.h"
-#include "../applications/mne_analyze/libs/anShared/Data/surfacedata.h"
 #include "../applications/mne_analyze/libs/anShared/Utils/types.h"
 #include "../applications/mne_analyze/libs/anShared/Utils/metatypes.h"
 #include "../applications/mne_analyze/libs/anShared/Management/analyzedata.h"
@@ -88,7 +87,7 @@ private slots:
     void cleanupTestCase();
 
 private:
-    SurfaceData* m_surfaceData;
+    Surface* m_surfaceData;
     QSharedPointer<SurfaceModel> m_surfaceModel;
     AnalyzeData* m_analyzeData;
 };
@@ -108,7 +107,7 @@ void TestSurfaceModel::initTestCase()
     m_analyzeData = new AnalyzeData();
     m_surfaceModel = m_analyzeData->loadSurfaceModel("sample", 1, "pial", "./MNE-sample-data/subjects");
     // load same data again for testing reasons
-    m_surfaceData = new SurfaceData("sample", 1, "pial", "./MNE-sample-data/subjects");
+    m_surfaceData = new Surface("sample", 1, "pial", "./MNE-sample-data/subjects");
 }
 
 
@@ -151,16 +150,16 @@ void TestSurfaceModel::testDataAccess()
         std::cout << "column count form model row " << i << ": " << cols << std::endl;
 
         if(i == 0) {
-            QVERIFY(cols == m_surfaceData->vertices().rows());
+            QVERIFY(cols == m_surfaceData->rr().rows());
         }
         else if(i == 1) {
-            QVERIFY(cols == m_surfaceData->normals().rows());
+            QVERIFY(cols == m_surfaceData->nn().rows());
         }
         else if(i == 2) {
             QVERIFY(cols == m_surfaceData->tris().rows());
         }
         else if(i == 3) {
-            QVERIFY(cols == m_surfaceData->curvature().rows());
+            QVERIFY(cols == m_surfaceData->curv().rows());
         }
 
         for(int j = 0; j < cols; ++j) {
@@ -171,16 +170,31 @@ void TestSurfaceModel::testDataAccess()
 
             //Compare recieved data
             if(i == 0) {
-                QVERIFY(m_surfaceModel->data(dataIndex, Qt::DisplayRole).value<Eigen::Vector3f>() == m_surfaceData->vertexAt(j));
+                Eigen::Vector3f controllVertex;
+                controllVertex[0] = m_surfaceData->rr()(j, 0);
+                controllVertex[1] = m_surfaceData->rr()(j, 1);
+                controllVertex[2] = m_surfaceData->rr()(j, 2);
+
+                QVERIFY(m_surfaceModel->data(dataIndex, Qt::DisplayRole).value<Eigen::Vector3f>() == controllVertex);
             }
             else if(i == 1) {
-                QVERIFY(m_surfaceModel->data(dataIndex, Qt::DisplayRole).value<Eigen::Vector3f>() == m_surfaceData->normalAt(j));
+                Eigen::Vector3f controllNormal;
+                controllNormal[0] = m_surfaceData->nn()(j, 0);
+                controllNormal[1] = m_surfaceData->nn()(j, 1);
+                controllNormal[2] = m_surfaceData->nn()(j, 2);
+
+                QVERIFY(m_surfaceModel->data(dataIndex, Qt::DisplayRole).value<Eigen::Vector3f>() == controllNormal);
             }
             else if(i == 2) {
-                QVERIFY(m_surfaceModel->data(dataIndex, Qt::DisplayRole).value<Eigen::Vector3i>() == m_surfaceData->triAt(j));
+                Eigen::Vector3i controllIndex;
+                controllIndex[0] = m_surfaceData->tris()(j, 0);
+                controllIndex[1] = m_surfaceData->tris()(j, 1);
+                controllIndex[2] = m_surfaceData->tris()(j, 2);
+
+                QVERIFY(m_surfaceModel->data(dataIndex, Qt::DisplayRole).value<Eigen::Vector3i>() == controllIndex);
             }
             else if(i == 3) {
-                QVERIFY(m_surfaceModel->data(dataIndex, Qt::DisplayRole).toFloat() == m_surfaceData->curvAt(j));
+                QVERIFY(m_surfaceModel->data(dataIndex, Qt::DisplayRole).toFloat() == m_surfaceData->curv()[j]);
             }
 
         }
