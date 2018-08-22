@@ -93,27 +93,46 @@ QVariant SurfaceModel::data(const QModelIndex &index, int role) const
 {
     if(index.isValid() && role == Qt::DisplayRole) {
         QVariant output;
+        int iColumnIdx = index.column();
+
         // Vertices:
         if(index.internalId() == InternalId::VerticeItem) {
-            output.setValue(m_pSurfaceData.vertexAt(index.column()));
+            Eigen::Vector3f tempVertex;
+            tempVertex[0] = m_pSurfaceData.rr()(iColumnIdx, 0);
+            tempVertex[1] = m_pSurfaceData.rr()(iColumnIdx, 1);
+            tempVertex[2] = m_pSurfaceData.rr()(iColumnIdx, 2);
+
+            output.setValue(tempVertex);
             return output;
         }
 
         // Normals:
         else if(index.internalId() == InternalId::NormalItem) {
-            output.setValue(m_pSurfaceData.normalAt(index.column()));
+            Eigen::Vector3f tempNormal;
+            tempNormal[0] = m_pSurfaceData.nn()(iColumnIdx, 0);
+            tempNormal[1] = m_pSurfaceData.nn()(iColumnIdx, 1);
+            tempNormal[2] = m_pSurfaceData.nn()(iColumnIdx, 2);
+
+            output.setValue(tempNormal);
             return output;
         }
 
         // Triangles:
         else if(index.internalId() == InternalId::TriangleItem) {
-            output.setValue(m_pSurfaceData.triAt(index.column()));
+            Eigen::Vector3i tempTri;
+            tempTri[0] = m_pSurfaceData.tris()(iColumnIdx, 0);
+            tempTri[1] = m_pSurfaceData.tris()(iColumnIdx, 1);
+            tempTri[2] = m_pSurfaceData.tris()(iColumnIdx, 2);
+
+            output.setValue(tempTri);
             return output;
         }
 
         // Curvature:
         else if(index.internalId() == InternalId::CurvatureItem) {
-            output.setValue(m_pSurfaceData.curvAt(index.column()));
+            float tempCurv = m_pSurfaceData.curv()[iColumnIdx];
+
+            output.setValue(tempCurv);
             return output;
         }
     }
@@ -186,11 +205,11 @@ int SurfaceModel::columnCount(const QModelIndex &parent) const
 
     switch(parent.internalId()) {
         case InternalId::VerticeItem:
-            col = m_pSurfaceData.vertices().rows();
+            col = m_pSurfaceData.rr().rows();
             break;
 
         case InternalId::NormalItem:
-            col = m_pSurfaceData.normals().rows();
+            col = m_pSurfaceData.nn().rows();
             break;
 
         case InternalId::TriangleItem:
@@ -198,7 +217,7 @@ int SurfaceModel::columnCount(const QModelIndex &parent) const
             break;
 
         case InternalId::CurvatureItem:
-            col = m_pSurfaceData.curvature().rows();
+            col = m_pSurfaceData.curv().rows();
             break;
 
         default:
