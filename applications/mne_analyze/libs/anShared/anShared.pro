@@ -70,11 +70,6 @@ SOURCES += \
     Management/analyzedata.cpp \
     Management/analyzesettings.cpp \
     Management/extensionmanager.cpp \
-    Data/abstractdata.cpp \
-    Data/datasettings.cpp \
-    Data/surfacesetdata.cpp \
-    Data/surfacedata.cpp \
-    Data/surfacesettings.cpp \
     Model/surfacemodel.cpp \
     Management/event.cpp \
     Management/communicator.cpp \
@@ -91,11 +86,6 @@ HEADERS += \
     Management/extensionmanager.h \
     Interfaces/IStandardView.h \
     Interfaces/IExtension.h \
-    Data/abstractdata.h \
-    Data/datasettings.h \
-    Data/surfacesetdata.h \
-    Data/surfacedata.h \
-    Data/surfacesettings.h \
     Model/surfacemodel.h \
     Utils/types.h \
     anshared_global.h \
