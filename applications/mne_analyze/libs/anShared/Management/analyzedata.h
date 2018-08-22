@@ -241,6 +241,12 @@ public:
     */
     void changeModelPath(const QString &sOldModelPath,const QString &sNewModelPath);
 
+    //=========================================================================================================
+    /**
+    * Returns all models.
+    */
+    QList<QSharedPointer<AbstractModel>> getModels();
+
 protected:
 
 private:

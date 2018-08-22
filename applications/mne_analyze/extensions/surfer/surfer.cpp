@@ -44,7 +44,6 @@
 #include "FormFiles/surfercontrol.h"
 
 #include <anShared/Model/surfacemodel.h>
-#include <anShared/Data/surfacedata.h>
 #include <anShared/Model/qentitylistmodel.h>
 #include <anShared/Management/analyzedata.h>
 #include <anShared/Utils/metatypes.h>

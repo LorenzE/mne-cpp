@@ -213,3 +213,11 @@ void AnalyzeData::changeModelPath(const QString &sOldModelPath, const QString &s
 
 
 //*************************************************************************************************************
+
+QList<QSharedPointer<AbstractModel> > AnalyzeData::getModels()
+{
+    return m_data.values();
+}
+
+
+//*************************************************************************************************************
