@@ -45,6 +45,7 @@ SUBDIRS += \
     music \
     invmne \
     mainviewer \
+    dataviewer \
 
 !isEmpty( CNTK_INCLUDE_DIR ) {
     SUBDIRS += \
