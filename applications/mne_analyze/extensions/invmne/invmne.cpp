@@ -138,7 +138,6 @@ QDockWidget *InvMNE::getControl()
     if(!m_pControl) {
         m_pControl = new QDockWidget(tr("MNE"));
         m_pControl->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
-        m_pControl->setMinimumWidth(180);
         m_pControl->setWidget(m_pInvMNEControl);
     }
 

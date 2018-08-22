@@ -199,7 +199,6 @@ QDockWidget *DipoleFit::getControl()
     if(!m_pControl) {
         m_pControl = new QDockWidget(tr("Dipole Fit"));
         m_pControl->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
-        m_pControl->setMinimumWidth(180);
         m_pControl->setWidget(m_pDipoleFitControl);
     }
 

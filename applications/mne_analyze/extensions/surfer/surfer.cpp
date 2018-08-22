@@ -202,9 +202,9 @@ QMenu *Surfer::getMenu()
 QDockWidget *Surfer::getControl()
 {
     if(!m_pDock) {
-        m_pDock = new QDockWidget(tr("Surfer Control"));
+        m_pDock = new QDockWidget(tr("Surfer"));
         m_pDock->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
-        m_pDock->setMinimumWidth(180);
+
         if (m_pSurferControl) {
             m_pDock->setWidget(m_pSurferControl);
         }

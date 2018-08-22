@@ -182,9 +182,9 @@ QMenu *MainViewer::getMenu()
 QDockWidget *MainViewer::getControl()
 {
     if(!m_pDock) {
-        m_pDock = new QDockWidget(tr("MainViewer Control"));
+        m_pDock = new QDockWidget(tr("MainViewer"));
         m_pDock->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
-        m_pDock->setMinimumWidth(180);
+
         if (m_pMainViewerControl) {
             m_pDock->setWidget(m_pMainViewerControl);
         }
@@ -305,6 +305,9 @@ void MainViewer::createDisplay()
     m_pSubWindow->setWidget(m_pContainer);
     m_pSubWindow->setWindowTitle(QString("Main Display"));
     m_pSubWindow->setAttribute(Qt::WA_DeleteOnClose, false);
+
+    // let Qt know that we want the MainViewer maximized
+    m_pSubWindow->showMaximized();
 
     // remember that the display was built
     m_bDisplayCreated = true;
