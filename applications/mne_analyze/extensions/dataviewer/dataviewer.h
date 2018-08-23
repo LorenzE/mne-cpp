@@ -121,7 +121,7 @@ private:
     void updateListWidget();
 
     // Control
-    QDockWidget*        m_pControl; /**< Control Widget */
+    QDockWidget*        m_pControlDock; /**< Control Widget */
     DataViewerControl*  m_pDataViewerControl;
 };
 

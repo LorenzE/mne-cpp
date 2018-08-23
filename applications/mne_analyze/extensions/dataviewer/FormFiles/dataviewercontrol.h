@@ -61,7 +61,7 @@ class QListWidgetItem;
 /**
 * DataViewerControl Extension Control
 *
-* @brief The MusicControl class provides the extension control.
+* @brief The DataViewerControl class provides the extension control.
 */
 class DataViewerControl : public QWidget
 {

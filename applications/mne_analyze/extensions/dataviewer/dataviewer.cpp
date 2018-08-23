@@ -68,7 +68,7 @@ using namespace ANSHAREDLIB;
 //=============================================================================================================
 
 DataViewer::DataViewer()
-    : m_pControl(Q_NULLPTR)
+    : m_pControlDock(Q_NULLPTR)
     , m_pDataViewerControl(Q_NULLPTR)
 {
 
@@ -79,7 +79,7 @@ DataViewer::DataViewer()
 
 DataViewer::~DataViewer()
 {
-
+    delete m_pDataViewerControl;
 }
 
 
@@ -137,14 +137,13 @@ QMenu *DataViewer::getMenu()
 
 QDockWidget *DataViewer::getControl()
 {
-    if(!m_pControl) {
-        m_pControl = new QDockWidget(tr("Data View Control"));
-        m_pControl->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
-        m_pControl->setMinimumWidth(180);
-        m_pControl->setWidget(m_pDataViewerControl);
+    if(!m_pControlDock) {
+        m_pControlDock = new QDockWidget(tr("Data View Control"));
+        m_pControlDock->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
+        m_pControlDock->setWidget(m_pDataViewerControl);
     }
 
-    return m_pControl;
+    return m_pControlDock;
 }
 
 
@@ -160,16 +159,7 @@ QWidget *DataViewer::getView()
 
 void DataViewer::handleEvent(QSharedPointer<Event> e)
 {
-    switch(e->getType())
-    {
-    case EXTENSION_INIT_FINISHED:
-    {
-
-    }
-    default:
-        qDebug() << "[DataViewer::handleEvent] received an Event that is not handled by switch-cases";
-        break;
-    }
+    qDebug() << "[DataViewer::handleEvent] received an Event that is not handled by switch-cases";
 }
 
 
