@@ -150,7 +150,7 @@ private slots:
 
     //=========================================================================================================
     /**
-    * This is called when the user interacts with the QAction in the QMenu for MainViewer
+    * This is called when the user interacts with the radio button in the QDockWidget for MainViewer
     *
     * @param[in] visible Whether or not the MainViewer should currently be displayed.
     */

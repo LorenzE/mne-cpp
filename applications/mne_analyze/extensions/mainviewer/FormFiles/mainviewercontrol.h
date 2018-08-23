@@ -85,7 +85,7 @@ public:
 
     //=========================================================================================================
     /**
-    * Destructs a SurferControl
+    * Destructs a MainViewerControl
     */
     ~MainViewerControl();
 
