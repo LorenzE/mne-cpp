@@ -102,6 +102,10 @@ void DataViewer::init()
 
     connect(m_analyzeData.data(), &AnalyzeData::newModelAvailable,
             this, &DataViewer::updateListWidget);
+    connect(m_analyzeData.data(), &AnalyzeData::modelPathChanged,
+            this, &DataViewer::updateListWidget);
+    connect(m_analyzeData.data(), &AnalyzeData::modelRemoved,
+            this, &DataViewer::updateListWidget);
 
 }
 
@@ -163,7 +167,7 @@ void DataViewer::handleEvent(QSharedPointer<Event> e)
 
     }
     default:
-        qDebug() << "DataViewer::handleEvent: received an Event that is not handled by switch-cases";
+        qDebug() << "[DataViewer::handleEvent] received an Event that is not handled by switch-cases";
         break;
     }
 }
@@ -186,8 +190,14 @@ void DataViewer::updateListWidget()
     m_pDataViewerControl->clearList();
 
     QList<QSharedPointer<AbstractModel>> lModels = m_analyzeData->getModels();
-    qDebug() << "DataViewer::updateListWidget model size: " << lModels.size();
+
+    //add all model names to the listView
     for(QSharedPointer<AbstractModel> pModel: lModels) {
+
+        if(pModel->getType() == MODEL_TYPE::ANSHAREDLIB_QENTITYLIST_MODEL) {
+            continue;
+        }
+
         QListWidgetItem* tempListItem = new QListWidgetItem;
         tempListItem->setText(pModel->getModelName());
         tempListItem->setToolTip(pModel->getModelPath());

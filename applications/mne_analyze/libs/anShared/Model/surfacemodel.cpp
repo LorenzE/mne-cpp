@@ -80,7 +80,7 @@ using namespace Eigen;
 //=============================================================================================================
 
 SurfaceModel::SurfaceModel(const QString &sSurfaceFilePath, QObject *pParent)
-: AbstractModel(pParent)
+: AbstractModel(sSurfaceFilePath, pParent)
 , m_pSurfaceData(sSurfaceFilePath)
 {
 

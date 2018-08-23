@@ -139,7 +139,6 @@ void TestEcdSetModel::initTestCase()
 
     DipoleFit dipFit(&settings);
     m_refEcdSet = dipFit.calculateFit();
-    std::cout << " ecd ref set size: " << m_refEcdSet.size() << std::endl;
 
 
 }

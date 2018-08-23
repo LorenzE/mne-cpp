@@ -140,7 +140,7 @@ void DipoleFit::init()
     m_dipoleSettings.setDipPath(QDir::currentPath()+"/MNE-sample-data/Result/dip_fit.dat");
 
     // create Model
-    m_pActiveEcdSetModel = m_analyzeData->loadEcdSetModel(m_dipoleSettings.getSettings(), ECD_SET_MODEL_DEFAULT_DIR_PATH + QStringLiteral("Test"));
+    m_pActiveEcdSetModel = m_analyzeData->loadEcdSetModel(m_dipoleSettings.getSettings(), ECD_SET_MODEL_DEFAULT_DIR_PATH + QStringLiteral("TestDipolFit"));
 
     qDebug() << "[DipoleFit::init] EcdSetModel size: " << m_pActiveEcdSetModel->rowCount();
 
