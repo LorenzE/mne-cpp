@@ -423,6 +423,7 @@ void Surfer::updateSurfaceModelMesh(QSharedPointer<SurfaceModel> pModel, CustomM
 void Surfer::setSelectionModel(QItemSelectionModel *pSelectionModel)
 {
     //TODO implement this
+    qDebug() << "[Surfer::setSelectionModel] Not implemented yet !";
 }
 
 

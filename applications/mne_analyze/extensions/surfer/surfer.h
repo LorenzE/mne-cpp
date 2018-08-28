@@ -185,9 +185,10 @@ private slots:
     /**
     * This is called by the SurferControl (via a connect).
     * It removes the corresponding surface (see m_mLoadedSurfaces) and destructs its entity tree.
-    * CAUTION this method will DELETE the passed pointer.
+    * CAUTION this method will DELETE the passed pointer. See SurferControl::on_removeSurfaceButton_released for
+    * more details
     *
-    * @param pItem The Item that was removed.
+    * @param pItem[in] The Item that was removed.
     */
     void onRemoveSurface(QListWidgetItem* pItem);
 
@@ -217,15 +218,16 @@ private:
     /**
     * This fills the passed mesh with data taken from the passed SurfaceModel.
     *
-    * @param pModel The model that the data is read from.
-    * @param pMesh The mesh to be filled.
+    * @param pModel[in] The model that the data is read from.
+    * @param pMesh[in, out] The mesh to be filled.
     */
     void updateSurfaceModelMesh(QSharedPointer<ANSHAREDLIB::SurfaceModel> pModel, DISP3DLIB::CustomMesh* pMesh);
 
     //=========================================================================================================
     /**
-    * @brief setSelectionModel
-    * @param pSelectionModel
+    * This sets the selection for the surfer (not implemented yet)
+    *
+    * @param pSelectionModel[in] The new selection model for the surfer
     */
     void setSelectionModel(QItemSelectionModel *pSelectionModel);
 
@@ -233,7 +235,7 @@ private:
     /**
     * This enables user interaction
     *
-    * @param event The event that has happened
+    * @param[in] event The event that has happened
     */
     void onClick(Qt3DRender::QPickEvent *event);
 

@@ -132,7 +132,7 @@ private slots:
 
     //=========================================================================================================
     /**
-    * This gets connected to the QEntityListmodel m_pModel, so that we will get notified when a new QEntity
+    * This gets connected to the QEntityListmodel m_pModel, so that we will get notified when a new QEntity has
     * been added to the scene.
     *
     * @param[in] pEntity A shared pointer to the newly added QEntity

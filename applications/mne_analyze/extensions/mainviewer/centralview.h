@@ -134,7 +134,8 @@ public:
     * not read this, meaning that you should just pass the "old" root to any further use cases.
     * Also practise caution when restructuring your entity tree or while overwriting it with a new QEntity tree.
     * Depending on your implementation, this may easily cause double frees or other memory corruptions.
-    * If you want to overwrite your QEntity root, make sure to separate every child first.
+    * If you want to overwrite your QEntity root, make sure that you do not have any other references to these
+    * children, that might cause double-frees upon destruction.
     *
     * @param[in] pEntity The QEntity that should be removed
     */

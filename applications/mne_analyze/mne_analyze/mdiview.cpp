@@ -1,6 +1,6 @@
 //=============================================================================================================
 /**
-* @file     viewerwidget.cpp
+* @file     mdiview.cpp
 * @author   Christoph Dinh <chdinh@nmr.mgh.harvard.edu>;
 *           Lorenz Esch <Lorenz.Esch@tu-ilmenau.de>;
 *           Matti Hamalainen <msh@nmr.mgh.harvard.edu>

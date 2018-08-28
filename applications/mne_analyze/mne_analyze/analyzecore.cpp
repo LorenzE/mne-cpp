@@ -120,14 +120,6 @@ void AnalyzeCore::showMainWindow()
 
 //*************************************************************************************************************
 
-QPointer<MainWindow> AnalyzeCore::getMainWindow()
-{
-    return m_pMainWindow;
-}
-
-
-//*************************************************************************************************************
-
 void AnalyzeCore::initGlobalSettings()
 {
     m_analyzeSettings = AnalyzeSettings::SPtr::create();

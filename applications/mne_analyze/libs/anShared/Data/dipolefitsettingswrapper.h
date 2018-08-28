@@ -134,29 +134,175 @@ public:
     */
     INVERSELIB::DipoleFitSettings *getSettings();
 
-    //TODO Docu
+    //=========================================================================================================
+    /**
+    * This is called whenever the measurement file path should be changed. It saves the passed path and emits
+    * the measurementFilePathChanged signal.
+    *
+    * @param sPath The new path.
+    */
     void setMeasurementFilePath(const QString &sPath);
+
+    //=========================================================================================================
+    /**
+    * This is called whenever the usage of raw data should be changed. It saves the setting and emits the
+    * isRawChanged signal.
+    *
+    * @param bValue Whether or not raw data should be used for the respective dipole fit
+    */
     void setIsRaw(bool bValue);
+
+    //=========================================================================================================
+    /**
+    * This is called whenever the set number should be changed. It saves the new value and emits the
+    * setNumChanged signal.
+    *
+    * @param iValue The new value for set number.
+    */
     void setSetNum(int iValue);
+
+    //=========================================================================================================
+    /**
+    * This is called whenever the usage of MEG data should be changed. It saves the new setting and emits the
+    * includeMegChanged signal.
+    *
+    * @param bValue Whether or not MEG data should be included.
+    */
     void setIncludeMeg(bool bValue);
+
+    //=========================================================================================================
+    /**
+    * This is called whenever the usage of EEG data should be changed. It saves the new setting and emits the
+    * includeEegChanged signal.
+    *
+    * @param bValue Whether or not EEG data should be included.
+    */
     void setIncludeEeg(bool bValue);
+
+    //=========================================================================================================
+    /**
+    * This is called whenever the T max value should be changed. It saves the new value and emits the
+    * tMaxChanged signal
+    *
+    * @param dValue The new value for T max.
+    */
     void setTMax(double dValue);
+
+    //=========================================================================================================
+    /**
+    * This is called whenever the T min value should be changed. It saves the new value and emits the
+    * tMinChanged signal
+    *
+    * @param dValue The new value for T min.
+    */
     void setTMin(double dValue);
+
+    //=========================================================================================================
+    /**
+    * This is called whenever the B max value should be changed. It saves the new value and emits the
+    * bMaxChanged signal
+    *
+    * @param dValue The new value for B max.
+    */
     void setBMax(double dValue);
+
+    //=========================================================================================================
+    /**
+    * This is called whenever the B min value should be changed. It saves the new value and emits the
+    * bMinChanged signal
+    *
+    * @param dValue The new value for B min.
+    */
     void setBMin(double dValue);
+
+    //=========================================================================================================
+    /**
+    * This is called whenever the name of the dipole should be changed. It saves the new name and emits the
+    * dipPathChanged signal.
+    *
+    * @param sDipName The new name of the dipole fit
+    */
     void setDipPath(const QString &sDipName);
 
 signals:
-    //TODO Docu
+    //=========================================================================================================
+    /**
+    * This is emitted whenever the measurement file path has changed.
+    *
+    * @param sPath New measurement file path.
+    */
     void measurementFilePathChanged(const QString &sPath);
+
+    //=========================================================================================================
+    /**
+    * This is emitted whenever the usage of raw data has changed.
+    *
+    * @param bValue New value for usage of raw data.
+    */
     void isRawChanged(bool bValue);
+
+    //=========================================================================================================
+    /**
+    * This is emitted whenever the number of the set has changed.
+    *
+    * @param iSetNum New value for the set number.
+    */
     void setNumChanged(int iSetNum);
+
+    //=========================================================================================================
+    /**
+    * This emitted whenever the usage of MEG data has changed.
+    *
+    * @param bValue New value for MEG data usage.
+    */
     void includeMegChanged(bool bValue);
+
+    //=========================================================================================================
+    /**
+    * This emitted whenever the usage of EEG data has changed.
+    *
+    * @param bValue New value for EEG data usage.
+    */
     void includeEegChanged(bool bValue);
+
+    //=========================================================================================================
+    /**
+    * This is emitted whenever the value for T max has changed.
+    *
+    * @param dValue New value for T max.
+    */
     void tMaxChanged(double dValue);
+
+    //=========================================================================================================
+    /**
+    * This is emitted whenever the value for T min has changed.
+    *
+    * @param dValue New value for T min.
+    */
     void tMinChanged(double dValue);
+
+    //=========================================================================================================
+    /**
+    * This is emitted whenever the value for B max has changed.
+    *
+    * @param dValue New value for B max.
+    */
     void bMaxChanged(double dValue);
+
+    //=========================================================================================================
+    /**
+    * This is emitted whenever the value for B min has changed.
+    *
+    * @param dValue The new value for B min.
+    */
     void bMinChanged(double dValue);
+
+    //=========================================================================================================
+    /**
+    * This is emitted whenever the dipole fit's name has changed.
+    *
+    * @param sDipName New name of the fit.
+    */
     void dipPathChanged(const QString &sDipName);
 
 private:

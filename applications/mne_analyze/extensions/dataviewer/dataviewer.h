@@ -116,7 +116,7 @@ private:
 
     //=========================================================================================================
     /**
-    * Updated the content of the list widget.
+    * Updates the content of the list widget.
     */
     void updateListWidget();
 

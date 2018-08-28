@@ -58,12 +58,6 @@
 
 //*************************************************************************************************************
 //=============================================================================================================
-// Eigen INCLUDES
-//=============================================================================================================
-
-
-//*************************************************************************************************************
-//=============================================================================================================
 // FORWARD DECLARATIONS
 //=============================================================================================================
 
@@ -91,9 +85,10 @@ namespace MNEANALYZE {
 
 //=============================================================================================================
 /**
-* Description of what this class is intended to do (in detail).
+* The AnalyzeCore class hold all of MNE-Analyze components.
+* It is the entry point for starting MNE-Analyze.
 *
-* @brief Brief description of this class.
+* @brief The AnalyzeCore holds all of MNE-Analyze components.
 */
 class AnalyzeCore : public QObject
 {
@@ -104,15 +99,29 @@ public:
 
     //=========================================================================================================
     /**
-    * Constructs a AnalyzeCore object.
+    * Constructs an AnalyzeCore object.
     */
     AnalyzeCore(QObject* parent = nullptr);
 
+    //=========================================================================================================
+    /**
+    * Destructs an AnalyzeCore object.
+    */
     ~AnalyzeCore();
 
+    //=========================================================================================================
+    /**
+    * This makes the main window visible.
+    */
     void showMainWindow();
 
-    QPointer<MainWindow> getMainWindow();
+    //=========================================================================================================
+    /**
+    * Returns a pointer to the main window.
+    *
+    * @return A pointer to the main window.
+    */
+    inline QPointer<MainWindow> getMainWindow() const;
 
     //=========================================================================================================
     /**
@@ -138,8 +147,22 @@ private slots:
 
 private:
 
+    //=========================================================================================================
+    /**
+    * This initializes the EventSystem.
+    */
     void initEventSystem();
+
+    //=========================================================================================================
+    /**
+    * This initializes the ExtensionManager.
+    */
     void initExtensionManager();
+
+    //=========================================================================================================
+    /**
+    * This initializes the MainWindow.
+    */
     void initMainWindow();
 
     //=========================================================================================================
@@ -150,10 +173,10 @@ private:
 
 
 
-    QSharedPointer<ANSHAREDLIB::ExtensionManager>   m_pExtensionManager;    /**< Holds extension manager.*/
-    QPointer<MainWindow>                            m_pMainWindow;
-    QSharedPointer<ANSHAREDLIB::AnalyzeSettings>    m_analyzeSettings;  /**< The global settings.*/
-    QSharedPointer<ANSHAREDLIB::AnalyzeData>        m_analyzeData;      /**< The global data base.*/
+    QSharedPointer<ANSHAREDLIB::ExtensionManager>   m_pExtensionManager;    /**< Holds extension manager. */
+    QPointer<MainWindow>                            m_pMainWindow;          /**< The main window. */
+    QSharedPointer<ANSHAREDLIB::AnalyzeSettings>    m_analyzeSettings;      /**< The global settings. */
+    QSharedPointer<ANSHAREDLIB::AnalyzeData>        m_analyzeData;          /**< The global data base. */
 
 };
 
@@ -163,6 +186,9 @@ private:
 // INLINE DEFINITIONS
 //=============================================================================================================
 
+QPointer<MainWindow> AnalyzeCore::getMainWindow() const {
+    return m_pMainWindow;
+}
 
 } // namespace MNEANALYZE
 
