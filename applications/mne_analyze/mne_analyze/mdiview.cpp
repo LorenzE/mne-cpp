@@ -2,6 +2,8 @@
 /**
 * @file     mdiview.cpp
 * @author   Christoph Dinh <chdinh@nmr.mgh.harvard.edu>;
+*           Simon Heinke <simon.heinke@tu-ilmenau.de>;
+*           Lars Debor <lars.debor@tu-ilmenau.de>;
 *           Lorenz Esch <Lorenz.Esch@tu-ilmenau.de>;
 *           Matti Hamalainen <msh@nmr.mgh.harvard.edu>
 * @version  1.0
@@ -9,7 +11,7 @@
 *
 * @section  LICENSE
 *
-* Copyright (C) 2017 Christoph Dinh, Lorenz Esch and Matti Hamalainen. All rights reserved.
+* Copyright (C) 2017 Christoph Dinh, Simon Heinke, Lars Debor, Lorenz Esch and Matti Hamalainen. All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without modification, are permitted provided that
 * the following conditions are met:
@@ -49,7 +51,6 @@
 //=============================================================================================================
 
 #include <QGridLayout>
-#include <QMdiArea>
 #include <QMdiSubWindow>
 #include <QPainter>
 
@@ -57,8 +58,6 @@
 #include <QPrinter>
 #include <QPrintDialog>
 #endif
-
-#include <QDebug>
 
 
 //*************************************************************************************************************
@@ -76,13 +75,9 @@ using namespace ANSHAREDLIB;
 //=============================================================================================================
 
 MdiView::MdiView(QWidget *parent)
-: QWidget(parent)
+: QMdiArea(parent)
 {
-    //QGridLayout is used so the viewer and MdiArea can fit always the size of MainWindow
-    m_gridLayout = new QGridLayout(this);
-    //Multiple Display Area, created inside ViewerWidget
-    m_mdiArea = new QMdiArea(this);
-    m_gridLayout->addWidget(m_mdiArea);
+
 }
 
 
@@ -90,40 +85,7 @@ MdiView::MdiView(QWidget *parent)
 
 MdiView::~MdiView()
 {
-}
 
-
-//*************************************************************************************************************
-
-QMdiSubWindow *MdiView::addSubWindow(QWidget *widget, Qt::WindowFlags flags)
-{
-    return m_mdiArea->addSubWindow(widget, flags);
-}
-
-
-//*************************************************************************************************************
-
-void MdiView::removeSubWindow(QWidget *widget)
-{
-    m_mdiArea->removeSubWindow(widget);
-}
-
-
-//*************************************************************************************************************
-
-void MdiView::cascadeSubWindows()
-{
-    // Arrange all the child windows in a cascade pattern.
-    this->m_mdiArea->cascadeSubWindows();
-}
-
-
-//*************************************************************************************************************
-
-void MdiView::tileSubWindows()
-{
-    // Arrange subwindows in a Tile mode
-    this->m_mdiArea->tileSubWindows();
 }
 
 
@@ -131,18 +93,18 @@ void MdiView::tileSubWindows()
 
 void MdiView::printCurrentSubWindow()
 {
-    if(!m_mdiArea->currentSubWindow())
+    if(! currentSubWindow())
         return;
 
 #if !defined(QT_NO_PRINTER) && !defined(QT_NO_PRINTDIALOG)
-    IStandardView *view = qobject_cast<IStandardView *>(m_mdiArea->currentSubWindow());
-    // if no standrad view -> render widget to printer otherwise call print function
-    if(!view){
+    IStandardView *view = qobject_cast<IStandardView *>(currentSubWindow());
+    // if no standard view -> render widget to printer otherwise call print function
+    if(! view){
         QPrinter printer;
         QPrintDialog dialog(&printer, this);
         if (dialog.exec() == QDialog::Accepted) {
             QPainter painter(&printer);
-            m_mdiArea->currentSubWindow()->render(&painter);
+            currentSubWindow()->render(&painter);
         }
     }
     else {

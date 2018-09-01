@@ -2,6 +2,8 @@
 /**
 * @file     mainwindow.cpp
 * @author   Christoph Dinh <chdinh@nmr.mgh.harvard.edu>;
+*           Simon Heinke <simon.heinke@tu-ilmenau.de>;
+*           Lars Debor <lars.debor@tu-ilmenau.de>;
 *           Lorenz Esch <Lorenz.Esch@tu-ilmenau.de>;
 *           Matti Hamalainen <msh@nmr.mgh.harvard.edu>
 * @version  1.0
@@ -59,6 +61,7 @@
 #include <QAction>
 #include <QLabel>
 #include <QTextEdit>
+#include <QGridLayout>
 #include <QtWidgets/QGridLayout>
 #include <QStandardPaths>
 
@@ -78,13 +81,10 @@ using namespace ANSHAREDLIB;
 //=============================================================================================================
 
 MainWindow::MainWindow(QSharedPointer<ANSHAREDLIB::ExtensionManager> pExtensionManager, QWidget *parent)
-: QMainWindow(parent)
-, m_pMdiView(Q_NULLPTR)
+    : QMainWindow(parent),
+      m_pMdiView(Q_NULLPTR),
+      m_pGridLayout(Q_NULLPTR)
 {
-    fprintf(stderr, "%s - Version %s\n",
-            CInfo::AppNameShort().toUtf8().constData(),
-            CInfo::AppVersion().toUtf8().constData());
-
     setWindowState(Qt::WindowMaximized);
     setMinimumSize(400, 400);
     setWindowTitle(CInfo::AppNameShort());
@@ -206,7 +206,9 @@ void MainWindow::createDockWindows(QSharedPointer<ANSHAREDLIB::ExtensionManager>
 
 void MainWindow::createMdiView(QSharedPointer<ExtensionManager> pExtensionManager)
 {
+    m_pGridLayout = new QGridLayout(this);
     m_pMdiView = new MdiView(this);
+    m_pGridLayout->addWidget(m_pMdiView);
     setCentralWidget(m_pMdiView);
 
     //Add Extension views to mdi

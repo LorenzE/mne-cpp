@@ -119,9 +119,6 @@ void CentralView::init()
     m_vEntities.push_back(QSharedPointer<QEntity>(pCamController));
 
     setRootEntity(m_pRootEntity);
-
-    //Only render new frames when needed
-    this->renderSettings()->setRenderPolicy(Qt3DRender::QRenderSettings::OnDemand);
 }
 
 

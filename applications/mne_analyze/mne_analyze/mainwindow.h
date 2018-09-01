@@ -2,6 +2,8 @@
 /**
 * @file     mainwindow.h
 * @author   Christoph Dinh <chdinh@nmr.mgh.harvard.edu>;
+*           Simon Heinke <simon.heinke@tu-ilmenau.de>;
+*           Lars Debor <lars.debor@tu-ilmenau.de>;
 *           Lorenz Esch <Lorenz.Esch@tu-ilmenau.de>;
 *           Matti Hamalainen <msh@nmr.mgh.harvard.edu>
 * @version  1.0
@@ -9,7 +11,7 @@
 *
 * @section  LICENSE
 *
-* Copyright (C) 2017 Christoph Dinh, Lorenz Esch and Matti Hamalainen. All rights reserved.
+* Copyright (C) 2017 Christoph Dinh, Simon Heinke, Lars Debor, Lorenz Esch and Matti Hamalainen. All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without modification, are permitted provided that
 * the following conditions are met:
@@ -64,6 +66,7 @@ QT_BEGIN_NAMESPACE
 class QAction;
 class QMenu;
 class QDockWidget;
+class QGridLayout;
 QT_END_NAMESPACE
 
 namespace ANSHAREDLIB
@@ -126,7 +129,6 @@ public:
     void closeEvent(QCloseEvent *event) override;
 
 signals:
-
     void mainWindowClosed();
 
 private:
@@ -134,32 +136,26 @@ private:
     void createMenus(QSharedPointer<ANSHAREDLIB::ExtensionManager> pExtensionManager);         /**< Creates all menus for user interface of MainWindow class. */
     void createDockWindows(QSharedPointer<ANSHAREDLIB::ExtensionManager> pExtensionManager);   /**< Creates all dock windows for user interface of MainWindow class. */
     void createMdiView(QSharedPointer<ANSHAREDLIB::ExtensionManager> pExtensionManager);       /**< Creates all Windows within the MDI View for user interface of MainWindow class. */
-
     void tabifyDockWindows();   /**< Tabify all dock windows */
+    void about();               /**< Implements about action.*/
 
+    MdiView*                            m_pMdiView;                 /**< The Central MDI View.*/
+
+    QGridLayout*                        m_pGridLayout;              /**< Grid Layout is used for MainWindow, so that the MdiArea can always fit the size of MainWindow */
+
+    // MainWindow actions
     QAction*                            m_pActionExit;              /**< exit application action */
-
-
     QAction*                            m_pActionPrint;             /**< view print action */
     QAction*                            m_pActionCascade;           /**< view cascade action */
     QAction*                            m_pActionTile;              /**< view tile action */
-
     QAction*                            m_pActionAbout;             /**< show about dialog action */
 
-    //Main Window Menu
+    // MainWindow menus
     QMenu*                              m_pMenuFile;        /**< Holds the file menu.*/
     QMenu*                              m_pMenuView;        /**< Holds the view menu.*/
     QMenu*                              m_pMenuHelp;        /**< Holds the help menu.*/
 
     QSharedPointer<QWidget>             m_pAboutWindow;     /**< Holds the widget containing the about information.*/
-
-private:
-    void about();                   /**< Implements about action.*/
-
-private:
-    //MDI Central View
-    MdiView *m_pMdiView;            /**< The Central MDI View.*/
-
 };
 
 }// NAMESPACE
