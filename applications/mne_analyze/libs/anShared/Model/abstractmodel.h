@@ -150,7 +150,7 @@ public:
     *
     * @return The type of the respective subclasses
     */
-    virtual inline MODEL_TYPE getType() const = 0;
+    virtual MODEL_TYPE getType() const = 0;
 
     //=========================================================================================================
     /**

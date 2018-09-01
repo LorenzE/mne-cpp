@@ -80,9 +80,9 @@ using namespace Qt3DCore;
 //=============================================================================================================
 
 MainViewer::MainViewer()
-    : m_pMainViewerControl(Q_NULLPTR),
+    : m_pModel(Q_NULLPTR),
       m_pDock(Q_NULLPTR),
-      m_pModel(Q_NULLPTR),
+      m_pMainViewerControl(Q_NULLPTR),
       m_pView(Q_NULLPTR),
       m_pContainer(Q_NULLPTR),
       m_pSubWindow(Q_NULLPTR),
