@@ -47,6 +47,8 @@
 #include <anShared/Management/communicator.h>
 #include <anShared/Model/ecdsetmodel.h>
 #include <anShared/Utils/metatypes.h>
+#include <disp3D/engine/model/3dhelpers/geometrymultiplier.h>
+#include <disp3D/engine/model/materials/geometrymultipliermaterial.h>
 
 #include <algorithm>
 
@@ -58,9 +60,7 @@
 
 #include <QDebug>
 #include <Qt3DCore/QEntity>
-#include <Qt3DExtras/QConeMesh>
-#include <Qt3DExtras/QPhongMaterial>
-#include <Qt3DCore/QTransform>
+#include <Qt3DExtras/QConeGeometry>
 #include <QFileDialog>
 
 
@@ -309,11 +309,24 @@ QSharedPointer<QEntity> DipoleFit::create3DEntityTree(QSharedPointer<EcdSetModel
     QSharedPointer<QEntity> pRootEntity = QSharedPointer<QEntity>::create();
     pRootEntity->setObjectName(QStringLiteral("DipoleEntityTree"));
 
-    QVector3D pos, to, from;
-    from = QVector3D(0.0, 1.0, 0.0);
+    //create geometry
+    QSharedPointer<Qt3DExtras::QConeGeometry> pDipolGeometry = QSharedPointer<Qt3DExtras::QConeGeometry>::create();
+    pDipolGeometry->setBottomRadius(0.001f);
+    pDipolGeometry->setLength(0.003f);
+    //create instanced renderer
+    DISP3DLIB::GeometryMultiplier *pDipolMesh = new DISP3DLIB::GeometryMultiplier(pDipolGeometry);
+
+    QVector3D pos, to;
+    QVector3D from = QVector3D(0.0, 1.0, 0.0);
     double norm;
 
-    for(int i = 0; i < pModel->rowCount(); ++i) {
+    int iEcdSetSize = pModel->rowCount();
+    QVector<QColor> vColors;
+    vColors.reserve(iEcdSetSize);
+    QVector<QMatrix4x4> vTransforms;
+    vTransforms.reserve(iEcdSetSize);
+
+    for(int i = 0; i < iEcdSetSize; ++i) {
         QModelIndex dataIndex = pModel->index(i);
         INVERSELIB::ECD tempEcd = pModel->data(dataIndex, Qt::DisplayRole).value<INVERSELIB::ECD>();
 
@@ -336,23 +349,24 @@ QSharedPointer<QEntity> DipoleFit::create3DEntityTree(QSharedPointer<EcdSetModel
         QMatrix4x4 m;
         m.translate(pos);
         m.rotate(final);
+        vTransforms.push_back(m);
 
-        Qt3DCore::QTransform *pTransform = new Qt3DCore::QTransform();
-        pTransform->setMatrix(m);
-
-        Qt3DExtras::QPhongMaterial *pMaterial = new Qt3DExtras::QPhongMaterial();
-        pMaterial->setAmbient(QColor(rand()%255, rand()%255, rand()%255));
-
-        Qt3DExtras::QConeMesh *pDipolGeometry = new Qt3DExtras::QConeMesh();
-        pDipolGeometry->setBottomRadius(0.001f);
-        pDipolGeometry->setLength(0.003f);
-
-        Qt3DCore::QEntity *pEntity = new QEntity(pRootEntity.data());
-
-        pEntity->addComponent(pTransform);
-        pEntity->addComponent(pMaterial);
-        pEntity->addComponent(pDipolGeometry);
+        //add random color;
+        vColors.push_back(QColor(rand()%255, rand()%255, rand()%255));
     }
+
+    //Set instance Transform
+    pDipolMesh->setTransforms(vTransforms);
+    //Set instance colors
+    pDipolMesh->setColors(vColors);
+
+    pRootEntity->addComponent(pDipolMesh);
+
+    //Add material
+    DISP3DLIB::GeometryMultiplierMaterial* pMaterial = new DISP3DLIB::GeometryMultiplierMaterial;
+    pMaterial->setAmbient(QColor(0,0,0));
+    pMaterial->setAlpha(1.0f);
+    pRootEntity->addComponent(pMaterial);
 
     return pRootEntity;
 }
