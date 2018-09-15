@@ -42,7 +42,7 @@ CONFIG += plugin
 
 DEFINES += MAINVIEWER_LIBRARY
 
-QT += gui widgets 3dextras opengl
+QT += gui widgets 3dextras
 
 TARGET = mainviewer
 CONFIG(debug, debug|release) {

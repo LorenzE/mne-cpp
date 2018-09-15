@@ -85,7 +85,7 @@ namespace MNEANALYZE {
 
 //=============================================================================================================
 /**
-* The AnalyzeCore class hold all of MNE-Analyze components.
+* The AnalyzeCore class holds all of MNE-Analyze components.
 * It is the entry point for starting MNE-Analyze.
 *
 * @brief The AnalyzeCore holds all of MNE-Analyze components.

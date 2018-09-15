@@ -251,7 +251,7 @@ signals:
 
     //=========================================================================================================
     /**
-    * This emitted whenever the usage of MEG data has changed.
+    * This is emitted whenever the usage of MEG data has changed.
     *
     * @param bValue New value for MEG data usage.
     */
@@ -259,7 +259,7 @@ signals:
 
     //=========================================================================================================
     /**
-    * This emitted whenever the usage of EEG data has changed.
+    * This is emitted whenever the usage of EEG data has changed.
     *
     * @param bValue New value for EEG data usage.
     */
