@@ -316,15 +316,16 @@ QSharedPointer<QEntity> DipoleFit::create3DEntityTree(QSharedPointer<EcdSetModel
     //create instanced renderer
     DISP3DLIB::GeometryMultiplier *pDipolMesh = new DISP3DLIB::GeometryMultiplier(pDipolGeometry);
 
-    QVector3D pos, to;
-    QVector3D from = QVector3D(0.0, 1.0, 0.0);
-    double norm;
-
     int iEcdSetSize = pModel->rowCount();
     QVector<QColor> vColors;
     vColors.reserve(iEcdSetSize);
     QVector<QMatrix4x4> vTransforms;
     vTransforms.reserve(iEcdSetSize);
+
+    //extract dipoles from model
+    QVector3D pos, to;
+    QVector3D from = QVector3D(0.0, 1.0, 0.0);
+    double norm;
 
     for(int i = 0; i < iEcdSetSize; ++i) {
         QModelIndex dataIndex = pModel->index(i);
