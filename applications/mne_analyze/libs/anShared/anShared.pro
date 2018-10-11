@@ -77,7 +77,8 @@ SOURCES += \
     Model/ecdsetmodel.cpp
     Model/qentitylistmodel.cpp \
     Data/dipolefitsettingswrapper.cpp \
-    Management/statusbar.cpp
+    Management/statusbar.cpp \
+    Model/fiffrawmodel.cpp
 
 HEADERS += \
     anshared_global.h \
@@ -97,7 +98,8 @@ HEADERS += \
     Utils/metatypes.h \
     Model/qentitylistmodel.h \
     Data/dipolefitsettingswrapper.h \
-    Management/statusbar.h
+    Management/statusbar.h \
+    Model/fiffrawmodel.h
 
 
 INCLUDEPATH += $${EIGEN_INCLUDE_DIR}
@@ -125,6 +127,10 @@ macx {
     CONFIG +=c++11
 }
 
+DISTFILES += \
+    Model/fiffrawmodel
+
+
 # Activate FFTW backend in Eigen
 contains(MNECPP_CONFIG, useFFTW) {
     DEFINES += EIGEN_FFTW_DEFAULT
@@ -142,5 +148,5 @@ win32 {
         # On Linux
         LIBS += -lfftw3 \
                 -lfftw3_threads \
-}
+	}
 }

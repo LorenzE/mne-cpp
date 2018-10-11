@@ -87,7 +87,8 @@ namespace ANSHAREDLIB
     {
         ANSHAREDLIB_SURFACE_MODEL,
         ANSHAREDLIB_QENTITYLIST_MODEL,
-        ANSHAREDLIB_ECDSET_MODEL
+        ANSHAREDLIB_ECDSET_MODEL,
+        ANSHAREDLIB_FIFFRAW_MODEL
     };
 
     //=========================================================================================================
