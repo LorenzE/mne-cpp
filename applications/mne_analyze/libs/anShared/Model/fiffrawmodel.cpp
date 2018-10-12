@@ -61,6 +61,7 @@
 //=============================================================================================================
 
 using namespace ANSHAREDLIB;
+using namespace FIFFLIB;
 
 
 //*************************************************************************************************************
@@ -83,9 +84,50 @@ FiffRawModel::FiffRawModel(QObject *pParent)
 
 //*************************************************************************************************************
 
+FiffRawModel::FiffRawModel(QFile& inFile,
+                           qint32 iBlockSize,
+                           qint32 iWindowSize,
+                           qint32 iPaddingSize,
+                           QObject *pParent)
+    : iBlockSize(iBlockSize),
+      iWindowSize(iWindowSize),
+      iPaddingSize(iPaddingSize),
+      AbstractModel(pParent)
+{
+    loadFiffData(inFile);
+}
+
+
+//*************************************************************************************************************
+
 FiffRawModel::~FiffRawModel()
 {
 
+}
+
+
+//*************************************************************************************************************
+
+void FiffRawModel::loadFiffData(QFile &inFile)
+{
+    m_pFiffIO = QSharedPointer<FiffIO>(new FiffIO(inFile));
+    if(!m_pFiffIO->m_qlistRaw.empty()) {
+        //Set cursor somewhere into fiff file [in samples]
+        m_iFiffCursorBegin = m_pFiffIO->m_qlistRaw[0]->first_samp;
+
+
+        /*
+        int start = m_iAbsFiffCursor;
+        int end = start + m_iWindowSize - 1;
+
+        if(!m_pFiffIO->m_qlistRaw[0]->read_raw_segment(t_data, t_times, start, end))
+            return false;
+
+        newDataPackage = QSharedPointer<DataPackage>(new DataPackage(t_data, (MatrixXdR)t_times));
+
+        m_bFileloaded = true;
+        */
+    }
 }
 
 

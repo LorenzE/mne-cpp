@@ -47,6 +47,8 @@
 #include "../Utils/types.h"
 #include "abstractmodel.h"
 
+#include <fiff/fiff.h>
+#include <fiff/fiff_io.h>
 
 //*************************************************************************************************************
 //=============================================================================================================
@@ -55,6 +57,7 @@
 
 #include <QSharedPointer>
 #include <QDebug>
+#include <QFile>
 
 
 //*************************************************************************************************************
@@ -104,9 +107,27 @@ public:
 
     //=========================================================================================================
     /**
+    * Constructs a FiffRawModel object.
+    */
+    FiffRawModel(QFile& inFile,
+                 qint32 iBlockSize,
+                 qint32 iWindowSize,
+                 qint32 iPaddingSize,
+                 QObject *pParent = nullptr);
+
+    //=========================================================================================================
+    /**
     * Destructs a FiffRawModel.
     */
     ~FiffRawModel();
+
+    //=========================================================================================================
+    /**
+    * Resets the model and reads new data from inFile
+    *
+    * @param inFile The file to read data from.
+    */
+    void loadFiffData(QFile& inFile);
 
     //=========================================================================================================
     /**
@@ -181,6 +202,14 @@ protected:
 
 private:
 
+    qint32 iBlockSize;      /**< Number of samples per block */
+    qint32 iWindowSize;     /**< Number of blocks per window */
+    qint32 iPaddingSize;    /**< Number of blocks that are padded left and right */
+
+    // this always points to the very first sample that is currently held (in the earliest block)
+    qint32 m_iFiffCursorBegin;
+
+    QSharedPointer<FIFFLIB::FiffIO> m_pFiffIO;
 };
 
 
