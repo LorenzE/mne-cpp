@@ -202,9 +202,11 @@ protected:
 
 private:
 
-    qint32 iBlockSize;      /**< Number of samples per block */
-    qint32 iWindowSize;     /**< Number of blocks per window */
-    qint32 iPaddingSize;    /**< Number of blocks that are padded left and right */
+    QList<QPair<MatrixXd, MatrixXd>> m_lData;    /**< Data */
+
+    qint32 m_iBlockSize;      /**< Number of samples per block */
+    qint32 m_iWindowSize;     /**< Number of blocks per window */
+    qint32 m_iPaddingSize;    /**< Number of blocks that are padded left and right */
 
     // this always points to the very first sample that is currently held (in the earliest block)
     qint32 m_iFiffCursorBegin;

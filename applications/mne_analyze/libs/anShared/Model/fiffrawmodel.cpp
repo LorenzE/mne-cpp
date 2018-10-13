@@ -89,9 +89,9 @@ FiffRawModel::FiffRawModel(QFile& inFile,
                            qint32 iWindowSize,
                            qint32 iPaddingSize,
                            QObject *pParent)
-    : iBlockSize(iBlockSize),
-      iWindowSize(iWindowSize),
-      iPaddingSize(iPaddingSize),
+    : m_iBlockSize(iBlockSize),
+      m_iWindowSize(iWindowSize),
+      m_iPaddingSize(iPaddingSize),
       AbstractModel(pParent)
 {
     loadFiffData(inFile);
@@ -110,24 +110,43 @@ FiffRawModel::~FiffRawModel()
 
 void FiffRawModel::loadFiffData(QFile &inFile)
 {
-    m_pFiffIO = QSharedPointer<FiffIO>(new FiffIO(inFile));
-    if(!m_pFiffIO->m_qlistRaw.empty()) {
-        //Set cursor somewhere into fiff file [in samples]
+    m_pFiffIO = QSharedPointer<FiffIO>::create(inFile);
+
+    // build datastructure that is to be filled with data from the file
+    MatrixXd data, times;
+    // append a matrix pair for each block: padding left, window, padding right
+    for(int i = 0; i < m_iWindowSize + 2 * m_iPaddingSize; ++i) {
+        m_lData.append(qMakePair(data, times));
+    }
+
+    if(m_pFiffIO->m_qlistRaw.empty()) {
+        qDebug() << "[FiffRawmodel::loadFiffData] File " << inFile.fileName() << " does not contain any Fiff data";
+        return;
+    }
+    else {
+        //Set cursor somewhere into Fiff file
         m_iFiffCursorBegin = m_pFiffIO->m_qlistRaw[0]->first_samp;
 
+        int start = m_iFiffCursorBegin;
+        // for some reason the read_raw_segment function works with inclusive upper bound
+        int end = start + m_iBlockSize - 1;
 
-        /*
-        int start = m_iAbsFiffCursor;
-        int end = start + m_iWindowSize - 1;
+        // read in all needed blocks (padding left, window, padding right)
+        for(int i = 0; i < m_iWindowSize + 2 * m_iPaddingSize; ++i) {
+            if(m_pFiffIO->m_qlistRaw[0]->read_raw_segment(m_lData[i].first, m_lData[i].second, start, end))
+            {
+                // qDebug() << "[FiffRawmodel::loadFiffData] Successfully read a block ";
+            }
+            else {
+                qDebug() << "[FiffRawmodel::loadFiffData] Could not read samples " << start << " to " << end;
+                return;
+            }
 
-        if(!m_pFiffIO->m_qlistRaw[0]->read_raw_segment(t_data, t_times, start, end))
-            return false;
-
-        newDataPackage = QSharedPointer<DataPackage>(new DataPackage(t_data, (MatrixXdR)t_times));
-
-        m_bFileloaded = true;
-        */
+            start += m_iBlockSize;
+            end += m_iBlockSize;
+        }
     }
+    qDebug() << m_lData.size();
 }
 
 
