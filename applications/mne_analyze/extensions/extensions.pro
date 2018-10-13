@@ -46,6 +46,7 @@ SUBDIRS += \
     invmne \
     mainviewer \
     dataviewer \
+    rawdataviewer \
 
 !isEmpty( CNTK_INCLUDE_DIR ) {
     SUBDIRS += \
