@@ -58,6 +58,8 @@
 #include <QSharedPointer>
 #include <QDebug>
 #include <QFile>
+#include <QFuture>
+#include <QFutureWatcher>
 
 
 //*************************************************************************************************************
@@ -110,7 +112,7 @@ public:
     * Constructs a FiffRawModel object.
     */
     FiffRawModel(QFile& inFile,
-                 qint32 iBlockSize,
+                 qint32 iSamplesPerBlock,
                  qint32 iWindowSize,
                  qint32 iPaddingSize,
                  QObject *pParent = nullptr);
@@ -127,7 +129,7 @@ public:
     *
     * @param inFile The file to read data from.
     */
-    void loadFiffData(QFile& inFile);
+    void initFiffData(QFile& inFile);
 
     //=========================================================================================================
     /**
@@ -198,18 +200,84 @@ public:
     */
     inline MODEL_TYPE getType() const override;
 
-protected:
+    //=========================================================================================================
+    /**
+    * Return the first sample of the loaded Fiff file
+    *
+    * @return The first sample of the loaded Fiff file
+    */
+    inline qint32 firstSample() const;
+
+    //=========================================================================================================
+    /**
+    * Returns the last sample of the loaded Fiff file
+    *
+    * @return The last sample of the loaded Fiff file
+    */
+    inline qint32 lastSample() const;
+
+signals:
+
+    //=========================================================================================================
+    /**
+    * This is emitted in order to cheat the constness of the ::data method
+    *
+    * @param[in] iCursorRequested Cursor that points to the requested sample
+    */
+    void startToLoadBlocks(qint32 iCursorRequested) const;
+
+private slots:
+
+    //=========================================================================================================
+    /**
+    * This method determines whether we need to load earlier or later blocks and then calls the suitable
+    * method in the background.
+    *
+    * @param iCursorRequested Cursor that points to the requested sample
+    */
+    void onStartToLoadBlocks(qint32 iCursorRequested);
+
+private:
+
+    //=========================================================================================================
+    /**
+    * This is run concurrently
+    *
+    * @param[in] iCursorRequested Cursor that points to the requested sample
+    */
+    int loadEarlierBlocks(qint32 iCursorRequested);
+
+    //=========================================================================================================
+    /**
+    * This is run concurrently
+    *
+    * @param[in] iCursorRequested Cursor that points to the requested sample
+    */
+    int loadLaterBlocks(qint32 iCursorRequested);
+
+    //=========================================================================================================
+    /**
+    * This is run by the FutureWatcher when its finished
+    *
+    * @param[in] result Code value for the result
+    */
+    void postBlockLoad(int result);
 
 private:
 
     QList<QPair<MatrixXd, MatrixXd>> m_lData;    /**< Data */
 
-    qint32 m_iBlockSize;      /**< Number of samples per block */
-    qint32 m_iWindowSize;     /**< Number of blocks per window */
-    qint32 m_iPaddingSize;    /**< Number of blocks that are padded left and right */
+    qint32 m_iSamplesPerBlock;  /**< Number of samples per block */
+    qint32 m_iWindowSize;       /**< Number of blocks per window */
+    qint32 m_iPaddingSize;      /**< Number of blocks that are padded left and right */
 
     // this always points to the very first sample that is currently held (in the earliest block)
     qint32 m_iFiffCursorBegin;
+
+
+    // concurrent reloading
+    QFutureWatcher<int> m_blockLoadFutureWatcher;    /**< QFutureWatcher for watching process of reloading fiff data. */
+
 
     QSharedPointer<FIFFLIB::FiffIO> m_pFiffIO;
 };
@@ -223,6 +291,30 @@ private:
 inline MODEL_TYPE FiffRawModel::getType() const
 {
     return MODEL_TYPE::ANSHAREDLIB_FIFFRAW_MODEL;
+}
+
+
+//*************************************************************************************************************
+
+inline qint32 FiffRawModel::firstSample() const {
+    if(m_pFiffIO->m_qlistRaw.empty() == false)
+        return m_pFiffIO->m_qlistRaw[0]->first_samp;
+    else
+    {
+        qDebug() << "[FiffRawModel::firstSample] Raw list is empty, returning -1";
+    }
+}
+
+
+//*************************************************************************************************************
+
+inline qint32 FiffRawModel::lastSample() const {
+    if(m_pFiffIO->m_qlistRaw.empty() == false)
+        return m_pFiffIO->m_qlistRaw[0]->last_samp;
+    else
+    {
+        qDebug() << "[FiffRawModel::lastSample] Raw list is empty, returning -1";
+    }
 }
 
 } // namespace ANSHAREDLIB
