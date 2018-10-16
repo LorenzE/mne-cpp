@@ -43,6 +43,7 @@
 #include "FormFiles/rawdataviewercontrol.h"
 #include <anShared/Management/analyzedata.h>
 #include "anShared/Utils/metatypes.h"
+#include "channelviewer.h"
 
 
 //*************************************************************************************************************
@@ -68,6 +69,7 @@ using namespace ANSHAREDLIB;
 RawDataViewer::RawDataViewer()
     : m_pControlDock(Q_NULLPTR)
     , m_pRawDataViewerControl(Q_NULLPTR)
+    , m_bDisplayCreated(false)
 {
 
 }
@@ -140,7 +142,12 @@ QDockWidget *RawDataViewer::getControl()
 
 QWidget *RawDataViewer::getView()
 {
-    return Q_NULLPTR;
+    if (m_bDisplayCreated == false)
+    {
+        createDisplay();
+    }
+
+    return m_pSubWindow;
 }
 
 
@@ -158,6 +165,33 @@ QVector<EVENT_TYPE> RawDataViewer::getEventSubscriptions(void) const
 {
     QVector<EVENT_TYPE> temp = {EXTENSION_INIT_FINISHED};
     return temp;
+}
+
+
+//*************************************************************************************************************
+
+void RawDataViewer::createDisplay()
+{
+
+    m_pChannelDisplay = new ChannelViewer();
+    m_pChannelDisplay->setMinimumSize(256, 256);
+    m_pChannelDisplay->setFocusPolicy(Qt::TabFocus);
+    m_pChannelDisplay->setAttribute(Qt::WA_DeleteOnClose, false);
+
+
+    // we need this since the top-level main window runs "QMdiView::addSubWindow()", which requires a subwindow
+    // to be passed (if a non-window would be passed, QMdiView would silently create a new QMidSubWindow )
+    m_pSubWindow = new QMdiSubWindow();
+    m_pSubWindow->setWidget(m_pChannelDisplay);
+    m_pSubWindow->setWindowTitle(QString("Channel Display"));
+    m_pSubWindow->setAttribute(Qt::WA_DeleteOnClose, false);
+
+    // let Qt know that we want the MainViewer maximized
+    //m_pSubWindow->showMaximized();
+
+    // remember that the display was built
+    m_bDisplayCreated = true;
+
 }
 
 

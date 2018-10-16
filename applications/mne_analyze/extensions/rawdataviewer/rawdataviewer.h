@@ -66,6 +66,7 @@
 class RawDataViewerControl;
 
 
+
 //*************************************************************************************************************
 //=============================================================================================================
 // DEFINE NAMESPACE SURFEREXTENSION
@@ -73,7 +74,7 @@ class RawDataViewerControl;
 
 namespace RAWDATAVIEWEREXTENSION
 {
-
+    class ChannelViewer;
 
 //=============================================================================================================
 /**
@@ -114,9 +115,16 @@ public:
 
 private:
 
+    void createDisplay();
+
     // Control
     QDockWidget*            m_pControlDock; /**< Control Widget */
     RawDataViewerControl*   m_pRawDataViewerControl;
+
+
+    ChannelViewer*                                  m_pChannelDisplay;
+    QMdiSubWindow*                                  m_pSubWindow; /**< Window that wraps the display */
+    bool                                            m_bDisplayCreated; /**< Flag for remembering whether or not the display was already created */
 };
 
 //*************************************************************************************************************

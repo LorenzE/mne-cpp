@@ -42,7 +42,7 @@ CONFIG += plugin
 
 DEFINES += RAWDATAVIEWER_LIBRARY
 
-QT += gui widgets
+QT += gui widgets charts
 
 TARGET = rawdataviewer
 CONFIG(debug, debug|release) {
@@ -80,12 +80,14 @@ unix: DESTDIR = $${MNE_BINARY_DIR}/mne_analyze_extensions
 
 SOURCES += \
     rawdataviewer.cpp \
-    FormFiles/rawdataviewercontrol.cpp
+    FormFiles/rawdataviewercontrol.cpp \
+    channelviewer.cpp
 
 HEADERS += \
     rawdataviewer_global.h \
     rawdataviewer.h    \
-    FormFiles/rawdataviewercontrol.h
+    FormFiles/rawdataviewercontrol.h \
+    channelviewer.h
 
 FORMS += \
     FormFiles/rawdataviewercontrol.ui
