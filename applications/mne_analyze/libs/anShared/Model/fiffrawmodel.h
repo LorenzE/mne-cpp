@@ -98,8 +98,11 @@ class ANSHAREDSHARED_EXPORT FiffRawModel : public AbstractModel
     Q_OBJECT
 
 public:
-    typedef QSharedPointer<FiffRawModel> SPtr;            /**< Shared pointer type for FiffRawModel. */
-    typedef QSharedPointer<const FiffRawModel> ConstSPtr; /**< Const shared pointer type for FiffRawModel. */
+    typedef QSharedPointer<FiffRawModel> SPtr;              /**< Shared pointer type for FiffRawModel. */
+    typedef QSharedPointer<const FiffRawModel> ConstSPtr;   /**< Const shared pointer type for FiffRawModel. */
+
+    typedef QPair<const double*, qint32> StartAndLength;    /**< Pointer points to a coefficient within an Eigen matrix,
+                                                                 Length determines how many samples to read.  */
 
     //=========================================================================================================
     /**
@@ -114,7 +117,7 @@ public:
     FiffRawModel(QFile& inFile,
                  qint32 iSamplesPerBlock,
                  qint32 iWindowSize,
-                 qint32 iPaddingSize,
+                 qint32 iBlockPaddingSize,
                  QObject *pParent = nullptr);
 
     //=========================================================================================================
@@ -216,27 +219,6 @@ public:
     */
     inline qint32 lastSample() const;
 
-signals:
-
-    //=========================================================================================================
-    /**
-    * This is emitted in order to cheat the constness of the ::data method
-    *
-    * @param[in] iCursorRequested Cursor that points to the requested sample
-    */
-    void startToLoadBlocks(qint32 iCursorRequested) const;
-
-private slots:
-
-    //=========================================================================================================
-    /**
-    * This method determines whether we need to load earlier or later blocks and then calls the suitable
-    * method in the background.
-    *
-    * @param iCursorRequested Cursor that points to the requested sample
-    */
-    void onStartToLoadBlocks(qint32 iCursorRequested);
-
 private:
 
     //=========================================================================================================
@@ -245,7 +227,7 @@ private:
     *
     * @param[in] iCursorRequested Cursor that points to the requested sample
     */
-    int loadEarlierBlocks(qint32 iCursorRequested);
+    int loadEarlierBlocks(qint32 numBlocks);
 
     //=========================================================================================================
     /**
@@ -253,7 +235,7 @@ private:
     *
     * @param[in] iCursorRequested Cursor that points to the requested sample
     */
-    int loadLaterBlocks(qint32 iCursorRequested);
+    int loadLaterBlocks(qint32 numBlocks);
 
     //=========================================================================================================
     /**
@@ -265,11 +247,12 @@ private:
 
 private:
 
-    QList<QPair<MatrixXd, MatrixXd>> m_lData;    /**< Data */
+    QList<QSharedPointer<QPair<MatrixXd, MatrixXd>>> m_lData;    /**< Data */
+    QList<QSharedPointer<QPair<MatrixXd, MatrixXd>>> m_lNewData; /**< Data that is to be appended or prepended */
 
     qint32 m_iSamplesPerBlock;  /**< Number of samples per block */
     qint32 m_iWindowSize;       /**< Number of blocks per window */
-    qint32 m_iPaddingSize;      /**< Number of blocks that are padded left and right */
+    qint32 m_iPreloadBufferSize;/**< Number of blocks that are preloaded left and right */
 
     // this always points to the very first sample that is currently held (in the earliest block)
     qint32 m_iFiffCursorBegin;

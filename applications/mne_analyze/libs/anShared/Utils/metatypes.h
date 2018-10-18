@@ -41,6 +41,7 @@
 #include <inverse/dipoleFit/ecd.h>
 #include <Eigen/Core>
 #include "../Management/event.h"
+#include "../Model/fiffrawmodel.h"
 
 // Important: Also used qRegisterMetaTypes in AnalyzeCore::registerMetatypes
 // to use custom types in QObject::connect() calls.
@@ -50,6 +51,7 @@ Q_DECLARE_METATYPE(Eigen::Vector3i);
 Q_DECLARE_METATYPE(QSharedPointer<Qt3DCore::QEntity>);
 Q_DECLARE_METATYPE(INVERSELIB::ECD);
 Q_DECLARE_METATYPE(QSharedPointer<ANSHAREDLIB::Event>);
+Q_DECLARE_METATYPE(QList<ANSHAREDLIB::FiffRawModel::StartAndLength>);
 
 
 namespace ANSHAREDLIB {
