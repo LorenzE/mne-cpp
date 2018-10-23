@@ -43,6 +43,8 @@
 #include "fiffrawmodel.h"
 #include "../Utils/metatypes.h"
 
+#include <math.h>
+
 
 //*************************************************************************************************************
 //=============================================================================================================
@@ -189,9 +191,7 @@ QVariant FiffRawModel::data(const QModelIndex &index, int role) const
 
                 QList<StartAndLength> lChannelData;
 
-
-                // TODO add mutex here
-
+                dataListMutex.lock();
 
                 for (qint32 i = 0; i < m_lData.size(); ++i) {
                     startAndLength.first = m_lData[i]->first.data() + index.row() * m_lData[i]->first.cols();
@@ -199,6 +199,8 @@ QVariant FiffRawModel::data(const QModelIndex &index, int role) const
 
                     lChannelData.append(startAndLength);
                 }
+
+                dataListMutex.unlock();
 
                 result.setValue(lChannelData);
                 return result;
@@ -272,6 +274,39 @@ bool FiffRawModel::hasChildren(const QModelIndex &parent) const
 
 //*************************************************************************************************************
 
+void FiffRawModel::updateScrollPosition(qint32 relativeFiffCursor)
+{
+    qint32 targetCursor = firstSample() + relativeFiffCursor;
+
+    if (targetCursor < m_iFiffCursorBegin + m_iPreloadBufferSize * m_iSamplesPerBlock) {
+        // time to move the loaded window. Calculate distance in blocks
+        qint32 sampleDist = (m_iFiffCursorBegin + m_iPreloadBufferSize * m_iSamplesPerBlock) - targetCursor;
+        qint32 blockDist = (qint32) ceil(((double) sampleDist) / ((double) m_iSamplesPerBlock));
+
+        if (blockDist >= m_lData.size()) {
+            // we must "jump" to the new cursor ...
+            m_iFiffCursorBegin = max(firstSample(), m_iFiffCursorBegin -  blockDist * m_iSamplesPerBlock);
+            // ... and load the whole model anew
+            tempDataMutex.lock();
+            QFuture<QPair<MatrixXd,MatrixXd> > future = QtConcurrent::run(this,
+                                                                          &FiffRawModel::loadLaterBlocks,
+                                                                          m_lData.size());
+            m_blockLoadFutureWatcher.setFuture(future);
+
+        } else {
+            // simply load earlier blocks
+            tempDataMutex.lock();
+            QFuture<QPair<MatrixXd,MatrixXd> > future = QtConcurrent::run(this,
+                                                                          &FiffRawModel::loadEarlierBlocks,
+                                                                          blockDist);
+            m_blockLoadFutureWatcher.setFuture(future);
+        }
+    }
+}
+
+
+//*************************************************************************************************************
+
 int FiffRawModel::loadEarlierBlocks(qint32 numBlocks)
 {
     // check if start of file was reached:
@@ -281,10 +316,14 @@ int FiffRawModel::loadEarlierBlocks(qint32 numBlocks)
         // see how many blocks we still can load
         int maxNumBlocks = (m_iFiffCursorBegin - firstSample()) / m_iSamplesPerBlock;
         qDebug() << "Loading " << maxNumBlocks << " earlier blocks instead of requested " << numBlocks;
-        if (maxNumBlocks != 0)
+        if (maxNumBlocks != 0) {
             numBlocks = maxNumBlocks;
-        else
-            return 0; // nothing to be done, cant load any more blocks
+        }
+        else {
+            // nothing to be done, cant load any more blocks
+            // return 0, meaning that this was a loading of earlier blocks
+            return 0;
+        }
     }
     // we expect m_lNewData to be empty:
     if (m_lNewData.isEmpty() == false) {
@@ -385,10 +424,39 @@ void FiffRawModel::postBlockLoad(int result)
         qDebug() << "[FiffRawModel::postBlockLoad] QFuture returned an error: " << result;
         break;
     case 0:
-        // implement insertion of earlier blocks (with mutex)
+        // insertion of earlier blocks (with mutex)
+        int iNewBlocks = m_lNewData.size();
+
+        // get lock on data list
+        dataListMutex.lock();
+
+        for (int i = 0; i < iNewBlocks; ++i) {
+            m_lData.prepend(m_lNewData.first());
+            m_lNewData.removeFirst();
+            // @TODO check if this really frees the associated memory
+            m_lData.removeLast();
+        }
+
+        // done, unlock both mutexes
+        dataListMutex.unlock();
+        tempDataMutex.unlock();
         break;
     case 1:
-        // implement insertion of later blocks (with mutex)
+        // insertion of later blocks (with mutex)
+        int iNewBlocks = m_lNewData.size();
+
+        // get lock on data list
+        dataListMutex.lock();
+
+        for (int i = 0; i < iNewBlocks; ++i) {
+            m_lData.append(m_lNewData.first());
+            m_lNewData.removeFirst();
+            m_lData.removeFirst();
+        }
+
+        // done, unlock both mutexes
+        dataListMutex.unlock();
+        tempDataMutex.unlock();
         break;
     default:
         qDebug() << "[FiffRawModel::postBlockLoad] FATAL Non-intended return value: " << result;

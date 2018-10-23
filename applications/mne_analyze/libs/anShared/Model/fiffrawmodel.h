@@ -219,6 +219,10 @@ public:
     */
     inline qint32 lastSample() const;
 
+public slots:
+
+    void updateScrollPosition(qint32 relativeFiffCursor);
+
 private:
 
     //=========================================================================================================
@@ -249,6 +253,9 @@ private:
 
     QList<QSharedPointer<QPair<MatrixXd, MatrixXd>>> m_lData;    /**< Data */
     QList<QSharedPointer<QPair<MatrixXd, MatrixXd>>> m_lNewData; /**< Data that is to be appended or prepended */
+
+    QMutex tempDataMutex;   /**< Mutex for m_lNewData */
+    QMutex dataListMutex;   /**< Mutex for m_lData */
 
     qint32 m_iSamplesPerBlock;  /**< Number of samples per block */
     qint32 m_iWindowSize;       /**< Number of blocks per window */
@@ -285,6 +292,7 @@ inline qint32 FiffRawModel::firstSample() const {
     else
     {
         qDebug() << "[FiffRawModel::firstSample] Raw list is empty, returning -1";
+        return -1;
     }
 }
 
@@ -297,6 +305,7 @@ inline qint32 FiffRawModel::lastSample() const {
     else
     {
         qDebug() << "[FiffRawModel::lastSample] Raw list is empty, returning -1";
+        return -1;
     }
 }
 
