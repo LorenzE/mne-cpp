@@ -43,7 +43,7 @@
 #include "fiffrawmodel.h"
 #include "../Utils/metatypes.h"
 
-#include <math.h>
+#include <algorithm>
 
 
 //*************************************************************************************************************
@@ -186,23 +186,29 @@ QVariant FiffRawModel::data(const QModelIndex &index, int role) const
             switch (role) {
             case Qt::DisplayRole:
                 // in order to avoid extensive copying of data, we take advantage of Eigen matrices being organized row-wise
-                // return data as sequential list of start pointers and respective data length
-                StartAndLength startAndLength;
+                // see ChannelData.h for more defa
 
-                QList<StartAndLength> lChannelData;
+                QPair<const double *, qint32> tempPair;
+                QList<QPair<const double *, qint32> > tempList;
 
-                dataListMutex.lock();
+                // dataListMutex.lock();
 
                 for (qint32 i = 0; i < m_lData.size(); ++i) {
-                    startAndLength.first = m_lData[i]->first.data() + index.row() * m_lData[i]->first.cols();
-                    startAndLength.second = m_lData[i]->first.cols();
+                    tempPair.first = m_lData[i]->first.data() + index.row() * m_lData[i]->first.cols();
+                    tempPair.second = m_lData[i]->first.cols();
 
-                    lChannelData.append(startAndLength);
+                    const double* copy = tempPair.first;
+                    for (int asdf = 0; asdf < tempPair.second; asdf++) {
+                        qDebug() << *copy;
+                        copy++;
+                    }
+
+                    tempList.append(tempPair);
                 }
 
-                dataListMutex.unlock();
+                // dataListMutex.unlock();
 
-                result.setValue(lChannelData);
+                result.setValue(ChannelData(tempList));
                 return result;
                 break;
             }
@@ -231,8 +237,7 @@ Qt::ItemFlags FiffRawModel::flags(const QModelIndex &index) const
 
 QModelIndex FiffRawModel::index(int row, int column, const QModelIndex &parent) const
 {
-    // TODO implement stuff
-    return QModelIndex();
+    return createIndex(row, column);
 }
 
 
@@ -285,20 +290,20 @@ void FiffRawModel::updateScrollPosition(qint32 relativeFiffCursor)
 
         if (blockDist >= m_lData.size()) {
             // we must "jump" to the new cursor ...
-            m_iFiffCursorBegin = max(firstSample(), m_iFiffCursorBegin -  blockDist * m_iSamplesPerBlock);
+            m_iFiffCursorBegin = std::max(firstSample(), m_iFiffCursorBegin -  blockDist * m_iSamplesPerBlock);
             // ... and load the whole model anew
             tempDataMutex.lock();
-            QFuture<QPair<MatrixXd,MatrixXd> > future = QtConcurrent::run(this,
-                                                                          &FiffRawModel::loadLaterBlocks,
-                                                                          m_lData.size());
+            QFuture<int> future = QtConcurrent::run(this,
+                                                    &FiffRawModel::loadLaterBlocks,
+                                                    m_lData.size());
             m_blockLoadFutureWatcher.setFuture(future);
 
         } else {
             // simply load earlier blocks
             tempDataMutex.lock();
-            QFuture<QPair<MatrixXd,MatrixXd> > future = QtConcurrent::run(this,
-                                                                          &FiffRawModel::loadEarlierBlocks,
-                                                                          blockDist);
+            QFuture<int> future = QtConcurrent::run(this,
+                                                    &FiffRawModel::loadEarlierBlocks,
+                                                    blockDist);
             m_blockLoadFutureWatcher.setFuture(future);
         }
     }
@@ -424,6 +429,7 @@ void FiffRawModel::postBlockLoad(int result)
         qDebug() << "[FiffRawModel::postBlockLoad] QFuture returned an error: " << result;
         break;
     case 0:
+    {
         // insertion of earlier blocks (with mutex)
         int iNewBlocks = m_lNewData.size();
 
@@ -441,7 +447,9 @@ void FiffRawModel::postBlockLoad(int result)
         dataListMutex.unlock();
         tempDataMutex.unlock();
         break;
+    }
     case 1:
+    {
         // insertion of later blocks (with mutex)
         int iNewBlocks = m_lNewData.size();
 
@@ -458,6 +466,7 @@ void FiffRawModel::postBlockLoad(int result)
         dataListMutex.unlock();
         tempDataMutex.unlock();
         break;
+    }
     default:
         qDebug() << "[FiffRawModel::postBlockLoad] FATAL Non-intended return value: " << result;
     }

@@ -81,6 +81,136 @@
 
 namespace ANSHAREDLIB {
 
+class ChannelIterator : public std::iterator<std::random_access_iterator_tag, const double>
+{
+private:
+    QList<QPair<const double*, qint32> > pairs;
+    unsigned long currentAbsoluteIndex;
+    unsigned long currentBlockToAccess;
+    unsigned long currentRelativeIndex;
+
+public:
+    ChannelIterator(QList<QPair<const double*, qint32> > pairs, unsigned long index)
+        : std::iterator<std::random_access_iterator_tag, const double>(),
+          pairs(pairs),
+          currentAbsoluteIndex(index),
+          currentBlockToAccess(0),
+          currentRelativeIndex(0)
+    {
+        // calculate current block to access and current relative index
+        unsigned long temp = currentAbsoluteIndex;
+        while (temp > 0 && temp >= pairs[currentBlockToAccess].second) {
+            temp -= pairs[currentBlockToAccess].second;
+            currentBlockToAccess++;
+        }
+
+        currentRelativeIndex = temp;
+    }
+
+    ChannelIterator& operator ++ (int)
+    {
+        currentAbsoluteIndex++;
+        currentRelativeIndex++;
+        if (currentRelativeIndex >= pairs[currentBlockToAccess].second) {
+            currentRelativeIndex -= pairs[currentBlockToAccess].second;
+            currentBlockToAccess++;
+        }
+
+        // @TODO maybe include sanity checks here
+
+        return *this;
+    }
+
+    ChannelIterator& operator ++ ()
+    {
+        currentAbsoluteIndex++;
+        currentRelativeIndex++;
+        if (currentRelativeIndex >= pairs[currentBlockToAccess].second) {
+            currentRelativeIndex -= pairs[currentBlockToAccess].second;
+            currentBlockToAccess++;
+        }
+
+        // @TODO maybe include sanity checks here
+
+        return *this;
+    }
+
+    bool operator != (ChannelIterator rhs)
+    {
+        return currentAbsoluteIndex != rhs.currentAbsoluteIndex;
+    }
+
+    const double operator * ()
+    {
+        return *(pairs[currentBlockToAccess].first + currentRelativeIndex);
+    }
+};
+
+class ChannelData
+{
+
+private:
+    QList<QPair<const double*, qint32> > m_Pairs;
+    unsigned long lNumSamples;
+
+public:
+    ChannelData(const QList<QPair<const double*, qint32> >& startAndLengthPairs)
+        : m_Pairs(startAndLengthPairs),
+          lNumSamples(0)
+    {
+        for (auto a : m_Pairs) {
+            lNumSamples += a.second;
+        }
+    }
+
+    // we need a public copy constructor in order to register this as QMetaType
+    ChannelData(const ChannelData& other)
+          : ChannelData(other.m_Pairs)
+    {
+
+    }
+
+    // we need a public default constructor in order to register this as QMetaType
+    ChannelData()
+          : m_Pairs(),
+            lNumSamples(0)
+    {
+        // do nothing in default constructor
+    }
+
+    // we need a public destructor in order to register this as QMetaType
+    ~ChannelData() = default;
+
+    // this is comparatively expensive to call, better use the range based for loop
+    double operator [] (unsigned long i)
+    {
+        // see which block we have to access
+        int blockToAccess = 0;
+        while (i >= m_Pairs[blockToAccess].second)
+        {
+            i -= m_Pairs[blockToAccess].second;
+            blockToAccess++;
+        }
+
+        return *(m_Pairs[blockToAccess].first + i);
+    }
+
+    unsigned long size() const {
+        return lNumSamples;
+    }
+
+    ChannelIterator begin() const
+    {
+        return ChannelIterator(m_Pairs, 0);
+    }
+
+    ChannelIterator end() const
+    {
+        // @TODO make this a singleton / constant, since it will be created over and over again otherwise
+        return ChannelIterator(m_Pairs, lNumSamples);
+    }
+};
+
 
 //*************************************************************************************************************
 //=============================================================================================================
@@ -100,9 +230,6 @@ class ANSHAREDSHARED_EXPORT FiffRawModel : public AbstractModel
 public:
     typedef QSharedPointer<FiffRawModel> SPtr;              /**< Shared pointer type for FiffRawModel. */
     typedef QSharedPointer<const FiffRawModel> ConstSPtr;   /**< Const shared pointer type for FiffRawModel. */
-
-    typedef QPair<const double*, qint32> StartAndLength;    /**< Pointer points to a coefficient within an Eigen matrix,
-                                                                 Length determines how many samples to read.  */
 
     //=========================================================================================================
     /**
