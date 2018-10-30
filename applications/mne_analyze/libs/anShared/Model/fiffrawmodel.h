@@ -81,136 +81,6 @@
 
 namespace ANSHAREDLIB {
 
-class ChannelIterator : public std::iterator<std::random_access_iterator_tag, const double>
-{
-private:
-    QList<QPair<const double*, qint32> > pairs;
-    unsigned long currentAbsoluteIndex;
-    unsigned long currentBlockToAccess;
-    unsigned long currentRelativeIndex;
-
-public:
-    ChannelIterator(QList<QPair<const double*, qint32> > pairs, unsigned long index)
-        : std::iterator<std::random_access_iterator_tag, const double>(),
-          pairs(pairs),
-          currentAbsoluteIndex(index),
-          currentBlockToAccess(0),
-          currentRelativeIndex(0)
-    {
-        // calculate current block to access and current relative index
-        unsigned long temp = currentAbsoluteIndex;
-        while (temp > 0 && temp >= pairs[currentBlockToAccess].second) {
-            temp -= pairs[currentBlockToAccess].second;
-            currentBlockToAccess++;
-        }
-
-        currentRelativeIndex = temp;
-    }
-
-    ChannelIterator& operator ++ (int)
-    {
-        currentAbsoluteIndex++;
-        currentRelativeIndex++;
-        if (currentRelativeIndex >= pairs[currentBlockToAccess].second) {
-            currentRelativeIndex -= pairs[currentBlockToAccess].second;
-            currentBlockToAccess++;
-        }
-
-        // @TODO maybe include sanity checks here
-
-        return *this;
-    }
-
-    ChannelIterator& operator ++ ()
-    {
-        currentAbsoluteIndex++;
-        currentRelativeIndex++;
-        if (currentRelativeIndex >= pairs[currentBlockToAccess].second) {
-            currentRelativeIndex -= pairs[currentBlockToAccess].second;
-            currentBlockToAccess++;
-        }
-
-        // @TODO maybe include sanity checks here
-
-        return *this;
-    }
-
-    bool operator != (ChannelIterator rhs)
-    {
-        return currentAbsoluteIndex != rhs.currentAbsoluteIndex;
-    }
-
-    const double operator * ()
-    {
-        return *(pairs[currentBlockToAccess].first + currentRelativeIndex);
-    }
-};
-
-class ChannelData
-{
-
-private:
-    QList<QPair<const double*, qint32> > m_Pairs;
-    unsigned long lNumSamples;
-
-public:
-    ChannelData(const QList<QPair<const double*, qint32> >& startAndLengthPairs)
-        : m_Pairs(startAndLengthPairs),
-          lNumSamples(0)
-    {
-        for (auto a : m_Pairs) {
-            lNumSamples += a.second;
-        }
-    }
-
-    // we need a public copy constructor in order to register this as QMetaType
-    ChannelData(const ChannelData& other)
-          : ChannelData(other.m_Pairs)
-    {
-
-    }
-
-    // we need a public default constructor in order to register this as QMetaType
-    ChannelData()
-          : m_Pairs(),
-            lNumSamples(0)
-    {
-        // do nothing in default constructor
-    }
-
-    // we need a public destructor in order to register this as QMetaType
-    ~ChannelData() = default;
-
-    // this is comparatively expensive to call, better use the range based for loop
-    double operator [] (unsigned long i)
-    {
-        // see which block we have to access
-        int blockToAccess = 0;
-        while (i >= m_Pairs[blockToAccess].second)
-        {
-            i -= m_Pairs[blockToAccess].second;
-            blockToAccess++;
-        }
-
-        return *(m_Pairs[blockToAccess].first + i);
-    }
-
-    unsigned long size() const {
-        return lNumSamples;
-    }
-
-    ChannelIterator begin() const
-    {
-        return ChannelIterator(m_Pairs, 0);
-    }
-
-    ChannelIterator end() const
-    {
-        // @TODO make this a singleton / constant, since it will be created over and over again otherwise
-        return ChannelIterator(m_Pairs, lNumSamples);
-    }
-};
-
 
 //*************************************************************************************************************
 //=============================================================================================================
@@ -435,6 +305,142 @@ inline qint32 FiffRawModel::lastSample() const {
         return -1;
     }
 }
+
+
+//*************************************************************************************************************
+//=============================================================================================================
+// CHANNELDATA / CHANNELITERATOR DEFINITION
+//=============================================================================================================
+
+class ChannelData
+{
+
+private:
+    QList<QPair<const double*, qint32> > m_Pairs;
+    unsigned long m_NumSamples;
+
+public:
+
+    class ChannelIterator : public std::iterator<std::random_access_iterator_tag, const double>
+    {
+    private:
+        const ChannelData* cd;
+        unsigned long currentAbsoluteIndex;
+        unsigned long currentBlockToAccess;
+        unsigned long currentRelativeIndex;
+
+    public:
+        ChannelIterator(const ChannelData* cd, unsigned long index)
+            : std::iterator<std::random_access_iterator_tag, const double>(),
+              cd(cd),
+              currentAbsoluteIndex(index),
+              currentBlockToAccess(0),
+              currentRelativeIndex(0)
+        {
+            // calculate current block to access and current relative index
+            unsigned long temp = currentAbsoluteIndex;
+            // comparing temp against 0 to avoid index-out-of bound scenario for ChannelData::end()
+            while (temp > 0 && temp >= cd->m_Pairs[currentBlockToAccess].second) {
+                temp -= cd->m_Pairs[currentBlockToAccess].second;
+                currentBlockToAccess++;
+            }
+
+            currentRelativeIndex = temp;
+        }
+
+        ChannelIterator& operator ++ (int)
+        {
+            currentAbsoluteIndex++;
+            currentRelativeIndex++;
+            if (currentRelativeIndex >= cd->m_Pairs[currentBlockToAccess].second) {
+                currentRelativeIndex -= cd->m_Pairs[currentBlockToAccess].second;
+                currentBlockToAccess++;
+            }
+
+            return *this;
+        }
+
+        ChannelIterator& operator ++ ()
+        {
+            currentAbsoluteIndex++;
+            currentRelativeIndex++;
+            if (currentRelativeIndex >= cd->m_Pairs[currentBlockToAccess].second) {
+                currentRelativeIndex -= cd->m_Pairs[currentBlockToAccess].second;
+                currentBlockToAccess++;
+            }
+
+            return *this;
+        }
+
+        bool operator != (ChannelIterator rhs)
+        {
+            return currentAbsoluteIndex != rhs.currentAbsoluteIndex;
+        }
+
+        const double operator * ()
+        {
+            return *(cd->m_Pairs[currentBlockToAccess].first + currentRelativeIndex);
+        }
+    };
+
+    ChannelData(const QList<QPair<const double*, qint32> >& startAndLengthPairs)
+        : m_Pairs(startAndLengthPairs),
+          m_NumSamples(0)
+    {
+        for (const auto &a : m_Pairs) {
+            m_NumSamples += a.second;
+        }
+    }
+
+    // we need a public copy constructor in order to register this as QMetaType
+    ChannelData(const ChannelData& other)
+          : ChannelData(other.m_Pairs)
+    {
+
+    }
+
+    // we need a public default constructor in order to register this as QMetaType
+    ChannelData()
+          : m_Pairs(),
+            m_NumSamples(0)
+    {
+        // do nothing in default constructor
+    }
+
+    // we need a public destructor in order to register this as QMetaType
+    ~ChannelData() = default;
+
+    // this is comparatively expensive to call, better use the range based for loop
+    double operator [] (unsigned long i)
+    {
+        // see which block we have to access
+        int blockToAccess = 0;
+        while (i >= m_Pairs[blockToAccess].second)
+        {
+            i -= m_Pairs[blockToAccess].second;
+            blockToAccess++;
+        }
+
+        return *(m_Pairs[blockToAccess].first + i);
+    }
+
+    unsigned long size() const {
+        return m_NumSamples;
+    }
+
+    ChannelIterator begin() const
+    {
+        static ChannelIterator begin(this, 0);
+        return begin;
+    }
+
+    ChannelIterator end() const
+    {
+        static ChannelIterator end(this, m_NumSamples);
+        return end;
+    }
+};
+
 
 } // namespace ANSHAREDLIB
 
