@@ -251,9 +251,6 @@ private:
     QList<QSharedPointer<QPair<MatrixXd, MatrixXd>>> m_lData;    /**< Data */
     QList<QSharedPointer<QPair<MatrixXd, MatrixXd>>> m_lNewData; /**< Data that is to be appended or prepended */
 
-    QMutex tempDataMutex;   /**< Mutex for m_lNewData */
-    QMutex dataListMutex;   /**< Mutex for m_lData */
-
     qint32 m_iSamplesPerBlock;  /**< Number of samples per block */
     qint32 m_iWindowSize;       /**< Number of blocks per window */
     qint32 m_iPreloadBufferSize;/**< Number of blocks that are preloaded left and right */
