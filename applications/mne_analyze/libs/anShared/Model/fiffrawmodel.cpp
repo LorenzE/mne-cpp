@@ -92,13 +92,15 @@ FiffRawModel::FiffRawModel(QObject *pParent)
 FiffRawModel::FiffRawModel(QFile& inFile,
                            qint32 iSamplesPerBlock,
                            qint32 iWindowSize,
-                           qint32 iBlockPaddingSize,
+                           qint32 iPreloadBufferSize,
                            QObject *pParent)
     : AbstractModel(pParent),
       m_iSamplesPerBlock(iSamplesPerBlock),
       m_iWindowSize(iWindowSize),
-      m_iPreloadBufferSize(iBlockPaddingSize),
+      m_iPreloadBufferSize(iPreloadBufferSize),
       m_iFiffCursorBegin(-1),
+      m_blockLoadFutureWatcher(),
+      m_dataMutex(),
       m_pFiffIO(QSharedPointer<FiffIO>(new FiffIO()))
 {
     // connect data reloading: this is done concurrently
@@ -186,7 +188,10 @@ QVariant FiffRawModel::data(const QModelIndex &index, int role) const
             switch (role) {
             case Qt::DisplayRole:
                 // in order to avoid extensive copying of data, we take advantage of Eigen matrices being organized row-wise
-                // see ChannelData.h for more defa
+                // see ChannelData.h for more details
+
+                // wait until its save to access data (that is if no data insertion is going on right now)
+                m_dataMutex.lock();
 
                 QPair<const double *, qint32> tempPair;
                 QList<QPair<const double *, qint32> > tempList;
@@ -197,6 +202,8 @@ QVariant FiffRawModel::data(const QModelIndex &index, int role) const
 
                     tempList.append(tempPair);
                 }
+
+                m_dataMutex.unlock();
 
                 // wrap in ChannelData container and then wrap into QVariant
                 result.setValue(ChannelData(tempList));
@@ -283,17 +290,13 @@ void FiffRawModel::updateScrollPosition(qint32 relativeFiffCursor)
             // we must "jump" to the new cursor ...
             m_iFiffCursorBegin = std::max(firstSample(), m_iFiffCursorBegin -  blockDist * m_iSamplesPerBlock);
             // ... and load the whole model anew
-            QFuture<int> future = QtConcurrent::run(this,
-                                                    &FiffRawModel::loadLaterBlocks,
-                                                    m_lData.size());
+            QFuture<int> future = QtConcurrent::run(this, &FiffRawModel::loadLaterBlocks, m_lData.size());
             m_blockLoadFutureWatcher.setFuture(future);
 
         } else {
             // there are some blocks in the intersection of the old and the new window that can stay in the buffer:
             // simply load earlier blocks
-            QFuture<int> future = QtConcurrent::run(this,
-                                                    &FiffRawModel::loadEarlierBlocks,
-                                                    blockDist);
+            QFuture<int> future = QtConcurrent::run(this, &FiffRawModel::loadEarlierBlocks, blockDist);
             m_blockLoadFutureWatcher.setFuture(future);
         }
     }
@@ -306,17 +309,13 @@ void FiffRawModel::updateScrollPosition(qint32 relativeFiffCursor)
             // we must "jump" to the new cursor ...
             m_iFiffCursorBegin = std::min(lastSample() - m_lData.size() * m_iSamplesPerBlock, m_iFiffCursorBegin +  blockDist * m_iSamplesPerBlock);
             // ... and load the whole model anew
-            QFuture<int> future = QtConcurrent::run(this,
-                                                    &FiffRawModel::loadLaterBlocks,
-                                                    m_lData.size());
+            QFuture<int> future = QtConcurrent::run(this, &FiffRawModel::loadLaterBlocks, m_lData.size());
             m_blockLoadFutureWatcher.setFuture(future);
 
         } else {
             // there are some blocks in the intersection of the old and the new window that can stay in the buffer:
             // simply load later blocks
-            QFuture<int> future = QtConcurrent::run(this,
-                                                    &FiffRawModel::loadLaterBlocks,
-                                                    blockDist);
+            QFuture<int> future = QtConcurrent::run(this, &FiffRawModel::loadLaterBlocks, blockDist);
             m_blockLoadFutureWatcher.setFuture(future);
         }
     }
@@ -446,12 +445,14 @@ void FiffRawModel::postBlockLoad(int result)
         // insertion of earlier blocks
         int iNewBlocks = m_lNewData.size();
 
+        m_dataMutex.lock();
         for (int i = 0; i < iNewBlocks; ++i) {
             m_lData.prepend(m_lNewData.first());
             m_lNewData.removeFirst();
             // @TODO check if this really frees the associated memory
             m_lData.removeLast();
         }
+        m_dataMutex.unlock();
 
         break;
     }
@@ -460,11 +461,13 @@ void FiffRawModel::postBlockLoad(int result)
         // insertion of later blocks
         int iNewBlocks = m_lNewData.size();
 
+        m_dataMutex.lock();
         for (int i = 0; i < iNewBlocks; ++i) {
             m_lData.append(m_lNewData.first());
             m_lNewData.removeFirst();
             m_lData.removeFirst();
         }
+        m_dataMutex.unlock();
 
         break;
     }

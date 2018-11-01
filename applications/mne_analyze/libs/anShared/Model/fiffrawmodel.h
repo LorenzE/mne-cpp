@@ -114,7 +114,7 @@ public:
     FiffRawModel(QFile& inFile,
                  qint32 iSamplesPerBlock,
                  qint32 iWindowSize,
-                 qint32 iBlockPaddingSize,
+                 qint32 iPreloadBufferSize,
                  QObject *pParent = nullptr);
 
     //=========================================================================================================
@@ -258,11 +258,11 @@ private:
     // this always points to the very first sample that is currently held (in the earliest block)
     qint32 m_iFiffCursorBegin;
 
-
     // concurrent reloading
-    QFutureWatcher<int> m_blockLoadFutureWatcher;    /**< QFutureWatcher for watching process of reloading fiff data. */
+    QFutureWatcher<int> m_blockLoadFutureWatcher;   /**< QFutureWatcher for watching process of reloading fiff data. */
+    mutable QMutex m_dataMutex;                     /**< Using mutable is not a pretty solution */
 
-
+     // Fiff IO
     QSharedPointer<FIFFLIB::FiffIO> m_pFiffIO;
 };
 
@@ -309,6 +309,10 @@ inline qint32 FiffRawModel::lastSample() const {
 // CHANNELDATA / CHANNELITERATOR DEFINITION
 //=============================================================================================================
 
+/**
+* The ChannelData class is meant to serve as a wrapper / container for more convenient access of channel-row data.
+* It supports range-based looping (for-each), as well as random access of data.
+*/
 class ChannelData
 {
 
@@ -318,24 +322,29 @@ private:
 
 public:
 
+    /**
+    * This nested class enables the range-based looping.
+    */
     class ChannelIterator : public std::iterator<std::random_access_iterator_tag, const double>
     {
     private:
-        const ChannelData* cd;
-        unsigned long currentAbsoluteIndex;
-        unsigned long currentBlockToAccess;
-        unsigned long currentRelativeIndex;
+        const ChannelData* cd;  /**< Pointer to the associated ChannelData container */
+        // Remember at which point we are currently (this is NOT the absolute sample number,
+        // but the index relativ to all stored samples in the associated ChannelData container):
+        unsigned long currentIndex;
+        unsigned long currentBlockToAccess; /**< Remember in which block we are currently */
+        unsigned long currentRelativeIndex; /**< Remember the relative sample in the current block */
 
     public:
         ChannelIterator(const ChannelData* cd, unsigned long index)
             : std::iterator<std::random_access_iterator_tag, const double>(),
               cd(cd),
-              currentAbsoluteIndex(index),
+              currentIndex(index),
               currentBlockToAccess(0),
               currentRelativeIndex(0)
         {
             // calculate current block to access and current relative index
-            unsigned long temp = currentAbsoluteIndex;
+            unsigned long temp = currentIndex;
             // comparing temp against 0 to avoid index-out-of bound scenario for ChannelData::end()
             while (temp > 0 && temp >= cd->m_Pairs[currentBlockToAccess].second) {
                 temp -= cd->m_Pairs[currentBlockToAccess].second;
@@ -347,7 +356,7 @@ public:
 
         ChannelIterator& operator ++ (int)
         {
-            currentAbsoluteIndex++;
+            currentIndex++;
             currentRelativeIndex++;
             if (currentRelativeIndex >= cd->m_Pairs[currentBlockToAccess].second) {
                 currentRelativeIndex -= cd->m_Pairs[currentBlockToAccess].second;
@@ -359,7 +368,7 @@ public:
 
         ChannelIterator& operator ++ ()
         {
-            currentAbsoluteIndex++;
+            currentIndex++;
             currentRelativeIndex++;
             if (currentRelativeIndex >= cd->m_Pairs[currentBlockToAccess].second) {
                 currentRelativeIndex -= cd->m_Pairs[currentBlockToAccess].second;
@@ -371,7 +380,7 @@ public:
 
         bool operator != (ChannelIterator rhs)
         {
-            return currentAbsoluteIndex != rhs.currentAbsoluteIndex;
+            return currentIndex != rhs.currentIndex;
         }
 
         const double operator * ()
