@@ -5,7 +5,7 @@
 *           Lars Debor <lars.debor@tu-ilmenau.de>;
 *           Matti Hamalainen <msh@nmr.mgh.harvard.edu>
 * @version  1.0
-* @date     May, 2018
+* @date     October, 2018
 *
 * @section  LICENSE
 *
@@ -98,10 +98,13 @@ FiffRawModel::FiffRawModel(QFile& inFile,
       m_iSamplesPerBlock(iSamplesPerBlock),
       m_iWindowSize(iWindowSize),
       m_iPreloadBufferSize(iPreloadBufferSize),
+      m_iTotalBlockCount(m_iWindowSize + 2 * m_iPreloadBufferSize),
       m_iFiffCursorBegin(-1),
       m_blockLoadFutureWatcher(),
       m_dataMutex(),
-      m_pFiffIO(QSharedPointer<FiffIO>(new FiffIO()))
+      m_pFiffIO(),
+      m_pFiffInfo(),
+      m_ChannelInfoList()
 {
     // connect data reloading: this is done concurrently
     connect(&m_blockLoadFutureWatcher,
@@ -127,12 +130,20 @@ FiffRawModel::~FiffRawModel()
 
 void FiffRawModel::initFiffData(QFile &inFile)
 {
+    // build FiffIO
     m_pFiffIO = QSharedPointer<FiffIO>::create(inFile);
+
+    // load channel infos
+    for(qint32 i=0; i < m_pFiffIO->m_qlistRaw[0]->info.nchan; ++i)
+        m_ChannelInfoList.append(m_pFiffIO->m_qlistRaw[0]->info.chs[i]);
+
+    // load FiffInfo
+    m_pFiffInfo = FiffInfo::SPtr(new FiffInfo(m_pFiffIO->m_qlistRaw[0]->info));
 
     // build datastructure that is to be filled with data from the file
     MatrixXd data, times;
-    // append a matrix pair for each block: padding left, window, padding right
-    for(int i = 0; i < m_iWindowSize + 2 * m_iPreloadBufferSize; ++i) {
+    // append a matrix pair for each block
+    for(int i = 0; i < m_iTotalBlockCount; ++i) {
         m_lData.append(QSharedPointer<QPair<MatrixXd, MatrixXd> >::create(qMakePair(data, times)));
     }
 
@@ -140,27 +151,27 @@ void FiffRawModel::initFiffData(QFile &inFile)
         qDebug() << "[FiffRawModel::loadFiffData] File " << inFile.fileName() << " does not contain any Fiff data";
         return;
     }
-    else {
-        //Set cursor somewhere into Fiff file
-        m_iFiffCursorBegin = m_pFiffIO->m_qlistRaw[0]->first_samp;
 
-        int start = m_iFiffCursorBegin;
-        // for some reason the read_raw_segment function works with inclusive upper bound
-        int end = start + m_iSamplesPerBlock - 1;
+    // Fiff file is not empty, set cursor somewhere into Fiff file
+    m_iFiffCursorBegin = m_pFiffIO->m_qlistRaw[0]->first_samp;
 
-        // read in all needed blocks (padding left, window, padding right)
-        for(int i = 0; i < m_lData.size(); ++i) {
-            if(m_pFiffIO->m_qlistRaw[0]->read_raw_segment(m_lData[i]->first, m_lData[i]->second, start, end)) {
-                // qDebug() << "[FiffRawmodel::loadFiffData] Successfully read a block ";
-            } else {
-                qDebug() << "[FiffRawModel::loadFiffData] Could not read samples " << start << " to " << end;
-                return;
-            }
+    int start = m_iFiffCursorBegin;
+    // for some reason the read_raw_segment function works with inclusive upper bound
+    int end = start + m_iSamplesPerBlock - 1;
 
-            start += m_iSamplesPerBlock;
-            end += m_iSamplesPerBlock;
+    // read in all blocks, use the already prepaired list m_lData
+    for(auto &pairPointer : m_lData) {
+        if(m_pFiffIO->m_qlistRaw[0]->read_raw_segment(pairPointer->first, pairPointer->second, start, end)) {
+            // qDebug() << "[FiffRawmodel::loadFiffData] Successfully read a block ";
+        } else {
+            qDebug() << "[FiffRawModel::loadFiffData] Could not read samples " << start << " to " << end;
+            return;
         }
+
+        start += m_iSamplesPerBlock;
+        end += m_iSamplesPerBlock;
     }
+
     qDebug() << "[FiffRawModel::initFiffData] Loaded " << m_lData.size() << " blocks";
 }
 
@@ -176,11 +187,11 @@ QVariant FiffRawModel::data(const QModelIndex &index, int role) const
     }
 
     if (index.isValid()) {
-        // channel name
-        if (index.column() == 0 && role == Qt::DisplayRole) {
-            qDebug() << "[FiffRawModel] Channel name not implemented yet !";
-            return QVariant();
+        // channel names
+        if(index.column() == 0) {
+            return QVariant(m_ChannelInfoList[index.row()].ch_name);
         }
+
         // data
         if (index.column() == 1) {
             QVariant result;
@@ -194,19 +205,20 @@ QVariant FiffRawModel::data(const QModelIndex &index, int role) const
                 m_dataMutex.lock();
 
                 QPair<const double *, qint32> tempPair;
-                QList<QPair<const double *, qint32> > tempList;
+                QVector<QPair<const double *, qint32> > tempVec;
+                tempVec.reserve(m_iTotalBlockCount);
 
-                for (qint32 i = 0; i < m_lData.size(); ++i) {
-                    tempPair.first = m_lData[i]->first.data() + index.row() * m_lData[i]->first.cols();
-                    tempPair.second = m_lData[i]->first.cols();
+                for(const auto &pairPointer : m_lData) {
+                    tempPair.first = pairPointer->first.data() + index.row() * pairPointer->first.cols();
+                    tempPair.second = pairPointer->first.cols();
 
-                    tempList.append(tempPair);
+                    tempVec.append(tempPair);
                 }
 
                 m_dataMutex.unlock();
 
                 // wrap in ChannelData container and then wrap into QVariant
-                result.setValue(ChannelData(tempList));
+                result.setValue(ChannelData(tempVec));
                 return result;
                 break;
             }
@@ -252,8 +264,10 @@ QModelIndex FiffRawModel::parent(const QModelIndex &index) const
 
 int FiffRawModel::rowCount(const QModelIndex &parent) const
 {
-    // TODO implement stuff
-    return 0;
+    if(m_ChannelInfoList.empty() == false)
+        return m_ChannelInfoList.size();
+    else
+        return 0;
 }
 
 
@@ -286,11 +300,11 @@ void FiffRawModel::updateScrollPosition(qint32 relativeFiffCursor)
         qint32 sampleDist = (m_iFiffCursorBegin + m_iPreloadBufferSize * m_iSamplesPerBlock) - targetCursor;
         qint32 blockDist = (qint32) ceil(((double) sampleDist) / ((double) m_iSamplesPerBlock));
 
-        if (blockDist >= m_lData.size()) {
+        if (blockDist >= m_iTotalBlockCount) {
             // we must "jump" to the new cursor ...
             m_iFiffCursorBegin = std::max(firstSample(), m_iFiffCursorBegin -  blockDist * m_iSamplesPerBlock);
             // ... and load the whole model anew
-            QFuture<int> future = QtConcurrent::run(this, &FiffRawModel::loadLaterBlocks, m_lData.size());
+            QFuture<int> future = QtConcurrent::run(this, &FiffRawModel::loadLaterBlocks, m_iTotalBlockCount);
             m_blockLoadFutureWatcher.setFuture(future);
 
         } else {
@@ -305,11 +319,11 @@ void FiffRawModel::updateScrollPosition(qint32 relativeFiffCursor)
         qint32 sampleDist = targetCursor - (m_iFiffCursorBegin + (m_iPreloadBufferSize + m_iWindowSize) * m_iSamplesPerBlock);
         qint32 blockDist = (qint32) ceil(((double) sampleDist) / ((double) m_iSamplesPerBlock));
 
-        if (blockDist >= m_lData.size()) {
+        if (blockDist >= m_iTotalBlockCount) {
             // we must "jump" to the new cursor ...
-            m_iFiffCursorBegin = std::min(lastSample() - m_lData.size() * m_iSamplesPerBlock, m_iFiffCursorBegin +  blockDist * m_iSamplesPerBlock);
+            m_iFiffCursorBegin = std::min(lastSample() - m_iTotalBlockCount * m_iSamplesPerBlock, m_iFiffCursorBegin +  blockDist * m_iSamplesPerBlock);
             // ... and load the whole model anew
-            QFuture<int> future = QtConcurrent::run(this, &FiffRawModel::loadLaterBlocks, m_lData.size());
+            QFuture<int> future = QtConcurrent::run(this, &FiffRawModel::loadLaterBlocks, m_iTotalBlockCount);
             m_blockLoadFutureWatcher.setFuture(future);
 
         } else {
@@ -356,11 +370,11 @@ int FiffRawModel::loadEarlierBlocks(qint32 numBlocks)
     int start = m_iFiffCursorBegin;
     int end = start + m_iSamplesPerBlock - 1;
 
-    for(int i = 0; i < numBlocks; ++i) {
+    // read data, use the already prepared list m_lNewData
+    for(auto &pairPointer : m_lNewData) {
         start -= m_iSamplesPerBlock;
         end -= m_iSamplesPerBlock;
-        // read data
-        if(m_pFiffIO->m_qlistRaw[0]->read_raw_segment(m_lNewData[i]->first, m_lNewData[i]->second, start, end)) {
+        if(m_pFiffIO->m_qlistRaw[0]->read_raw_segment(pairPointer->first, pairPointer->second, start, end)) {
             // qDebug() << "[FiffRawModel::loadFiffData] Successfully read a block ";
         } else {
             qDebug() << "[FiffRawModel::loadEarlierBlocks] Could not read block ";
@@ -381,11 +395,11 @@ int FiffRawModel::loadEarlierBlocks(qint32 numBlocks)
 int FiffRawModel::loadLaterBlocks(qint32 numBlocks)
 {
     // check if end of file is reached:
-    int leftSamples = lastSample() - (m_iFiffCursorBegin + (m_lData.size() + numBlocks) * m_iSamplesPerBlock);
+    int leftSamples = lastSample() - (m_iFiffCursorBegin + (m_iTotalBlockCount + numBlocks) * m_iSamplesPerBlock);
     if (leftSamples < 0) {
         qDebug() << "Reached end of file !";
         // see how many blocks we still can load
-        int maxNumBlocks = (lastSample() - (m_iFiffCursorBegin + m_lData.size() * m_iSamplesPerBlock)) / m_iSamplesPerBlock;
+        int maxNumBlocks = (lastSample() - (m_iFiffCursorBegin + m_iTotalBlockCount * m_iSamplesPerBlock)) / m_iSamplesPerBlock;
         qDebug() << "Loading " << maxNumBlocks << " later blocks instead of requested " << numBlocks;
         if (maxNumBlocks != 0) {
             numBlocks = maxNumBlocks;
@@ -408,12 +422,12 @@ int FiffRawModel::loadLaterBlocks(qint32 numBlocks)
         m_lNewData.append(QSharedPointer<QPair<MatrixXd, MatrixXd> >::create(qMakePair(data, times)));
     }
     // initialize start and end indices
-    int start = m_iFiffCursorBegin + m_lData.size() * m_iSamplesPerBlock;
+    int start = m_iFiffCursorBegin + m_iTotalBlockCount * m_iSamplesPerBlock;
     int end = start + m_iSamplesPerBlock - 1;
 
-    for(int i = 0; i < numBlocks; ++i) {
-        // read data
-        if(m_pFiffIO->m_qlistRaw[0]->read_raw_segment(m_lNewData[i]->first, m_lNewData[i]->second, start, end)) {
+    // read data, use the already prepaired list m_lNewData
+    for(auto &pairPointer : m_lNewData) {
+        if(m_pFiffIO->m_qlistRaw[0]->read_raw_segment(pairPointer->first, pairPointer->second, start, end)) {
             // qDebug() << "[FiffRawModel::loadFiffData] Successfully read a block ";
         } else {
             qDebug() << "[FiffRawModel::loadLaterBlocks] Could not read block ";

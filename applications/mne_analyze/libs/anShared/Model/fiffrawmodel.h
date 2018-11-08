@@ -5,7 +5,7 @@
 *           Lars Debor <lars.debor@tu-ilmenau.de>;
 *           Matti Hamalainen <msh@nmr.mgh.harvard.edu>
 * @version  1.0
-* @date     April, 2018
+* @date     October, 2018
 *
 * @section  LICENSE
 *
@@ -50,16 +50,16 @@
 #include <fiff/fiff.h>
 #include <fiff/fiff_io.h>
 
+
 //*************************************************************************************************************
 //=============================================================================================================
 // QT INCLUDES
 //=============================================================================================================
 
 #include <QSharedPointer>
-#include <QDebug>
-#include <QFile>
-#include <QFuture>
 #include <QFutureWatcher>
+#include <QMutex>
+#include <QLinkedList>
 
 
 //*************************************************************************************************************
@@ -72,6 +72,13 @@
 //=============================================================================================================
 // FORWARD DECLARATIONS
 //=============================================================================================================
+
+namespace FIFFLIB
+{
+    class FiffChInfo;
+}
+
+class QFile;
 
 
 //*************************************************************************************************************
@@ -248,12 +255,13 @@ private:
 
 private:
 
-    QList<QSharedPointer<QPair<MatrixXd, MatrixXd>>> m_lData;    /**< Data */
-    QList<QSharedPointer<QPair<MatrixXd, MatrixXd>>> m_lNewData; /**< Data that is to be appended or prepended */
+    QLinkedList<QSharedPointer<QPair<MatrixXd, MatrixXd>>> m_lData;    /**< Data */
+    QLinkedList<QSharedPointer<QPair<MatrixXd, MatrixXd>>> m_lNewData; /**< Data that is to be appended or prepended */
 
     qint32 m_iSamplesPerBlock;  /**< Number of samples per block */
     qint32 m_iWindowSize;       /**< Number of blocks per window */
     qint32 m_iPreloadBufferSize;/**< Number of blocks that are preloaded left and right */
+    qint32 m_iTotalBlockCount;  /**< Total block count */
 
     // this always points to the very first sample that is currently held (in the earliest block)
     qint32 m_iFiffCursorBegin;
@@ -262,8 +270,10 @@ private:
     QFutureWatcher<int> m_blockLoadFutureWatcher;   /**< QFutureWatcher for watching process of reloading fiff data. */
     mutable QMutex m_dataMutex;                     /**< Using mutable is not a pretty solution */
 
-     // Fiff IO
-    QSharedPointer<FIFFLIB::FiffIO> m_pFiffIO;
+     // Fiff
+    QSharedPointer<FIFFLIB::FiffIO> m_pFiffIO;      /**< Fiff IO */
+    FIFFLIB::FiffInfo::SPtr m_pFiffInfo;            /**< Fiff info of whole fiff file */
+    QList<FIFFLIB::FiffChInfo> m_ChannelInfoList;   /**< List of FiffChInfo objects that holds the corresponding channels information */
 };
 
 
@@ -317,7 +327,7 @@ class ChannelData
 {
 
 private:
-    QList<QPair<const double*, qint32> > m_Pairs;
+    QVector<QPair<const double*, qint32> > m_Pairs;
     unsigned long m_NumSamples;
 
 public:
@@ -389,7 +399,7 @@ public:
         }
     };
 
-    ChannelData(const QList<QPair<const double*, qint32> >& startAndLengthPairs)
+    ChannelData(const QVector<QPair<const double*, qint32> >& startAndLengthPairs)
         : m_Pairs(startAndLengthPairs),
           m_NumSamples(0)
     {
