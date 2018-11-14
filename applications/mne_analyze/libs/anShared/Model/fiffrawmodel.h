@@ -209,11 +209,27 @@ public:
 
     //=========================================================================================================
     /**
+    * Return the first sample of the currently loaded blocks
+    *
+    * @return The first sample of the currently loaded blocks
+    */
+    inline qint32 currentFirstSample() const;
+
+    //=========================================================================================================
+    /**
     * Return the first sample of the loaded Fiff file
     *
     * @return The first sample of the loaded Fiff file
     */
-    inline qint32 firstSample() const;
+    inline qint32 absoluteFirstSample() const;
+
+    //=========================================================================================================
+    /**
+    * Return the last sample of the currently loaded blocks (inclusive)
+    *
+    * @return The last sample of the currently loaded blocks (inclusive)
+    */
+    inline qint32 currentLastSample() const;
 
     //=========================================================================================================
     /**
@@ -221,13 +237,22 @@ public:
     *
     * @return The last sample of the loaded Fiff file
     */
-    inline qint32 lastSample() const;
+    inline qint32 absoluteLastSample() const;
 
 public slots:
 
     void updateScrollPosition(qint32 relativeFiffCursor);
 
 private:
+
+    //=========================================================================================================
+    /**
+    * This is helper function, its main purpose is to avoid code redundancy.
+    *
+    * @param[in] loadFunction The function that will be run in the background. Should be either loadEarlierBlocks or loadLaterBlocks.
+    * @param[in] numBlocks The Number of blocks to load.
+    */
+    void startBackgroundOperation(int (FiffRawModel::*loadFunction)(int), int iBlocksToLoad);
 
     //=========================================================================================================
     /**
@@ -263,11 +288,11 @@ private:
     qint32 m_iPreloadBufferSize;/**< Number of blocks that are preloaded left and right */
     qint32 m_iTotalBlockCount;  /**< Total block count */
 
-    // this always points to the very first sample that is currently held (in the earliest block)
-    qint32 m_iFiffCursorBegin;
+    qint32 m_iFiffCursorBegin;      /**< This always points to the very first sample that is currently held (in the earliest block) */
 
     // concurrent reloading
     QFutureWatcher<int> m_blockLoadFutureWatcher;   /**< QFutureWatcher for watching process of reloading fiff data. */
+    bool m_bCurrentlyLoading;                       /**< Flag to indicate whether or not a background operation is going on. */
     mutable QMutex m_dataMutex;                     /**< Using mutable is not a pretty solution */
 
      // Fiff
@@ -290,7 +315,14 @@ inline MODEL_TYPE FiffRawModel::getType() const
 
 //*************************************************************************************************************
 
-inline qint32 FiffRawModel::firstSample() const {
+inline qint32 FiffRawModel::currentFirstSample() const {
+    return m_iFiffCursorBegin;
+}
+
+
+//*************************************************************************************************************
+
+inline qint32 FiffRawModel::absoluteFirstSample() const {
     if(m_pFiffIO->m_qlistRaw.empty() == false)
         return m_pFiffIO->m_qlistRaw[0]->first_samp;
     else
@@ -303,7 +335,14 @@ inline qint32 FiffRawModel::firstSample() const {
 
 //*************************************************************************************************************
 
-inline qint32 FiffRawModel::lastSample() const {
+inline qint32 FiffRawModel::currentLastSample() const {
+    return m_iFiffCursorBegin + m_iTotalBlockCount * m_iSamplesPerBlock - 1;
+}
+
+
+//*************************************************************************************************************
+
+inline qint32 FiffRawModel::absoluteLastSample() const {
     if(m_pFiffIO->m_qlistRaw.empty() == false)
         return m_pFiffIO->m_qlistRaw[0]->last_samp;
     else
@@ -327,7 +366,10 @@ class ChannelData
 {
 
 private:
-    QVector<QPair<const double*, qint32> > m_Pairs;
+    // hold a list of smartpointers to the data that was in the model when the respective instance of ChannelData was created.
+    // This prevents that pointers into the Eigen-matrices will become invalid when the background thread returns and changes the matrices.
+    QLinkedList<QSharedPointer<QPair<MatrixXd, MatrixXd>>> m_lData;
+    qint32 m_iRowNumber;
     unsigned long m_NumSamples;
 
 public:
@@ -356,8 +398,8 @@ public:
             // calculate current block to access and current relative index
             unsigned long temp = currentIndex;
             // comparing temp against 0 to avoid index-out-of bound scenario for ChannelData::end()
-            while (temp > 0 && temp >= cd->m_Pairs[currentBlockToAccess].second) {
-                temp -= cd->m_Pairs[currentBlockToAccess].second;
+            while (temp > 0 && temp >= (*(cd->m_lData.begin() + currentBlockToAccess))->first.cols()) {
+                temp -= (*(cd->m_lData.begin() + currentBlockToAccess))->first.cols();
                 currentBlockToAccess++;
             }
 
@@ -368,8 +410,8 @@ public:
         {
             currentIndex++;
             currentRelativeIndex++;
-            if (currentRelativeIndex >= cd->m_Pairs[currentBlockToAccess].second) {
-                currentRelativeIndex -= cd->m_Pairs[currentBlockToAccess].second;
+            if (currentRelativeIndex >= (*(cd->m_lData.begin() + currentBlockToAccess))->first.cols()) {
+                currentRelativeIndex -= (*(cd->m_lData.begin() + currentBlockToAccess))->first.cols();
                 currentBlockToAccess++;
             }
 
@@ -380,8 +422,8 @@ public:
         {
             currentIndex++;
             currentRelativeIndex++;
-            if (currentRelativeIndex >= cd->m_Pairs[currentBlockToAccess].second) {
-                currentRelativeIndex -= cd->m_Pairs[currentBlockToAccess].second;
+            if (currentRelativeIndex >= (*(cd->m_lData.begin() + currentBlockToAccess))->first.cols()) {
+                currentRelativeIndex -= (*(cd->m_lData.begin() + currentBlockToAccess))->first.cols();
                 currentBlockToAccess++;
             }
 
@@ -395,29 +437,37 @@ public:
 
         const double operator * ()
         {
-            return *(cd->m_Pairs[currentBlockToAccess].first + currentRelativeIndex);
+            const double* pointerToMatrix = (*(cd->m_lData.begin() + currentBlockToAccess))->first.data();
+            // go to row
+            pointerToMatrix += cd->m_iRowNumber * (*(cd->m_lData.begin() + currentBlockToAccess))->first.cols();
+            // go to sample
+            pointerToMatrix += currentRelativeIndex;
+
+            return *pointerToMatrix;
         }
     };
 
-    ChannelData(const QVector<QPair<const double*, qint32> >& startAndLengthPairs)
-        : m_Pairs(startAndLengthPairs),
+    ChannelData(const QLinkedList<QSharedPointer<QPair<MatrixXd, MatrixXd>>>& data, qint32 rowNumber)
+        : m_lData(data),
+          m_iRowNumber(rowNumber),
           m_NumSamples(0)
     {
-        for (const auto &a : m_Pairs) {
-            m_NumSamples += a.second;
+        for (const auto &a : m_lData) {
+            m_NumSamples += a->first.cols();
         }
     }
 
     // we need a public copy constructor in order to register this as QMetaType
     ChannelData(const ChannelData& other)
-          : ChannelData(other.m_Pairs)
+          : ChannelData(other.m_lData, other.m_iRowNumber)
     {
 
     }
 
     // we need a public default constructor in order to register this as QMetaType
     ChannelData()
-          : m_Pairs(),
+          : m_lData(),
+            m_iRowNumber(-1),
             m_NumSamples(0)
     {
         // do nothing in default constructor
@@ -431,17 +481,28 @@ public:
     {
         // see which block we have to access
         int blockToAccess = 0;
-        while (i >= m_Pairs[blockToAccess].second)
+        while (i >= (*(m_lData.begin() + blockToAccess))->first.cols())
         {
-            i -= m_Pairs[blockToAccess].second;
+            i -= (*(m_lData.begin() + blockToAccess))->first.cols();
             blockToAccess++;
         }
 
-        return *(m_Pairs[blockToAccess].first + i);
+        // set the pointer to the start of matrix
+        const double* pointerToMatrix = (*(m_lData.begin() + blockToAccess))->first.data();
+        // go to row
+        pointerToMatrix += m_iRowNumber * (*(m_lData.begin() + blockToAccess))->first.cols();
+        // to to sample
+        pointerToMatrix += i;
+
+        return *(pointerToMatrix);
     }
 
     unsigned long size() const {
         return m_NumSamples;
+    }
+
+    qint32 getRowNumber() const {
+        return m_iRowNumber;
     }
 
     ChannelIterator begin() const

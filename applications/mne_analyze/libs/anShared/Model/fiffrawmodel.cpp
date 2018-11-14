@@ -101,6 +101,7 @@ FiffRawModel::FiffRawModel(QFile& inFile,
       m_iTotalBlockCount(m_iWindowSize + 2 * m_iPreloadBufferSize),
       m_iFiffCursorBegin(-1),
       m_blockLoadFutureWatcher(),
+      m_bCurrentlyLoading(false),
       m_dataMutex(),
       m_pFiffIO(),
       m_pFiffInfo(),
@@ -204,21 +205,11 @@ QVariant FiffRawModel::data(const QModelIndex &index, int role) const
                 // wait until its save to access data (that is if no data insertion is going on right now)
                 m_dataMutex.lock();
 
-                QPair<const double *, qint32> tempPair;
-                QVector<QPair<const double *, qint32> > tempVec;
-                tempVec.reserve(m_iTotalBlockCount);
-
-                for(const auto &pairPointer : m_lData) {
-                    tempPair.first = pairPointer->first.data() + index.row() * pairPointer->first.cols();
-                    tempPair.second = pairPointer->first.cols();
-
-                    tempVec.append(tempPair);
-                }
+                // wrap in ChannelData container and then wrap into QVariant
+                result.setValue(ChannelData(m_lData, index.row()));
 
                 m_dataMutex.unlock();
 
-                // wrap in ChannelData container and then wrap into QVariant
-                result.setValue(ChannelData(tempVec));
                 return result;
                 break;
             }
@@ -293,7 +284,13 @@ bool FiffRawModel::hasChildren(const QModelIndex &parent) const
 
 void FiffRawModel::updateScrollPosition(qint32 relativeFiffCursor)
 {
-    qint32 targetCursor = firstSample() + relativeFiffCursor;
+    // check if we are currently loading something in the background. This is a rudimentary solution.
+    if (m_bCurrentlyLoading) {
+        // qDebug() << "[FiffRawModel::updateScrollPosition] Background operation still pending, try again later...";
+        return;
+    }
+
+    qint32 targetCursor = absoluteFirstSample() + relativeFiffCursor;
 
     if (targetCursor < m_iFiffCursorBegin + m_iPreloadBufferSize * m_iSamplesPerBlock) {
         // time to move the loaded window. Calculate distance in blocks
@@ -302,16 +299,13 @@ void FiffRawModel::updateScrollPosition(qint32 relativeFiffCursor)
 
         if (blockDist >= m_iTotalBlockCount) {
             // we must "jump" to the new cursor ...
-            m_iFiffCursorBegin = std::max(firstSample(), m_iFiffCursorBegin -  blockDist * m_iSamplesPerBlock);
+            m_iFiffCursorBegin = std::max(absoluteFirstSample(), m_iFiffCursorBegin -  blockDist * m_iSamplesPerBlock);
             // ... and load the whole model anew
-            QFuture<int> future = QtConcurrent::run(this, &FiffRawModel::loadLaterBlocks, m_iTotalBlockCount);
-            m_blockLoadFutureWatcher.setFuture(future);
-
+            startBackgroundOperation(&FiffRawModel::loadLaterBlocks, m_iTotalBlockCount);
         } else {
             // there are some blocks in the intersection of the old and the new window that can stay in the buffer:
             // simply load earlier blocks
-            QFuture<int> future = QtConcurrent::run(this, &FiffRawModel::loadEarlierBlocks, blockDist);
-            m_blockLoadFutureWatcher.setFuture(future);
+            startBackgroundOperation(&FiffRawModel::loadEarlierBlocks, blockDist);
         }
     }
     else if (targetCursor >= m_iFiffCursorBegin + (m_iPreloadBufferSize + m_iWindowSize) * m_iSamplesPerBlock) {
@@ -321,18 +315,25 @@ void FiffRawModel::updateScrollPosition(qint32 relativeFiffCursor)
 
         if (blockDist >= m_iTotalBlockCount) {
             // we must "jump" to the new cursor ...
-            m_iFiffCursorBegin = std::min(lastSample() - m_iTotalBlockCount * m_iSamplesPerBlock, m_iFiffCursorBegin +  blockDist * m_iSamplesPerBlock);
+            m_iFiffCursorBegin = std::min(absoluteLastSample() - m_iTotalBlockCount * m_iSamplesPerBlock, m_iFiffCursorBegin +  blockDist * m_iSamplesPerBlock);
             // ... and load the whole model anew
-            QFuture<int> future = QtConcurrent::run(this, &FiffRawModel::loadLaterBlocks, m_iTotalBlockCount);
-            m_blockLoadFutureWatcher.setFuture(future);
-
+            startBackgroundOperation(&FiffRawModel::loadLaterBlocks, m_iTotalBlockCount);
         } else {
             // there are some blocks in the intersection of the old and the new window that can stay in the buffer:
             // simply load later blocks
-            QFuture<int> future = QtConcurrent::run(this, &FiffRawModel::loadLaterBlocks, blockDist);
-            m_blockLoadFutureWatcher.setFuture(future);
+            startBackgroundOperation(&FiffRawModel::loadLaterBlocks, blockDist);
         }
     }
+}
+
+
+//*************************************************************************************************************
+
+void FiffRawModel::startBackgroundOperation(int (FiffRawModel::*loadFunction)(int), int iBlocksToLoad)
+{
+    m_bCurrentlyLoading = true;
+    QFuture<int> future = QtConcurrent::run(this, loadFunction, iBlocksToLoad);
+    m_blockLoadFutureWatcher.setFuture(future);
 }
 
 
@@ -341,11 +342,11 @@ void FiffRawModel::updateScrollPosition(qint32 relativeFiffCursor)
 int FiffRawModel::loadEarlierBlocks(qint32 numBlocks)
 {
     // check if start of file was reached:
-    int leftSamples = (m_iFiffCursorBegin - numBlocks * m_iSamplesPerBlock) - firstSample();
+    int leftSamples = (m_iFiffCursorBegin - numBlocks * m_iSamplesPerBlock) - absoluteFirstSample();
     if (leftSamples < 0) {
         qDebug() << "Reached start of file !";
         // see how many blocks we still can load
-        int maxNumBlocks = (m_iFiffCursorBegin - firstSample()) / m_iSamplesPerBlock;
+        int maxNumBlocks = (m_iFiffCursorBegin - absoluteFirstSample()) / m_iSamplesPerBlock;
         qDebug() << "Loading " << maxNumBlocks << " earlier blocks instead of requested " << numBlocks;
         if (maxNumBlocks != 0) {
             numBlocks = maxNumBlocks;
@@ -395,11 +396,11 @@ int FiffRawModel::loadEarlierBlocks(qint32 numBlocks)
 int FiffRawModel::loadLaterBlocks(qint32 numBlocks)
 {
     // check if end of file is reached:
-    int leftSamples = lastSample() - (m_iFiffCursorBegin + (m_iTotalBlockCount + numBlocks) * m_iSamplesPerBlock);
+    int leftSamples = absoluteLastSample() - (m_iFiffCursorBegin + (m_iTotalBlockCount + numBlocks) * m_iSamplesPerBlock);
     if (leftSamples < 0) {
         qDebug() << "Reached end of file !";
         // see how many blocks we still can load
-        int maxNumBlocks = (lastSample() - (m_iFiffCursorBegin + m_iTotalBlockCount * m_iSamplesPerBlock)) / m_iSamplesPerBlock;
+        int maxNumBlocks = (absoluteLastSample() - (m_iFiffCursorBegin + m_iTotalBlockCount * m_iSamplesPerBlock)) / m_iSamplesPerBlock;
         qDebug() << "Loading " << maxNumBlocks << " later blocks instead of requested " << numBlocks;
         if (maxNumBlocks != 0) {
             numBlocks = maxNumBlocks;
@@ -488,4 +489,6 @@ void FiffRawModel::postBlockLoad(int result)
     default:
         qDebug() << "[FiffRawModel::postBlockLoad] FATAL Non-intended return value: " << result;
     }
+
+    m_bCurrentlyLoading = false;
 }
