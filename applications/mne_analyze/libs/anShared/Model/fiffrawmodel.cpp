@@ -145,7 +145,7 @@ void FiffRawModel::initFiffData(QFile &inFile)
     MatrixXd data, times;
     // append a matrix pair for each block
     for(int i = 0; i < m_iTotalBlockCount; ++i) {
-        m_lData.append(QSharedPointer<QPair<MatrixXd, MatrixXd> >::create(qMakePair(data, times)));
+        m_lData.push_back(QSharedPointer<QPair<MatrixXd, MatrixXd> >::create(qMakePair(data, times)));
     }
 
     if(m_pFiffIO->m_qlistRaw.empty()) {
@@ -358,14 +358,14 @@ int FiffRawModel::loadEarlierBlocks(qint32 numBlocks)
         }
     }
     // we expect m_lNewData to be empty:
-    if (m_lNewData.isEmpty() == false) {
+    if (m_lNewData.empty() == false) {
         qDebug() << "[FiffRawModel::loadEarlierBlocks] FATAL, temporary data storage non empty !";
         return -1;
     }
     // build data structures to be filled from file
     MatrixXd data, times;
     for(int i = 0; i < numBlocks; ++i) {
-        m_lNewData.append(QSharedPointer<QPair<MatrixXd, MatrixXd> >::create(qMakePair(data, times)));
+        m_lNewData.push_back(QSharedPointer<QPair<MatrixXd, MatrixXd> >::create(qMakePair(data, times)));
     }
     // initialize start and end indices
     int start = m_iFiffCursorBegin;
@@ -413,14 +413,14 @@ int FiffRawModel::loadLaterBlocks(qint32 numBlocks)
 
     }
     // we expect m_lNewData to be empty:
-    if (m_lNewData.isEmpty() == false) {
+    if (m_lNewData.empty() == false) {
         qDebug() << "[FiffRawModel::loadLaterBlocks] FATAL, temporary data storage non empty !";
         return -1;
     }
     // build data structures to be filled from file
     MatrixXd data, times;
     for(int i = 0; i < numBlocks; ++i) {
-        m_lNewData.append(QSharedPointer<QPair<MatrixXd, MatrixXd> >::create(qMakePair(data, times)));
+        m_lNewData.push_back(QSharedPointer<QPair<MatrixXd, MatrixXd> >::create(qMakePair(data, times)));
     }
     // initialize start and end indices
     int start = m_iFiffCursorBegin + m_iTotalBlockCount * m_iSamplesPerBlock;
@@ -462,10 +462,10 @@ void FiffRawModel::postBlockLoad(int result)
 
         m_dataMutex.lock();
         for (int i = 0; i < iNewBlocks; ++i) {
-            m_lData.prepend(m_lNewData.first());
-            m_lNewData.removeFirst();
+            m_lData.push_front(m_lNewData.front());
+            m_lNewData.pop_front();
             // @TODO check if this really frees the associated memory
-            m_lData.removeLast();
+            m_lData.pop_back();
         }
         m_dataMutex.unlock();
 
@@ -478,9 +478,9 @@ void FiffRawModel::postBlockLoad(int result)
 
         m_dataMutex.lock();
         for (int i = 0; i < iNewBlocks; ++i) {
-            m_lData.append(m_lNewData.first());
-            m_lNewData.removeFirst();
-            m_lData.removeFirst();
+            m_lData.push_back(m_lNewData.front());
+            m_lNewData.pop_front();
+            m_lData.pop_front();
         }
         m_dataMutex.unlock();
 

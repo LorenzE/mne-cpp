@@ -47,6 +47,8 @@
 #include "../Utils/types.h"
 #include "abstractmodel.h"
 
+#include <list>
+
 #include <fiff/fiff.h>
 #include <fiff/fiff_io.h>
 
@@ -59,7 +61,6 @@
 #include <QSharedPointer>
 #include <QFutureWatcher>
 #include <QMutex>
-#include <QLinkedList>
 
 
 //*************************************************************************************************************
@@ -280,8 +281,8 @@ private:
 
 private:
 
-    QLinkedList<QSharedPointer<QPair<MatrixXd, MatrixXd>>> m_lData;    /**< Data */
-    QLinkedList<QSharedPointer<QPair<MatrixXd, MatrixXd>>> m_lNewData; /**< Data that is to be appended or prepended */
+    std::list<QSharedPointer<QPair<MatrixXd, MatrixXd>>> m_lData;    /**< Data */
+    std::list<QSharedPointer<QPair<MatrixXd, MatrixXd>>> m_lNewData; /**< Data that is to be appended or prepended */
 
     qint32 m_iSamplesPerBlock;  /**< Number of samples per block */
     qint32 m_iWindowSize;       /**< Number of blocks per window */
@@ -368,7 +369,7 @@ class ChannelData
 private:
     // hold a list of smartpointers to the data that was in the model when the respective instance of ChannelData was created.
     // This prevents that pointers into the Eigen-matrices will become invalid when the background thread returns and changes the matrices.
-    QLinkedList<QSharedPointer<QPair<MatrixXd, MatrixXd>>> m_lData;
+    std::list<QSharedPointer<QPair<MatrixXd, MatrixXd>>> m_lData;
     qint32 m_iRowNumber;
     unsigned long m_NumSamples;
 
@@ -382,9 +383,10 @@ public:
     private:
         const ChannelData* cd;  /**< Pointer to the associated ChannelData container */
         // Remember at which point we are currently (this is NOT the absolute sample number,
-        // but the index relativ to all stored samples in the associated ChannelData container):
+        // but the index relative to all stored samples in the associated ChannelData container):
         unsigned long currentIndex;
-        unsigned long currentBlockToAccess; /**< Remember in which block we are currently */
+        // Remember which block we are currently in
+        std::list<QSharedPointer<QPair<MatrixXd, MatrixXd>>>::const_iterator currentBlockToAccess;
         unsigned long currentRelativeIndex; /**< Remember the relative sample in the current block */
 
     public:
@@ -392,14 +394,14 @@ public:
             : std::iterator<std::random_access_iterator_tag, const double>(),
               cd(cd),
               currentIndex(index),
-              currentBlockToAccess(0),
+              currentBlockToAccess(cd->m_lData.begin()),
               currentRelativeIndex(0)
         {
             // calculate current block to access and current relative index
             unsigned long temp = currentIndex;
             // comparing temp against 0 to avoid index-out-of bound scenario for ChannelData::end()
-            while (temp > 0 && temp >= (*(cd->m_lData.begin() + currentBlockToAccess))->first.cols()) {
-                temp -= (*(cd->m_lData.begin() + currentBlockToAccess))->first.cols();
+            while (temp > 0 && temp >= (*currentBlockToAccess)->first.cols()) {
+                temp -= (*currentBlockToAccess)->first.cols();
                 currentBlockToAccess++;
             }
 
@@ -410,8 +412,8 @@ public:
         {
             currentIndex++;
             currentRelativeIndex++;
-            if (currentRelativeIndex >= (*(cd->m_lData.begin() + currentBlockToAccess))->first.cols()) {
-                currentRelativeIndex -= (*(cd->m_lData.begin() + currentBlockToAccess))->first.cols();
+            if (currentRelativeIndex >= (*currentBlockToAccess)->first.cols()) {
+                currentRelativeIndex -= (*currentBlockToAccess)->first.cols();
                 currentBlockToAccess++;
             }
 
@@ -422,8 +424,8 @@ public:
         {
             currentIndex++;
             currentRelativeIndex++;
-            if (currentRelativeIndex >= (*(cd->m_lData.begin() + currentBlockToAccess))->first.cols()) {
-                currentRelativeIndex -= (*(cd->m_lData.begin() + currentBlockToAccess))->first.cols();
+            if (currentRelativeIndex >= (*currentBlockToAccess)->first.cols()) {
+                currentRelativeIndex -= (*currentBlockToAccess)->first.cols();
                 currentBlockToAccess++;
             }
 
@@ -437,9 +439,9 @@ public:
 
         const double operator * ()
         {
-            const double* pointerToMatrix = (*(cd->m_lData.begin() + currentBlockToAccess))->first.data();
+            const double* pointerToMatrix = (*currentBlockToAccess)->first.data();
             // go to row
-            pointerToMatrix += cd->m_iRowNumber * (*(cd->m_lData.begin() + currentBlockToAccess))->first.cols();
+            pointerToMatrix += cd->m_iRowNumber * (*currentBlockToAccess)->first.cols();
             // go to sample
             pointerToMatrix += currentRelativeIndex;
 
@@ -447,7 +449,7 @@ public:
         }
     };
 
-    ChannelData(const QLinkedList<QSharedPointer<QPair<MatrixXd, MatrixXd>>>& data, qint32 rowNumber)
+    ChannelData(const std::list<QSharedPointer<QPair<MatrixXd, MatrixXd>>>& data, qint32 rowNumber)
         : m_lData(data),
           m_iRowNumber(rowNumber),
           m_NumSamples(0)
@@ -480,17 +482,17 @@ public:
     double operator [] (unsigned long i)
     {
         // see which block we have to access
-        int blockToAccess = 0;
-        while (i >= (*(m_lData.begin() + blockToAccess))->first.cols())
+        std::list<QSharedPointer<QPair<MatrixXd, MatrixXd>>>::const_iterator blockToAccess = m_lData.begin();
+        while (i >= (*blockToAccess)->first.cols())
         {
-            i -= (*(m_lData.begin() + blockToAccess))->first.cols();
+            i -= (*blockToAccess)->first.cols();
             blockToAccess++;
         }
 
         // set the pointer to the start of matrix
-        const double* pointerToMatrix = (*(m_lData.begin() + blockToAccess))->first.data();
+        const double* pointerToMatrix = (*blockToAccess)->first.data();
         // go to row
-        pointerToMatrix += m_iRowNumber * (*(m_lData.begin() + blockToAccess))->first.cols();
+        pointerToMatrix += m_iRowNumber * (*blockToAccess)->first.cols();
         // to to sample
         pointerToMatrix += i;
 
