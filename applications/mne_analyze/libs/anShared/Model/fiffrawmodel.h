@@ -287,7 +287,7 @@ private:
     std::list<QSharedPointer<QPair<MatrixXd, MatrixXd>>> m_lNewData; /**< Data that is to be appended or prepended */
 
     qint32 m_iSamplesPerBlock;  /**< Number of samples per block */
-    qint32 m_iWindowSize;       /**< Number of blocks per window */
+    qint32 m_iVisibleWindowSize;       /**< Number of blocks per window */
     qint32 m_iPreloadBufferSize;/**< Number of blocks that are preloaded left and right */
     qint32 m_iTotalBlockCount;  /**< Total block count */
 
@@ -458,14 +458,27 @@ public:
         }
     };
 
-    ChannelData(const std::list<QSharedPointer<QPair<MatrixXd, MatrixXd>>>& data, qint32 rowNumber)
-        : m_lData(data),
+    ChannelData(std::list<QSharedPointer<QPair<MatrixXd, MatrixXd>>>::const_iterator it,
+                unsigned long numBlocks,
+                unsigned long rowNumber)
+        : m_lData(),
           m_iRowNumber(rowNumber),
           m_NumSamples(0)
     {
+        for (int i = 0; i < numBlocks; ++i) {
+            m_lData.push_back(*it);
+            it++;
+        }
+
         for (const auto &a : m_lData) {
             m_NumSamples += a->first.cols();
         }
+    }
+
+    ChannelData(const std::list<QSharedPointer<QPair<MatrixXd, MatrixXd>>> data, unsigned long rowNumber)
+        : ChannelData(data.begin(), data.size(), rowNumber)
+    {
+
     }
 
     // we need a public copy constructor in order to register this as QMetaType
@@ -481,7 +494,7 @@ public:
             m_iRowNumber(-1),
             m_NumSamples(0)
     {
-        // do nothing in default constructor
+        qDebug() << "[FiffRawModel::ChannelData::ChannelData] WARNING: default constructor called, this is probably wrong ...";
     }
 
     // we need a public destructor in order to register this as QMetaType

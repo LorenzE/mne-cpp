@@ -96,9 +96,9 @@ FiffRawModel::FiffRawModel(const QString &sFilePath,
                            QObject *pParent)
     : AbstractModel(pParent),
       m_iSamplesPerBlock(iSamplesPerBlock),
-      m_iWindowSize(iWindowSize),
+      m_iVisibleWindowSize(iWindowSize),
       m_iPreloadBufferSize(iPreloadBufferSize),
-      m_iTotalBlockCount(m_iWindowSize + 2 * m_iPreloadBufferSize),
+      m_iTotalBlockCount(m_iVisibleWindowSize + 2 * m_iPreloadBufferSize),
       m_iFiffCursorBegin(-1),
       m_blockLoadFutureWatcher(),
       m_bCurrentlyLoading(false),
@@ -195,14 +195,13 @@ QVariant FiffRawModel::data(const QModelIndex &index, int role) const
             return QVariant(m_ChannelInfoList[index.row()].ch_name);
         }
 
-        // data
-        if (index.column() == 1) {
+        // whole data
+        else if (index.column() == 1) {
             QVariant result;
 
             switch (role) {
             case Qt::DisplayRole:
-                // in order to avoid extensive copying of data, we take advantage of Eigen matrices being organized row-wise
-                // see ChannelData.h for more details
+                // in order to avoid extensive copying of data, we simply give out smartpointers to the matrices (wrapped inside the ChannelData container)
 
                 // wait until its save to access data (that is if no data insertion is going on right now)
                 m_dataMutex.lock();
@@ -216,7 +215,36 @@ QVariant FiffRawModel::data(const QModelIndex &index, int role) const
                 break;
             }
         }
-        if (index.column() != 0 && index.column() != 1) {
+
+        // "visible" data, i.e. without buffers at the edges.
+        else if (index.column() == 2) {
+            QVariant result;
+
+            switch (role) {
+            case Qt::DisplayRole:
+                // in order to avoid extensive copying of data, we simply give out smartpointers to the matrices (wrapped inside the ChannelData container)
+
+                // wait until its save to access data (that is if no data insertion is going on right now)
+                m_dataMutex.lock();
+
+
+                // take begin iterator and increment it until it points to the first block of the visible segment
+                auto begin = m_lData.begin();
+                for (int i = 0; i < m_iPreloadBufferSize; ++i) {
+                    begin++;
+                }
+
+                // wrap in ChannelData container and then wrap into QVariant
+                result.setValue(ChannelData(begin, m_iVisibleWindowSize, index.row()));
+
+                m_dataMutex.unlock();
+
+                return result;
+                break;
+            }
+        }
+
+        else {
             qDebug() << "[FiffRawModel] Column " << index.column() << " not implemented !";
             return QVariant();
         }
@@ -310,9 +338,9 @@ void FiffRawModel::updateScrollPosition(qint32 relativeFiffCursor)
             startBackgroundOperation(&FiffRawModel::loadEarlierBlocks, blockDist);
         }
     }
-    else if (targetCursor >= m_iFiffCursorBegin + (m_iPreloadBufferSize + m_iWindowSize) * m_iSamplesPerBlock) {
+    else if (targetCursor >= m_iFiffCursorBegin + (m_iPreloadBufferSize + m_iVisibleWindowSize) * m_iSamplesPerBlock) {
         // time to move the loaded window. Calculate distance in blocks
-        qint32 sampleDist = targetCursor - (m_iFiffCursorBegin + (m_iPreloadBufferSize + m_iWindowSize) * m_iSamplesPerBlock);
+        qint32 sampleDist = targetCursor - (m_iFiffCursorBegin + (m_iPreloadBufferSize + m_iVisibleWindowSize) * m_iSamplesPerBlock);
         qint32 blockDist = (qint32) ceil(((double) sampleDist) / ((double) m_iSamplesPerBlock));
 
         if (blockDist >= m_iTotalBlockCount) {
