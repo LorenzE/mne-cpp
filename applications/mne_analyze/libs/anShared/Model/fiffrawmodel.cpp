@@ -89,7 +89,7 @@ FiffRawModel::FiffRawModel(QObject *pParent)
 
 //*************************************************************************************************************
 
-FiffRawModel::FiffRawModel(QFile& inFile,
+FiffRawModel::FiffRawModel(const QString &sFilePath,
                            qint32 iSamplesPerBlock,
                            qint32 iWindowSize,
                            qint32 iPreloadBufferSize,
@@ -105,17 +105,17 @@ FiffRawModel::FiffRawModel(QFile& inFile,
       m_dataMutex(),
       m_pFiffIO(),
       m_pFiffInfo(),
-      m_ChannelInfoList()
+      m_ChannelInfoList(),
+      m_file(sFilePath)
 {
     // connect data reloading: this is done concurrently
-    connect(&m_blockLoadFutureWatcher,
-            &QFutureWatcher<int>::finished,
-            [this]() {
-                postBlockLoad(m_blockLoadFutureWatcher.future().result());
-            });
+//    connect(&m_blockLoadFutureWatcher,
+//            &QFutureWatcher<int>::finished,
+//            [this]() {
+//                postBlockLoad(m_blockLoadFutureWatcher.future().result());
+//            });
 
-
-    initFiffData(inFile);
+    initFiffData();
 }
 
 
@@ -129,10 +129,10 @@ FiffRawModel::~FiffRawModel()
 
 //*************************************************************************************************************
 
-void FiffRawModel::initFiffData(QFile &inFile)
+void FiffRawModel::initFiffData()
 {
     // build FiffIO
-    m_pFiffIO = QSharedPointer<FiffIO>::create(inFile);
+    m_pFiffIO = QSharedPointer<FiffIO>::create(m_file);
 
     // load channel infos
     for(qint32 i=0; i < m_pFiffIO->m_qlistRaw[0]->info.nchan; ++i)
@@ -149,7 +149,7 @@ void FiffRawModel::initFiffData(QFile &inFile)
     }
 
     if(m_pFiffIO->m_qlistRaw.empty()) {
-        qDebug() << "[FiffRawModel::loadFiffData] File " << inFile.fileName() << " does not contain any Fiff data";
+        qDebug() << "[FiffRawModel::loadFiffData] File " << m_file.fileName() << " does not contain any Fiff data";
         return;
     }
 
@@ -174,6 +174,8 @@ void FiffRawModel::initFiffData(QFile &inFile)
     }
 
     qDebug() << "[FiffRawModel::initFiffData] Loaded " << m_lData.size() << " blocks";
+
+    m_file.close();
 }
 
 
@@ -286,7 +288,7 @@ void FiffRawModel::updateScrollPosition(qint32 relativeFiffCursor)
 {
     // check if we are currently loading something in the background. This is a rudimentary solution.
     if (m_bCurrentlyLoading) {
-        // qDebug() << "[FiffRawModel::updateScrollPosition] Background operation still pending, try again later...";
+        qDebug() << "[FiffRawModel::updateScrollPosition] Background operation still pending, try again later...";
         return;
     }
 
@@ -301,11 +303,17 @@ void FiffRawModel::updateScrollPosition(qint32 relativeFiffCursor)
             // we must "jump" to the new cursor ...
             m_iFiffCursorBegin = std::max(absoluteFirstSample(), m_iFiffCursorBegin -  blockDist * m_iSamplesPerBlock);
             // ... and load the whole model anew
-            startBackgroundOperation(&FiffRawModel::loadLaterBlocks, m_iTotalBlockCount);
+            //startBackgroundOperation(&FiffRawModel::loadLaterBlocks, m_iTotalBlockCount);
+
+            int loadResult = loadLaterBlocks(m_iTotalBlockCount);
+            postBlockLoad(loadResult);
         } else {
             // there are some blocks in the intersection of the old and the new window that can stay in the buffer:
             // simply load earlier blocks
-            startBackgroundOperation(&FiffRawModel::loadEarlierBlocks, blockDist);
+            //startBackgroundOperation(&FiffRawModel::loadEarlierBlocks, blockDist);
+
+            int loadResult = loadEarlierBlocks(blockDist);
+            postBlockLoad(loadResult);
         }
     }
     else if (targetCursor >= m_iFiffCursorBegin + (m_iPreloadBufferSize + m_iWindowSize) * m_iSamplesPerBlock) {
@@ -317,13 +325,21 @@ void FiffRawModel::updateScrollPosition(qint32 relativeFiffCursor)
             // we must "jump" to the new cursor ...
             m_iFiffCursorBegin = std::min(absoluteLastSample() - m_iTotalBlockCount * m_iSamplesPerBlock, m_iFiffCursorBegin +  blockDist * m_iSamplesPerBlock);
             // ... and load the whole model anew
-            startBackgroundOperation(&FiffRawModel::loadLaterBlocks, m_iTotalBlockCount);
+            //startBackgroundOperation(&FiffRawModel::loadLaterBlocks, m_iTotalBlockCount);
+
+            int loadResult = loadLaterBlocks(m_iTotalBlockCount);
+            postBlockLoad(loadResult);
         } else {
             // there are some blocks in the intersection of the old and the new window that can stay in the buffer:
             // simply load later blocks
-            startBackgroundOperation(&FiffRawModel::loadLaterBlocks, blockDist);
+            //startBackgroundOperation(&FiffRawModel::loadLaterBlocks, blockDist);
+
+            int loadResult = loadLaterBlocks(blockDist);
+            postBlockLoad(loadResult);
         }
     }
+
+    m_file.close();
 }
 
 
@@ -489,6 +505,5 @@ void FiffRawModel::postBlockLoad(int result)
     default:
         qDebug() << "[FiffRawModel::postBlockLoad] FATAL Non-intended return value: " << result;
     }
-
     m_bCurrentlyLoading = false;
 }

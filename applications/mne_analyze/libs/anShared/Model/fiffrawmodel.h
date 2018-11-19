@@ -119,7 +119,7 @@ public:
     /**
     * Constructs a FiffRawModel object.
     */
-    FiffRawModel(QFile& inFile,
+    FiffRawModel(const QString &sFilePath,
                  qint32 iSamplesPerBlock,
                  qint32 iWindowSize,
                  qint32 iPreloadBufferSize,
@@ -135,9 +135,8 @@ public:
     /**
     * Resets the model and reads new data from inFile
     *
-    * @param inFile The file to read data from.
     */
-    void initFiffData(QFile& inFile);
+    void initFiffData();
 
     //=========================================================================================================
     /**
@@ -295,7 +294,9 @@ private:
     QFutureWatcher<int> m_blockLoadFutureWatcher;   /**< QFutureWatcher for watching process of reloading fiff data. */
     bool m_bCurrentlyLoading;                       /**< Flag to indicate whether or not a background operation is going on. */
     mutable QMutex m_dataMutex;                     /**< Using mutable is not a pretty solution */
+    QFile m_file;
 
+public:
      // Fiff
     QSharedPointer<FIFFLIB::FiffIO> m_pFiffIO;      /**< Fiff IO */
     FIFFLIB::FiffInfo::SPtr m_pFiffInfo;            /**< Fiff info of whole fiff file */
