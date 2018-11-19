@@ -46,14 +46,15 @@
 #include "rawdataviewer_global.h"
 
 
+
 //*************************************************************************************************************
 //=============================================================================================================
 // QT INCLUDES
 //=============================================================================================================
 
 #include <QSharedPointer>
-#include <QWidget>
-
+#include <QAbstractScrollArea>
+#include <QMap>
 
 
 //*************************************************************************************************************
@@ -70,10 +71,18 @@
 namespace QtCharts {
     class QChart;
     class QLineSeries;
+    class QValueAxis;
 }
+
+class QScrollBar;
 
 class QPointF;
 class QTimer;
+
+namespace ANSHAREDLIB {
+    class FiffRawModel;
+}
+
 
 //*************************************************************************************************************
 //=============================================================================================================
@@ -95,7 +104,7 @@ namespace RAWDATAVIEWEREXTENSION {
 *
 * @brief Brief description of this class.
 */
-class RAWDATAVIEWERSHARED_EXPORT ChannelViewer : public QWidget
+class RAWDATAVIEWERSHARED_EXPORT ChannelViewer : public QAbstractScrollArea
 {
     Q_OBJECT
 
@@ -115,17 +124,33 @@ public:
     */
     virtual ~ChannelViewer();
 
+protected:
+    virtual void resizeEvent(QResizeEvent *event) override;
+
 private:
 
-    void generateNewData();
+    void generateSeries();
 
-    void addNewDataPoint(float fValue, qint64 secSinceEpoch);
 
-    QtCharts::QChart *m_chart;
-    QtCharts::QLineSeries *m_series;
-    int m_maxNumPoints = 100;
-    QTimer *m_timer;
+    double getChannelMaxValue(const QModelIndex &modelIndex);
 
+    void onVerticalScrolling(int value);
+
+    void onHorizontalScrolling(int value);
+
+    QSharedPointer<ANSHAREDLIB::FiffRawModel> m_pRawModel;
+
+    QtCharts::QChart *m_pChart;
+    QtCharts::QValueAxis *m_pYAxis;
+    QtCharts::QValueAxis *m_pXAxis;
+    QVector<QtCharts::QLineSeries*> m_vSeries;
+    int m_numSeries;
+    int m_iCurrentLoadedFirstSample;
+    int m_iCurrentLoadedLastSample;
+    QMap<QString, double> m_scaleMap;        /**< Map with all channel types and their current scaling value.*/
+
+    QScrollBar *m_pHorizontalScrollBar;
+    QScrollBar *m_pVerticalScrollBar;
 };
 
 

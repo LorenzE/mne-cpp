@@ -41,6 +41,8 @@
 //=============================================================================================================
 
 #include "channelviewer.h"
+#include <anShared/Model/fiffrawmodel.h>
+#include <anShared/Utils/metatypes.h>
 
 
 //*************************************************************************************************************
@@ -57,8 +59,10 @@
 #include <QRandomGenerator>
 #include <QTimer>
 #include <QDebug>
+#include <QDir>
 
 #include <QtWidgets/QVBoxLayout>
+#include <QtWidgets/qscrollbar.h>
 
 
 //*************************************************************************************************************
@@ -76,7 +80,6 @@ using namespace RAWDATAVIEWEREXTENSION;
 using namespace QtCharts;
 
 
-
 //*************************************************************************************************************
 //=============================================================================================================
 // DEFINE GLOBAL METHODS
@@ -89,68 +92,206 @@ using namespace QtCharts;
 //=============================================================================================================
 
 ChannelViewer::ChannelViewer(QWidget *parent)
-    : QWidget(parent)
-    , m_chart(new QChart)
-    , m_series(new QLineSeries)
-    , m_timer(new QTimer)
+    : QAbstractScrollArea(parent)
+    , m_pChart(new QChart)
 {
-    QChartView *chartView = new QChartView(m_chart);
+    //Init m_scaleMap
+    m_scaleMap["MEG_grad"] = 400 * 1e-15 * 100; //*100 because data in fiff files is stored as fT/m not fT/cm
+    m_scaleMap["MEG_mag"] = 1.2 * 1e-12;
+    m_scaleMap["MEG_EEG"] = 30 * 1e-06;
+    m_scaleMap["MEG_EOG"] = 150 * 1e-06;
+    m_scaleMap["MEG_EMG"] = 1 * 1e-03;
+    m_scaleMap["MEG_ECG"] = 1 * 1e-03;
+    m_scaleMap["MEG_MISC"] = 1 * 1;
+    m_scaleMap["MEG_STIM"] = 5 * 1;
+
+
+    //TODO
+    m_pRawModel = QSharedPointer<ANSHAREDLIB::FiffRawModel>::create(QDir::currentPath() + "/MNE-sample-data/MEG/sample/ernoise_raw.fif", 512, 20, 4);
+    m_numSeries = m_pRawModel->rowCount();
+
+    QChartView *chartView = new QChartView(m_pChart);
     chartView->setMinimumSize(800, 600);
-    m_chart->addSeries(m_series);
+    chartView->setRubberBand(QChartView::RectangleRubberBand);
 
-    QValueAxis *axisX = new QValueAxis;
+    // Vertical scroll bar
+    connect(this->verticalScrollBar(), &QScrollBar::valueChanged,
+            this, &ChannelViewer::onVerticalScrolling);
+    this->setVerticalScrollBarPolicy(Qt::ScrollBarPolicy::ScrollBarAlwaysOn);
+    this->verticalScrollBar()->setMaximum(280);
+    this->verticalScrollBar()->setMinimum(0);
+    this->verticalScrollBar()->setTracking(true);
+
+    //Horizontal scrollbar
+
+    this->setHorizontalScrollBarPolicy(Qt::ScrollBarPolicy::ScrollBarAlwaysOn);
+    this->horizontalScrollBar()->setMaximum(m_pRawModel->absoluteLastSample());
+    this->horizontalScrollBar()->setMinimum(m_pRawModel->absoluteFirstSample());
+    this->horizontalScrollBar()->setValue(m_pRawModel->absoluteFirstSample());
+    this->horizontalScrollBar()->setTracking(true);
+    connect(this->horizontalScrollBar(), &QScrollBar::valueChanged,
+            this, &ChannelViewer::onHorizontalScrolling);
+
+//    m_pHorizontalScrollBar = new QScrollBar(Qt::Horizontal);
+//    m_pVerticalScrollBar = new QScrollBar(Qt::Vertical);
+//    chartView->addScrollBarWidget(m_pHorizontalScrollBar, Qt::AlignBottom);
+//    chartView->addScrollBarWidget(m_pVerticalScrollBar, Qt::AlignLeft);
+
+    m_pXAxis = new QValueAxis;
     //axisX->setRange(0, XYSeriesIODevice::sampleCount);
-    axisX->setLabelFormat("%g");
-    axisX->setTitleText("Samples");
-    QValueAxis *axisY = new QValueAxis;
-    axisY->setRange(-1, 1);
-    axisY->setTitleText("Audio level");
+    m_pXAxis->setLabelFormat("%g");
+    m_pXAxis->setTitleText("Samples");
+    m_pXAxis->setRange(0, 50);
+    m_pYAxis = new QValueAxis;
+    m_pYAxis->setRange(-1, 50);
+    m_pYAxis->setTitleText("Audio level");
     //m_chart->setAxisX(axisX, m_series);
-    m_chart->addAxis(axisX, Qt::AlignBottom);
-    m_chart->addAxis(axisY, Qt::AlignLeft);
-    m_series->attachAxis(axisX);
-    m_series->attachAxis(axisY);
+    m_pChart->addAxis(m_pXAxis, Qt::AlignBottom);
+    m_pChart->addAxis(m_pYAxis, Qt::AlignLeft);
+
     //m_chart->setAxisY(axisY, m_series);
-    m_chart->legend()->hide();
-    m_chart->setTitle("Data ");
+    m_pChart->legend()->hide();
+    m_pChart->setTitle("Data ");
 
-    QVBoxLayout *mainLayout = new QVBoxLayout(this);
-    mainLayout->addWidget(chartView);
+    for(int i = 0; i < m_numSeries; ++i) {
+        QLineSeries *pTempSeries = new QLineSeries;
+        pTempSeries->setUseOpenGL(true);
+        m_pChart->addSeries(pTempSeries);
+        pTempSeries->attachAxis(m_pXAxis);
+        pTempSeries->attachAxis(m_pYAxis);
+        m_vSeries.append(pTempSeries);
+    }
+//    QVBoxLayout *mainLayout = new QVBoxLayout(this);
 
-    //Connect temporary data source
-    connect(m_timer, &QTimer::timeout, this, &ChannelViewer::generateNewData);
-    m_timer->setSingleShot(false);
-    m_timer->start(100);
+//    mainLayout->addWidget(chartView);
+    this->setViewport(chartView);
+    generateSeries();
+    m_pYAxis->setRange(-1.0, 30.0);
+    m_pXAxis->setRange(m_pRawModel->absoluteFirstSample(), m_pRawModel->absoluteFirstSample() + 300.0);
+
 }
+
 
 ChannelViewer::~ChannelViewer()
 {
-    m_timer->stop();
+
 }
 
-void ChannelViewer::generateNewData()
+void ChannelViewer::resizeEvent(QResizeEvent *event)
 {
-    qint64 secSinceEpoch = QDateTime::currentMSecsSinceEpoch();
-
-    //generate numbers between -1.0 and 1.0
-    float newValue = QRandomGenerator::global()->bounded(2.0) - 1.0;
-
-    addNewDataPoint(newValue, secSinceEpoch);
+    this->viewport()->resize(event->size());
 }
 
-void ChannelViewer::addNewDataPoint(float fValue, qint64 secSinceEpoch)
+
+//*************************************************************************************************************
+
+void ChannelViewer::generateSeries()
 {
-    qDebug() << m_series->count();
-    if(m_series->count() >= m_maxNumPoints) {
-        QVector<QPointF> points = m_series->pointsVector();
-        points.removeFirst();
-        m_series->replace(points);
+    for(int i = 0; i < m_pRawModel->rowCount(); ++i) {
+        QModelIndex modelIndex = m_pRawModel->index(i, 1);
+
+        double dMaxValue = getChannelMaxValue(modelIndex);
+        double dScaleY = 1.0 / (2.0 * dMaxValue);
+
+        ANSHAREDLIB::ChannelData channel = m_pRawModel->data(modelIndex).value<ANSHAREDLIB::ChannelData>();
+
+        int iSampleNum = m_pRawModel->currentFirstSample();
+        QVector<QPointF> points;
+        points.reserve(static_cast<int>(channel.size()));
+        for(double channelValue : channel) {
+            qDebug() << iSampleNum;
+            //TODO remove this we we have correct scaling
+            if(channelValue * dScaleY > 2.0 || channelValue * dScaleY < -2.0) {
+                //qDebug() << "channel " << i << " " << channelValue * dScaleY;
+                continue;
+            }
+
+            QPointF tempPoint(iSampleNum, channelValue * dScaleY + i + 0.5);
+            //qDebug() << "channel " << i << " value " << channelValue * dScaleY;
+            points.append(std::move(tempPoint));
+            iSampleNum++;
+
+        }
+
+        QLineSeries *tempSeries  = m_vSeries[i];
+        tempSeries->replace(points);
     }
-    m_chart->axisX()->setRange(m_series->at(0).x(), secSinceEpoch);
-    qDebug() << "Data added: " << fValue << " " << secSinceEpoch;
-    m_series->append(secSinceEpoch, fValue);
+    m_iCurrentLoadedFirstSample = m_pRawModel->currentFirstSample();
+    m_iCurrentLoadedLastSample = m_pRawModel->currentLastSample();
+}
+
+
+//*************************************************************************************************************
+
+
+double ChannelViewer::getChannelMaxValue(const QModelIndex &modelIndex)
+{
+    //TODO change the extraction of the channel type
+    //get maximum range of respective channel type (range value in FiffChInfo does not seem to contain a reasonable value)
+    qint32 kind = m_pRawModel->m_ChannelInfoList[modelIndex.row()].kind;
+    double dMaxValue = 1e-9;
+
+    switch(kind) {
+        case FIFFV_MEG_CH: {
+            qint32 unit = m_pRawModel->m_pFiffIO->m_qlistRaw[0]->info.chs[modelIndex.row()].unit;
+            if(unit == FIFF_UNIT_T_M) {
+                dMaxValue = m_scaleMap["MEG_grad"];
+            }
+            else if(unit == FIFF_UNIT_T)
+                dMaxValue = m_scaleMap["MEG_mag"];
+            break;
+        }
+        case FIFFV_EEG_CH: {
+            dMaxValue = m_scaleMap["MEG_EEG"];
+            break;
+        }
+        case FIFFV_EOG_CH: {
+            dMaxValue = m_scaleMap["MEG_EOG"];
+            break;
+        }
+        case FIFFV_STIM_CH: {
+            dMaxValue = m_scaleMap["MEG_STIM"];
+            break;
+        }
+        case FIFFV_EMG_CH: {
+            dMaxValue = m_scaleMap["MEG_EMG"];
+            break;
+        }
+        case FIFFV_MISC_CH: {
+            dMaxValue = m_scaleMap["MEG_MISC"];
+            break;
+        }
+    }
+
+    return dMaxValue;
+}
+
+void ChannelViewer::onVerticalScrolling(int value)
+{
+    qDebug() << value;
+    m_pChart->axisY()->setRange(value, value + 30);
+}
+
+void ChannelViewer::onHorizontalScrolling(int value)
+{
+    qDebug() << "onHorizontalScrolling";
+    m_pRawModel->updateScrollPosition(value - m_pRawModel->absoluteFirstSample());
+
+    qDebug() << m_iCurrentLoadedFirstSample;
+    qDebug() << m_iCurrentLoadedLastSample;
+    qDebug() << "value" << value;
+    int newRangeMax = value + 300;
+
+    //check if new data form the model is needed
+    if(newRangeMax > m_iCurrentLoadedLastSample || value < m_iCurrentLoadedFirstSample) {
+        qDebug() << "AHHHH";
+        generateSeries();
+    }
+
+    m_pChart->axisX()->setRange(value, newRangeMax);
 
 }
+
 
 
 //*************************************************************************************************************
