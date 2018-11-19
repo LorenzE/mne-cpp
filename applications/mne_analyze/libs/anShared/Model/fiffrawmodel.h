@@ -278,6 +278,9 @@ private:
     */
     void postBlockLoad(int result);
 
+signals:
+     void newBlocksLoaded();
+
 private:
 
     std::list<QSharedPointer<QPair<MatrixXd, MatrixXd>>> m_lData;    /**< Data */
@@ -409,6 +412,11 @@ public:
             currentRelativeIndex = temp;
         }
 
+        ChannelIterator(const ChannelIterator &other)
+            : ChannelIterator(other.cd, other.currentIndex)
+        {
+        }
+
         ChannelIterator& operator ++ (int)
         {
             currentIndex++;
@@ -510,13 +518,13 @@ public:
 
     ChannelIterator begin() const
     {
-        static ChannelIterator begin(this, 0);
+        ChannelIterator begin(this, 0);
         return begin;
     }
 
     ChannelIterator end() const
     {
-        static ChannelIterator end(this, m_NumSamples);
+        ChannelIterator end(this, m_NumSamples);
         return end;
     }
 };

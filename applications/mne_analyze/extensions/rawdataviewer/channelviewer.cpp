@@ -169,6 +169,9 @@ ChannelViewer::ChannelViewer(QWidget *parent)
     m_pYAxis->setRange(-1.0, 30.0);
     m_pXAxis->setRange(m_pRawModel->absoluteFirstSample(), m_pRawModel->absoluteFirstSample() + 300.0);
 
+    connect(m_pRawModel.data(), &ANSHAREDLIB::FiffRawModel::newBlocksLoaded,
+            this, &ChannelViewer::onNewBlocksLoaded);
+
 }
 
 
@@ -199,12 +202,11 @@ void ChannelViewer::generateSeries()
         QVector<QPointF> points;
         points.reserve(static_cast<int>(channel.size()));
         for(double channelValue : channel) {
-            qDebug() << iSampleNum;
             //TODO remove this we we have correct scaling
-            if(channelValue * dScaleY > 2.0 || channelValue * dScaleY < -2.0) {
-                //qDebug() << "channel " << i << " " << channelValue * dScaleY;
-                continue;
-            }
+//            if(channelValue * dScaleY > 2.0 || channelValue * dScaleY < -2.0) {
+//                //qDebug() << "channel " << i << " " << channelValue * dScaleY;
+//                continue;
+//            }
 
             QPointF tempPoint(iSampleNum, channelValue * dScaleY + i + 0.5);
             //qDebug() << "channel " << i << " value " << channelValue * dScaleY;
@@ -283,13 +285,18 @@ void ChannelViewer::onHorizontalScrolling(int value)
     int newRangeMax = value + 300;
 
     //check if new data form the model is needed
-    if(newRangeMax > m_iCurrentLoadedLastSample || value < m_iCurrentLoadedFirstSample) {
-        qDebug() << "AHHHH";
-        generateSeries();
-    }
+//    if(newRangeMax > m_iCurrentLoadedLastSample || value < m_iCurrentLoadedFirstSample) {
+//        qDebug() << "AHHHH";
+//        generateSeries();
+//    }
 
     m_pChart->axisX()->setRange(value, newRangeMax);
 
+}
+
+void ChannelViewer::onNewBlocksLoaded()
+{
+    generateSeries();
 }
 
 

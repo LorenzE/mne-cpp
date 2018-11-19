@@ -138,6 +138,8 @@ private:
 
     void onHorizontalScrolling(int value);
 
+    void onNewBlocksLoaded();
+
     QSharedPointer<ANSHAREDLIB::FiffRawModel> m_pRawModel;
 
     QtCharts::QChart *m_pChart;
