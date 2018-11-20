@@ -127,7 +127,7 @@ ChannelViewer::ChannelViewer(QWidget *parent)
     //Horizontal scrollbar
 
     this->setHorizontalScrollBarPolicy(Qt::ScrollBarPolicy::ScrollBarAlwaysOn);
-    this->horizontalScrollBar()->setMaximum(m_pRawModel->absoluteLastSample());
+    this->horizontalScrollBar()->setMaximum(m_pRawModel->absoluteLastSample() - m_pRawModel->SampleWindowSize());
     this->horizontalScrollBar()->setMinimum(m_pRawModel->absoluteFirstSample());
     this->horizontalScrollBar()->setValue(m_pRawModel->absoluteFirstSample());
     this->horizontalScrollBar()->setTracking(true);
@@ -173,10 +173,10 @@ ChannelViewer::ChannelViewer(QWidget *parent)
     generateSeries();
 
     m_pYAxis->setRange(0.0, 30.0);
-    m_pXAxis->setRange(m_pRawModel->absoluteFirstSample(), m_pRawModel->absoluteFirstSample() + 300.0);
+    m_pXAxis->setRange(m_pRawModel->absoluteFirstSample(), m_pRawModel->absoluteFirstSample() + m_pRawModel->SampleWindowSize());
 
-    connect(m_pRawModel.data(), &ANSHAREDLIB::FiffRawModel::newBlocksLoaded,
-            this, &ChannelViewer::onNewBlocksLoaded);
+//    connect(m_pRawModel.data(), &ANSHAREDLIB::FiffRawModel::newBlocksLoaded,
+//            this, &ChannelViewer::onNewBlocksLoaded);
 
 }
 
@@ -205,22 +205,22 @@ void ChannelViewer::resizeEvent(QResizeEvent *event)
 void ChannelViewer::generateSeries()
 {
     for(int i = 0; i < m_pRawModel->rowCount(); ++i) {
-        QModelIndex modelIndex = m_pRawModel->index(i, 2);
+        QModelIndex modelIndex = m_pRawModel->index(i, 1);
 
         double dMaxValue = getChannelMaxValue(modelIndex);
         double dScaleY = 1.0 / (2.0 * dMaxValue);
 
         ANSHAREDLIB::ChannelData channel = m_pRawModel->data(modelIndex).value<ANSHAREDLIB::ChannelData>();
 
-        int iSampleNum = m_pRawModel->currentFirstWindowSample();
+        int iSampleNum = m_pRawModel->currentFirstSample();
         QVector<QPointF> points;
         points.reserve(static_cast<int>(channel.size()));
         for(double channelValue : channel) {
             //TODO remove this we we have correct scaling
-            if(channelValue * dScaleY > 2.0 || channelValue * dScaleY < -2.0) {
-                //qDebug() << "channel " << i << " " << channelValue * dScaleY;
-                continue;
-            }
+//            if(channelValue * dScaleY > 2.0 || channelValue * dScaleY < -2.0) {
+//                //qDebug() << "channel " << i << " " << channelValue * dScaleY;
+//                continue;
+//            }
 
             QPointF tempPoint(iSampleNum, channelValue * dScaleY + i + 0.5);
             //qDebug() << "channel " << i << " value " << channelValue * dScaleY;
@@ -232,8 +232,8 @@ void ChannelViewer::generateSeries()
         QLineSeries *tempSeries  = m_vSeries[i];
         tempSeries->replace(points);
     }
-    m_iCurrentLoadedFirstSample = m_pRawModel->currentFirstWindowSample();
-    m_iCurrentLoadedLastSample = m_pRawModel->currentLastWindowSample();
+    m_iCurrentLoadedFirstSample = m_pRawModel->currentFirstSample();
+    m_iCurrentLoadedLastSample = m_pRawModel->currentLastSample();
 }
 
 
@@ -309,7 +309,7 @@ void ChannelViewer::onVerticalScrolling(int value)
 void ChannelViewer::onHorizontalScrolling(int value)
 {
     qDebug() << "onHorizontalScrolling";
-    m_pRawModel->updateScrollPosition(value - m_pRawModel->absoluteFirstSample());
+    m_pRawModel->updateScrollPosition(value);
 
     qDebug() << m_iCurrentLoadedFirstSample;
     qDebug() << m_iCurrentLoadedLastSample;
@@ -317,10 +317,10 @@ void ChannelViewer::onHorizontalScrolling(int value)
     int newRangeMax = value + m_pRawModel->SampleWindowSize();
 
     //check if new data form the model is needed
-//    if(newRangeMax > m_iCurrentLoadedLastSample || value < m_iCurrentLoadedFirstSample) {
-//        qDebug() << "AHHHH";
-//        generateSeries();
-//    }
+    if(newRangeMax > m_iCurrentLoadedLastSample || value < m_iCurrentLoadedFirstSample) {
+        qDebug() << "[ChannelViewer] getting new data from raw model.";
+        generateSeries();
+    }
 
     m_pChart->axisX()->setRange(value, newRangeMax);
 
@@ -328,7 +328,7 @@ void ChannelViewer::onHorizontalScrolling(int value)
 
 void ChannelViewer::onNewBlocksLoaded()
 {
-    generateSeries();
+    //generateSeries();
 }
 
 
