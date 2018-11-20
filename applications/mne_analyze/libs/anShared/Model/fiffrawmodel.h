@@ -217,6 +217,14 @@ public:
 
     //=========================================================================================================
     /**
+    * Return the first sample of the currently loaded window.
+    *
+    * @return The first sample of the currently loaded window.
+    */
+    inline qint32 currentFirstWindowSample() const;
+
+    //=========================================================================================================
+    /**
     * Return the first sample of the loaded Fiff file
     *
     * @return The first sample of the loaded Fiff file
@@ -233,11 +241,27 @@ public:
 
     //=========================================================================================================
     /**
+    * Return the last sample of the currently loaded window (inclusive)
+    *
+    * @return The last sample of the currently loaded window (inclusive)
+    */
+    inline qint32 currentLastWindowSample() const;
+
+    //=========================================================================================================
+    /**
     * Returns the last sample of the loaded Fiff file
     *
     * @return The last sample of the loaded Fiff file
     */
     inline qint32 absoluteLastSample() const;
+
+    //=========================================================================================================
+    /**
+    * Returns the the number of samples that can be loaded in the window.
+    *
+    * @return The the number of samples that can be loaded in the window
+    */
+    inline qint32 SampleWindowSize() const;
 
 public slots:
 
@@ -327,6 +351,13 @@ inline qint32 FiffRawModel::currentFirstSample() const {
 
 //*************************************************************************************************************
 
+inline qint32 FiffRawModel::currentFirstWindowSample() const {
+    return m_iFiffCursorBegin + m_iPreloadBufferSize * m_iSamplesPerBlock;
+}
+
+
+//*************************************************************************************************************
+
 inline qint32 FiffRawModel::absoluteFirstSample() const {
     if(m_pFiffIO->m_qlistRaw.empty() == false)
         return m_pFiffIO->m_qlistRaw[0]->first_samp;
@@ -347,6 +378,13 @@ inline qint32 FiffRawModel::currentLastSample() const {
 
 //*************************************************************************************************************
 
+inline qint32 FiffRawModel::currentLastWindowSample() const {
+    return m_iFiffCursorBegin + (m_iVisibleWindowSize + m_iPreloadBufferSize) * m_iSamplesPerBlock - 1;
+}
+
+
+//*************************************************************************************************************
+
 inline qint32 FiffRawModel::absoluteLastSample() const {
     if(m_pFiffIO->m_qlistRaw.empty() == false)
         return m_pFiffIO->m_qlistRaw[0]->last_samp;
@@ -355,6 +393,13 @@ inline qint32 FiffRawModel::absoluteLastSample() const {
         qDebug() << "[FiffRawModel::lastSample] Raw list is empty, returning -1";
         return -1;
     }
+}
+
+
+//*************************************************************************************************************
+
+inline qint32 FiffRawModel::SampleWindowSize() const {
+    return m_iVisibleWindowSize * m_iSamplesPerBlock;
 }
 
 

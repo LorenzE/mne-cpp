@@ -54,12 +54,14 @@
 #include <QtCharts/QLineSeries>
 #include <QtCharts/QChartView>
 #include <QtCharts/QValueAxis>
+#include <QtCharts/QCategoryAxis>
 #include <QPointF>
 #include <QDateTime>
 #include <QRandomGenerator>
 #include <QTimer>
 #include <QDebug>
 #include <QDir>
+#include <QPen>
 
 #include <QtWidgets/QVBoxLayout>
 #include <QtWidgets/qscrollbar.h>
@@ -107,12 +109,12 @@ ChannelViewer::ChannelViewer(QWidget *parent)
 
 
     //TODO
-    m_pRawModel = QSharedPointer<ANSHAREDLIB::FiffRawModel>::create(QDir::currentPath() + "/MNE-sample-data/MEG/sample/ernoise_raw.fif", 512, 20, 4);
+    m_pRawModel = QSharedPointer<ANSHAREDLIB::FiffRawModel>::create(QDir::currentPath() + "/MNE-sample-data/MEG/sample/ernoise_raw.fif", 512, 4, 4);
     m_numSeries = m_pRawModel->rowCount();
 
-    QChartView *chartView = new QChartView(m_pChart);
-    chartView->setMinimumSize(800, 600);
-    chartView->setRubberBand(QChartView::RectangleRubberBand);
+    m_pChartView = new QChartView(m_pChart);
+    m_pChartView->setMinimumSize(800, 600);
+    m_pChartView->setRubberBand(QChartView::RectangleRubberBand);
 
     // Vertical scroll bar
     connect(this->verticalScrollBar(), &QScrollBar::valueChanged,
@@ -141,20 +143,23 @@ ChannelViewer::ChannelViewer(QWidget *parent)
     //axisX->setRange(0, XYSeriesIODevice::sampleCount);
     m_pXAxis->setLabelFormat("%g");
     m_pXAxis->setTitleText("Samples");
-    m_pXAxis->setRange(0, 50);
-    m_pYAxis = new QValueAxis;
-    m_pYAxis->setRange(-1, 50);
-    m_pYAxis->setTitleText("Audio level");
+    m_pYAxis = new QCategoryAxis;
     //m_chart->setAxisX(axisX, m_series);
+    generateYAxisChannelNames();
     m_pChart->addAxis(m_pXAxis, Qt::AlignBottom);
     m_pChart->addAxis(m_pYAxis, Qt::AlignLeft);
 
     //m_chart->setAxisY(axisY, m_series);
     m_pChart->legend()->hide();
-    m_pChart->setTitle("Data ");
+
+
 
     for(int i = 0; i < m_numSeries; ++i) {
         QLineSeries *pTempSeries = new QLineSeries;
+//        QPen pen(pTempSeries->pen().color());
+//        pen.setWidth(1);
+//        pTempSeries->setPen(pen);
+        //pTempSeries->pen().setWidth(10);
         pTempSeries->setUseOpenGL(true);
         m_pChart->addSeries(pTempSeries);
         pTempSeries->attachAxis(m_pXAxis);
@@ -164,9 +169,10 @@ ChannelViewer::ChannelViewer(QWidget *parent)
 //    QVBoxLayout *mainLayout = new QVBoxLayout(this);
 
 //    mainLayout->addWidget(chartView);
-    this->setViewport(chartView);
+    this->setViewport(m_pChartView);
     generateSeries();
-    m_pYAxis->setRange(-1.0, 30.0);
+
+    m_pYAxis->setRange(0.0, 30.0);
     m_pXAxis->setRange(m_pRawModel->absoluteFirstSample(), m_pRawModel->absoluteFirstSample() + 300.0);
 
     connect(m_pRawModel.data(), &ANSHAREDLIB::FiffRawModel::newBlocksLoaded,
@@ -182,7 +188,15 @@ ChannelViewer::~ChannelViewer()
 
 void ChannelViewer::resizeEvent(QResizeEvent *event)
 {
-    this->viewport()->resize(event->size());
+//    this->viewport()->resize(event->size());
+//    m_pChart->resize(event->size());
+//    this->viewport()->repaint();
+//    qDebug() << event->size();
+//    qDebug() << "min " << this->viewport()->minimumSize() << " max " << this->viewport()->maximumSize();
+    m_pChart->resize(event->size());
+    m_pChartView->resize(event->size());
+    m_pChartView->repaint();
+    QAbstractScrollArea::resizeEvent(event);
 }
 
 
@@ -191,22 +205,22 @@ void ChannelViewer::resizeEvent(QResizeEvent *event)
 void ChannelViewer::generateSeries()
 {
     for(int i = 0; i < m_pRawModel->rowCount(); ++i) {
-        QModelIndex modelIndex = m_pRawModel->index(i, 1);
+        QModelIndex modelIndex = m_pRawModel->index(i, 2);
 
         double dMaxValue = getChannelMaxValue(modelIndex);
         double dScaleY = 1.0 / (2.0 * dMaxValue);
 
         ANSHAREDLIB::ChannelData channel = m_pRawModel->data(modelIndex).value<ANSHAREDLIB::ChannelData>();
 
-        int iSampleNum = m_pRawModel->currentFirstSample();
+        int iSampleNum = m_pRawModel->currentFirstWindowSample();
         QVector<QPointF> points;
         points.reserve(static_cast<int>(channel.size()));
         for(double channelValue : channel) {
             //TODO remove this we we have correct scaling
-//            if(channelValue * dScaleY > 2.0 || channelValue * dScaleY < -2.0) {
-//                //qDebug() << "channel " << i << " " << channelValue * dScaleY;
-//                continue;
-//            }
+            if(channelValue * dScaleY > 2.0 || channelValue * dScaleY < -2.0) {
+                //qDebug() << "channel " << i << " " << channelValue * dScaleY;
+                continue;
+            }
 
             QPointF tempPoint(iSampleNum, channelValue * dScaleY + i + 0.5);
             //qDebug() << "channel " << i << " value " << channelValue * dScaleY;
@@ -218,8 +232,26 @@ void ChannelViewer::generateSeries()
         QLineSeries *tempSeries  = m_vSeries[i];
         tempSeries->replace(points);
     }
-    m_iCurrentLoadedFirstSample = m_pRawModel->currentFirstSample();
-    m_iCurrentLoadedLastSample = m_pRawModel->currentLastSample();
+    m_iCurrentLoadedFirstSample = m_pRawModel->currentFirstWindowSample();
+    m_iCurrentLoadedLastSample = m_pRawModel->currentLastWindowSample();
+}
+
+
+//*************************************************************************************************************
+
+void ChannelViewer::generateYAxisChannelNames()
+{
+//    QFont labelsFont;
+//    labelsFont.setPixelSize(12);
+//    m_pYAxis->setLabelsFont(labelsFont);
+//    //m_pYAxis->setLabelFormat()
+//    double upperBound = 1.0;
+//    for(int i = 0; i < m_pRawModel->rowCount(); ++i) {
+//        QModelIndex modelIndex = m_pRawModel->index(i, 0);
+//         QString channelName = m_pRawModel->data(modelIndex).toString();
+//         m_pYAxis->append(channelName, upperBound);
+//         upperBound++;
+//    }
 }
 
 
@@ -282,7 +314,7 @@ void ChannelViewer::onHorizontalScrolling(int value)
     qDebug() << m_iCurrentLoadedFirstSample;
     qDebug() << m_iCurrentLoadedLastSample;
     qDebug() << "value" << value;
-    int newRangeMax = value + 300;
+    int newRangeMax = value + m_pRawModel->SampleWindowSize();
 
     //check if new data form the model is needed
 //    if(newRangeMax > m_iCurrentLoadedLastSample || value < m_iCurrentLoadedFirstSample) {

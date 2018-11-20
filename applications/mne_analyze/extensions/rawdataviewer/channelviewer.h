@@ -70,8 +70,10 @@
 
 namespace QtCharts {
     class QChart;
+    class QChartView;
     class QLineSeries;
     class QValueAxis;
+    class QCategoryAxis;
 }
 
 class QScrollBar;
@@ -131,6 +133,8 @@ private:
 
     void generateSeries();
 
+    void generateYAxisChannelNames();
+
 
     double getChannelMaxValue(const QModelIndex &modelIndex);
 
@@ -143,7 +147,8 @@ private:
     QSharedPointer<ANSHAREDLIB::FiffRawModel> m_pRawModel;
 
     QtCharts::QChart *m_pChart;
-    QtCharts::QValueAxis *m_pYAxis;
+    QtCharts::QChartView *m_pChartView;
+    QtCharts::QCategoryAxis *m_pYAxis;
     QtCharts::QValueAxis *m_pXAxis;
     QVector<QtCharts::QLineSeries*> m_vSeries;
     int m_numSeries;
