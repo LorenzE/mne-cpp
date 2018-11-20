@@ -217,14 +217,6 @@ public:
 
     //=========================================================================================================
     /**
-    * Return the first sample of the currently loaded window.
-    *
-    * @return The first sample of the currently loaded window.
-    */
-    inline qint32 currentFirstWindowSample() const;
-
-    //=========================================================================================================
-    /**
     * Return the first sample of the loaded Fiff file
     *
     * @return The first sample of the loaded Fiff file
@@ -238,14 +230,6 @@ public:
     * @return The last sample of the currently loaded blocks (inclusive)
     */
     inline qint32 currentLastSample() const;
-
-    //=========================================================================================================
-    /**
-    * Return the last sample of the currently loaded window (inclusive)
-    *
-    * @return The last sample of the currently loaded window (inclusive)
-    */
-    inline qint32 currentLastWindowSample() const;
 
     //=========================================================================================================
     /**
@@ -366,13 +350,6 @@ inline qint32 FiffRawModel::currentFirstSample() const {
 
 //*************************************************************************************************************
 
-inline qint32 FiffRawModel::currentFirstWindowSample() const {
-    return m_iFiffCursorBegin + m_iPreloadBufferSize * m_iSamplesPerBlock;
-}
-
-
-//*************************************************************************************************************
-
 inline qint32 FiffRawModel::absoluteFirstSample() const {
     if(m_pFiffIO->m_qlistRaw.empty() == false)
         return m_pFiffIO->m_qlistRaw[0]->first_samp;
@@ -388,13 +365,6 @@ inline qint32 FiffRawModel::absoluteFirstSample() const {
 
 inline qint32 FiffRawModel::currentLastSample() const {
     return m_iFiffCursorBegin + m_iTotalBlockCount * m_iSamplesPerBlock - 1;
-}
-
-
-//*************************************************************************************************************
-
-inline qint32 FiffRawModel::currentLastWindowSample() const {
-    return m_iFiffCursorBegin + (m_iVisibleWindowSize + m_iPreloadBufferSize) * m_iSamplesPerBlock - 1;
 }
 
 
