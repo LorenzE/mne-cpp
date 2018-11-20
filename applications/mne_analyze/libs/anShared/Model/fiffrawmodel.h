@@ -265,9 +265,20 @@ public:
 
 public slots:
 
-    void updateScrollPosition(qint32 relativeFiffCursor);
+    /**
+    * This tells the model where the view currently is.
+    *
+    * @param newScrollPosition Absolute sample number.
+    */
+    void updateScrollPosition(qint32 newScrollPosition);
 
 private:
+
+    //=========================================================================================================
+    /**
+    * This is a helper method thats is meant to correctly the endOfFile / startOfFile flags whenever needed
+    */
+    void updateEndStartFlags();
 
     //=========================================================================================================
     /**
@@ -316,6 +327,10 @@ private:
     qint32 m_iTotalBlockCount;  /**< Total block count */
 
     qint32 m_iFiffCursorBegin;      /**< This always points to the very first sample that is currently held (in the earliest block) */
+    bool m_bStartOfFileReached;
+    bool m_bEndOfFileReached;
+
+    qint32 m_iScrollPosition;       /**< This is the current scroll position of the View */
 
     // concurrent reloading
     QFutureWatcher<int> m_blockLoadFutureWatcher;   /**< QFutureWatcher for watching process of reloading fiff data. */
