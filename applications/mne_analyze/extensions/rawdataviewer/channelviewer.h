@@ -126,6 +126,14 @@ public:
     */
     virtual ~ChannelViewer();
 
+    //=========================================================================================================
+    /**
+    * Have to override this in order to fix the resizing bug.
+    *
+    * @return A very large dimension, since this denotes the maximum size for visible part of this channelviewer
+    */
+    QSize sizeHint() const override;
+
 protected:
     virtual void resizeEvent(QResizeEvent *event) override;
 

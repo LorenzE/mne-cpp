@@ -43,6 +43,7 @@
 #include "FormFiles/rawdataviewercontrol.h"
 #include <anShared/Management/analyzedata.h>
 #include "anShared/Utils/metatypes.h"
+#include <anShared/Management/communicator.h>
 #include "channelviewer.h"
 
 
@@ -69,6 +70,7 @@ using namespace ANSHAREDLIB;
 RawDataViewer::RawDataViewer()
     : m_pControlDock(Q_NULLPTR)
     , m_pRawDataViewerControl(Q_NULLPTR)
+    , m_pCommu(Q_NULLPTR)
     , m_bDisplayCreated(false)
 {
 
@@ -96,8 +98,13 @@ QSharedPointer<IExtension> RawDataViewer::clone() const
 
 void RawDataViewer::init()
 {
+    m_pCommu = new Communicator(this);
+
     m_pRawDataViewerControl = new RawDataViewerControl;
 
+    if(m_bDisplayCreated == false) {
+        createDisplay();
+    }
 }
 
 
@@ -155,7 +162,13 @@ QWidget *RawDataViewer::getView()
 
 void RawDataViewer::handleEvent(QSharedPointer<Event> e)
 {
-    qDebug() << "[RawDataViewer::handleEvent] received an Event that is not handled!";
+    switch (e->getType()) {
+    case EVENT_TYPE::EXTENSION_INIT_FINISHED:
+        m_pSubWindow->resize(800, 600);
+        break;
+    default:
+        qDebug() << "[RawDataViewer::handleEvent] received an Event that is not handled!";
+    }
 }
 
 
@@ -192,6 +205,7 @@ void RawDataViewer::createDisplay()
     // remember that the display was built
     m_bDisplayCreated = true;
 
+    m_pSubWindow->show();
 }
 
 

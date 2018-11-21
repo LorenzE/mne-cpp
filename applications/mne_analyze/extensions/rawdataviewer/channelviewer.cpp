@@ -113,7 +113,6 @@ ChannelViewer::ChannelViewer(QWidget *parent)
     m_numSeries = m_pRawModel->rowCount();
 
     m_pChartView = new QChartView(m_pChart);
-    m_pChartView->setMinimumSize(800, 600);
     m_pChartView->setRubberBand(QChartView::RectangleRubberBand);
 
     // Vertical scroll bar
@@ -170,6 +169,7 @@ ChannelViewer::ChannelViewer(QWidget *parent)
 
 //    mainLayout->addWidget(chartView);
     this->setViewport(m_pChartView);
+    this->viewport()->adjustSize();
     generateSeries();
 
     m_pYAxis->setRange(0.0, 30.0);
@@ -181,21 +181,29 @@ ChannelViewer::ChannelViewer(QWidget *parent)
 }
 
 
+//*************************************************************************************************************
+
 ChannelViewer::~ChannelViewer()
 {
 
 }
 
+
+//*************************************************************************************************************
+
+QSize ChannelViewer::sizeHint() const
+{
+    // return a very large value, lets hope the user never wants a bigger chart
+    return QSize(3000, 3000);
+}
+
+
+//*************************************************************************************************************
+
 void ChannelViewer::resizeEvent(QResizeEvent *event)
 {
-//    this->viewport()->resize(event->size());
-//    m_pChart->resize(event->size());
-//    this->viewport()->repaint();
-//    qDebug() << event->size();
-//    qDebug() << "min " << this->viewport()->minimumSize() << " max " << this->viewport()->maximumSize();
-    m_pChart->resize(event->size());
-    m_pChartView->resize(event->size());
-    m_pChartView->repaint();
+    // this makes little sense, but it works
+    m_pChart->setGeometry(m_pChartView->geometry());
     QAbstractScrollArea::resizeEvent(event);
 }
 

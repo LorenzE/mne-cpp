@@ -45,7 +45,6 @@
 
 #include "rawdataviewer_global.h"
 #include <anShared/Interfaces/IExtension.h>
-#include <anShared/Management/communicator.h>
 
 
 //*************************************************************************************************************
@@ -65,6 +64,9 @@
 
 class RawDataViewerControl;
 
+namespace ANSHAREDLIB {
+    class Communicator;
+}
 
 
 //*************************************************************************************************************
@@ -118,8 +120,9 @@ private:
     void createDisplay();
 
     // Control
-    QDockWidget*            m_pControlDock; /**< Control Widget */
-    RawDataViewerControl*   m_pRawDataViewerControl;
+    QDockWidget*                m_pControlDock; /**< Control Widget */
+    RawDataViewerControl*       m_pRawDataViewerControl;
+    ANSHAREDLIB::Communicator*  m_pCommu;
 
 
     ChannelViewer*                                  m_pChannelDisplay;
