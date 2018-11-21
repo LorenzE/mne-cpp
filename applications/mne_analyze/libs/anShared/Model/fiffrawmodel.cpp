@@ -179,6 +179,7 @@ void FiffRawModel::initFiffData()
 
     qDebug() << "[FiffRawModel::initFiffData] Loaded " << m_lData.size() << " blocks";
 
+    // need to close the file manually
     m_file.close();
 }
 
@@ -300,10 +301,12 @@ void FiffRawModel::updateScrollPosition(qint32 newScrollPosition)
 
     qint32 targetCursor = m_iScrollPosition;
 
-    if (targetCursor < m_iFiffCursorBegin + m_iPreloadBufferSize * m_iSamplesPerBlock
+
+    // @TODO remove this temporary fix: m_iPreloadBufferSize - 1
+    if (targetCursor < m_iFiffCursorBegin + (m_iPreloadBufferSize - 1) * m_iSamplesPerBlock
             && m_bStartOfFileReached == false) {
         // time to move the loaded window. Calculate distance in blocks
-        qint32 sampleDist = (m_iFiffCursorBegin + m_iPreloadBufferSize * m_iSamplesPerBlock) - targetCursor;
+        qint32 sampleDist = (m_iFiffCursorBegin + (m_iPreloadBufferSize - 1) * m_iSamplesPerBlock) - targetCursor;
         qint32 blockDist = (qint32) ceil(((double) sampleDist) / ((double) m_iSamplesPerBlock));
 
         if (blockDist >= m_iTotalBlockCount) {
@@ -317,10 +320,11 @@ void FiffRawModel::updateScrollPosition(qint32 newScrollPosition)
             startBackgroundOperation(&FiffRawModel::loadEarlierBlocks, blockDist);
         }
     }
-    else if (targetCursor + (m_iVisibleWindowSize * m_iSamplesPerBlock) >= m_iFiffCursorBegin + (m_iPreloadBufferSize + m_iVisibleWindowSize) * m_iSamplesPerBlock
+    // @TODO remove this temporary fix: m_iPreloadBufferSize + 1
+    else if (targetCursor + (m_iVisibleWindowSize * m_iSamplesPerBlock) >= m_iFiffCursorBegin + ((m_iPreloadBufferSize + 1) + m_iVisibleWindowSize) * m_iSamplesPerBlock
              && m_bEndOfFileReached == false) {
         // time to move the loaded window. Calculate distance in blocks
-        qint32 sampleDist = targetCursor - (m_iFiffCursorBegin + (m_iPreloadBufferSize + m_iVisibleWindowSize) * m_iSamplesPerBlock);
+        qint32 sampleDist = targetCursor + (m_iVisibleWindowSize * m_iSamplesPerBlock) - (m_iFiffCursorBegin + ((m_iPreloadBufferSize + 1) + m_iVisibleWindowSize) * m_iSamplesPerBlock);
         qint32 blockDist = (qint32) ceil(((double) sampleDist) / ((double) m_iSamplesPerBlock));
 
         if (blockDist >= m_iTotalBlockCount) {
@@ -334,8 +338,6 @@ void FiffRawModel::updateScrollPosition(qint32 newScrollPosition)
             startBackgroundOperation(&FiffRawModel::loadLaterBlocks, blockDist);;
         }
     }
-
-    m_file.close();
 }
 
 
@@ -395,6 +397,9 @@ int FiffRawModel::loadEarlierBlocks(qint32 numBlocks)
         }
     }
 
+    // need to close the file manually
+    m_file.close();
+
     // adjust fiff cursor
     m_iFiffCursorBegin = start;
 
@@ -451,6 +456,9 @@ int FiffRawModel::loadLaterBlocks(qint32 numBlocks)
         end += m_iSamplesPerBlock;
     }
 
+    // need to close the file manually
+    m_file.close();
+
     // adjust fiff cursor
     m_iFiffCursorBegin += numBlocks * m_iSamplesPerBlock;
 
@@ -497,6 +505,7 @@ void FiffRawModel::postBlockLoad(int result)
             m_lData.pop_front();
         }
         m_dataMutex.unlock();
+
         emit newBlocksLoaded();
 
         break;

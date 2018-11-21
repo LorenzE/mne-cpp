@@ -161,6 +161,9 @@ private:
     int m_numSeries;
     int m_iCurrentLoadedFirstSample;
     int m_iCurrentLoadedLastSample;
+    int m_iSamplesPerBlock;
+    int m_iVisibleBlocks;
+    int m_iBufferBlocks;
     QMap<QString, double> m_scaleMap;        /**< Map with all channel types and their current scaling value.*/
 
     QScrollBar *m_pHorizontalScrollBar;

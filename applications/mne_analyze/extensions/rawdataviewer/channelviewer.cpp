@@ -97,6 +97,9 @@ using namespace QtCharts;
 ChannelViewer::ChannelViewer(QWidget *parent)
     : QAbstractScrollArea(parent)
     , m_pChart(new QChart)
+    , m_iSamplesPerBlock(500)
+    , m_iVisibleBlocks(2)
+    , m_iBufferBlocks(6)
 {
     //Init m_scaleMap
     m_scaleMap["MEG_grad"] = 400 * 1e-15 * 100; //*100 because data in fiff files is stored as fT/m not fT/cm
@@ -110,8 +113,10 @@ ChannelViewer::ChannelViewer(QWidget *parent)
 
 
     //TODO
-    m_pRawModel = QSharedPointer<ANSHAREDLIB::FiffRawModel>::create(
-                QDir::currentPath() + "/MNE-sample-data/MEG/sample/ernoise_raw.fif", 250, 4, 6);
+    m_pRawModel = QSharedPointer<ANSHAREDLIB::FiffRawModel>::create(QDir::currentPath() + "/MNE-sample-data/MEG/sample/ernoise_raw.fif",
+                                                                    m_iSamplesPerBlock,
+                                                                    m_iVisibleBlocks,
+                                                                    m_iBufferBlocks);
     m_numSeries = m_pRawModel->rowCount();
 
     m_pChartView = new QChartView(m_pChart);
@@ -179,8 +184,8 @@ ChannelViewer::ChannelViewer(QWidget *parent)
     m_pYAxis->setRange(0.0, 30.0);
     m_pXAxis->setRange(m_pRawModel->absoluteFirstSample(), m_pRawModel->absoluteFirstSample() + m_pRawModel->SampleWindowSize());
 
-//    connect(m_pRawModel.data(), &ANSHAREDLIB::FiffRawModel::newBlocksLoaded,
-//            this, &ChannelViewer::onNewBlocksLoaded);
+    connect(m_pRawModel.data(), &ANSHAREDLIB::FiffRawModel::newBlocksLoaded,
+            this, &ChannelViewer::onNewBlocksLoaded);
 
 }
 
@@ -311,35 +316,32 @@ double ChannelViewer::getChannelMaxValue(const QModelIndex &modelIndex)
     return dMaxValue;
 }
 
+
 void ChannelViewer::onVerticalScrolling(int value)
 {
     qDebug() << value;
     m_pChart->axisY()->setRange(value, value + 30);
 }
 
-void ChannelViewer::onHorizontalScrolling(int value)
+
+void ChannelViewer::onHorizontalScrolling(int scrollWindowBegin)
 {
     qDebug() << "onHorizontalScrolling";
-    m_pRawModel->updateScrollPosition(value);
+    m_pRawModel->updateScrollPosition(scrollWindowBegin);
 
-    qDebug() << m_iCurrentLoadedFirstSample;
-    qDebug() << m_iCurrentLoadedLastSample;
-    qDebug() << "value" << value;
-    int newRangeMax = value + m_pRawModel->SampleWindowSize();
+    qDebug() << "current first loaded sample: " << m_iCurrentLoadedFirstSample;
+    qDebug() << "current last loaded sample: " <<m_iCurrentLoadedLastSample;
+    qDebug() << "begin of scroll window: " << scrollWindowBegin;
+    int scrollWindowEnd = scrollWindowBegin + m_pRawModel->SampleWindowSize();
+    qDebug() << "end of sroll window: " << scrollWindowEnd;
 
-    //check if new data form the model is needed
-    if(newRangeMax > m_iCurrentLoadedLastSample || value < m_iCurrentLoadedFirstSample) {
-        qDebug() << "[ChannelViewer] getting new data from raw model.";
-        generateSeries();
-    }
-
-    m_pChart->axisX()->setRange(value, newRangeMax);
-
+    m_pChart->axisX()->setRange(scrollWindowBegin, scrollWindowEnd);
 }
+
 
 void ChannelViewer::onNewBlocksLoaded()
 {
-    //generateSeries();
+    generateSeries();
 }
 
 
