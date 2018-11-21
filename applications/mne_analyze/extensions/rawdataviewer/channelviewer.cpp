@@ -62,6 +62,7 @@
 #include <QDebug>
 #include <QDir>
 #include <QPen>
+#include <QRandomGenerator>
 
 #include <QtWidgets/QVBoxLayout>
 #include <QtWidgets/qscrollbar.h>
@@ -109,11 +110,13 @@ ChannelViewer::ChannelViewer(QWidget *parent)
 
 
     //TODO
-    m_pRawModel = QSharedPointer<ANSHAREDLIB::FiffRawModel>::create(QDir::currentPath() + "/MNE-sample-data/MEG/sample/ernoise_raw.fif", 512, 4, 4);
+    m_pRawModel = QSharedPointer<ANSHAREDLIB::FiffRawModel>::create(
+                QDir::currentPath() + "/MNE-sample-data/MEG/sample/ernoise_raw.fif", 250, 4, 6);
     m_numSeries = m_pRawModel->rowCount();
 
     m_pChartView = new QChartView(m_pChart);
     m_pChartView->setRubberBand(QChartView::RectangleRubberBand);
+    m_pChartView->setRenderHint(QPainter::Antialiasing, false);
 
     // Vertical scroll bar
     connect(this->verticalScrollBar(), &QScrollBar::valueChanged,
@@ -151,14 +154,15 @@ ChannelViewer::ChannelViewer(QWidget *parent)
     //m_chart->setAxisY(axisY, m_series);
     m_pChart->legend()->hide();
 
-
-
     for(int i = 0; i < m_numSeries; ++i) {
         QLineSeries *pTempSeries = new QLineSeries;
-//        QPen pen(pTempSeries->pen().color());
-//        pen.setWidth(1);
-//        pTempSeries->setPen(pen);
-        //pTempSeries->pen().setWidth(10);
+
+        QPen pen;
+        pen.setStyle(Qt::DotLine);
+        pen.setWidthF(0.5);
+        pen.setColor(QColor::fromRgb(QRandomGenerator::global()->generate()));
+        pTempSeries->setPen(pen);
+
         pTempSeries->setUseOpenGL(true);
         m_pChart->addSeries(pTempSeries);
         pTempSeries->attachAxis(m_pXAxis);
@@ -225,10 +229,10 @@ void ChannelViewer::generateSeries()
         points.reserve(static_cast<int>(channel.size()));
         for(double channelValue : channel) {
             //TODO remove this we we have correct scaling
-//            if(channelValue * dScaleY > 2.0 || channelValue * dScaleY < -2.0) {
-//                //qDebug() << "channel " << i << " " << channelValue * dScaleY;
-//                continue;
-//            }
+            if(channelValue * dScaleY > 3.0 || channelValue * dScaleY < -3.0) {
+                //qDebug() << "channel " << i << " " << channelValue * dScaleY;
+                channelValue = 0.0;
+            }
 
             QPointF tempPoint(iSampleNum, channelValue * dScaleY + i + 0.5);
             //qDebug() << "channel " << i << " value " << channelValue * dScaleY;
@@ -249,19 +253,18 @@ void ChannelViewer::generateSeries()
 
 void ChannelViewer::generateYAxisChannelNames()
 {
-//    QFont labelsFont;
-//    labelsFont.setPixelSize(12);
-//    m_pYAxis->setLabelsFont(labelsFont);
-//    //m_pYAxis->setLabelFormat()
-//    double upperBound = 1.0;
-//    for(int i = 0; i < m_pRawModel->rowCount(); ++i) {
-//        QModelIndex modelIndex = m_pRawModel->index(i, 0);
-//         QString channelName = m_pRawModel->data(modelIndex).toString();
-//         m_pYAxis->append(channelName, upperBound);
-//         upperBound++;
-//    }
+    QFont labelsFont;
+    labelsFont.setPixelSize(10);
+    m_pYAxis->setLabelsFont(labelsFont);
+    //m_pYAxis->setLabelFormat()
+    double upperBound = 1.0;
+    for(int i = 0; i < m_pRawModel->rowCount(); ++i) {
+        QModelIndex modelIndex = m_pRawModel->index(i, 0);
+        QString channelName = m_pRawModel->data(modelIndex).toString();
+        m_pYAxis->append(channelName, upperBound);
+        upperBound++;
+    }
 }
-
 
 //*************************************************************************************************************
 

@@ -143,7 +143,6 @@ private:
 
     void generateYAxisChannelNames();
 
-
     double getChannelMaxValue(const QModelIndex &modelIndex);
 
     void onVerticalScrolling(int value);
