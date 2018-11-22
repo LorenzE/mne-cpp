@@ -52,6 +52,7 @@
 //=============================================================================================================
 
 #include <QtConcurrent/QtConcurrent>
+#include <QElapsedTimer>
 
 
 //*************************************************************************************************************
@@ -355,6 +356,9 @@ void FiffRawModel::startBackgroundOperation(int (FiffRawModel::*loadFunction)(in
 
 int FiffRawModel::loadEarlierBlocks(qint32 numBlocks)
 {
+    QElapsedTimer timer;
+    timer.start();
+
     // check if start of file was reached:
     int leftSamples = (m_iFiffCursorBegin - numBlocks * m_iSamplesPerBlock) - absoluteFirstSample();
     if (leftSamples <= 0) {
@@ -403,6 +407,9 @@ int FiffRawModel::loadEarlierBlocks(qint32 numBlocks)
     // adjust fiff cursor
     m_iFiffCursorBegin = start;
 
+
+    qDebug() << "[TIME] " << ((float) timer.elapsed()) / ((float) numBlocks) << " (per block) [FiffRawModel::loadEarlierBlocks]";
+
     // return 0, meaning that this was a loading of earlier blocks
     return 0;
 }
@@ -412,6 +419,9 @@ int FiffRawModel::loadEarlierBlocks(qint32 numBlocks)
 
 int FiffRawModel::loadLaterBlocks(qint32 numBlocks)
 {
+    QElapsedTimer timer;
+    timer.start();
+
     // check if end of file is reached:
     int leftSamples = absoluteLastSample() - (m_iFiffCursorBegin + (m_iTotalBlockCount + numBlocks) * m_iSamplesPerBlock);
     if (leftSamples < 0) {
@@ -462,6 +472,8 @@ int FiffRawModel::loadLaterBlocks(qint32 numBlocks)
     // adjust fiff cursor
     m_iFiffCursorBegin += numBlocks * m_iSamplesPerBlock;
 
+    qDebug() << "[TIME] " << ((float) timer.elapsed()) / ((float) numBlocks) << " (per block) [FiffRawModel::loadLaterBlocks]";
+
     // return 1, meaning that this was a loading of later blocks
     return 1;
 }
@@ -471,6 +483,9 @@ int FiffRawModel::loadLaterBlocks(qint32 numBlocks)
 
 void FiffRawModel::postBlockLoad(int result)
 {
+    QElapsedTimer timer;
+    timer.start();
+
     switch(result){
     case -1:
         qDebug() << "[FiffRawModel::postBlockLoad] QFuture returned an error: " << result;
@@ -489,6 +504,7 @@ void FiffRawModel::postBlockLoad(int result)
         }
         m_dataMutex.unlock();
 
+        qDebug() << "[TIME] " << timer.elapsed() << " [FiffRawModel::postBlockLoad]";
         emit newBlocksLoaded();
 
         break;

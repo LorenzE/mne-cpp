@@ -63,6 +63,7 @@
 #include <QDir>
 #include <QPen>
 #include <QRandomGenerator>
+#include <QElapsedTimer>
 
 #include <QtWidgets/QVBoxLayout>
 #include <QtWidgets/qscrollbar.h>
@@ -221,6 +222,9 @@ void ChannelViewer::resizeEvent(QResizeEvent *event)
 
 void ChannelViewer::generateSeries()
 {
+    QElapsedTimer timer;
+    timer.start();
+
     for(int i = 0; i < m_pRawModel->rowCount(); ++i) {
         QModelIndex modelIndex = m_pRawModel->index(i, 1);
 
@@ -251,6 +255,8 @@ void ChannelViewer::generateSeries()
     }
     m_iCurrentLoadedFirstSample = m_pRawModel->currentFirstSample();
     m_iCurrentLoadedLastSample = m_pRawModel->currentLastSample();
+
+    qDebug() << "[TIME] " << timer.elapsed() << " [ChannelViewer::generateSeries]";
 }
 
 
@@ -326,14 +332,14 @@ void ChannelViewer::onVerticalScrolling(int value)
 
 void ChannelViewer::onHorizontalScrolling(int scrollWindowBegin)
 {
-    qDebug() << "onHorizontalScrolling";
+    // qDebug() << "onHorizontalScrolling";
     m_pRawModel->updateScrollPosition(scrollWindowBegin);
 
-    qDebug() << "current first loaded sample: " << m_iCurrentLoadedFirstSample;
-    qDebug() << "current last loaded sample: " <<m_iCurrentLoadedLastSample;
-    qDebug() << "begin of scroll window: " << scrollWindowBegin;
+    // qDebug() << "current first loaded sample: " << m_iCurrentLoadedFirstSample;
+    // qDebug() << "current last loaded sample: " <<m_iCurrentLoadedLastSample;
+    // qDebug() << "begin of scroll window: " << scrollWindowBegin;
     int scrollWindowEnd = scrollWindowBegin + m_pRawModel->SampleWindowSize();
-    qDebug() << "end of sroll window: " << scrollWindowEnd;
+    // qDebug() << "end of sroll window: " << scrollWindowEnd;
 
     m_pChart->axisX()->setRange(scrollWindowBegin, scrollWindowEnd);
 }
