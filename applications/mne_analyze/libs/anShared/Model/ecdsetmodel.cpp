@@ -143,6 +143,8 @@ QModelIndex EcdSetModel::index(int row, int column, const QModelIndex &parent) c
 
 QModelIndex EcdSetModel::parent(const QModelIndex &index) const
 {
+    Q_UNUSED(index);
+
     return QModelIndex();
 }
 
@@ -151,6 +153,8 @@ QModelIndex EcdSetModel::parent(const QModelIndex &index) const
 
 int EcdSetModel::rowCount(const QModelIndex &parent) const
 {
+    Q_UNUSED(parent);
+
     return m_ecdSet.size();
 }
 

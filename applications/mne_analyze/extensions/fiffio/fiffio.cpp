@@ -131,7 +131,7 @@ QWidget *FiffIO::getView()
 
 void FiffIO::handleEvent(QSharedPointer<Event> e)
 {
-
+    Q_UNUSED(e);
 }
 
 

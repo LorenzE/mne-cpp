@@ -89,6 +89,8 @@ QEntityListModel::QEntityListModel(const QString &modelIdentifier, QObject *pPar
 
 QVariant QEntityListModel::data(const QModelIndex &index, int role) const
 {
+    Q_UNUSED(index);
+    Q_UNUSED(role);
     // this is not a real model
     return QVariant();
 }
@@ -104,6 +106,9 @@ Qt::ItemFlags QEntityListModel::flags(const QModelIndex &index) const
 
 QModelIndex QEntityListModel::index(int row, int column, const QModelIndex &parent) const
 {
+    Q_UNUSED(row);
+    Q_UNUSED(column);
+    Q_UNUSED(parent);
     // this is not a real model
     return QModelIndex();
 }
@@ -112,6 +117,7 @@ QModelIndex QEntityListModel::index(int row, int column, const QModelIndex &pare
 
 QModelIndex QEntityListModel::parent(const QModelIndex &index) const
 {
+    Q_UNUSED(index);
     // this is not a real model
     return QModelIndex();
 }
@@ -120,6 +126,7 @@ QModelIndex QEntityListModel::parent(const QModelIndex &index) const
 
 int QEntityListModel::rowCount(const QModelIndex &parent) const
 {
+    Q_UNUSED(parent);
     // this is not a real model
     return 0;
 }
@@ -129,6 +136,7 @@ int QEntityListModel::rowCount(const QModelIndex &parent) const
 
 int QEntityListModel::columnCount(const QModelIndex &parent) const
 {
+    Q_UNUSED(parent);
     // this is not a real model
     return 0;
 }
@@ -138,6 +146,7 @@ int QEntityListModel::columnCount(const QModelIndex &parent) const
 
 bool QEntityListModel::hasChildren(const QModelIndex &parent) const
 {
+    Q_UNUSED(parent);
     // this is not a real model
     return false;
 }

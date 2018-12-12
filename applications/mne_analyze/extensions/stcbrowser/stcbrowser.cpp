@@ -140,7 +140,7 @@ QWidget *STCBrowser::getView()
 
 void STCBrowser::handleEvent(QSharedPointer<Event> e)
 {
-
+    Q_UNUSED(e);
 }
 
 

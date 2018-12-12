@@ -211,7 +211,7 @@ QWidget *MainViewer::getView()
 
 void MainViewer::handleEvent(QSharedPointer<Event> e)
 {
-
+    Q_UNUSED(e);
 }
 
 

@@ -157,7 +157,7 @@ QWidget *InvMNE::getView()
 
 void InvMNE::handleEvent(QSharedPointer<Event> e)
 {
-
+    Q_UNUSED(e);
 }
 
 

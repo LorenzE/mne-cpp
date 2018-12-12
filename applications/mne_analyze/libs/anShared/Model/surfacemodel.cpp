@@ -178,6 +178,8 @@ QModelIndex SurfaceModel::index(int row, int column, const QModelIndex &parent) 
 QModelIndex SurfaceModel::parent(const QModelIndex &index) const
 {
     //Only the root node has childeren, therefore all parents are an invalid model index
+    Q_UNUSED(index);
+
     return QModelIndex();
 }
 
