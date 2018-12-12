@@ -98,7 +98,7 @@ FiffRawModel::FiffRawModel(const QString &sFilePath,
     : AbstractModel(pParent),
       m_iSamplesPerBlock(iSamplesPerBlock),
       m_iVisibleWindowSize(iWindowSize),
-      m_iPreloadBufferSize(iPreloadBufferSize),
+      m_iPreloadBufferSize(std::max(2, iPreloadBufferSize)),
       m_iTotalBlockCount(m_iVisibleWindowSize + 2 * m_iPreloadBufferSize),
       m_iFiffCursorBegin(-1),
       m_bStartOfFileReached(true),
@@ -303,7 +303,6 @@ void FiffRawModel::updateScrollPosition(qint32 newScrollPosition)
     qint32 targetCursor = m_iScrollPosition;
 
 
-    // @TODO remove this temporary fix: m_iPreloadBufferSize - 1
     if (targetCursor < m_iFiffCursorBegin + (m_iPreloadBufferSize - 1) * m_iSamplesPerBlock
             && m_bStartOfFileReached == false) {
         // time to move the loaded window. Calculate distance in blocks
@@ -321,7 +320,6 @@ void FiffRawModel::updateScrollPosition(qint32 newScrollPosition)
             startBackgroundOperation(&FiffRawModel::loadEarlierBlocks, blockDist);
         }
     }
-    // @TODO remove this temporary fix: m_iPreloadBufferSize + 1
     else if (targetCursor + (m_iVisibleWindowSize * m_iSamplesPerBlock) >= m_iFiffCursorBegin + ((m_iPreloadBufferSize + 1) + m_iVisibleWindowSize) * m_iSamplesPerBlock
              && m_bEndOfFileReached == false) {
         // time to move the loaded window. Calculate distance in blocks

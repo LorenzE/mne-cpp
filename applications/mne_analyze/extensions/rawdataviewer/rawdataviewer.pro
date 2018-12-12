@@ -81,13 +81,17 @@ unix: DESTDIR = $${MNE_BINARY_DIR}/mne_analyze_extensions
 SOURCES += \
     rawdataviewer.cpp \
     FormFiles/rawdataviewercontrol.cpp \
-    channelviewer.cpp
+    channelviewer.cpp \
+    fiffrawdelegate.cpp \
+    fiffrawview.cpp
 
 HEADERS += \
     rawdataviewer_global.h \
     rawdataviewer.h    \
     FormFiles/rawdataviewercontrol.h \
-    channelviewer.h
+    channelviewer.h \
+    fiffrawdelegate.h \
+    fiffrawview.h
 
 FORMS += \
     FormFiles/rawdataviewercontrol.ui
