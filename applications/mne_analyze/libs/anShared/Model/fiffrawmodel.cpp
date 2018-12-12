@@ -107,10 +107,10 @@ FiffRawModel::FiffRawModel(const QString &sFilePath,
       m_blockLoadFutureWatcher(),
       m_bCurrentlyLoading(false),
       m_dataMutex(),
+      m_file(sFilePath),
       m_pFiffIO(),
       m_pFiffInfo(),
-      m_ChannelInfoList(),
-      m_file(sFilePath)
+      m_ChannelInfoList()
 {
     // connect data reloading: this is done concurrently
     connect(&m_blockLoadFutureWatcher,

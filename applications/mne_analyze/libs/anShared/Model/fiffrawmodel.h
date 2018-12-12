@@ -405,7 +405,7 @@ private:
     // This prevents that pointers into the Eigen-matrices will become invalid when the background thread returns and changes the matrices.
     std::list<QSharedPointer<QPair<MatrixXd, MatrixXd>>> m_lData;
     qint32 m_iRowNumber;
-    unsigned long m_NumSamples;
+    qint32 m_NumSamples;
 
 public:
 
@@ -418,13 +418,13 @@ public:
         const ChannelData* cd;  /**< Pointer to the associated ChannelData container */
         // Remember at which point we are currently (this is NOT the absolute sample number,
         // but the index relative to all stored samples in the associated ChannelData container):
-        unsigned long currentIndex;
+        qint32 currentIndex;
         // Remember which block we are currently in
         std::list<QSharedPointer<QPair<MatrixXd, MatrixXd>>>::const_iterator currentBlockToAccess;
-        unsigned long currentRelativeIndex; /**< Remember the relative sample in the current block */
+        qint32 currentRelativeIndex; /**< Remember the relative sample in the current block */
 
     public:
-        ChannelIterator(const ChannelData* cd, unsigned long index)
+        ChannelIterator(const ChannelData* cd, qint32 index)
             : std::iterator<std::random_access_iterator_tag, const double>(),
               cd(cd),
               currentIndex(index),
@@ -432,7 +432,7 @@ public:
               currentRelativeIndex(0)
         {
             // calculate current block to access and current relative index
-            unsigned long temp = currentIndex;
+            qint32 temp = currentIndex;
             // comparing temp against 0 to avoid index-out-of bound scenario for ChannelData::end()
             while (temp > 0 && temp >= (*currentBlockToAccess)->first.cols()) {
                 temp -= (*currentBlockToAccess)->first.cols();
@@ -476,7 +476,7 @@ public:
             return currentIndex != rhs.currentIndex;
         }
 
-        const double operator * ()
+        double operator * ()
         {
             const double* pointerToMatrix = (*currentBlockToAccess)->first.data();
             // go to row
@@ -489,8 +489,8 @@ public:
     };
 
     ChannelData(std::list<QSharedPointer<QPair<MatrixXd, MatrixXd>>>::const_iterator it,
-                unsigned long numBlocks,
-                unsigned long rowNumber)
+                qint32 numBlocks,
+                qint32 rowNumber)
         : m_lData(),
           m_iRowNumber(rowNumber),
           m_NumSamples(0)
@@ -535,7 +535,7 @@ public:
     {
         // see which block we have to access
         std::list<QSharedPointer<QPair<MatrixXd, MatrixXd>>>::const_iterator blockToAccess = m_lData.begin();
-        while (i >= (*blockToAccess)->first.cols())
+        while (i >= (unsigned long)(*blockToAccess)->first.cols())
         {
             i -= (*blockToAccess)->first.cols();
             blockToAccess++;
