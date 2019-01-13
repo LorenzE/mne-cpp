@@ -66,17 +66,19 @@ class RawDataViewerControl;
 
 namespace ANSHAREDLIB {
     class Communicator;
+    class FiffRawModel;
 }
 
 
 //*************************************************************************************************************
 //=============================================================================================================
-// DEFINE NAMESPACE SURFEREXTENSION
+// DEFINE NAMESPACE RAWDATAVIEWEREXTENSION
 //=============================================================================================================
 
 namespace RAWDATAVIEWEREXTENSION
 {
-    class ChannelViewer;
+    class FiffRawView;
+    class FiffRawDelegate;
 
 //=============================================================================================================
 /**
@@ -124,8 +126,15 @@ private:
     RawDataViewerControl*       m_pRawDataViewerControl;
     ANSHAREDLIB::Communicator*  m_pCommu;
 
+    // Model
+    int m_iSamplesPerBlock;
+    int m_iVisibleBlocks;
+    int m_iBufferBlocks;
+    QSharedPointer<ANSHAREDLIB::FiffRawModel>       m_pRawModel;
+    QSharedPointer<FiffRawDelegate>                 m_pRawDelegate;
 
-    ChannelViewer*                                  m_pChannelDisplay;
+
+    FiffRawView*                                    m_pFiffRawView; /**< View for Fiff data */
     QMdiSubWindow*                                  m_pSubWindow; /**< Window that wraps the display */
     bool                                            m_bDisplayCreated; /**< Flag for remembering whether or not the display was already created */
 };

@@ -44,7 +44,8 @@
 #include <anShared/Management/analyzedata.h>
 #include "anShared/Utils/metatypes.h"
 #include <anShared/Management/communicator.h>
-#include "channelviewer.h"
+#include "fiffrawview.h"
+#include "fiffrawdelegate.h"
 
 
 //*************************************************************************************************************
@@ -71,9 +72,21 @@ RawDataViewer::RawDataViewer()
     : m_pControlDock(Q_NULLPTR)
     , m_pRawDataViewerControl(Q_NULLPTR)
     , m_pCommu(Q_NULLPTR)
+    , m_iSamplesPerBlock(500)
+    , m_iVisibleBlocks(2)
+    , m_iBufferBlocks(6)
+    , m_pRawModel(Q_NULLPTR)
+    , m_pRawDelegate(Q_NULLPTR)
+    , m_pFiffRawView(Q_NULLPTR)
     , m_bDisplayCreated(false)
 {
 
+    m_pRawModel = QSharedPointer<FiffRawModel>::create(QDir::currentPath() + "/MNE-sample-data/MEG/sample/ernoise_raw.fif",
+                                                       m_iSamplesPerBlock,
+                                                       m_iVisibleBlocks,
+                                                       m_iBufferBlocks);
+
+    m_pRawDelegate = QSharedPointer<FiffRawDelegate>::create();
 }
 
 
@@ -167,7 +180,7 @@ void RawDataViewer::handleEvent(QSharedPointer<Event> e)
         m_pSubWindow->resize(800, 600);
         break;
     default:
-        qDebug() << "[RawDataViewer::handleEvent] received an Event that is not handled!";
+        qDebug() << "[RawDataViewer::handleEvent] Received an Event that is not handled by switch cases.";
     }
 }
 
@@ -186,21 +199,20 @@ QVector<EVENT_TYPE> RawDataViewer::getEventSubscriptions(void) const
 void RawDataViewer::createDisplay()
 {
 
-    m_pChannelDisplay = new ChannelViewer();
-    m_pChannelDisplay->setMinimumSize(256, 256);
-    m_pChannelDisplay->setFocusPolicy(Qt::TabFocus);
-    m_pChannelDisplay->setAttribute(Qt::WA_DeleteOnClose, false);
-
+    m_pFiffRawView = new FiffRawView();
+    m_pFiffRawView->setMinimumSize(256, 256);
+    m_pFiffRawView->setFocusPolicy(Qt::TabFocus);
+    m_pFiffRawView->setAttribute(Qt::WA_DeleteOnClose, false);
 
     // we need this since the top-level main window runs "QMdiView::addSubWindow()", which requires a subwindow
     // to be passed (if a non-window would be passed, QMdiView would silently create a new QMidSubWindow )
     m_pSubWindow = new QMdiSubWindow();
-    m_pSubWindow->setWidget(m_pChannelDisplay);
+    m_pSubWindow->setWidget(m_pFiffRawView);
     m_pSubWindow->setWindowTitle(QString("Channel Display"));
     m_pSubWindow->setAttribute(Qt::WA_DeleteOnClose, false);
 
-    // let Qt know that we want the MainViewer maximized
-    //m_pSubWindow->showMaximized();
+    m_pFiffRawView->setModel(m_pRawModel);
+    m_pFiffRawView->setDelegate(m_pRawDelegate);
 
     // remember that the display was built
     m_bDisplayCreated = true;

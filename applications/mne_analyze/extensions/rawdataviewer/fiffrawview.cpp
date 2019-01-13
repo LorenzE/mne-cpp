@@ -42,10 +42,7 @@
 #include "fiffrawview.h"
 
 #include "fiffrawdelegate.h"
-#include <anShared/Model/qentitylistmodel.h>
-
-#include <utils/filterTools/filterdata.h>
-#include <fiff/fiff_info.h>
+#include <anShared/Model/fiffrawmodel.h>
 
 
 //*************************************************************************************************************
@@ -53,10 +50,9 @@
 // Qt INCLUDES
 //=============================================================================================================
 
-#include <QGridLayout>
-#include <QHeaderView>
 #include <QTableView>
-#include <QMenu>
+#include <QVBoxLayout>
+#include <QDebug>
 
 
 //*************************************************************************************************************
@@ -64,9 +60,8 @@
 // USED NAMESPACES
 //=============================================================================================================
 
+using namespace RAWDATAVIEWEREXTENSION;
 using namespace ANSHAREDLIB;
-using namespace UTILSLIB;
-using namespace FIFFLIB;
 
 
 //*************************************************************************************************************
@@ -74,8 +69,39 @@ using namespace FIFFLIB;
 // DEFINE MEMBER METHODS
 //=============================================================================================================
 
-FiffRawView::FiffRawView(QWidget *parent, Qt::WindowFlags f)
-: QWidget(parent, f)
+FiffRawView::FiffRawView(QWidget *parent)
+    : QWidget(parent)
+    , m_pTableView(Q_NULLPTR)
+{
+    m_pTableView = new QTableView;
+
+    //set vertical layout
+    QVBoxLayout *neLayout = new QVBoxLayout(this);
+
+    neLayout->addWidget(m_pTableView);
+
+    //set layouts
+    this->setLayout(neLayout);
+}
+
+
+//*************************************************************************************************************
+
+FiffRawView::~FiffRawView()
 {
 
+}
+
+
+//*************************************************************************************************************
+
+void FiffRawView::setModel(QSharedPointer<FiffRawModel> pModel)
+{
+    m_pTableView->setModel(pModel.data());
+}
+
+
+void FiffRawView::setDelegate(QSharedPointer<FiffRawDelegate>& pDelegate)
+{
+    m_pTableView->setItemDelegate(pDelegate.data());
 }

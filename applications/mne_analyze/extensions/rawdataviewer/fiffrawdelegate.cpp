@@ -47,7 +47,7 @@
 // QT INCLUDES
 //=============================================================================================================
 
-#include <QPainter>
+#include <QDebug>
 
 
 //*************************************************************************************************************
@@ -61,7 +61,7 @@
 // USED NAMESPACES
 //=============================================================================================================
 
-using namespace ANSHAREDLIB;
+using namespace RAWDATAVIEWEREXTENSION;
 
 
 //*************************************************************************************************************
@@ -70,7 +70,7 @@ using namespace ANSHAREDLIB;
 //=============================================================================================================
 
 FiffRawDelegate::FiffRawDelegate(QObject *parent)
-: QAbstractItemDelegate(parent)
+    : QAbstractItemDelegate(parent)
 {
 
 }
@@ -80,8 +80,7 @@ FiffRawDelegate::FiffRawDelegate(QObject *parent)
 
 void FiffRawDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const
 {
-
-
+    // @TODO implement this
 }
 
 
@@ -89,20 +88,5 @@ void FiffRawDelegate::paint(QPainter *painter, const QStyleOptionViewItem &optio
 
 QSize FiffRawDelegate::sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const
 {
-    QSize size;
-
-    switch(index.column()) {
-    case 0:
-        size = QSize(20,option.rect.height());
-        break;
-    case 1:
-        QList< QVector<float> > data = index.model()->data(index).value< QList<QVector<float> > >();
-        // qint32 nsamples = (static_cast<const ChannelDataModel*>(index.model()))->lastSample()-(static_cast<const ChannelDataModel*>(index.model()))->firstSample();
-        // size = QSize(nsamples*m_dDx,m_dPlotHeight);
-        Q_UNUSED(option);
-        break;
-    }
-
-
-    return size;
+    // @TODO implement this
 }

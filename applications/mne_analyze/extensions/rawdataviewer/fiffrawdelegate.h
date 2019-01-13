@@ -42,7 +42,7 @@
 // INCLUDES
 //=============================================================================================================
 
-#include <anShared/anshared_global.h>
+#include "rawdataviewer_global.h"
 
 
 //*************************************************************************************************************
@@ -51,7 +51,6 @@
 //=============================================================================================================
 
 #include <QAbstractItemDelegate>
-#include <QPen>
 
 
 //*************************************************************************************************************
@@ -68,10 +67,10 @@
 
 //*************************************************************************************************************
 //=============================================================================================================
-// DEFINE NAMESPACE ANSHAREDLIB
+// DEFINE NAMESPACE RAWDATAVIEWEREXTENSION
 //=============================================================================================================
 
-namespace ANSHAREDLIB {
+namespace RAWDATAVIEWEREXTENSION {
 
 
 //*************************************************************************************************************
@@ -84,7 +83,7 @@ namespace ANSHAREDLIB {
 /**
 * FiffRawDelegate
 */
-class ANSHAREDSHARED_EXPORT FiffRawDelegate : public QAbstractItemDelegate
+class RAWDATAVIEWERSHARED_EXPORT FiffRawDelegate : public QAbstractItemDelegate
 {
     Q_OBJECT
 public:
@@ -109,7 +108,9 @@ public:
     * @param[in] option     Describes the parameters used to draw an item in a view widget
     * @param[in] index      Used to locate data in a data model.
     */
-    virtual void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const;
+    virtual void paint(QPainter *painter,
+                       const QStyleOptionViewItem &option,
+                       const QModelIndex &index) const override;
 
     //=========================================================================================================
     /**
@@ -118,9 +119,10 @@ public:
     * @param[in] option     Describes the parameters used to draw an item in a view widget
     * @param[in] index      Used to locate data in a data model.
     */
-    virtual QSize sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const;
+    virtual QSize sizeHint(const QStyleOptionViewItem &option,
+                           const QModelIndex &index) const override;
 };
 
-} // NAMESPACE ANSHAREDLIB
+} // NAMESPACE RAWDATAVIEWEREXTENSION
 
 #endif // FIFFRAWDELEGATE_H
