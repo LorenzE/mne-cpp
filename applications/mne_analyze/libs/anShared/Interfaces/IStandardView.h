@@ -70,7 +70,7 @@ namespace ANSHAREDLIB
 /**
 * DECLARE CLASS IStandardView
 *
-* @brief The IStandardView class is the base interface class for the standard view.
+* @brief The IStandardView class allows to specify how this view should be printed. It is the base interface class for the standard view.
 */
 class ANSHAREDSHARED_EXPORT IStandardView : public QWidget
 {

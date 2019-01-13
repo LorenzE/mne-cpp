@@ -93,8 +93,7 @@ Communicator::~Communicator()
 
 void Communicator::publishEvent(EVENT_TYPE etype, const QVariant &data) const
 {
-    // simply wrap in smart pointer and pass on to EventManager
-    // CAUTION this could become a problem as soon as the implementation of the EventManager changes, maybe rework this
+    // simply wrap in smart pointer, fill in the sender pointer, and pass on to EventManager
     EventManager::getEventManager().issueEvent(QSharedPointer<Event>::create(etype, this, data));
 }
 
@@ -105,8 +104,8 @@ void Communicator::updateSubscriptions(const QVector<EVENT_TYPE> &subs)
 {
     // update routing table of event manager
     EventManager::getEventManager().updateSubscriptions(this, subs);
-    // update own subscription list: This HAS to be done after the EventManager::updateSubscriptions,
-    // since the latter uses the old list in order to keep execution time low
+    // update own subscription list: This HAS to be done AFTER the EventManager::updateSubscriptions,
+    // since the latter uses the communicators old list in order to keep execution time low
     m_EventSubscriptions.clear();
     m_EventSubscriptions.append(subs);
 }
@@ -126,9 +125,7 @@ void Communicator::addSubscriptions(const QVector<EVENT_TYPE> &newsubs)
 void Communicator::addSubscriptions(EVENT_TYPE newsub)
 {
     // convenience function, simply wrap in vector
-    QVector<EVENT_TYPE> temp;
-    temp.push_back(newsub);
-    addSubscriptions(temp);
+    addSubscriptions(QVector<EVENT_TYPE>{newsub});
 }
 
 //*************************************************************************************************************

@@ -227,7 +227,7 @@ QVector<EVENT_TYPE> MainViewer::getEventSubscriptions(void) const
 
 void MainViewer::onEntityTreeAdded(QSharedPointer<QEntity> pEntity)
 {
-    // retrieve data from model, extract shared pointer and pass it to view
+    // simply pass on to view
     m_pView->addEntity(pEntity);
     m_pContainer->update();
 }
@@ -299,8 +299,8 @@ void MainViewer::createDisplay()
     m_pContainer->setFocusPolicy(Qt::TabFocus);
     m_pContainer->setAttribute(Qt::WA_DeleteOnClose, false);
 
-    // we need this since the top-level main window runs "QMdiView::addSubWindow()", which requires a subwindow
-    // to be passed (if a non-window would be passed, QMdiView would silently create a new QMidSubWindow )
+    // we need this additional window since the top-level main window runs "QMdiView::addSubWindow()", which requires
+    // a subwindow to be passed (if a non-window widget would be passed, QMdiView would silently create a new QMidSubWindow )
     m_pSubWindow = new QMdiSubWindow();
     m_pSubWindow->setWidget(m_pContainer);
     m_pSubWindow->setWindowTitle(QString("Main Display"));

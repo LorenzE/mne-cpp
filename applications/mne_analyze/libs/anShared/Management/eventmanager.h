@@ -150,7 +150,7 @@ public:
     * @param frequency          The frequency in Hz to start working through all buffered events.
     * @return                   Whether starting was successfull
     */
-    bool startEventHandling(float frequency);
+    bool startEventHandling(float frequency = 25.0f);
 
     //=========================================================================================================
     /**

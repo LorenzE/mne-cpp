@@ -115,7 +115,7 @@ void EventManager::addSubscriptions(Communicator* commu, QVector<EVENT_TYPE> new
 
 void EventManager::updateSubscriptions(Communicator* commu,const QVector<EVENT_TYPE> &subs)
 {
-    // remove old subscriptions from EventManager routing table
+    // remove all old subscriptions from EventManager routing table
     removeCommunicator(commu);
     // add new key-value-pairs into map
     addSubscriptions(commu, subs);
@@ -191,6 +191,7 @@ bool EventManager::hasBufferedEvents()
 
 EventManager& EventManager::getEventManager()
 {
+    // static singleton
     static EventManager em;
     return em;
 }
@@ -237,6 +238,7 @@ void EventManager::run()
             // issue warning
             qDebug() << "[EventManager::run] WARNING ! Running behind on event handling...";
         }
+        // check for shutdown requests
         if (isInterruptionRequested())
         {
             return;

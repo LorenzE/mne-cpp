@@ -138,7 +138,7 @@ void AnalyzeCore::initGlobalData()
 
 void AnalyzeCore::initEventSystem()
 {
-    EventManager::getEventManager().startEventHandling(20.0f);
+    EventManager::getEventManager().startEventHandling();
 }
 
 
@@ -147,7 +147,7 @@ void AnalyzeCore::initEventSystem()
 void AnalyzeCore::initExtensionManager()
 {
     m_pExtensionManager = QSharedPointer<ExtensionManager>::create();
-    m_pExtensionManager->loadExtension(qApp->applicationDirPath() +  extensionsDir);
+    m_pExtensionManager->loadExtensionsFromDirectory(qApp->applicationDirPath() +  extensionsDir);
     m_pExtensionManager->initExtensions(m_analyzeSettings, m_analyzeData);
 }
 

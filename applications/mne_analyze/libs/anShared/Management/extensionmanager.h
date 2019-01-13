@@ -107,7 +107,7 @@ public:
     *
     * @param [in] dir    the plugin directory.
     */
-    void loadExtension(const QString& dir);
+    void loadExtensionsFromDirectory(const QString& dir);
 
     //=========================================================================================================
     /**
