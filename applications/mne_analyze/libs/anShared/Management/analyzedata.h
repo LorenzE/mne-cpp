@@ -122,7 +122,7 @@ public:
     *
     * @return                       Vector of models that have the specified type
     */
-    QVector<QSharedPointer<AbstractModel> > getObjectsOfType(MODEL_TYPE mtype);
+    QVector<QSharedPointer<AbstractModel> > getObjectsOfType(MODEL_TYPE mtype) const;
 
     //=========================================================================================================
     /**
@@ -133,7 +133,7 @@ public:
     *
     * @return                       Pointer to the model
     */
-    QSharedPointer<AbstractModel> getModel(const QString &sName);
+    QSharedPointer<AbstractModel> getModel(const QString &sName) const;
 
     //=========================================================================================================
     /**
@@ -150,8 +150,10 @@ public:
         }
         else
         {
+            // call model constructor with provided path
             QSharedPointer<T> sm = QSharedPointer<T>::create(sPath);
             QSharedPointer<AbstractModel> temp = qSharedPointerCast<AbstractModel>(sm);
+            // add to record, and tell others about the new model
             m_data.insert(sPath, temp);
             emit this->newModelAvailable(temp);
             return sm;
@@ -217,7 +219,7 @@ public:
 
     //=========================================================================================================
     /**
-    * This is a convenience function for retrieving all available "displays", meaning all QEntityListModels
+    * This is a convenience function for retrieving all available 3D-"displays", meaning all QEntityListModels
     * that were registered so far.
     *
     * @return A Vector of QEntityListModels.
@@ -245,7 +247,7 @@ public:
     /**
     * Returns all models.
     */
-    QList<QSharedPointer<AbstractModel>> getModels();
+    QList<QSharedPointer<AbstractModel>> getModels() const;
 
 protected:
 

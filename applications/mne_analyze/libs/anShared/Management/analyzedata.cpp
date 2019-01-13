@@ -87,9 +87,9 @@ AnalyzeData::~AnalyzeData()
 
 //*************************************************************************************************************
 
-QVector<QSharedPointer<AbstractModel> > AnalyzeData::getObjectsOfType(MODEL_TYPE mtype)
+QVector<QSharedPointer<AbstractModel> > AnalyzeData::getObjectsOfType(MODEL_TYPE mtype) const
 {
-    // simply iterate over map, number of objects in memory should be small enough
+    // simply iterate over map, number of objects in memory should be small enough to ensure acceptable execution time
     QVector<QSharedPointer<AbstractModel> > result;
     QHash<QString, QSharedPointer<AbstractModel> >::const_iterator iter = m_data.cbegin();
     for (; iter != m_data.cend(); iter++)
@@ -105,7 +105,7 @@ QVector<QSharedPointer<AbstractModel> > AnalyzeData::getObjectsOfType(MODEL_TYPE
 
 //*************************************************************************************************************
 
-QSharedPointer<AbstractModel> AnalyzeData::getModel(const QString &sName)
+QSharedPointer<AbstractModel> AnalyzeData::getModel(const QString &sName) const
 {
     return m_data.value(sName);
 }
@@ -169,15 +169,10 @@ QSharedPointer<QEntityListModel> AnalyzeData::createQEntityListModel(const QStri
 
 QVector<QSharedPointer<QEntityListModel> > AnalyzeData::availableDisplays() const
 {
-    // similiar to "getObjectOfType"
-    QVector<QSharedPointer<QEntityListModel> > result;
-    QHash<QString, QSharedPointer<AbstractModel> >::const_iterator iter = m_data.cbegin();
-    for (; iter != m_data.cend(); iter++)
-    {
-        if (iter.value()->getType() == MODEL_TYPE::ANSHAREDLIB_QENTITYLIST_MODEL)
-        {
-            result.push_back(qSharedPointerDynamicCast<QEntityListModel>(iter.value()));
-        }
+    auto tempVector = getObjectsOfType(MODEL_TYPE::ANSHAREDLIB_QENTITYLIST_MODEL);
+    QVector<QSharedPointer<QEntityListModel>> result;
+    for (const auto a : tempVector) {
+        result.push_back(qSharedPointerDynamicCast<QEntityListModel>(a));
     }
     return result;
 }
@@ -214,7 +209,7 @@ void AnalyzeData::changeModelPath(const QString &sOldModelPath, const QString &s
 
 //*************************************************************************************************************
 
-QList<QSharedPointer<AbstractModel> > AnalyzeData::getModels()
+QList<QSharedPointer<AbstractModel> > AnalyzeData::getModels() const
 {
     return m_data.values();
 }
