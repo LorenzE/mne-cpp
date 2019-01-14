@@ -133,15 +133,15 @@ public:
 
     //=========================================================================================================
     /**
-    * Resets the model and reads new data from inFile
-    *
+    * Helper function for initialization
     */
     void initFiffData();
 
     //=========================================================================================================
     /**
     * Returns the data stored under the given role for the index.
-    * Currently only Qt::DisplayRole is supported
+    * Currently only Qt::DisplayRole is supported.
+    * Index rows reflect channels, first column is channel names, second is raw data.
     *
     * @param[in] index   The index that referres to the requested item.
     * @param[in] role    The requested role.
@@ -159,6 +159,8 @@ public:
     //=========================================================================================================
     /**
     * Returns the index for the item in the model specified by the given row, column and parent index.
+    * Currently only Qt::DisplayRole is supported.
+    * Index rows reflect channels, first column is channel names, second is raw data.
     *
     * @param[in] row      The specified row.
     * @param[in] column   The specified column.
@@ -201,9 +203,9 @@ public:
 
     //=========================================================================================================
     /**
-    * The type of this model (QEntityListModel)
+    * The type of this model (FiffRawModel)
     *
-    * @return The type of this model (QEntityListModel)
+    * @return The type of this model (FiffRawModel)
     */
     inline MODEL_TYPE getType() const override;
 
@@ -305,16 +307,16 @@ private:
     std::list<QSharedPointer<QPair<MatrixXd, MatrixXd>>> m_lData;    /**< Data */
     std::list<QSharedPointer<QPair<MatrixXd, MatrixXd>>> m_lNewData; /**< Data that is to be appended or prepended */
 
-    qint32 m_iSamplesPerBlock;  /**< Number of samples per block */
-    qint32 m_iVisibleWindowSize;       /**< Number of blocks per window */
-    qint32 m_iPreloadBufferSize;/**< Number of blocks that are preloaded left and right */
-    qint32 m_iTotalBlockCount;  /**< Total block count */
+    // model config
+    qint32 m_iSamplesPerBlock;      /**< Number of samples per block */
+    qint32 m_iVisibleWindowSize;    /**< Number of blocks per window */
+    qint32 m_iPreloadBufferSize;    /**< Number of blocks that are preloaded left and right */
+    qint32 m_iTotalBlockCount;      /**< Total block count ( =  m_iVisibleWindowSize + 2 * m_iPreloadBufferSize) */
 
+    // management
     qint32 m_iFiffCursorBegin;      /**< This always points to the very first sample that is currently held (in the earliest block) */
-    bool m_bStartOfFileReached;
-    bool m_bEndOfFileReached;
-
-    qint32 m_iScrollPosition;       /**< This is the current scroll position of the View */
+    bool m_bStartOfFileReached;     /**< Flag for having reached the start of the file */
+    bool m_bEndOfFileReached;       /**< Flag for having reached the end of the file */
 
     // concurrent reloading
     QFutureWatcher<int> m_blockLoadFutureWatcher;   /**< QFutureWatcher for watching process of reloading fiff data. */
@@ -322,8 +324,7 @@ private:
     mutable QMutex m_dataMutex;                     /**< Using mutable is not a pretty solution */
     QFile m_file;
 
-public:
-     // Fiff
+    // fiff stuff
     QSharedPointer<FIFFLIB::FiffIO> m_pFiffIO;      /**< Fiff IO */
     FIFFLIB::FiffInfo::SPtr m_pFiffInfo;            /**< Fiff info of whole fiff file */
     QList<FIFFLIB::FiffChInfo> m_ChannelInfoList;   /**< List of FiffChInfo objects that holds the corresponding channels information */

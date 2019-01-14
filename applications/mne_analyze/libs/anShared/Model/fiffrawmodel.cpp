@@ -84,7 +84,7 @@ using namespace FIFFLIB;
 FiffRawModel::FiffRawModel(QObject *pParent)
     : AbstractModel(pParent)
 {
-
+    qDebug() << "[FiffRawModel::FiffRawModel] Default constructor called !";
 }
 
 
@@ -103,7 +103,6 @@ FiffRawModel::FiffRawModel(const QString &sFilePath,
       m_iFiffCursorBegin(-1),
       m_bStartOfFileReached(true),
       m_bEndOfFileReached(false),
-      m_iScrollPosition(-1),
       m_blockLoadFutureWatcher(),
       m_bCurrentlyLoading(false),
       m_dataMutex(),
@@ -112,7 +111,7 @@ FiffRawModel::FiffRawModel(const QString &sFilePath,
       m_pFiffInfo(),
       m_ChannelInfoList()
 {
-    // connect data reloading: this is done concurrently
+    // connect data reloading: this will be run concurrently
     connect(&m_blockLoadFutureWatcher,
             &QFutureWatcher<int>::finished,
             [this]() {
@@ -149,9 +148,8 @@ void FiffRawModel::initFiffData()
     // build datastructure that is to be filled with data from the file
     MatrixXd data, times;
     // append a matrix pair for each block
-    for(int i = 0; i < m_iTotalBlockCount; ++i) {
+    for(int i = 0; i < m_iTotalBlockCount; ++i)
         m_lData.push_back(QSharedPointer<QPair<MatrixXd, MatrixXd> >::create(qMakePair(data, times)));
-    }
 
     if(m_pFiffIO->m_qlistRaw.empty()) {
         qDebug() << "[FiffRawModel::loadFiffData] File " << m_file.fileName() << " does not contain any Fiff data";
@@ -298,10 +296,7 @@ void FiffRawModel::updateScrollPosition(qint32 newScrollPosition)
         return;
     }
 
-    m_iScrollPosition = newScrollPosition;
-
-    qint32 targetCursor = m_iScrollPosition;
-
+    qint32 targetCursor = newScrollPosition;
 
     if (targetCursor < m_iFiffCursorBegin + (m_iPreloadBufferSize - 1) * m_iSamplesPerBlock
             && m_bStartOfFileReached == false) {
