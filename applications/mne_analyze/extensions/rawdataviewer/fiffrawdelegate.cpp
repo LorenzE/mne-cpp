@@ -5,7 +5,7 @@
 *           Lars Debor <lars.debor@tu-ilmenau.de>
 *           Matti Hamalainen <msh@nmr.mgh.harvard.edu>
 * @version  1.0
-* @date     May, 2014
+* @date     January, 2019
 *
 * @section  LICENSE
 *

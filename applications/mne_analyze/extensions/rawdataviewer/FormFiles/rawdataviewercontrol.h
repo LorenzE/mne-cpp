@@ -42,6 +42,8 @@
 // INCLUDES
 //=============================================================================================================
 
+#include "rawdataviewer_global.h"
+
 #include <QWidget>
 
 
@@ -61,7 +63,7 @@ namespace Ui {
 *
 * @brief The RawDataViewerControl class provides the extension control.
 */
-class RawDataViewerControl : public QWidget
+class RAWDATAVIEWERSHARED_EXPORT RawDataViewerControl : public QWidget
 {
     Q_OBJECT
 

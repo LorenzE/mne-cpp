@@ -262,7 +262,7 @@ private:
 
     //=========================================================================================================
     /**
-    * This is a helper method thats is meant to correctly the endOfFile / startOfFile flags whenever needed
+    * This is a helper method thats is meant to correctly set the endOfFile / startOfFile flags whenever needed
     */
     void updateEndStartFlags();
 
@@ -406,7 +406,7 @@ private:
     // This prevents that pointers into the Eigen-matrices will become invalid when the background thread returns and changes the matrices.
     std::list<QSharedPointer<QPair<MatrixXd, MatrixXd>>> m_lData;
     qint32 m_iRowNumber;
-    qint32 m_NumSamples;
+    qint64 m_NumSamples;
 
 public:
 

@@ -114,9 +114,9 @@ public:
     */
     virtual ~FiffRawView();
 
-    void setModel(QSharedPointer<ANSHAREDLIB::FiffRawModel> pModel);
+    void setModel(const QSharedPointer<ANSHAREDLIB::FiffRawModel> pModel);
 
-    void setDelegate(QSharedPointer<RAWDATAVIEWEREXTENSION::FiffRawDelegate>& pDelegate);
+    void setDelegate(const QSharedPointer<RAWDATAVIEWEREXTENSION::FiffRawDelegate>& pDelegate);
 
 private:
     QTableView* m_pTableView;

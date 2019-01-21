@@ -171,7 +171,7 @@ QVector<QSharedPointer<QEntityListModel> > AnalyzeData::availableDisplays() cons
 {
     auto tempVector = getObjectsOfType(MODEL_TYPE::ANSHAREDLIB_QENTITYLIST_MODEL);
     QVector<QSharedPointer<QEntityListModel>> result;
-    for (const auto a : tempVector) {
+    for (const auto & a : tempVector) {
         result.push_back(qSharedPointerDynamicCast<QEntityListModel>(a));
     }
     return result;

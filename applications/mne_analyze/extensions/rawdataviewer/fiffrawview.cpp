@@ -89,19 +89,19 @@ FiffRawView::FiffRawView(QWidget *parent)
 
 FiffRawView::~FiffRawView()
 {
-
+    delete m_pTableView;
 }
 
 
 //*************************************************************************************************************
 
-void FiffRawView::setModel(QSharedPointer<FiffRawModel> pModel)
+void FiffRawView::setModel(const QSharedPointer<FiffRawModel> pModel)
 {
     m_pTableView->setModel(pModel.data());
 }
 
 
-void FiffRawView::setDelegate(QSharedPointer<FiffRawDelegate>& pDelegate)
+void FiffRawView::setDelegate(const QSharedPointer<FiffRawDelegate>& pDelegate)
 {
     m_pTableView->setItemDelegate(pDelegate.data());
 }
