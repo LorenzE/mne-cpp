@@ -20,8 +20,9 @@ strategy:
 
 steps:
 - script: |
-  chmod -R 777 ./
-  ./tools/travis/linux_release/before_install.sh
+    chmod -R 777 ./
+    ./tools/travis/linux_release/before_install.sh
+    displayName: 'Install before_install'
 - script: ./tools/travis/linux_release/install.sh
 - script: ./tools/travis/linux_release/before_script.sh
 - script: ./tools/travis/linux_release/script.sh
