@@ -12,18 +12,22 @@ strategy:
       imageName: "ubuntu-16.04"
   maxParallel: 3
 
-steps:
-- script:  ./tools/travis/travis_release/before_install.sh
-  displayName: 'before_install'
-
-- script: ./tools/travis/travis_release/install.sh
-  displayName: 'install'
-
-- script: ./tools/travis/travis_release/before_script.sh
-  displayName: 'before_script'
-
-- script: ./tools/travis/travis_release/script.sh
-  displayName: 'script'
-
-- script: ./tools/travis/travis_release/after_success.sh
-  displayName: 'after_success'
+jobs:
+- job: before_install
+  steps:
+  - script: ./tools/travis/travis_release/before_install.sh
+- job: install
+  dependsOn: before_install
+  steps:
+  - script: ./tools/travis/travis_release/install.sh
+- job: before_script
+  dependsOn: install
+  steps:
+  - script: ./tools/travis/travis_release/before_script.sh
+- job: script
+  dependsOn: before_script
+  script: ./tools/travis/travis_release/script.sh
+- job: after_success
+  dependsOn: script
+  steps:
+  - script: ./tools/travis/travis_release/after_success.sh
