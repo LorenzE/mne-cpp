@@ -35,6 +35,7 @@ jobs:
 
 - job: script
   dependsOn: before_script
+  steps:
   - script: ./tools/travis/linux_release/script.sh
 
 - job: after_success
