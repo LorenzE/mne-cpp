@@ -15,19 +15,19 @@ strategy:
 jobs:
 - job: before_install
   steps:
-  - script: ./tools/travis/travis_release/before_install.sh
+  - script: ./tools/travis/linux_release/before_install.sh
 - job: install
   dependsOn: before_install
   steps:
-  - script: ./tools/travis/travis_release/install.sh
+  - script: ./tools/travis/linux_release/install.sh
 - job: before_script
   dependsOn: install
   steps:
-  - script: ./tools/travis/travis_release/before_script.sh
+  - script: ./tools/travis/linux_release/before_script.sh
 - job: script
   dependsOn: before_script
-  script: ./tools/travis/travis_release/script.sh
+  script: ./tools/travis/linux_release/script.sh
 - job: after_success
   dependsOn: script
   steps:
-  - script: ./tools/travis/travis_release/after_success.sh
+  - script: ./tools/travis/linux_release/after_success.sh
