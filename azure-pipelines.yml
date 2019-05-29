@@ -13,17 +13,17 @@ strategy:
   maxParallel: 3
 
 steps:
-- script:  . tools/travis/travis_release/before_install.sh
+- script:  ./tools/travis/travis_release/before_install.sh
   displayName: 'before_install'
 
-- script: . tools/travis/travis_release/install.sh
+- script: ./tools/travis/travis_release/install.sh
   displayName: 'install'
 
-- script: . tools/travis/travis_release/before_script.sh
+- script: ./tools/travis/travis_release/before_script.sh
   displayName: 'before_script'
 
-- script: . tools/travis/travis_release/script.sh
+- script: ./tools/travis/travis_release/script.sh
   displayName: 'script'
 
-- script: . tools/travis/travis_release/after_success.sh
+- script: ./tools/travis/travis_release/after_success.sh
   displayName: 'after_success'
