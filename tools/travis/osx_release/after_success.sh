@@ -1,6 +1,6 @@
 #!/bin/bash
 
-if [[ "${TRAVIS_PULL_REQUEST}" == "false" ]]; then
+if [[ "${BUILD_REASON}" != "PullRequest" ]]; then
     # === Deployment ===
     TANGIBLES=(mne_scan mne_browse mne_analyze)
     n_elements=${#TANGIBLES[@]}

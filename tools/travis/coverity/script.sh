@@ -1,17 +1,20 @@
 #!/bin/bash
 
 # Modified https://scan.coverity.com/scripts/travisci_build_coverity_scan.sh 
-set -e
-
-# Setup Qt environment
+echo "0"
 source /opt/qt510/bin/qt510-env.sh
 
+echo "1"
+# Setup Qt environment
+set -e
+echo "2"
 # Do not run on pull requests
-if [ $(Build.Reason) != "PullRequest" ]; then
+if [ "$BUILD_REASON" == "PullRequest" ]; then
   echo -e "\033[33;1mINFO: Skipping Coverity Analysis: branch is a pull request.\033[0m"
   exit 0
 fi
 
+echo "3"
 # Defines
 COVERITY_SCAN_PROJECT_NAME="mne-tools/mne-cpp"
 COVERITY_SCAN_NOTIFICATION_EMAIL="christoph.dinh@mne-cpp.org"

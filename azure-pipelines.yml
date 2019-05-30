@@ -23,7 +23,6 @@ strategy:
     coverity:
       imageName: 'ubuntu-16.04'
       buildName: 'coverity'
-      condition: ne(variables['Build.Reason'], 'PullRequest')
     osx_release:
       imageName: 'macos-10.13'
       buildName: 'osx_release'
