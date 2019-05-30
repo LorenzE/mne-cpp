@@ -7,7 +7,7 @@ set -e
 source /opt/qt510/bin/qt510-env.sh
 
 # Do not run on pull requests
-if [ $TRAVIS_PULL_REQUEST != "false" ]; then
+if [ $SYSTEM_PULLREQUEST_PULLREQUESTNUMBER != "false" ]; then
   echo -e "\033[33;1mINFO: Skipping Coverity Analysis: branch is a pull request.\033[0m"
   exit 0
 fi
@@ -35,11 +35,11 @@ UPLOAD_URL="https://scan.coverity.com/builds"
 SCAN_URL="https://scan.coverity.com"
 
 # Verify this branch should run
-IS_COVERITY_SCAN_BRANCH=`ruby -e "puts '${TRAVIS_BRANCH}' =~ /\\A$COVERITY_SCAN_BRANCH_PATTERN\\z/ ? 1 : 0"`
+IS_COVERITY_SCAN_BRANCH=`ruby -e "puts '${BUILD_SOURCEBRANCH}' =~ /\\A$COVERITY_SCAN_BRANCH_PATTERN\\z/ ? 1 : 0"`
 if [ "$IS_COVERITY_SCAN_BRANCH" = "1" ]; then
-  echo -e "\033[33;1mCoverity Scan configured to run on branch ${TRAVIS_BRANCH}\033[0m"
+  echo -e "\033[33;1mCoverity Scan configured to run on branch ${BUILD_SOURCEBRANCH}\033[0m"
 else
-  echo -e "\033[33;1mCoverity Scan NOT configured to run on branch ${TRAVIS_BRANCH}\033[0m"
+  echo -e "\033[33;1mCoverity Scan NOT configured to run on branch ${BUILD_SOURCEBRANCH}\033[0m"
   exit 1
 fi
 
