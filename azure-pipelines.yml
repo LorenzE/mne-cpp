@@ -10,20 +10,25 @@ strategy:
   matrix:
     linux:
       imageName: 'ubuntu-16.04'
+      buildName: 'linux_release'
  #   mac:
  #     imageName: 'macos-10.13'
  #   windows:
 #      imageName: 'vs2017-win2016'
 
-#pool:
- # vmImage: $(imageName)
+pool:
+  vmImage: $(imageName)
 
 steps:
 - script: |
     chmod -R 777 ./tools/travis/
-    ./tools/travis/linux_release/before_install.sh
-  displayName: 'Install before_install'
-- script: ./tools/travis/linux_release/install.sh
-- script: ./tools/travis/linux_release/before_script.sh
-- script: ./tools/travis/linux_release/script.sh
-- script: ./tools/travis/linux_release/after_success.sh
+    ./tools/travis/$(buildName)/before_install.sh
+  displayName: 'before_install'
+- script: ./tools/travis/$(buildName)/install.sh
+  displayName: 'install'
+- script: ./tools/travis/$(buildName)/before_script.sh
+  displayName: 'before_script'
+- script: ./tools/travis/$(buildName)/script.sh
+  displayName: 'script'
+- script: ./tools/travis/$(buildName)/after_success.sh
+  displayName: 'after_success'
