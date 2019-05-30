@@ -7,7 +7,7 @@ set -e
 source /opt/qt510/bin/qt510-env.sh
 
 # Do not run on pull requests
-if [ $SYSTEM_PULLREQUEST_PULLREQUESTNUMBER != "false" ]; then
+if [ $(Build.Reason) != "PullRequest" ]; then
   echo -e "\033[33;1mINFO: Skipping Coverity Analysis: branch is a pull request.\033[0m"
   exit 0
 fi
