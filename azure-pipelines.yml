@@ -11,31 +11,24 @@ strategy:
     linux_release:
       imageName: 'ubuntu-16.04'
       buildName: 'linux_release'
-      displayName: 'Linux Release'
 #    linux_minimal: #Does not work yet since minimal version should work with Qt 5.1 which is not supported in a Azure hosted env.
 #      imageName: 'ubuntu-16.04'
 #      buildName: 'linux_minimal'
-#      displayName: 'Linux Minimal'
     linux_tests:
       imageName: 'ubuntu-16.04'
       buildName: 'linux_tests'
-      displayName: 'Linux Tests'
     documentation:
       imageName: 'ubuntu-16.04'
       buildName: 'documentation'
-      displayName: 'Documentation'
     coverity:
       imageName: 'ubuntu-16.04'
       buildName: 'coverity'
-      displayName: 'coverity'
     osx_release:
       imageName: 'macos-10.13'
       buildName: 'osx_release'
-      displayName: 'OSX Release'
 #    windows_release:
 #      imageName: 'vs2017-win2016'
 #      buildName: 'windows_release'
-#      displayName: 'Windows Release'
 
 pool:
   vmImage: $(imageName)
