@@ -3,6 +3,9 @@
 # Modified https://scan.coverity.com/scripts/travisci_build_coverity_scan.sh 
 set -e
 
+# Setup Qt environment
+source /opt/qt510/bin/qt510-env.sh
+
 # Do not run on pull requests
 if [ $TRAVIS_PULL_REQUEST != "false" ]; then
   echo -e "\033[33;1mINFO: Skipping Coverity Analysis: branch is a pull request.\033[0m"

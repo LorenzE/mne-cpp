@@ -12,10 +12,10 @@ strategy:
       imageName: 'ubuntu-16.04'
       buildName: 'linux_release'
       displayName: 'Linux Release'
-    linux_minimal:
-      imageName: 'ubuntu-16.04'
-      buildName: 'linux_minimal'
-      displayName: 'Linux Minimal'
+#    linux_minimal: #Does not work yet since minimal version should work with Qt 5.1 which is not supported in a Azure hosted env.
+#      imageName: 'ubuntu-16.04'
+#      buildName: 'linux_minimal'
+#      displayName: 'Linux Minimal'
     linux_tests:
       imageName: 'ubuntu-16.04'
       buildName: 'linux_tests'
