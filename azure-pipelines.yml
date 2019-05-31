@@ -7,7 +7,7 @@ trigger:
 - azure_pipeline
 
 jobs:
-- job: linux_release
+- job: linux_release #Currently fails because we still need to set the correct secerets
   pool:
     vmImage: 'ubuntu-16.04'
   steps:
@@ -47,7 +47,7 @@ jobs:
     env:
       COVERITY_SCAN_TOKEN: $(COVERITY_SCAN_TOKEN)
 
-- job: documentation
+- job: documentation  #Currently fails because we still need to set the correct secerets
   pool:
     vmImage: 'ubuntu-16.04'
   steps:
@@ -66,7 +66,7 @@ jobs:
     env:
       COVERITY_SCAN_TOKEN: $(COVERITY_SCAN_TOKEN)
 
-- job: coverity
+- job: coverity #Fails beacuse either project name or token are wrong. this was only tested on lorenze/mne-cpp, which was not completley setup in the web interface. Should work for mne-tools/mne-cpp. Some changes were made to the coverity script.sh.
   pool:
     vmImage: 'ubuntu-16.04'
   steps:
@@ -88,7 +88,7 @@ jobs:
   - script: ./tools/travis/coverity/after_success.sh
     displayName: 'after_success'
 
-- job: linux_minimal #Does not work yet since minimal version should work with Qt 5.1 which is not supported in a Azure hosted env.
+- job: linux_minimal #Does not work yet since minimal version should work with Qt 5.1 which is not supported in a Azure hosted Ubuntu 16.04 (Xenial) version
   pool:
     vmImage: 'ubuntu-16.04'
   steps:
@@ -105,7 +105,7 @@ jobs:
   - script: ./tools/travis/linux_minimal/after_success.sh
     displayName: 'after_success'
 
-- job: osx_release
+- job: osx_release  #Currently fails because we still need to set the correct secerets
   pool:
     vmImage: 'macos-10.13'
   steps:
@@ -126,7 +126,7 @@ jobs:
       MASTER_PASSWORD: $(MASTER_PASSWORD)
       REMOTE_SERVER: $(REMOTE_SERVER)
 
-- job: windows_release
+- job: windows_release #Does not work because we are not able to install QT in headless (huge dowload for every build). Azure Win env do not ship with Qt versions. Also, we need to adapt secrets and add curl upload of the artifacts.
   pool:
     vmImage: 'vs2017-win2016'
   steps:
@@ -141,7 +141,7 @@ jobs:
   - script: tools\appveyor\windows_release\test.bat
     displayName: 'test'
 
-- job: windows_test
+- job: windows_test #Does not work because we are not able to install QT in headless (huge dowload for every build). Azure Win env do not ship with Qt versions. Also, we need to adapt secrets and add curl upload of the artifacts.
   pool:
     vmImage: 'vs2017-win2016'
   steps:
