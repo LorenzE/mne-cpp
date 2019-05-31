@@ -6,49 +6,110 @@
 trigger:
 - azure_pipeline
 
-strategy:
-  matrix:
-    linux_release:
-      imageName: 'ubuntu-16.04'
-      buildName: 'linux_release'
+jobs:
+- job: linux_release
+  pool:
+    vmImage: 'ubuntu-16.04'
+  steps:
+  - script: |
+      chmod -R 777 ./tools/travis/
+      ./tools/travis/linux_release/before_install.sh
+    displayName: 'before_install'
+  - script: ./tools/travis/linux_release/install.sh
+    displayName: 'install'
+  - script: ./tools/travis/linux_release/before_script.sh
+    displayName: 'before_script'
+  - script: ./tools/travis/linux_release/script.sh
+    displayName: 'script' 
+  - script: ./tools/travis/linux_release/after_success.sh
+    displayName: 'after_success'
+    env:
+      MASTER_LOGIN: $(MASTER_LOGIN)
+      MASTER_PASSWORD: $(MASTER_PASSWORD)
+      REMOTE_SERVER: $(REMOTE_SERVER)
+
+- job: linux_tests
+  pool:
+    vmImage: 'ubuntu-16.04'
+  steps:
+  - script: |
+      chmod -R 777 ./tools/travis/
+      ./tools/travis/linux_tests/before_install.sh
+    displayName: 'before_install'
+  - script: ./tools/travis/linux_tests/install.sh
+    displayName: 'install'
+  - script: ./tools/travis/linux_tests/before_script.sh
+    displayName: 'before_script'
+  - script: ./tools/travis/linux_tests/script.sh
+    displayName: 'script' 
+  - script: ./tools/travis/linux_tests/after_success.sh
+    displayName: 'after_success'
+    env:
+      COVERITY_SCAN_TOKEN: $(COVERITY_SCAN_TOKEN)
+
+- job: documentation
+  pool:
+    vmImage: 'ubuntu-16.04'
+  steps:
+  - script: |
+      chmod -R 777 ./tools/travis/
+      ./tools/travis/documentation/before_install.sh
+    displayName: 'before_install'
+  - script: ./tools/travis/documentation/install.sh
+    displayName: 'install'
+  - script: ./tools/travis/documentation/before_script.sh
+    displayName: 'before_script'
+  - script: ./tools/travis/documentation/script.sh
+    displayName: 'script' 
+  - script: ./tools/travis/documentation/after_success.sh
+    displayName: 'after_success'
+    env:
+      COVERITY_SCAN_TOKEN: $(COVERITY_SCAN_TOKEN)
+
+- job: coverity
+  pool:
+    vmImage: 'ubuntu-16.04'
+  steps:
+  - task: UseRubyVersion@0
+    inputs:
+      addToPath: true
+  - script: |
+      chmod -R 777 ./tools/travis/
+      ./tools/travis/coverity/before_install.sh
+    displayName: 'before_install'
+  - script: ./tools/travis/coverity/install.sh
+    displayName: 'install'
+  - script: ./tools/travis/coverity/before_script.sh
+    displayName: 'before_script'
+  - script: ./tools/travis/coverity/script.sh
+    displayName: 'script' 
+    env:
+      COVERITY_SCAN_TOKEN: $(COVERITY_SCAN_TOKEN)
+  - script: ./tools/travis/coverity/after_success.sh
+    displayName: 'after_success'
+
+- job: osx_release
+  pool:
+    vmImage: 'macos-10.13'
+  steps:
+  - script: ./tools/travis/osx_release/before_install.sh
+    displayName: 'before_install'
+  - script: ./tools/travis/osx_release/install.sh
+    displayName: 'install'
+  - script: ./tools/travis/osx_release/before_script.sh
+    displayName: 'before_script'
+  - script: ./tools/travis/osx_release/script.sh
+    displayName: 'script' 
+  - script: ./tools/travis/osx_release/after_success.sh
+    displayName: 'after_success'
+    env:
+      COVERITY_SCAN_TOKEN: $(COVERITY_SCAN_TOKEN)
+
 #    linux_minimal: #Does not work yet since minimal version should work with Qt 5.1 which is not supported in a Azure hosted env.
 #      imageName: 'ubuntu-16.04'
 #      buildName: 'linux_minimal'
-    linux_tests:
-      imageName: 'ubuntu-16.04'
-      buildName: 'linux_tests'
-    documentation:
-      imageName: 'ubuntu-16.04'
-      buildName: 'documentation'
-    coverity:
-      imageName: 'ubuntu-16.04'
-      buildName: 'coverity'
-    osx_release:
-      imageName: 'macos-10.13'
-      buildName: 'osx_release'
+
 #    windows_release:
+#    pool:
+#      vmImage: $(imageName)
 #      imageName: 'vs2017-win2016'
-#      buildName: 'windows_release'
-
-pool:
-  vmImage: $(imageName)
-
-steps:
-- task: UseRubyVersion@0
-  inputs:
-    #versionSpec: '>= 2.4' 
-    addToPath: true # Optional
-- script: |
-    chmod -R 777 ./tools/travis/
-    ./tools/travis/$(buildName)/before_install.sh
-  displayName: 'before_install'
-- script: ./tools/travis/$(buildName)/install.sh
-  displayName: 'install'
-- script: ./tools/travis/$(buildName)/before_script.sh
-  displayName: 'before_script'
-- script: ./tools/travis/$(buildName)/script.sh
-  displayName: 'script' 
-  env:
-    COVERITY_SCAN_TOKEN: $(COVERITY_SCAN_TOKEN)
-- script: ./tools/travis/$(buildName)/after_success.sh
-  displayName: 'after_success'

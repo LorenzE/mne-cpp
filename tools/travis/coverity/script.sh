@@ -35,11 +35,11 @@ UPLOAD_URL="https://scan.coverity.com/builds"
 SCAN_URL="https://scan.coverity.com"
 
 # Verify this branch should run
-IS_COVERITY_SCAN_BRANCH=`ruby -e "puts '${BUILD_SOURCEBRANCH}' =~ /\\A$COVERITY_SCAN_BRANCH_PATTERN\\z/ ? 1 : 0"`
+IS_COVERITY_SCAN_BRANCH=`ruby -e "puts '${BUILD_SOURCEBRANCH##*/}' =~ /\\A$COVERITY_SCAN_BRANCH_PATTERN\\z/ ? 1 : 0"`
 if [ "$IS_COVERITY_SCAN_BRANCH" = "1" ]; then
-  echo -e "\033[33;1mCoverity Scan configured to run on branch ${BUILD_SOURCEBRANCH}\033[0m"
+  echo -e "\033[33;1mCoverity Scan configured to run on branch ${BUILD_SOURCEBRANCH##*/}\033[0m"
 else
-  echo -e "\033[33;1mCoverity Scan NOT configured to run on branch ${BUILD_SOURCEBRANCH}\033[0m"
+  echo -e "\033[33;1mCoverity Scan NOT configured to run on branch ${BUILD_SOURCEBRANCH##*/}\033[0m"
   exit 1
 fi
 
@@ -100,7 +100,7 @@ response=$(curl \
   --form email=$COVERITY_SCAN_NOTIFICATION_EMAIL \
   --form file=@$RESULTS_ARCHIVE \
   --form version=$SHA \
-  --form description="Travis CI build" \
+  --form description="Azure Pipeline build" \
   $UPLOAD_URL)
 status_code=$(echo "$response" | sed -n '$p')
 
