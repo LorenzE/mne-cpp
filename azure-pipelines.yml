@@ -88,11 +88,30 @@ jobs:
   - script: ./tools/travis/coverity/after_success.sh
     displayName: 'after_success'
 
+- job: linux_minimal #Does not work yet since minimal version should work with Qt 5.1 which is not supported in a Azure hosted env.
+  pool:
+    vmImage: 'ubuntu-16.04'
+  steps:
+  - script: |
+      chmod -R 777 ./tools/travis/
+      ./tools/travis/linux_minimal/before_install.sh
+    displayName: 'before_install'
+  - script: ./tools/travis/linux_minimal/install.sh
+    displayName: 'install'
+  - script: ./tools/travis/linux_minimal/before_script.sh
+    displayName: 'before_script'
+  - script: ./tools/travis/linux_minimal/script.sh
+    displayName: 'script' 
+  - script: ./tools/travis/linux_minimal/after_success.sh
+    displayName: 'after_success'
+
 - job: osx_release
   pool:
     vmImage: 'macos-10.13'
   steps:
-  - script: ./tools/travis/osx_release/before_install.sh
+  - script: |
+      chmod -R 777 ./tools/travis/
+      ./tools/travis/osx_release/before_install.sh
     displayName: 'before_install'
   - script: ./tools/travis/osx_release/install.sh
     displayName: 'install'
@@ -103,13 +122,36 @@ jobs:
   - script: ./tools/travis/osx_release/after_success.sh
     displayName: 'after_success'
     env:
-      COVERITY_SCAN_TOKEN: $(COVERITY_SCAN_TOKEN)
+      MASTER_LOGIN: $(MASTER_LOGIN)
+      MASTER_PASSWORD: $(MASTER_PASSWORD)
+      REMOTE_SERVER: $(REMOTE_SERVER)
 
-#    linux_minimal: #Does not work yet since minimal version should work with Qt 5.1 which is not supported in a Azure hosted env.
-#      imageName: 'ubuntu-16.04'
-#      buildName: 'linux_minimal'
+- job: windows_release
+  pool:
+    vmImage: 'vs2017-win2016'
+  steps:
+  - script: tools\appveyor\windows_release\before_build.bat
+    displayName: 'before_build'
+  - script: tools\appveyor\windows_release\build.bat
+    displayName: 'build'
+  - script: tools\appveyor\windows_release\after_build.bat
+    displayName: 'after_build'
+  - script: tools\appveyor\windows_release\before_test.bat
+    displayName: 'before_test' 
+  - script: tools\appveyor\windows_release\test.bat
+    displayName: 'test'
 
-#    windows_release:
-#    pool:
-#      vmImage: $(imageName)
-#      imageName: 'vs2017-win2016'
+- job: windows_test
+  pool:
+    vmImage: 'vs2017-win2016'
+  steps:
+  - script: tools\appveyor\windows_test\before_build.bat
+    displayName: 'before_build'
+  - script: tools\appveyor\windows_test\build.bat
+    displayName: 'build'
+  - script: tools\appveyor\windows_test\after_build.bat
+    displayName: 'after_build'
+  - script: tools\appveyor\windows_test\before_test.bat
+    displayName: 'before_test' 
+  - script: tools\appveyor\windows_test\test.bat
+    displayName: 'test'
