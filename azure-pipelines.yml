@@ -34,6 +34,10 @@ pool:
   vmImage: $(imageName)
 
 steps:
+- task: UseRubyVersion@0
+  inputs:
+    #versionSpec: '>= 2.4' 
+    addToPath: true # Optional
 - script: |
     chmod -R 777 ./tools/travis/
     ./tools/travis/$(buildName)/before_install.sh
@@ -43,6 +47,8 @@ steps:
 - script: ./tools/travis/$(buildName)/before_script.sh
   displayName: 'before_script'
 - script: ./tools/travis/$(buildName)/script.sh
-  displayName: 'script'
+  displayName: 'script' 
+  env:
+    COVERITY_SCAN_TOKEN: $(COVERITY_SCAN_TOKEN)
 - script: ./tools/travis/$(buildName)/after_success.sh
   displayName: 'after_success'
