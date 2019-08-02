@@ -154,7 +154,7 @@ MNEEpochDataList MNEEpochDataList::readEpochs(const FiffRawData& raw,
             epoch->tmin = tmin;
             epoch->tmax = tmax;
 
-            epoch->bReject = checkForArtifact(epoch->epoch,
+            epoch->bReject = checkForArtifact(epoch->epoch.block(0,fabs(tmin)*raw.info.sfreq,epoch->epoch.rows(),epoch->epoch.cols()-fabs(tmin)*raw.info.sfreq),
                                               raw.info,
                                               mapReject,
                                               lExcludeChs);

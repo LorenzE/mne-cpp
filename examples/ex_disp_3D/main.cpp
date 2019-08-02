@@ -87,6 +87,40 @@ using namespace INVERSELIB;
 // MAIN
 //=============================================================================================================
 
+#include <QGuiApplication>
+
+#include <Qt3DCore/QEntity>
+#include <Qt3DRender/QCamera>
+#include <Qt3DRender/QCameraLens>
+#include <Qt3DCore/QTransform>
+#include <Qt3DCore/QAspectEngine>
+
+#include <Qt3DInput/QInputAspect>
+
+#include <Qt3DRender/QRenderAspect>
+#include <Qt3DExtras/QForwardRenderer>
+#include <Qt3DExtras/QPhongMaterial>
+#include <Qt3DExtras/QCylinderMesh>
+#include <Qt3DExtras/QSphereMesh>
+#include <Qt3DExtras/QTorusMesh>
+#include <Qt3DRender/QRenderSettings>
+#include <Qt3DExtras/QOrbitCameraController>
+
+#include <QPropertyAnimation>
+
+#include <QObjectPicker>
+#include <QPickEvent>
+
+#include <disp3D/engine/model/3dhelpers/renderable3Dentity.h>
+#include <disp3D/engine/model/items/common/abstract3Dtreeitem.h>
+#include <disp3D/engine/model/items/common/abstractmeshtreeitem.h>
+
+#include <disp3D/engine/view/view3D.h>
+#include <disp3D/engine/model/materials/pervertexphongalphamaterial.h>
+
+using namespace Qt3DRender;
+using namespace DISP3DLIB;
+
 
 //=============================================================================================================
 /**
@@ -103,246 +137,306 @@ int main(int argc, char *argv[])
     Q_INIT_RESOURCE(disp3d);
     #endif
 
-    QApplication a(argc, argv);
+    QGuiApplication app(argc, argv);
+    //Qt3DExtras::Qt3DWindow view;
+    //view.renderSettings()->pickingSettings()->setPickMethod(Qt3DRender::QPickingSettings::TrianglePicking);
+    //Qt3DCore::QEntity *rootEntity = new Qt3DCore::QEntity;
+    //view.setRootEntity(rootEntity);
 
-    // Command Line Parser
-    QCommandLineParser parser;
-    parser.setApplicationDescription("Disp3D Example");
-    parser.addHelpOption();
+    View3D view;
 
-    QCommandLineOption surfOption("surfType", "Surface type <type>.", "type", "pial");
-    QCommandLineOption annotOption("annotType", "Annotation type <type>.", "type", "aparc.a2009s");
-    QCommandLineOption hemiOption("hemi", "Selected hemisphere <hemi>.", "hemi", "2");
-    QCommandLineOption subjectOption("subject", "Selected subject <subject>.", "subject", "sample");
-    QCommandLineOption subjectPathOption("subjectPath", "Selected subject path <subjectPath>.", "subjectPath", QCoreApplication::applicationDirPath() + "/MNE-sample-data/subjects");
-    QCommandLineOption sourceLocOption("doSourceLoc", "Do real time source localization.", "doSourceLoc", "true");
-    QCommandLineOption fwdOption("fwd", "Path to forwad solution <file>.", "file", QCoreApplication::applicationDirPath() + "/MNE-sample-data/MEG/sample/sample_audvis-meg-eeg-oct-6-fwd.fif");
-    QCommandLineOption invOpOption("inv", "Path to inverse operator <file>.", "file", "");
-    QCommandLineOption clustOption("doClust", "Path to clustered inverse operator <doClust>.", "doClust", "true");
-    QCommandLineOption covFileOption("cov", "Path to the covariance <file>.", "file", QCoreApplication::applicationDirPath() + "/MNE-sample-data/MEG/sample/sample_audvis-cov.fif");
-    QCommandLineOption evokedFileOption("ave", "Path to the evoked/average <file>.", "file", QCoreApplication::applicationDirPath() + "/MNE-sample-data/MEG/sample/sample_audvis-ave.fif");
-    QCommandLineOption methodOption("method", "Inverse estimation <method>, i.e., 'MNE', 'dSPM' or 'sLORETA'.", "method", "dSPM");//"MNE" | "dSPM" | "sLORETA"
-    QCommandLineOption snrOption("snr", "The SNR value used for computation <snr>.", "snr", "3.0");//3.0;//0.1;//3.0;
-    QCommandLineOption evokedIndexOption("aveIdx", "The average <index> to choose from the average file.", "index", "3");
+    // Root entity
 
-    parser.addOption(surfOption);
-    parser.addOption(annotOption);
-    parser.addOption(hemiOption);
-    parser.addOption(subjectOption);
-    parser.addOption(subjectPathOption);
-    parser.addOption(sourceLocOption);
-    parser.addOption(fwdOption);
-    parser.addOption(invOpOption);
-    parser.addOption(clustOption);
-    parser.addOption(covFileOption);
-    parser.addOption(evokedFileOption);
-    parser.addOption(methodOption);
-    parser.addOption(snrOption);
-    parser.addOption(evokedIndexOption);
-    parser.process(a);
+    AbstractMeshTreeItem* pHandler = new AbstractMeshTreeItem(view.m_p3DObjectsEntity);
 
-    bool bAddRtSourceLoc = false;
-    if(parser.value(sourceLocOption) == "false" || parser.value(sourceLocOption) == "0") {
-        bAddRtSourceLoc = false;
-    } else if(parser.value(sourceLocOption) == "true" || parser.value(sourceLocOption) == "1") {
-        bAddRtSourceLoc = true;
-    }
+    // Sphere 1
+    PerVertexPhongAlphaMaterial* material = new PerVertexPhongAlphaMaterial(false, pHandler);
+    Qt3DCore::QEntity *sphereEntity = new Qt3DCore::QEntity(pHandler);
+    Qt3DExtras::QSphereMesh *sphereMesh = new Qt3DExtras::QSphereMesh;
+    sphereMesh->setRadius(3);
 
-    bool bDoClustering = false;
-    if(parser.value(clustOption) == "false" || parser.value(clustOption) == "0") {
-        bDoClustering = false;
-    } else if(parser.value(clustOption) == "true" || parser.value(clustOption) == "1") {
-        bDoClustering = true;
-    }
+    Qt3DCore::QTransform transform;
+    transform.setTranslation(QVector3D(-5,0,-0.5));
 
-    //Inits
-    SurfaceSet tSurfSet (parser.value(subjectOption), parser.value(hemiOption).toInt(), parser.value(surfOption), parser.value(subjectPathOption));
-    AnnotationSet tAnnotSet (parser.value(subjectOption), parser.value(hemiOption).toInt(), parser.value(annotOption), parser.value(subjectPathOption));
+    sphereEntity->addComponent(&transform);
+    sphereEntity->addComponent(sphereMesh);
+    //sphereEntity->addComponent(picker);
+    sphereEntity->addComponent(material);
 
-    QFile t_fileFwd(parser.value(fwdOption));
-    MNEForwardSolution t_Fwd(t_fileFwd);
-    MNEForwardSolution t_clusteredFwd;
 
-    QString t_sFileClusteredInverse(parser.value(invOpOption));
+    // Sphere 2
+    PerVertexPhongAlphaMaterial* materiala = new PerVertexPhongAlphaMaterial(false, pHandler);
+    Qt3DCore::QEntity *sphereEntitya = new Qt3DCore::QEntity(pHandler);
+    Qt3DExtras::QSphereMesh *sphereMesha = new Qt3DExtras::QSphereMesh;
+    sphereMesh->setRadius(3);
 
-    QFile t_fileCov(parser.value(covFileOption));
-    QFile t_fileEvoked(parser.value(evokedFileOption));
+    Qt3DCore::QTransform transform1;
+    transform1.setTranslation(QVector3D(5,0,0.5));
 
-    //########################################################################################
-    //
-    // Source Estimate START
-    //
-    //########################################################################################
+    sphereEntitya->addComponent(&transform1);
+    sphereEntitya->addComponent(sphereMesha);
+    //sphereEntitya->addComponent(picker);
+    sphereEntitya->addComponent(materiala);
 
-    // Load data
-    QPair<QVariant, QVariant> baseline(QVariant(), 0);
-    MNESourceEstimate sourceEstimate;
-    FiffEvoked evoked(t_fileEvoked, parser.value(evokedIndexOption).toInt(), baseline);
 
-    if(bAddRtSourceLoc) {
-        double snr = parser.value(snrOption).toDouble();
-        double lambda2 = 1.0 / pow(snr, 2);
-        QString method(parser.value(methodOption));
+    // Camera
+    Qt3DRender::QCamera *camera = view.camera();
+    camera->lens()->setPerspectiveProjection(45.0f, 16.0f/9.0f, 0.1f, 1000.0f);
+    camera->setPosition(QVector3D(0, 0, 40.0f));
+    camera->setViewCenter(QVector3D(0, 0, 0));
 
-        // Load data
-        t_fileEvoked.close();
-        if(evoked.isEmpty())
-            return 1;
 
-        std::cout << std::endl;
-        std::cout << "Evoked description: " << evoked.comment.toUtf8().constData() << std::endl;
+//    // For camera controls
+//    Qt3DExtras::QOrbitCameraController *camController = new Qt3DExtras::QOrbitCameraController(rootEntity);
+//    camController->setLinearSpeed( 50.0f );
+//    camController->setLookSpeed( 180.0f );
+//    camController->setCamera(camera);
 
-        if(t_Fwd.isEmpty())
-            return 1;
 
-        FiffCov noise_cov(t_fileCov);
+    view.show();
 
-        // regularize noise covariance
-        noise_cov = noise_cov.regularize(evoked.info, 0.05, 0.05, 0.1, true);
+    return app.exec();
 
-        //
-        // Cluster forward solution;
-        //
-        if(bDoClustering) {
-            t_clusteredFwd = t_Fwd.cluster_forward_solution(tAnnotSet, 40);
-        } else {
-            t_clusteredFwd = t_Fwd;
-        }
+//    QApplication a(argc, argv);
 
-        //
-        // make an inverse operators
-        //
-        FiffInfo info = evoked.info;
+//    // Command Line Parser
+//    QCommandLineParser parser;
+//    parser.setApplicationDescription("Disp3D Example");
+//    parser.addHelpOption();
 
-        MNEInverseOperator inverse_operator(info, t_clusteredFwd, noise_cov, 0.2f, 0.8f);
+//    QCommandLineOption surfOption("surfType", "Surface type <type>.", "type", "pial");
+//    QCommandLineOption annotOption("annotType", "Annotation type <type>.", "type", "aparc.a2009s");
+//    QCommandLineOption hemiOption("hemi", "Selected hemisphere <hemi>.", "hemi", "2");
+//    QCommandLineOption subjectOption("subject", "Selected subject <subject>.", "subject", "sample");
+//    QCommandLineOption subjectPathOption("subjectPath", "Selected subject path <subjectPath>.", "subjectPath", QCoreApplication::applicationDirPath() + "/MNE-sample-data/subjects");
+//    QCommandLineOption sourceLocOption("doSourceLoc", "Do real time source localization.", "doSourceLoc", "false");
+//    QCommandLineOption fwdOption("fwd", "Path to forwad solution <file>.", "file", QCoreApplication::applicationDirPath() + "/MNE-sample-data/MEG/sample/sample_audvis-meg-eeg-oct-6-fwd.fif");
+//    QCommandLineOption invOpOption("inv", "Path to inverse operator <file>.", "file", "");
+//    QCommandLineOption clustOption("doClust", "Path to clustered inverse operator <doClust>.", "doClust", "true");
+//    QCommandLineOption covFileOption("cov", "Path to the covariance <file>.", "file", QCoreApplication::applicationDirPath() + "/MNE-sample-data/MEG/sample/sample_audvis-cov.fif");
+//    QCommandLineOption evokedFileOption("ave", "Path to the evoked/average <file>.", "file", QCoreApplication::applicationDirPath() + "/MNE-sample-data/MEG/sample/sample_audvis-ave.fif");
+//    QCommandLineOption methodOption("method", "Inverse estimation <method>, i.e., 'MNE', 'dSPM' or 'sLORETA'.", "method", "dSPM");//"MNE" | "dSPM" | "sLORETA"
+//    QCommandLineOption snrOption("snr", "The SNR value used for computation <snr>.", "snr", "3.0");//3.0;//0.1;//3.0;
+//    QCommandLineOption evokedIndexOption("aveIdx", "The average <index> to choose from the average file.", "index", "3");
 
-        if(!t_sFileClusteredInverse.isEmpty())
-        {
-            QFile t_fileClusteredInverse(t_sFileClusteredInverse);
-            inverse_operator.write(t_fileClusteredInverse);
-        }
+//    parser.addOption(surfOption);
+//    parser.addOption(annotOption);
+//    parser.addOption(hemiOption);
+//    parser.addOption(subjectOption);
+//    parser.addOption(subjectPathOption);
+//    parser.addOption(sourceLocOption);
+//    parser.addOption(fwdOption);
+//    parser.addOption(invOpOption);
+//    parser.addOption(clustOption);
+//    parser.addOption(covFileOption);
+//    parser.addOption(evokedFileOption);
+//    parser.addOption(methodOption);
+//    parser.addOption(snrOption);
+//    parser.addOption(evokedIndexOption);
+//    parser.process(a);
 
-        //
-        // Compute inverse solution
-        //
-        MinimumNorm minimumNorm(inverse_operator, lambda2, method);
-        sourceEstimate = minimumNorm.calculateInverse(evoked);
+//    bool bAddRtSourceLoc = false;
+//    if(parser.value(sourceLocOption) == "false" || parser.value(sourceLocOption) == "0") {
+//        bAddRtSourceLoc = false;
+//    } else if(parser.value(sourceLocOption) == "true" || parser.value(sourceLocOption) == "1") {
+//        bAddRtSourceLoc = true;
+//    }
 
-        if(sourceEstimate.isEmpty())
-            return 1;
+//    bool bDoClustering = false;
+//    if(parser.value(clustOption) == "false" || parser.value(clustOption) == "0") {
+//        bDoClustering = false;
+//    } else if(parser.value(clustOption) == "true" || parser.value(clustOption) == "1") {
+//        bDoClustering = true;
+//    }
 
-        // View activation time-series
-        std::cout << "\nsourceEstimate:\n" << sourceEstimate.data.block(0,0,10,10) << std::endl;
-        std::cout << "time\n" << sourceEstimate.times.block(0,0,1,10) << std::endl;
-        std::cout << "timeMin\n" << sourceEstimate.times[0] << std::endl;
-        std::cout << "timeMax\n" << sourceEstimate.times[sourceEstimate.times.size()-1] << std::endl;
-        std::cout << "time step\n" << sourceEstimate.tstep << std::endl;
-    }
+//    //Inits
+//    SurfaceSet tSurfSet (parser.value(subjectOption), parser.value(hemiOption).toInt(), parser.value(surfOption), parser.value(subjectPathOption));
+//    AnnotationSet tAnnotSet (parser.value(subjectOption), parser.value(hemiOption).toInt(), parser.value(annotOption), parser.value(subjectPathOption));
 
-    //########################################################################################
-    //
-    //Source Estimate END
-    //
-    //########################################################################################
+//    QFile t_fileFwd(parser.value(fwdOption));
+//    MNEForwardSolution t_Fwd(t_fileFwd);
+//    MNEForwardSolution t_clusteredFwd;
 
-    //Create 3D data model
-    AbstractView::SPtr p3DAbstractView = AbstractView::SPtr(new AbstractView());
-    Data3DTreeModel::SPtr p3DDataModel = p3DAbstractView->getTreeModel();
+//    QString t_sFileClusteredInverse(parser.value(invOpOption));
 
-    //Add fressurfer surface set including both hemispheres
-    p3DDataModel->addSurfaceSet(parser.value(subjectOption),
-                                "MRI",
-                                tSurfSet,
-                                tAnnotSet);
+//    QFile t_fileCov(parser.value(covFileOption));
+//    QFile t_fileEvoked(parser.value(evokedFileOption));
 
-    //Read and show BEM
-    QFile t_fileBem(QCoreApplication::applicationDirPath() + "/MNE-sample-data/subjects/sample/bem/sample-5120-5120-5120-bem.fif");
-    MNEBem t_Bem(t_fileBem);
-    p3DDataModel->addBemData(parser.value(subjectOption), "BEM", t_Bem);
+//    //########################################################################################
+//    //
+//    // Source Estimate START
+//    //
+//    //########################################################################################
 
-    //Read and show sensor helmets
-    QFile t_filesensorSurfaceVV(QCoreApplication::applicationDirPath() + "/resources/general/sensorSurfaces/306m_rt.fif");
-    MNEBem t_sensorSurfaceVV(t_filesensorSurfaceVV);
-    p3DDataModel->addMegSensorInfo("Sensors", "VectorView", evoked.info.chs, t_sensorSurfaceVV, evoked.info.bads);
+//    // Load data
+//    QPair<QVariant, QVariant> baseline(QVariant(), 0);
+//    MNESourceEstimate sourceEstimate;
+//    FiffEvoked evoked(t_fileEvoked, parser.value(evokedIndexOption).toInt(), baseline);
 
-    // Read, co-register and show digitizer points
-    QFile t_fileDig(QCoreApplication::applicationDirPath() + "/MNE-sample-data/MEG/sample/sample_audvis-ave.fif");
-    FiffDigPointSet t_Dig(t_fileDig);
+//    if(bAddRtSourceLoc) {
+//        double snr = parser.value(snrOption).toDouble();
+//        double lambda2 = 1.0 / pow(snr, 2);
+//        QString method(parser.value(methodOption));
 
-    QFile coordTransfile(QCoreApplication::applicationDirPath() + "/MNE-sample-data/MEG/sample/all-trans.fif");
-    FiffCoordTrans coordTrans(coordTransfile);
+//        // Load data
+//        t_fileEvoked.close();
+//        if(evoked.isEmpty())
+//            return 1;
 
-    DigitizerSetTreeItem* pDigitizerSetTreeItem = p3DDataModel->addDigitizerData(parser.value(subjectOption), evoked.comment, t_Dig);
-    pDigitizerSetTreeItem->applyTransform(coordTrans, true);
+//        std::cout << std::endl;
+//        std::cout << "Evoked description: " << evoked.comment.toUtf8().constData() << std::endl;
 
-    //add sensor item for MEG data
-    if (SensorDataTreeItem* pMegSensorTreeItem = p3DDataModel->addSensorData(parser.value(subjectOption),
-                                                                             evoked.comment,
-                                                                             evoked.data,
-                                                                             t_sensorSurfaceVV[0],
-                                                                             evoked.info,
-                                                                             "MEG")) {
-        pMegSensorTreeItem->setLoopState(true);
-        pMegSensorTreeItem->setTimeInterval(17);
-        pMegSensorTreeItem->setNumberAverages(1);
-        pMegSensorTreeItem->setStreamingState(false);
-        pMegSensorTreeItem->setThresholds(QVector3D(0.0f, 3e-12f*0.5f, 3e-12f));
-        pMegSensorTreeItem->setColormapType("Jet");
-        pMegSensorTreeItem->setSFreq(evoked.info.sfreq);
-    }
+//        if(t_Fwd.isEmpty())
+//            return 1;
 
-    //add sensor item for EEG data
+//        FiffCov noise_cov(t_fileCov);
 
-    //Co-Register EEG points in order to correctly map them to the scalp
-    for(int i = 0; i < evoked.info.chs.size(); ++i) {
-        if(evoked.info.chs.at(i).kind == FIFFV_EEG_CH) {
-            Vector4f tempvec;
-            tempvec(0) = evoked.info.chs.at(i).chpos.r0(0);
-            tempvec(1) = evoked.info.chs.at(i).chpos.r0(1);
-            tempvec(2) = evoked.info.chs.at(i).chpos.r0(2);
-            tempvec(3) = 1;
-            tempvec = coordTrans.invtrans * tempvec;
-            evoked.info.chs[i].chpos.r0(0) = tempvec(0);
-            evoked.info.chs[i].chpos.r0(1) = tempvec(1);
-            evoked.info.chs[i].chpos.r0(2) = tempvec(2);
-        }
-    }
+//        // regularize noise covariance
+//        noise_cov = noise_cov.regularize(evoked.info, 0.05, 0.05, 0.1, true);
 
-    if (SensorDataTreeItem* pEegSensorTreeItem = p3DDataModel->addSensorData(parser.value(subjectOption),
-                                                                             evoked.comment,
-                                                                             evoked.data,
-                                                                             t_Bem[0],
-                                                                             evoked.info,
-                                                                             "EEG")) {
-        pEegSensorTreeItem->setLoopState(true);
-        pEegSensorTreeItem->setTimeInterval(17);
-        pEegSensorTreeItem->setNumberAverages(1);
-        pEegSensorTreeItem->setStreamingState(false);
-        pEegSensorTreeItem->setThresholds(QVector3D(0.0f, 6.0e-6f*0.5f, 6.0e-6f));
-        pEegSensorTreeItem->setColormapType("Jet");
-        pEegSensorTreeItem->setSFreq(evoked.info.sfreq);
-    }
+//        //
+//        // Cluster forward solution;
+//        //
+//        if(bDoClustering) {
+//            t_clusteredFwd = t_Fwd.cluster_forward_solution(tAnnotSet, 40);
+//        } else {
+//            t_clusteredFwd = t_Fwd;
+//        }
 
-    if(bAddRtSourceLoc) {
-        //Add rt source loc data and init some visualization values
-        if(MneDataTreeItem* pRTDataItem = p3DDataModel->addSourceData(parser.value(subjectOption),
-                                                                      evoked.comment,
-                                                                      sourceEstimate,
-                                                                      t_clusteredFwd,
-                                                                      tSurfSet,
-                                                                      tAnnotSet)) {
-        pRTDataItem->setLoopState(true);
-            pRTDataItem->setTimeInterval(17);
-            pRTDataItem->setNumberAverages(1);
-            pRTDataItem->setAlpha(1.0);
-            pRTDataItem->setStreamingState(false);
-            pRTDataItem->setThresholds(QVector3D(0.0f,0.5f,10.0f));
-            pRTDataItem->setVisualizationType("Annotation based");
-            pRTDataItem->setColormapType("Jet");
-        }
-    }
+//        //
+//        // make an inverse operators
+//        //
+//        FiffInfo info = evoked.info;
 
-    p3DAbstractView->show();
+//        MNEInverseOperator inverse_operator(info, t_clusteredFwd, noise_cov, 0.2f, 0.8f);
 
-    return a.exec();
+//        if(!t_sFileClusteredInverse.isEmpty())
+//        {
+//            QFile t_fileClusteredInverse(t_sFileClusteredInverse);
+//            inverse_operator.write(t_fileClusteredInverse);
+//        }
+
+//        //
+//        // Compute inverse solution
+//        //
+//        MinimumNorm minimumNorm(inverse_operator, lambda2, method);
+//        sourceEstimate = minimumNorm.calculateInverse(evoked);
+
+//        if(sourceEstimate.isEmpty())
+//            return 1;
+
+//        // View activation time-series
+//        std::cout << "\nsourceEstimate:\n" << sourceEstimate.data.block(0,0,10,10) << std::endl;
+//        std::cout << "time\n" << sourceEstimate.times.block(0,0,1,10) << std::endl;
+//        std::cout << "timeMin\n" << sourceEstimate.times[0] << std::endl;
+//        std::cout << "timeMax\n" << sourceEstimate.times[sourceEstimate.times.size()-1] << std::endl;
+//        std::cout << "time step\n" << sourceEstimate.tstep << std::endl;
+//    }
+
+//    //########################################################################################
+//    //
+//    //Source Estimate END
+//    //
+//    //########################################################################################
+
+//    //Create 3D data model
+//    AbstractView::SPtr p3DAbstractView = AbstractView::SPtr(new AbstractView());
+//    Data3DTreeModel::SPtr p3DDataModel = p3DAbstractView->getTreeModel();
+
+////    //Add fressurfer surface set including both hemispheres
+////    p3DDataModel->addSurfaceSet(parser.value(subjectOption),
+////                                "MRI",
+////                                tSurfSet,
+////                                tAnnotSet);
+
+////    //Read and show BEM
+////    QFile t_fileBem(QCoreApplication::applicationDirPath() + "/MNE-sample-data/subjects/sample/bem/sample-5120-5120-5120-bem.fif");
+////    MNEBem t_Bem(t_fileBem);
+////    p3DDataModel->addBemData(parser.value(subjectOption), "BEM", t_Bem);
+
+//    //Read and show sensor helmets
+//    QFile t_filesensorSurfaceVV(QCoreApplication::applicationDirPath() + "/resources/general/sensorSurfaces/306m_rt.fif");
+//    MNEBem t_sensorSurfaceVV(t_filesensorSurfaceVV);
+//    p3DDataModel->addMegSensorInfo("Sensors", "VectorView", evoked.info.chs, t_sensorSurfaceVV, evoked.info.bads);
+
+////    // Read, co-register and show digitizer points
+////    QFile t_fileDig(QCoreApplication::applicationDirPath() + "/MNE-sample-data/MEG/sample/sample_audvis-ave.fif");
+////    FiffDigPointSet t_Dig(t_fileDig);
+
+////    QFile coordTransfile(QCoreApplication::applicationDirPath() + "/MNE-sample-data/MEG/sample/all-trans.fif");
+////    FiffCoordTrans coordTrans(coordTransfile);
+
+////    DigitizerSetTreeItem* pDigitizerSetTreeItem = p3DDataModel->addDigitizerData(parser.value(subjectOption), evoked.comment, t_Dig);
+////    pDigitizerSetTreeItem->applyTransform(coordTrans, true);
+
+////    //add sensor item for MEG data
+////    if (SensorDataTreeItem* pMegSensorTreeItem = p3DDataModel->addSensorData(parser.value(subjectOption),
+////                                                                             evoked.comment,
+////                                                                             evoked.data,
+////                                                                             t_sensorSurfaceVV[0],
+////                                                                             evoked.info,
+////                                                                             "MEG")) {
+////        pMegSensorTreeItem->setLoopState(true);
+////        pMegSensorTreeItem->setTimeInterval(17);
+////        pMegSensorTreeItem->setNumberAverages(1);
+////        pMegSensorTreeItem->setStreamingState(false);
+////        pMegSensorTreeItem->setThresholds(QVector3D(0.0f, 3e-12f*0.5f, 3e-12f));
+////        pMegSensorTreeItem->setColormapType("Jet");
+////        pMegSensorTreeItem->setSFreq(evoked.info.sfreq);
+////    }
+
+////    //add sensor item for EEG data
+
+////    //Co-Register EEG points in order to correctly map them to the scalp
+////    for(int i = 0; i < evoked.info.chs.size(); ++i) {
+////        if(evoked.info.chs.at(i).kind == FIFFV_EEG_CH) {
+////            Vector4f tempvec;
+////            tempvec(0) = evoked.info.chs.at(i).chpos.r0(0);
+////            tempvec(1) = evoked.info.chs.at(i).chpos.r0(1);
+////            tempvec(2) = evoked.info.chs.at(i).chpos.r0(2);
+////            tempvec(3) = 1;
+////            tempvec = coordTrans.invtrans * tempvec;
+////            evoked.info.chs[i].chpos.r0(0) = tempvec(0);
+////            evoked.info.chs[i].chpos.r0(1) = tempvec(1);
+////            evoked.info.chs[i].chpos.r0(2) = tempvec(2);
+////        }
+////    }
+
+////    if (SensorDataTreeItem* pEegSensorTreeItem = p3DDataModel->addSensorData(parser.value(subjectOption),
+////                                                                             evoked.comment,
+////                                                                             evoked.data,
+////                                                                             t_Bem[0],
+////                                                                             evoked.info,
+////                                                                             "EEG")) {
+////        pEegSensorTreeItem->setLoopState(true);
+////        pEegSensorTreeItem->setTimeInterval(17);
+////        pEegSensorTreeItem->setNumberAverages(1);
+////        pEegSensorTreeItem->setStreamingState(false);
+////        pEegSensorTreeItem->setThresholds(QVector3D(0.0f, 6.0e-6f*0.5f, 6.0e-6f));
+////        pEegSensorTreeItem->setColormapType("Jet");
+////        pEegSensorTreeItem->setSFreq(evoked.info.sfreq);
+////    }
+
+////    if(bAddRtSourceLoc) {
+////        //Add rt source loc data and init some visualization values
+////        if(MneDataTreeItem* pRTDataItem = p3DDataModel->addSourceData(parser.value(subjectOption),
+////                                                                      evoked.comment,
+////                                                                      sourceEstimate,
+////                                                                      t_clusteredFwd,
+////                                                                      tSurfSet,
+////                                                                      tAnnotSet)) {
+////        pRTDataItem->setLoopState(true);
+////            pRTDataItem->setTimeInterval(17);
+////            pRTDataItem->setNumberAverages(1);
+////            pRTDataItem->setAlpha(1.0);
+////            pRTDataItem->setStreamingState(false);
+////            pRTDataItem->setThresholds(QVector3D(0.0f,0.5f,10.0f));
+////            pRTDataItem->setVisualizationType("Annotation based");
+////            pRTDataItem->setColormapType("Jet");
+////        }
+////    }
+
+//    p3DAbstractView->show();
+
+//    return a.exec();
 }

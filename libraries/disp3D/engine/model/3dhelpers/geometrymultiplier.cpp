@@ -83,7 +83,7 @@ using namespace Qt3DRender;
 //=============================================================================================================
 
 GeometryMultiplier::GeometryMultiplier(QSharedPointer<Qt3DRender::QGeometry> tGeometry,
-                                         Qt3DCore::QNode *tParent)
+                                       Qt3DCore::QNode *tParent)
 : QGeometryRenderer(tParent)
 , m_pGeometry(tGeometry)
 , m_pTransformBuffer(new Qt3DRender::QBuffer(Qt3DRender::QBuffer::VertexBuffer))

@@ -193,7 +193,8 @@ public:
     * @param[in] loose              float in [0, 1]. Value that weights the source variances of the dipole components defining the tangent space of the cortical surfaces.
     * @param[in] depth              float in [0, 1]. Depth weighting coefficients. If None, no depth weighting is performed.
     * @param[in] fixed              Use fixed source orientations normal to the cortical mantle. If True, the loose parameter is ignored.
-    * @param[in] limit_depth_chs    If True, use only grad channels in depth weighting (equivalent to MNE C code). If grad chanels aren't present, only mag channels will be used (if no mag, then eeg). If False, use all channels.
+    * @param[in] limit_depth_chs    If True, use only grad channels in depth weighting (equivalent to MNE C code).
+    *                               If grad chanels aren't present, only mag channels will be used (if no mag, then eeg). If False, use all channels.
     */
     MNEInverseOperator(const FiffInfo &info,
                        const MNEForwardSolution& forward,

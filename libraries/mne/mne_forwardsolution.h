@@ -203,7 +203,7 @@ public:
     /**
     * Constructs a forward operator, by reading from a IO device.
     *
-    * @param[in] p_IODevice     IO device to read from the forward operator.
+    * @param[in] p_IODevice    IO device to read from the forward operator.
     * @param[in] force_fixed   Force fixed source orientation mode? (optional)
     * @param[in] surf_ori      Use surface based source coordinate system? (optional)
     * @param[in] include       Include these channels (optional)

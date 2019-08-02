@@ -54,8 +54,11 @@
 
 #include <QMatrix4x4>
 #include <Qt3DExtras/QCuboidGeometry>
+#include <Qt3DExtras/QCuboidMesh>
 #include <Qt3DCore/QEntity>
 #include <Qt3DExtras/QSphereGeometry>
+#include <Qt3DCore/QTransform>
+#include <Qt3DExtras/QPhongMaterial>
 
 
 //*************************************************************************************************************
@@ -122,41 +125,25 @@ void SensorPositionTreeItem::plotMEGSensors(const QList<FIFFLIB::FiffChInfo>& lC
     }
 
     if(!m_pMEGSensorEntity) {
-        m_pMEGSensorEntity = new QEntity(this);
+        m_pMEGSensorEntity = new Renderable3DEntity(this);
     }
 
-    //create geometry
-    if(!m_pMEGSensors) {
-        if(!m_pMEGSensorGeometry) {
-            m_pMEGSensorGeometry = QSharedPointer<Qt3DExtras::QCuboidGeometry>::create();
-            m_pMEGSensorGeometry->setXExtent(0.01f);
-            m_pMEGSensorGeometry->setYExtent(0.01f);
-            m_pMEGSensorGeometry->setZExtent(0.001f);
-        }
-
-        m_pMEGSensors = new GeometryMultiplier(m_pMEGSensorGeometry);
-
-        m_pMEGSensorEntity->addComponent(m_pMEGSensors);
-
-        //Add material
-        GeometryMultiplierMaterial* pMaterial = new GeometryMultiplierMaterial(false);
-        pMaterial->setAmbient(QColor(100,100,100));
-        pMaterial->setAlpha(0.75);
-        m_pMEGSensorEntity->addComponent(pMaterial);
-    }
-
-    //Create transform matrix for each cuboid instance
-    QVector<QMatrix4x4> vTransforms;
-    vTransforms.reserve(lChInfo.size());
-    QVector<QColor> vColorsNodes;
-    QVector3D tempPos;
 
     for(int i = 0; i < lChInfo.size(); ++i) {
+        Renderable3DEntity* pTempMEGSensorEntity = new Renderable3DEntity(m_pMEGSensorEntity);
+        Qt3DExtras::QCuboidMesh* pMEGSensorGeometry =  new Qt3DExtras::QCuboidMesh();
+        pMEGSensorGeometry->setXExtent(0.01f);
+        pMEGSensorGeometry->setYExtent(0.01f);
+        pMEGSensorGeometry->setZExtent(0.01f);
+        pTempMEGSensorEntity->addComponent(pMEGSensorGeometry);
+
         QMatrix4x4 tempTransform;
+        QVector3D tempPos;
 
         tempPos.setX(lChInfo[i].chpos.r0(0));
         tempPos.setY(lChInfo[i].chpos.r0(1));
         tempPos.setZ(lChInfo[i].chpos.r0(2));
+
         //Set position
         tempTransform.translate(tempPos);
 
@@ -167,20 +154,71 @@ void SensorPositionTreeItem::plotMEGSensors(const QList<FIFFLIB::FiffChInfo>& lC
             tempTransform(j, 2) = lChInfo[i].coil_trans.row(j)(2);
         }
 
-        if(!vTransforms.contains(tempTransform)) {
-            vTransforms.push_back(tempTransform);
-        }
+        Qt3DCore::QTransform transform;
+        transform.setMatrix(tempTransform);
+        pTempMEGSensorEntity->setTransform(transform);
 
-        if(bads.contains(lChInfo.at(i).ch_name)) {
-            vColorsNodes.push_back(QColor(255,0,0));
-        } else {
-            vColorsNodes.push_back(QColor(100,100,100));
-        }
+        Qt3DExtras::QPhongMaterial *torusMaterial = new Qt3DExtras::QPhongMaterial();
+        torusMaterial->setDiffuse(QColor(QRgb(0xbeb32b)));
+        pTempMEGSensorEntity->addComponent(torusMaterial);
     }
 
-    //Set instance Transform
-    m_pMEGSensors->setTransforms(vTransforms);
-    m_pMEGSensors->setColors(vColorsNodes);
+//    //create geometry
+//    if(!m_pMEGSensors) {
+//        if(!m_pMEGSensorGeometry) {
+//            m_pMEGSensorGeometry = QSharedPointer<Qt3DExtras::QCuboidGeometry>::create();
+//            m_pMEGSensorGeometry->setXExtent(0.01f);
+//            m_pMEGSensorGeometry->setYExtent(0.01f);
+//            m_pMEGSensorGeometry->setZExtent(0.001f);
+//        }
+
+//        m_pMEGSensors = new GeometryMultiplier(m_pMEGSensorGeometry);
+
+//        m_pMEGSensorEntity->addComponent(m_pMEGSensors);
+
+//        //Add material
+//        GeometryMultiplierMaterial* pMaterial = new GeometryMultiplierMaterial(false);
+//        pMaterial->setAmbient(QColor(100,100,100));
+//        pMaterial->setAlpha(0.75);
+//        m_pMEGSensorEntity->addComponent(pMaterial);
+//    }
+
+//    //Create transform matrix for each cuboid instance
+//    QVector<QMatrix4x4> vTransforms;
+//    vTransforms.reserve(lChInfo.size());
+//    QVector<QColor> vColorsNodes;
+//    QVector3D tempPos;
+
+//    for(int i = 0; i < lChInfo.size(); ++i) {
+//        QMatrix4x4 tempTransform;
+
+//        tempPos.setX(lChInfo[i].chpos.r0(0));
+//        tempPos.setY(lChInfo[i].chpos.r0(1));
+//        tempPos.setZ(lChInfo[i].chpos.r0(2));
+//        //Set position
+//        tempTransform.translate(tempPos);
+
+//        //Set orientation
+//        for(int j = 0; j < 4; ++j) {
+//            tempTransform(j, 0) = lChInfo[i].coil_trans.row(j)(0);
+//            tempTransform(j, 1) = lChInfo[i].coil_trans.row(j)(1);
+//            tempTransform(j, 2) = lChInfo[i].coil_trans.row(j)(2);
+//        }
+
+//        if(!vTransforms.contains(tempTransform)) {
+//            vTransforms.push_back(tempTransform);
+//        }
+
+//        if(bads.contains(lChInfo.at(i).ch_name)) {
+//            vColorsNodes.push_back(QColor(255,0,0));
+//        } else {
+//            vColorsNodes.push_back(QColor(100,100,100));
+//        }
+//    }
+
+//    //Set instance Transform
+//    m_pMEGSensors->setTransforms(vTransforms);
+//    m_pMEGSensors->setColors(vColorsNodes);
 
     //Update colors in color item
     QList<QStandardItem*> items = this->findChildren(MetaTreeItemTypes::Color);

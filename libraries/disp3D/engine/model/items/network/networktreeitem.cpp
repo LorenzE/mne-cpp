@@ -65,6 +65,8 @@
 #include <Qt3DExtras/QSphereGeometry>
 #include <Qt3DExtras/QCylinderGeometry>
 #include <Qt3DCore/QTransform>
+#include <QObjectPicker>
+#include <QPickEvent>
 
 
 //*************************************************************************************************************
@@ -85,6 +87,7 @@ using namespace MNELIB;
 using namespace DISP3DLIB;
 using namespace CONNECTIVITYLIB;
 using namespace DISPLIB;
+using namespace Qt3DRender;
 
 
 //*************************************************************************************************************
@@ -248,6 +251,14 @@ void NetworkTreeItem::onColormapTypeChanged(const QVariant& sColormapType)
 
         plotNetwork(tNetwork);
     }
+}
+
+
+//*************************************************************************************************************
+
+void NetworkTreeItem::onClicked(Qt3DRender::QPickEvent *pick)
+{
+    //qDebug() << "NetworkTreeItem::onClicked";
 }
 
 

@@ -71,6 +71,9 @@
 #include <Qt3DRender/QEffect>
 #include <Qt3DRender/QParameter>
 
+#include <QObjectPicker>
+#include <QPickEvent>
+
 
 //*************************************************************************************************************
 //=============================================================================================================
@@ -96,6 +99,18 @@ Renderable3DEntity::Renderable3DEntity(Qt3DCore::QEntity* parent)
 , m_fRotY(0.0f)
 , m_fRotZ(0.0f)
 {
+
+    QObjectPicker* picker = new QObjectPicker();
+    connect(picker, &QObjectPicker::clicked,
+            this, &Renderable3DEntity::onClicked);
+    this->addComponent(picker);
+}
+
+//*************************************************************************************************************
+
+void Renderable3DEntity::onClicked(Qt3DRender::QPickEvent *pick)
+{
+    qDebug() << "FsSurfaceTreeItem::onClicked";
 }
 
 
