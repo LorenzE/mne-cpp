@@ -247,6 +247,18 @@ public:
                                            const MNESourceSpace &sourceSpace,
                                            const QString &sMode = "mean") const;
 
+    //=========================================================================================================
+    /**
+    * Returns the time courses of each label and its including sources.
+    *
+    * @param[in] lPickedLabels      The labels base the selection on.
+    * @param[in] bIsClustered       Whether the source space was clustered.
+    * @param[in] sMode              Method used to extract the signals. Valid methods are: 'mean' and 'max'
+    *
+    * @return the time courses in form of a matrix sources x signal. The order of the sources is the same as in the input label list.
+    */
+    Eigen::MatrixXd extractLabelTimeCourse(const QList<FSLIB::Label> &lPickedLabels, bool bIsClustered, const QString &sMode = "mean") const;
+
 public:
     Eigen::MatrixXd data;           /**< Matrix of shape [n_dipoles x n_times] which contains the data in source space. */
     Eigen::VectorXi vertices;       /**< The indices of the dipoles in the different source spaces. */ //ToDo define is_clustered_result; in clustered case vertices holds the ROI idcs
