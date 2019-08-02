@@ -99,7 +99,7 @@ View3D::View3D()
 
     //FrameGraph
     m_pFrameGraph = new CustomFrameGraph();
-    m_pFrameGraph->setClearColor(QColor::fromRgbF(0.0, 0.0, 0.0, 1.0));
+    m_pFrameGraph->setClearColor(QColor::fromRgbF(1.0, 1.0, 1.0, 1.0));
     this->setActiveFrameGraph(m_pFrameGraph);
 
     //Only render new frames when needed
@@ -119,6 +119,8 @@ View3D::View3D()
 
     createCoordSystem(m_pRootEntity);
     toggleCoordAxis(false);
+
+    //this->renderSettings()->pickingSettings()->setPickMethod(Qt3DRender::QPickingSettings::PointPicking);
 }
 
 
@@ -152,12 +154,12 @@ void View3D::initLight()
         m_lLightSources.append(pPointLight);
 
         //Uncomment the following to visualize the light sources for debugging:
-//        Qt3DExtras::QSphereMesh* lightSphere = new Qt3DExtras::QSphereMesh(pLightEntity);
-//        lightSphere->setRadius(0.1f);
-//        pLightEntity->addComponent(lightSphere);
-//        Qt3DExtras::QPhongMaterial* material = new Qt3DExtras::QPhongMaterial(pLightEntity);
-//        material->setAmbient(lightColor);
-//        pLightEntity->addComponent(material);
+        Qt3DExtras::QSphereMesh* lightSphere = new Qt3DExtras::QSphereMesh(pLightEntity);
+        lightSphere->setRadius(0.1f);
+        pLightEntity->addComponent(lightSphere);
+        Qt3DExtras::QPhongMaterial* material = new Qt3DExtras::QPhongMaterial(pLightEntity);
+        material->setAmbient(lightColor);
+        pLightEntity->addComponent(material);
     }
 }
 

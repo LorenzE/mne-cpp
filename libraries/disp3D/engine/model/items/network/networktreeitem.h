@@ -80,6 +80,10 @@ namespace Qt3DCore {
     class QEntity;
 }
 
+namespace Qt3DRender {
+    class QPickEvent;
+}
+
 namespace Qt3DExtras {
     class QCylinderGeometry;
     class QSphereGeometry;
@@ -176,6 +180,8 @@ private:
     * @param[in] sColormapType     The name of the new colormap type.
     */
     void onColormapTypeChanged(const QVariant& sColormapType);
+
+    void onClicked(Qt3DRender::QPickEvent *pick);
 
     //=========================================================================================================
     /**

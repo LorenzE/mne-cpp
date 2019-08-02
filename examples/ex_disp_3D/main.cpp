@@ -87,6 +87,40 @@ using namespace INVERSELIB;
 // MAIN
 //=============================================================================================================
 
+#include <QGuiApplication>
+
+#include <Qt3DCore/QEntity>
+#include <Qt3DRender/QCamera>
+#include <Qt3DRender/QCameraLens>
+#include <Qt3DCore/QTransform>
+#include <Qt3DCore/QAspectEngine>
+
+#include <Qt3DInput/QInputAspect>
+
+#include <Qt3DRender/QRenderAspect>
+#include <Qt3DExtras/QForwardRenderer>
+#include <Qt3DExtras/QPhongMaterial>
+#include <Qt3DExtras/QCylinderMesh>
+#include <Qt3DExtras/QSphereMesh>
+#include <Qt3DExtras/QTorusMesh>
+#include <Qt3DRender/QRenderSettings>
+#include <Qt3DExtras/QOrbitCameraController>
+
+#include <QPropertyAnimation>
+
+#include <QObjectPicker>
+#include <QPickEvent>
+
+#include <disp3D/engine/model/3dhelpers/renderable3Dentity.h>
+#include <disp3D/engine/model/items/common/abstract3Dtreeitem.h>
+#include <disp3D/engine/model/items/common/abstractmeshtreeitem.h>
+
+#include <disp3D/engine/view/view3D.h>
+#include <disp3D/engine/model/materials/pervertexphongalphamaterial.h>
+
+using namespace Qt3DRender;
+using namespace DISP3DLIB;
+
 
 //=============================================================================================================
 /**
@@ -100,10 +134,13 @@ using namespace INVERSELIB;
 int main(int argc, char *argv[])
 {
 <<<<<<< HEAD
+<<<<<<< HEAD
     #ifdef STATICLIB
     Q_INIT_RESOURCE(disp3d);
     #endif
 
+=======
+>>>>>>> work on 3d picking
     QGuiApplication app(argc, argv);
     //Qt3DExtras::Qt3DWindow view;
     //view.renderSettings()->pickingSettings()->setPickMethod(Qt3DRender::QPickingSettings::TrianglePicking);
@@ -406,6 +443,7 @@ int main(int argc, char *argv[])
 //    p3DAbstractView->show();
 
 //    return a.exec();
+<<<<<<< HEAD
 =======
     QApplication a(argc, argv);
 
@@ -650,4 +688,6 @@ int main(int argc, char *argv[])
 
     return a.exec();
 >>>>>>> Revert picking work and keep work on epochs class
+=======
+>>>>>>> work on 3d picking
 }
