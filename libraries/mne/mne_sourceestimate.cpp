@@ -127,7 +127,7 @@ void MNESourceEstimate::clear()
 
 //*************************************************************************************************************
 
-MNESourceEstimate MNESourceEstimate::reduce(qint32 start, qint32 n)
+MNESourceEstimate MNESourceEstimate::reduce(qint32 start, qint32 n) const
 {
     MNESourceEstimate p_sourceEstimateReduced;
 
@@ -142,6 +142,18 @@ MNESourceEstimate MNESourceEstimate::reduce(qint32 start, qint32 n)
     p_sourceEstimateReduced.tstep = this->tstep;
 
     return p_sourceEstimateReduced;
+}
+
+
+//*************************************************************************************************************
+
+void MNESourceEstimate::reduceInPlace(qint32 start, qint32 n)
+{
+    qint32 rows = this->data.rows();
+
+    this->data = this->data.block(0, start, rows, n).eval();
+    this->times = this->times.block(0,start,1,n).eval();
+    this->tmin = this->times(0);
 }
 
 
@@ -304,21 +316,32 @@ VectorXi MNESourceEstimate::getIndicesByLabel(const QList<Label> &lPickedLabels,
     }
 
     if(bIsClustered) {
+        int hemi = 0;
+
         for(int i = 0; i < this->vertices.rows(); i++) {
+            // Detect left right hemi separation
+            if(i > 0 && hemi == 0){
+                if(this->vertices(i) == this->vertices(0)){
+                    hemi = 1;
+                }
+            }
+
             for(int k = 0; k < lPickedLabels.size(); k++) {
-                if(this->vertices(i) == lPickedLabels.at(k).label_id) {
+                if(this->vertices(i) == lPickedLabels.at(k).label_id && lPickedLabels.at(k).hemi == hemi) {
                     vIndexSourceLabels.conservativeResize(vIndexSourceLabels.rows()+1,1);
                     vIndexSourceLabels(vIndexSourceLabels.rows()-1) = i;
+
                     break;
                 }
             }
         }
     } else {
         int hemi = 0;
+        bool bFound = false;
 
         for(int i = 0; i < this->vertices.rows(); i++) {
             // Detect left right hemi separation
-            if(i > 0){
+            if(i > 0 && hemi == 0){
                 if(this->vertices(i) < this->vertices(i-1)){
                     hemi = 1;
                 }
@@ -329,12 +352,119 @@ VectorXi MNESourceEstimate::getIndicesByLabel(const QList<Label> &lPickedLabels,
                     if(this->vertices(i) == lPickedLabels.at(k).vertices(l) && lPickedLabels.at(k).hemi == hemi) {
                         vIndexSourceLabels.conservativeResize(vIndexSourceLabels.rows()+1,1);
                         vIndexSourceLabels(vIndexSourceLabels.rows()-1) = i;
+
+                        l = lPickedLabels.at(k).vertices.rows();
+                        k = lPickedLabels.size();
+
+                        bFound = true;
                         break;
                     }
+                }
+
+                if(bFound) {
+                    bFound = false;
+                    break;
                 }
             }
         }
     }
 
     return vIndexSourceLabels;
+}
+
+
+//*************************************************************************************************************
+#include <iostream>
+MatrixXd MNESourceEstimate::extractLabelTimeCourse(const QList<FSLIB::Label> &lPickedLabels, bool bIsClustered, const QString& sMode) const
+{
+    MatrixXd matData;
+
+    if(lPickedLabels.isEmpty()) {
+        qWarning() << "MNESourceEstimate::extractLabelTimeCourse - picked label list is empty. Returning.";
+        return  matData;
+    }
+
+    matData.resize(lPickedLabels.size(), this->data.cols());
+    matData.setZero();
+
+    VectorXi lLabelCounter = VectorXi::Zero(lPickedLabels.size());
+    int hemi = 0;
+
+    if(bIsClustered) {
+        for(int i = 0; i < this->vertices.rows(); i++) {
+            // Detect left right hemi separation
+            if(i > 0 && hemi == 0){
+                if(this->vertices(i) == this->vertices(0)){
+                    hemi = 1;
+                }
+            }
+
+            for(int k = 0; k < lPickedLabels.size(); k++) {
+                if(lPickedLabels.at(k).hemi == hemi) {
+                    if(this->vertices(i) == lPickedLabels.at(k).label_id) {
+                        if(sMode.contains("Mean",Qt::CaseInsensitive)) {
+                            matData.row(k) += this->data.row(i);
+                            lLabelCounter(k)++;
+                        } else if(sMode.contains("Max",Qt::CaseInsensitive)) {
+                            if(this->data.row(i).cwiseAbs().maxCoeff() > matData.row(k).cwiseAbs().maxCoeff()) {
+                                matData.row(k) = this->data.row(i);
+                            }
+                        }
+
+                        break;
+                    }
+                }
+            }
+        }
+
+        if(sMode.contains("Mean", Qt::CaseInsensitive)) {
+            for(int i = 0; i < matData.rows(); i++) {
+                matData.row(i) /= lLabelCounter(i);
+            }
+        }
+    } else {
+        bool bFound = false;
+
+        for(int i = 0; i < this->vertices.rows(); i++) {
+            // Detect left right hemi separation
+            if(i > 0 && hemi == 0){
+                if(this->vertices(i) < this->vertices(i-1)){
+                    hemi = 1;
+                }
+            }
+
+            for(int k = 0; k < lPickedLabels.size(); k++) {
+                if(lPickedLabels.at(k).hemi == hemi) {
+                    for(int l = 0; l < lPickedLabels.at(k).vertices.rows(); l++) {
+                        if(this->vertices(i) == lPickedLabels.at(k).vertices(l)) {
+                            if(sMode.contains("Mean",Qt::CaseInsensitive)) {
+                                matData.row(k) += this->data.row(i);
+                                lLabelCounter(k)++;
+                            } else if(sMode.contains("Max",Qt::CaseInsensitive)) {
+                                if(this->data.row(i).cwiseAbs().maxCoeff() > matData.row(k).cwiseAbs().maxCoeff()) {
+                                    matData.row(k) = this->data.row(i);
+                                }
+                            }
+
+                            bFound = true;
+                            break;
+                        }
+                    }
+
+                    if(bFound) {
+                        bFound = false;
+                        break;
+                    }
+                }
+            }
+        }
+
+        if(sMode.contains("Mean", Qt::CaseInsensitive)) {
+            for(int i = 0; i < matData.rows(); i++) {
+                matData.row(i) /= lLabelCounter(i);
+            }
+        }
+    }
+
+    return matData;
 }

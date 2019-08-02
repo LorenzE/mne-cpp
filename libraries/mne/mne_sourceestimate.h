@@ -144,7 +144,16 @@ public:
     * @param[in] start  The start index to cut the estimate from.
     * @param[in] n      Number of samples to cut from start index.
     */
-    MNESourceEstimate reduce(qint32 start, qint32 n);
+    MNESourceEstimate reduce(qint32 start, qint32 n) const;
+
+    //=========================================================================================================
+    /**
+    * Reduces the source estimate to selected samples in place.
+    *
+    * @param[in] start  The start index to cut the estimate from.
+    * @param[in] n      Number of samples to cut from start index.
+    */
+    void reduceInPlace(qint32 start, qint32 n);
 
     //=========================================================================================================
     /**
@@ -205,6 +214,18 @@ public:
     * @return the indices
     */
     Eigen::VectorXi getIndicesByLabel(const QList<FSLIB::Label> &lPickedLabels, bool bIsClustered) const;
+
+    //=========================================================================================================
+    /**
+    * Returns the time courses of each label and its including sources.
+    *
+    * @param[in] lPickedLabels      The labels base the selection on.
+    * @param[in] bIsClustered       Whether the source space was clustered.
+    * @param[in] sMode              Method used to extract the signals. Valid methods are: 'mean' and 'max'
+    *
+    * @return the time courses in form of a matrix sources x signal. The order of the sources is the same as in the input label list.
+    */
+    Eigen::MatrixXd extractLabelTimeCourse(const QList<FSLIB::Label> &lPickedLabels, bool bIsClustered, const QString &sMode = "mean") const;
 
 public:
     Eigen::MatrixXd data;           /**< Matrix of shape [n_dipoles x n_times] which contains the data in source space. */
