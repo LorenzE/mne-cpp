@@ -76,10 +76,6 @@ namespace FIFFLIB {
     class FiffCoordTrans;
 }
 
-namespace Qt3DRender {
-    class QPickEvent;
-}
-
 
 //*************************************************************************************************************
 //=============================================================================================================
@@ -129,7 +125,6 @@ public:
     */
     virtual ~Renderable3DEntity();
 
-    void onClicked(Qt3DRender::QPickEvent *pick);
     //=========================================================================================================
     /**
     * Manual garbage collection, since Qt3D is still a bit buggy when it come to memory handling.

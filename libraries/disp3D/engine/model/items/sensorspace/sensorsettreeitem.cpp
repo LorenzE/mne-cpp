@@ -108,16 +108,16 @@ void SensorSetTreeItem::addData(const MNEBem &tSensor,
         m_pRenderable3DEntity = new Renderable3DEntity(p3DEntityParent);
     }
 
-//    //Generate sensor surfaces as childs
-//    for(int i = 0; i < tSensor.size(); ++i) {
-//        SensorSurfaceTreeItem* pSurfItem = new SensorSurfaceTreeItem(m_pRenderable3DEntity, Data3DTreeModelItemTypes::SensorSurfaceItem);
-//        pSurfItem->addData(tSensor[i]);
+    //Generate sensor surfaces as childs
+    for(int i = 0; i < tSensor.size(); ++i) {
+        SensorSurfaceTreeItem* pSurfItem = new SensorSurfaceTreeItem(m_pRenderable3DEntity, Data3DTreeModelItemTypes::SensorSurfaceItem);
+        pSurfItem->addData(tSensor[i]);
 
-//        QList<QStandardItem*> list;
-//        list << pSurfItem;
-//        list << new QStandardItem(pSurfItem->toolTip());
-//        this->appendRow(list);
-//    }
+        QList<QStandardItem*> list;
+        list << pSurfItem;
+        list << new QStandardItem(pSurfItem->toolTip());
+        this->appendRow(list);
+    }
 
     //Sort MEG channel types
     QList<FiffChInfo> lChInfoGrad;
