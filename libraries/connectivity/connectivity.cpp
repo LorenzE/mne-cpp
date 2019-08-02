@@ -140,7 +140,14 @@ QList<Network> Connectivity::calculate(ConnectivitySettings& connectivitySetting
     }
 
     qWarning() << "Total" << timer.elapsed();
-    qDebug() << "Connectivity::calculateMultiMethods - Calculated"<< lMethods <<"for" << connectivitySettings.size() << "trials in"<< timer.elapsed() << "msecs.";
+    qDebug() << "Connectivity::calculateMultiMethods - Calculated" << lMethods << "for" << connectivitySettings.size()
+             << "trials,"<< connectivitySettings.at(0).matData.rows() << "nodes and" << connectivitySettings.at(0).matData.cols()
+             << "samples in"<< timer.elapsed() << "msecs.";
+
+    //Do not store data to save memory
+    if(!AbstractMetric::m_bStorageModeIsActive) {
+        connectivitySettings.clearIntermediateData();
+    }
 
     return results;
 }

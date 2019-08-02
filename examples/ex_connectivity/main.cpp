@@ -161,13 +161,21 @@ int main(int argc, char *argv[])
 //    QCommandLineOption covFileOption("cov", "Path to the covariance <file> (for source level usage only).", "file", "C:/Git/rt_connectivity/data/MEG/mind002/ave/mind002_050924_index01-cov.fif");
 //    QCommandLineOption annotOption("annotType", "Annotation <type> (for source level usage only).", "type", "aparc.a2005s");
 
-    QCommandLineOption rawFileOption("raw", "Path to the raw <file>.", "file", "/cluster/fusion/lesch/data/Martinos/MEG/mind002/raw/mind002_050924_median01_filtered_HP_2_raw.fif");
-    QCommandLineOption eventsFileOption("eve", "Path to the event <file>.", "file", "/cluster/fusion/lesch/data/Martinos/MEG/mind002/raw/mind002_050924_median01_raw-eve.fif");
-    QCommandLineOption subjectOption("subj", "Selected <subject> (for source level usage only).", "subject", "mind002");
-    QCommandLineOption subjectPathOption("subjDir", "Selected <subjectPath> (for source level usage only).", "subjectPath", "/cluster/fusion/lesch/data/Martinos/subjects");
-    QCommandLineOption fwdOption("fwd", "Path to forwad solution <file> (for source level usage only).", "file", "/cluster/fusion/lesch/data/Martinos/MEG/mind002/fwd/mind002_050924_median01-fwd.fif");
-    QCommandLineOption covFileOption("cov", "Path to the covariance <file> (for source level usage only).", "file", "/cluster/fusion/lesch/data/Martinos/MEG/mind002/ave/mind002_050924_median01-cov.fif");
-    QCommandLineOption annotOption("annotType", "Annotation <type> (for source level usage only).", "type", "aparc.a2005s");
+//    QCommandLineOption rawFileOption("raw", "Path to the raw <file>.", "file", "/cluster/fusion/MIND/MEG-anal/MGH/mind002/raw/mind002_050924_auditory01_raw.fif");
+//    QCommandLineOption eventsFileOption("eve", "Path to the event <file>.", "file", "/cluster/fusion/MIND/MEG-anal/MGH/mind002/raw/mind002_050924_auditory01_raw-eve.fif");
+//    QCommandLineOption subjectOption("subj", "Selected <subject> (for source level usage only).", "subject", "mind002");
+//    QCommandLineOption subjectPathOption("subjDir", "Selected <subjectPath> (for source level usage only).", "subjectPath", "/cluster/fusion/MIND/MEG-anal/subjects");
+//    QCommandLineOption fwdOption("fwd", "Path to forwad solution <file> (for source level usage only).", "file", "/cluster/fusion/MIND/MEG-anal/MGH/mind002/fwd/mind002_050924_auditory01-fwd.fif");
+//    QCommandLineOption covFileOption("cov", "Path to the covariance <file> (for source level usage only).", "file", "/cluster/fusion/MIND/MEG-anal/MGH/mind002/ave/mind002_050924_auditory01-cov.fif");
+//    QCommandLineOption annotOption("annotType", "Annotation <type> (for source level usage only).", "type", "aparc.a2005s");
+
+//    QCommandLineOption rawFileOption("raw", "Path to the raw <file>.", "file", "/cluster/fusion/lesch/data/Martinos/MEG/mind002/raw/mind002_050924_median01_filtered_HP_2_raw.fif");
+//    QCommandLineOption eventsFileOption("eve", "Path to the event <file>.", "file", "/cluster/fusion/lesch/data/Martinos/MEG/mind002/raw/mind002_050924_median01_raw-eve.fif");
+//    QCommandLineOption subjectOption("subj", "Selected <subject> (for source level usage only).", "subject", "mind002");
+//    QCommandLineOption subjectPathOption("subjDir", "Selected <subjectPath> (for source level usage only).", "subjectPath", "/cluster/fusion/lesch/data/Martinos/subjects");
+//    QCommandLineOption fwdOption("fwd", "Path to forwad solution <file> (for source level usage only).", "file", "/cluster/fusion/lesch/data/Martinos/MEG/mind002/fwd/mind002_050924_median01-fwd.fif");
+//    QCommandLineOption covFileOption("cov", "Path to the covariance <file> (for source level usage only).", "file", "/cluster/fusion/lesch/data/Martinos/MEG/mind002/ave/mind002_050924_median01-cov.fif");
+//    QCommandLineOption annotOption("annotType", "Annotation <type> (for source level usage only).", "type", "aparc.a2005s");
 
 //    QCommandLineOption rawFileOption("raw", "Path to the raw <file>.", "file", "/cluster/fusion/lesch/data/Martinos/MEG/mind002/raw/mind002_050925_median02_filtered_HP_2_raw.fif");
 //    QCommandLineOption eventsFileOption("eve", "Path to the event <file>.", "file", "/cluster/fusion/lesch/data/Martinos/MEG/mind002/raw/mind002_050925_median02_raw-eve.fif");
@@ -185,32 +193,24 @@ int main(int argc, char *argv[])
 //    QCommandLineOption covFileOption("cov", "Path to the covariance <file> (for source level usage only).", "file", "/cluster/fusion/MIND/MEG-anal/MGH/mind004/ave/mind004_050924_median01-cov.fif");
 //    QCommandLineOption annotOption("annotType", "Annotation <type> (for source level usage only).", "type", "aparc.a2005s");
 
-//    QCommandLineOption rawFileOption("raw", "Path to the raw <file>.", "file", "/cluster/fusion/MIND/MEG-anal/MGH/mind006/raw/mind006_060626_median01_raw.fif");
-//    QCommandLineOption eventsFileOption("eve", "Path to the event <file>.", "file", "/cluster/fusion/MIND/MEG-anal/MGH/mind006/raw/mind006_060626_median01_raw-eve.fif");
-//    QCommandLineOption subjectOption("subj", "Selected <subject> (for source level usage only).", "subject", "mind006");
-//    QCommandLineOption subjectPathOption("subjDir", "Selected <subjectPath> (for source level usage only).", "subjectPath", "/cluster/fusion/MIND/MEG-anal/subjects");
-//    QCommandLineOption fwdOption("fwd", "Path to forwad solution <file> (for source level usage only).", "file", "/cluster/fusion/MIND/MEG-anal/MGH/mind006/fwd/mind006_060626_median01-fwd.fif");
-//    QCommandLineOption covFileOption("cov", "Path to the covariance <file> (for source level usage only).", "file", "/cluster/fusion/MIND/MEG-anal/MGH/mind006/ave/mind006_060626_median01-cov.fif");
-//    QCommandLineOption annotOption("annotType", "Annotation <type> (for source level usage only).", "type", "aparc.a2005s");
-
-//    QCommandLineOption rawFileOption("raw", "Path to the raw <file>.", "file", "/cluster/fusion/lesch/data/Martinos/MEG/mind010/raw/mind010_060526_median01_filtered_HP_2_raw.fif");
-//    QCommandLineOption eventsFileOption("eve", "Path to the event <file>.", "file", "/cluster/fusion/MIND/MEG-anal/MGH/mind010/raw/mind010_060526_median01_raw-eve.fif");
-//    QCommandLineOption subjectOption("subj", "Selected <subject> (for source level usage only).", "subject", "mind010");
-//    QCommandLineOption subjectPathOption("subjDir", "Selected <subjectPath> (for source level usage only).", "subjectPath", "/cluster/fusion/MIND/MEG-anal/subjects");
-//    QCommandLineOption fwdOption("fwd", "Path to forwad solution <file> (for source level usage only).", "file", "/cluster/fusion/MIND/MEG-anal/MGH/mind010/fwd/mind010_060526_median01-fwd.fif");
-//    QCommandLineOption covFileOption("cov", "Path to the covariance <file> (for source level usage only).", "file", "/cluster/fusion/MIND/MEG-anal/MGH/mind010/ave/mind010_060526_median01-cov.fif");
-//    QCommandLineOption annotOption("annotType", "Annotation <type> (for source level usage only).", "type", "aparc.a2005s");
+    QCommandLineOption rawFileOption("raw", "Path to the raw <file>.", "file", "/cluster/fusion/lesch/data/Martinos/MEG/mind010/raw/mind010_060526_median01_filtered_HP_2_raw.fif");
+    QCommandLineOption eventsFileOption("eve", "Path to the event <file>.", "file", "/cluster/fusion/MIND/MEG-anal/MGH/mind010/raw/mind010_060526_median01_raw-eve.fif");
+    QCommandLineOption subjectOption("subj", "Selected <subject> (for source level usage only).", "subject", "mind010");
+    QCommandLineOption subjectPathOption("subjDir", "Selected <subjectPath> (for source level usage only).", "subjectPath", "/cluster/fusion/MIND/MEG-anal/subjects");
+    QCommandLineOption fwdOption("fwd", "Path to forwad solution <file> (for source level usage only).", "file", "/cluster/fusion/MIND/MEG-anal/MGH/mind010/fwd/mind010_060526_median01-fwd.fif");
+    QCommandLineOption covFileOption("cov", "Path to the covariance <file> (for source level usage only).", "file", "/cluster/fusion/MIND/MEG-anal/MGH/mind010/ave/mind010_060526_median01-cov.fif");
+    QCommandLineOption annotOption("annotType", "Annotation <type> (for source level usage only).", "type", "aparc.a2005s");
 
     QCommandLineOption sourceLocOption("doSourceLoc", "Do source localization (for source level usage only).", "doSourceLoc", "true");
     QCommandLineOption clustOption("doClust", "Do clustering of source space (for source level usage only).", "doClust", "true");
     QCommandLineOption sourceLocMethodOption("sourceLocMethod", "Inverse estimation <method> (for source level usage only), i.e., 'MNE', 'dSPM' or 'sLORETA'.", "method", "dSPM");
     QCommandLineOption connectMethodOption("connectMethod", "Connectivity <method>, i.e., 'COR', 'XCOR.", "method", "IMAGCOH");
     QCommandLineOption snrOption("snr", "The SNR <value> used for computation (for source level usage only).", "value", "3.0");
-    QCommandLineOption evokedIndexOption("aveIdx", "The average <index> to choose from the average file.", "index", "65");
+    QCommandLineOption evokedIndexOption("aveIdx", "The average <index> to choose from the average file.", "index", "2");
     QCommandLineOption chTypeOption("chType", "The channel <type> (for sensor level usage only), i.e. 'eeg' or 'meg'.", "type", "meg");
     QCommandLineOption coilTypeOption("coilType", "The coil <type> (for sensor level usage only), i.e. 'grad' or 'mag'.", "type", "grad");
     QCommandLineOption tMinOption("tmin", "The time minimum value for averaging in seconds relativ to the trigger onset.", "value", "-0.1");
-    QCommandLineOption tMaxOption("tmax", "The time maximum value for averaging in seconds relativ to the trigger onset.", "value", "0.2");
+    QCommandLineOption tMaxOption("tmax", "The time maximum value for averaging in seconds relativ to the trigger onset.", "value", "0.15");
 
     parser.addOption(annotOption);
     parser.addOption(subjectOption);
@@ -246,7 +246,6 @@ int main(int argc, char *argv[])
     QString sRaw = parser.value(rawFileOption);
     float fTMin = parser.value(tMinOption).toFloat();
     float fTMax = parser.value(tMaxOption).toFloat();
-    double dSnr = parser.value(snrOption).toDouble();
     int iEvent = parser.value(evokedIndexOption).toInt();
 
     bool bDoSourceLoc = false;
@@ -275,7 +274,6 @@ int main(int argc, char *argv[])
     AnnotationSet tAnnotSet(sSubj, 2, sAnnotType, sSubjDir);
 
     QFile coordTransfile(QCoreApplication::applicationDirPath() + "/MNE-sample-data/MEG/sample/all-trans.fif");
-
     bool keep_comp = false;
     fiff_int_t dest_comp = 0;
 
@@ -283,7 +281,7 @@ int main(int argc, char *argv[])
     QFile t_fileRaw(sRaw);
     FiffRawData raw(t_fileRaw);
 
-    int samplesToCutOut = (abs(fTMin) + 0.01) * raw.info.sfreq;
+    int samplesToCutOut = (fabs(fTMin) + 0.01) * raw.info.sfreq;
     QSharedPointer<ConnectivitySettingsManager> pConnectivitySettingsManager = QSharedPointer<ConnectivitySettingsManager>::create();
 
     // Select bad channels
@@ -301,14 +299,14 @@ int main(int argc, char *argv[])
 
     // Read the epochs and reject bad epochs. Note, that SSPs are automatically applied to the data if MNE::setup_compensators was called beforehand.
     QStringList exludeChs;
-    //exludeChs << "EOG061" << "EOG063";
+   // exludeChs << "EOG062";// << "EOG063";
     QMap<QString,double> mapReject;
-    mapReject.insert("eog", 100e-06);
-    mapReject.insert("grad", 3000e-13);
-    mapReject.insert("mag", 3.5e-12);
+    mapReject.insert("eog", 250e-06);
+//    mapReject.insert("grad", 3000e-13);
+//    mapReject.insert("mag", 3.5e-12);
 
     MNEEpochDataList data = MNEEpochDataList::readEpochs(raw,
-                                                         events, //events.block(0,0,400,events.cols()),
+                                                         events.block(0,0,50,events.cols()),
                                                          fTMin,
                                                          fTMax,
                                                          iEvent,
@@ -342,7 +340,7 @@ int main(int argc, char *argv[])
                 picks.conservativeResize(picks.cols()+1);
                 picks(picks.cols()-1) = picksTmp(i);
             }
-        } else if (sCoilType.contains("medg", Qt::CaseInsensitive)) {
+        } else if (sCoilType.contains("mag", Qt::CaseInsensitive)) {
             picks = raw.info.pick_types(QString("mag"),false,false,QStringList(),exclude);
         }
 
@@ -364,17 +362,18 @@ int main(int argc, char *argv[])
         // Generate network nodes
         pConnectivitySettingsManager->m_settings.setNodePositions(raw.info, picks);
     } else {
-        //Create source level data
+        // Load forward solution
         QFile t_fileFwd(sFwd);
         t_Fwd = MNEForwardSolution(t_fileFwd, false, true);
 
-        // Load data
-        MNESourceEstimate sourceEstimate;
+        // Cluster forward solution
+        if(bDoClust) {
+            t_clusteredFwd = t_Fwd.cluster_forward_solution(tAnnotSet, 20);
+        } else {
+            t_clusteredFwd = t_Fwd;
+        }
 
-        double lambda2 = 1.0 / pow(dSnr, 2);
-        QString method(sSourceLocMethod);
-
-        // regularize noise covariance
+        // Load and regularize noise covariance
         QFile t_fileCov(sCov);
         FiffCov noise_cov(t_fileCov);
         noise_cov = noise_cov.regularize(raw.info,
@@ -439,12 +438,62 @@ int main(int argc, char *argv[])
 
         tAnnotSet.toLabels(tSurfSetInflated, lLabels, qListLabelRGBAs, lWantedLabels);
 
-        //Get active source indices based on picked labels
-        vDataIndices = sourceEstimateEvoked.getIndicesByLabel(lLabels, bDoClust);
+        // Compute inverse solution for each trial
+        MNESourceEstimate sourceEstimate;
+        double dSnr = parser.value(snrOption).toDouble();
+        double lambda2 = 1.0 / pow(dSnr, 2);
+        bool bExtractLabelTimeCourses = true;
 
-        //Generate node vertices based on picked labels
-        MatrixX3f matNodePositions = t_clusteredFwd.getSourcePositionsByLabel(lLabels, tSurfSetInflated);
+        MNEInverseOperator inverse_operator(raw.info,
+                                            t_clusteredFwd,
+                                            noise_cov,
+                                            0.2f,
+                                            0.8f);
+
+        MinimumNorm minimumNorm(inverse_operator, 1.0 / pow(1.0, 2), sSourceLocMethod);
+        minimumNorm.doInverseSetup(1, true);
+
+        picks = raw.info.pick_types(QString("all"),false,false,QStringList(),exclude);
+        data.pick_channels(picks);
+        for(int i = 0; i < data.size(); i++) {
+            sourceEstimate = minimumNorm.calculateInverse(data.at(i)->epoch,
+                                                          evoked.times[0],
+                                                          1.0/raw.info.sfreq,
+                                                          true);
+            if(sourceEstimate.isEmpty()) {
+                qWarning("Source estimate is empty");
+            } else {
+                sourceEstimate.reduceInPlace(samplesToCutOut,sourceEstimate.data.cols()-samplesToCutOut);
+
+                if(bExtractLabelTimeCourses) {
+                    matDataList << sourceEstimate.extractLabelTimeCourse(lLabels, bDoClust, "mean");
+                } else {
+                    matDataList << sourceEstimate.data;
+                }
+            }
+        }
+
+        // Compute inverse solution for the average. This is used only for visualization.
+        MinimumNorm minimumNormEvoked(inverse_operator, lambda2, sSourceLocMethod);
+        sourceEstimateEvoked = minimumNormEvoked.calculateInverse(evoked, true);
+        pConnectivitySettingsManager->m_matEvoked = evoked.data;
+        pConnectivitySettingsManager->m_matEvokedSource = sourceEstimateEvoked.data;
+
+        //Get active source indices based on picked labels and enerate node vertices based on picked labels
+        MatrixX3f matNodePositions;
+
+        if(bExtractLabelTimeCourses) {
+            matNodePositions = AnnotationSet::getLabelCenterOfGravity(lLabels, tSurfSetInflated);
+            vDataIndices = VectorXi::LinSpaced(lLabels.size(),0,lLabels.size());
+        } else {
+            matNodePositions = t_clusteredFwd.getSourcePositionsByLabel(lLabels, tSurfSetInflated);
+            vDataIndices = sourceEstimateEvoked.getIndicesByLabel(lLabels, bDoClust);
+        }
+
         pConnectivitySettingsManager->m_settings.setNodePositions(matNodePositions);
+
+        // Set samples to cut out to 0 because we already reduced the source estimate
+        samplesToCutOut = 0;
     }
 
     pConnectivitySettingsManager->epochs = data;
@@ -524,7 +573,7 @@ int main(int argc, char *argv[])
 
         QObject::connect(pMinimumNormSettingsView.data(), &MinimumNormSettingsView::timePointChanged,
                          [&](int a) {int aSamples = raw.info.sfreq * (float)a * 1.0e-03;
-                                     if(aSamples >= sourceEstimateEvoked.samples()-1) {
+                                     if(aSamples > sourceEstimateEvoked.samples()) {
                                         tNetworkView.getTreeModel()->addSourceData("sample",
                                                                                    evoked.comment,
                                                                                    sourceEstimateEvoked,
