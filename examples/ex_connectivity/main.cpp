@@ -176,6 +176,9 @@ int main(int argc, char *argv[])
 //    QCommandLineOption fwdOption("fwd", "Path to forwad solution <file> (for source level usage only).", "file", "/cluster/fusion/lesch/data/Martinos/MEG/mind002/fwd/mind002_050924_median01-fwd.fif");
 //    QCommandLineOption covFileOption("cov", "Path to the covariance <file> (for source level usage only).", "file", "/cluster/fusion/lesch/data/Martinos/MEG/mind002/ave/mind002_050924_median01-cov.fif");
 //    QCommandLineOption annotOption("annotType", "Annotation <type> (for source level usage only).", "type", "aparc.a2005s");
+//    mapReject.insert("eog", 230e-06);
+////    mapReject.insert("grad", 3000e-13);
+////    mapReject.insert("mag", 3.5e-12);
 
 //    QCommandLineOption rawFileOption("raw", "Path to the raw <file>.", "file", "/cluster/fusion/lesch/data/Martinos/MEG/mind002/raw/mind002_050925_median02_filtered_HP_2_raw.fif");
 //    QCommandLineOption eventsFileOption("eve", "Path to the event <file>.", "file", "/cluster/fusion/lesch/data/Martinos/MEG/mind002/raw/mind002_050925_median02_raw-eve.fif");
@@ -184,6 +187,9 @@ int main(int argc, char *argv[])
 //    QCommandLineOption fwdOption("fwd", "Path to forwad solution <file> (for source level usage only).", "file", "/cluster/fusion/lesch/data/Martinos/MEG/mind002/fwd/mind002_050925_median02-fwd.fif");
 //    QCommandLineOption covFileOption("cov", "Path to the covariance <file> (for source level usage only).", "file", "/cluster/fusion/lesch/data/Martinos/MEG/mind002/ave/mind002_050925_median02-cov.fif");
 //    QCommandLineOption annotOption("annotType", "Annotation <type> (for source level usage only).", "type", "aparc.a2005s");
+//    mapReject.insert("eog", 230e-06);
+////    mapReject.insert("grad", 3000e-13);
+////    mapReject.insert("mag", 3.5e-12);
 
 //    QCommandLineOption rawFileOption("raw", "Path to the raw <file>.", "file", "/cluster/fusion/MIND/MEG-anal/MGH/mind004/raw/mind004_050924_median01_raw.fif");
 //    QCommandLineOption eventsFileOption("eve", "Path to the event <file>.", "file", "/cluster/fusion/MIND/MEG-anal/MGH/mind004/raw/mind004_050924_median01_raw-eve.fif");
@@ -192,6 +198,9 @@ int main(int argc, char *argv[])
 //    QCommandLineOption fwdOption("fwd", "Path to forwad solution <file> (for source level usage only).", "file", "/cluster/fusion/MIND/MEG-anal/MGH/mind004/fwd/mind004_050924_median01-fwd.fif");
 //    QCommandLineOption covFileOption("cov", "Path to the covariance <file> (for source level usage only).", "file", "/cluster/fusion/MIND/MEG-anal/MGH/mind004/ave/mind004_050924_median01-cov.fif");
 //    QCommandLineOption annotOption("annotType", "Annotation <type> (for source level usage only).", "type", "aparc.a2005s");
+//    mapReject.insert("eog", 150e-06);
+////    mapReject.insert("grad", 3000e-13);
+////    mapReject.insert("mag", 3.5e-12);
 
     QCommandLineOption rawFileOption("raw", "Path to the raw <file>.", "file", "/cluster/fusion/lesch/data/Martinos/MEG/mind010/raw/mind010_060526_median01_filtered_HP_2_raw.fif");
     QCommandLineOption eventsFileOption("eve", "Path to the event <file>.", "file", "/cluster/fusion/MIND/MEG-anal/MGH/mind010/raw/mind010_060526_median01_raw-eve.fif");
@@ -200,6 +209,9 @@ int main(int argc, char *argv[])
     QCommandLineOption fwdOption("fwd", "Path to forwad solution <file> (for source level usage only).", "file", "/cluster/fusion/MIND/MEG-anal/MGH/mind010/fwd/mind010_060526_median01-fwd.fif");
     QCommandLineOption covFileOption("cov", "Path to the covariance <file> (for source level usage only).", "file", "/cluster/fusion/MIND/MEG-anal/MGH/mind010/ave/mind010_060526_median01-cov.fif");
     QCommandLineOption annotOption("annotType", "Annotation <type> (for source level usage only).", "type", "aparc.a2005s");
+//    mapReject.insert("eog", 250e-06);
+////    mapReject.insert("grad", 3000e-13);
+////    mapReject.insert("mag", 3.5e-12);
 
     QCommandLineOption sourceLocOption("doSourceLoc", "Do source localization (for source level usage only).", "doSourceLoc", "true");
     QCommandLineOption clustOption("doClust", "Do clustering of source space (for source level usage only).", "doClust", "true");
@@ -306,7 +318,7 @@ int main(int argc, char *argv[])
 //    mapReject.insert("mag", 3.5e-12);
 
     MNEEpochDataList data = MNEEpochDataList::readEpochs(raw,
-                                                         events.block(0,0,50,events.cols()),
+                                                         events,//events.block(0,0,50,events.cols()),
                                                          fTMin,
                                                          fTMax,
                                                          iEvent,
@@ -442,7 +454,7 @@ int main(int argc, char *argv[])
         MNESourceEstimate sourceEstimate;
         double dSnr = parser.value(snrOption).toDouble();
         double lambda2 = 1.0 / pow(dSnr, 2);
-        bool bExtractLabelTimeCourses = true;
+        bool bExtractLabelTimeCourses = false;
 
         MNEInverseOperator inverse_operator(raw.info,
                                             t_clusteredFwd,

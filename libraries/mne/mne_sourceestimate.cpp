@@ -374,7 +374,7 @@ VectorXi MNESourceEstimate::getIndicesByLabel(const QList<Label> &lPickedLabels,
 
 
 //*************************************************************************************************************
-#include <iostream>
+
 MatrixXd MNESourceEstimate::extractLabelTimeCourse(const QList<FSLIB::Label> &lPickedLabels, bool bIsClustered, const QString& sMode) const
 {
     MatrixXd matData;
