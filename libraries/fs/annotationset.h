@@ -201,7 +201,7 @@ public:
     * @param[in] p_surfSet              the SurfaceSet to read the vertex positions from
     * @param[out] p_qListLabels         the converted labels are appended to a given list. Stored data are not affected.
     * @param[out] p_qListLabelRGBAs     the converted label RGBAs are appended to a given list. Stored data are not affected.
-    * @param[out] lLabelPicks           the label names which should be picked.
+    * @param[out] lLabelPicks           the label names which should be picked. If empty all labels are picked. Default list is empty.
     *
     * @return true if successful, false otherwise
     */
@@ -258,6 +258,17 @@ public:
     */
     inline qint32 size() const;
 
+    //=========================================================================================================
+    /**
+    * Returns the 3D positions of the labels center of gravity on its surface.
+    *
+    * @param[in] lLabels         The labels for which the center of gravity is to be computed.
+    * @param[in] surf   Set      The surface set to look up the actual vertex position in 3D space.
+    *
+    * @return The centers of gravity per label in form of a matrix.
+    */
+    static Eigen::MatrixX3f getLabelCenterOfGravity(const QList<FSLIB::Label>& lLabels, const FSLIB::SurfaceSet& surfSet);
+
 private:
     QMap<qint32, Annotation> m_qMapAnnots;   /**< Hemisphere annotations (lh = 0; rh = 1). */
 
@@ -288,6 +299,7 @@ inline qint32 AnnotationSet::size() const
 {
     return m_qMapAnnots.size();
 }
+
 
 } // NAMESPACE
 

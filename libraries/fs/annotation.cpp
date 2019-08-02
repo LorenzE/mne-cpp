@@ -42,6 +42,7 @@
 #include "annotation.h"
 #include "label.h"
 #include "surface.h"
+#include "surfaceset.h"
 
 
 //*************************************************************************************************************
@@ -134,6 +135,24 @@ void Annotation::clear()
     m_Vertices = VectorXi::Zero(0);
     m_LabelIds = VectorXi::Zero(0);
     m_Colortable.clear();
+}
+
+
+//*************************************************************************************************************
+
+MatrixX3f Annotation::getLabelCenterOfGravity(const QList<FSLIB::Label>& lLabels, const FSLIB::Surface& surf)
+{
+    MatrixX3f matCenters;
+
+    for(int j = 0; j < lLabels.size(); ++j) {
+        if(surf.hemi() == lLabels.at(j).hemi) {
+            matCenters.row(j) = lLabels.at(j).calculateCenterOfGravity(surf);
+        } else {
+            qWarning() << "Annotation::getLabelCenterOfGravity - Label hemisphere does not match with surface hemisphere identifier.";
+        }
+    }
+
+    return matCenters;
 }
 
 

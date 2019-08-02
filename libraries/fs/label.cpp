@@ -51,7 +51,7 @@
 #include <QTextStream>
 #include <QStringList>
 #include <QSet>
-//#include <QDebug>
+#include <QDebug>
 
 #include <iostream>
 #include <vector>
@@ -178,6 +178,52 @@ MatrixX3i Label::selectTris(const MatrixX3i &p_matTris)
     tris.conservativeResize(t_size, 3);
 
     return tris;
+}
+
+
+//*************************************************************************************************************
+
+RowVector3f Label::calculateCenterOfGravity(const Surface& p_Surface) const
+{
+    // Calculate center of gravity in 3D space
+    RowVector3f vCenterOfGravity;
+    vCenterOfGravity.setZero();
+
+    if(p_Surface.hemi() != this->hemi) {
+        qWarning() << "Label::calculateCenterOfGravity - Label hemisphere does not match with surface hemisphere identifier.";
+        return vCenterOfGravity;
+    }
+
+    if(this->vertices.size() == 0) {
+        qWarning() << "Label::calculateCenterOfGravity - Label has no vertices.";
+        return vCenterOfGravity;
+    }
+
+    for(qint32 i = 0; i < vertices.rows(); ++i) {
+        if(p_Surface.rr().rows() > vertices(i)) {
+            vCenterOfGravity += p_Surface.rr().row(vertices(i)) - p_Surface.offset().transpose();
+        }
+    }
+
+    vCenterOfGravity /= vertices.rows();
+
+    // Calculate center of gravity on the 3D surface. Look for nearest vertex beloning to the label surface.
+    float fMinDistance = std::numeric_limits<float>::max();
+    RowVector3f vDistance, vCenterOfGravitySurf;
+    vCenterOfGravitySurf.setZero();
+
+    for(qint32 i = 0; i < vertices.rows(); ++i) {
+        if(p_Surface.rr().rows() > vertices(i)) {
+            vDistance = vCenterOfGravity - (p_Surface.rr().row(vertices(i)) - p_Surface.offset().transpose());
+
+            if(vDistance.norm() < fMinDistance) {
+                fMinDistance = vDistance.norm();
+                vCenterOfGravitySurf = p_Surface.rr().row(vertices(i)) - p_Surface.offset().transpose();
+            }
+        }
+    }
+
+    return vCenterOfGravitySurf;
 }
 
 

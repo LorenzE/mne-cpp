@@ -161,6 +161,16 @@ public:
 
     //=========================================================================================================
     /**
+    * Calculate the center of gravity for this label.
+    *
+    * @param[in] p_Surface      to red the label vertices 3D position from
+    *
+    * @return the center of gravity on the surface of the label in 3D space.
+    */
+    RowVector3f calculateCenterOfGravity(const Surface& p_Surface) const;
+
+    //=========================================================================================================
+    /**
     * mne_read_label_file
     *
     * Reads a Label from a FreeSurfer label file.

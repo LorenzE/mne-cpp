@@ -40,6 +40,8 @@
 
 #include "annotationset.h"
 #include "surfaceset.h"
+#include "annotation.h"
+#include "label.h"
 
 #include <QFile>
 #include <QDebug>
@@ -258,4 +260,26 @@ const Annotation AnnotationSet::operator[] (QString idt) const
         qWarning("Warning: Identifier is not 'lh' or 'rh'! Returning 'lh'.");
         return m_qMapAnnots[0];
     }
+}
+
+
+//*************************************************************************************************************
+
+MatrixX3f AnnotationSet::getLabelCenterOfGravity(const QList<FSLIB::Label>& lLabels, const FSLIB::SurfaceSet& surfSet)
+{
+    MatrixX3f matCenters;
+
+    for(int j = 0; j < lLabels.size(); ++j) {
+        if(lLabels.at(j).hemi == 0 && surfSet.size() > 0) {
+            matCenters.conservativeResize(matCenters.rows()+1,3);
+            matCenters.row(j) = lLabels.at(j).calculateCenterOfGravity(surfSet[0]);
+        } else if (lLabels.at(j).hemi == 1 && surfSet.size() > 1) {
+            matCenters.conservativeResize(matCenters.rows()+1,3);
+            matCenters.row(j) = lLabels.at(j).calculateCenterOfGravity(surfSet[1]);
+        } else {
+            qWarning() << "AnnotationSet::getLabelCenterOfGravity - Label hemisphere does not match with surface hemisphere identifier.";
+        }
+    }
+
+    return matCenters;
 }

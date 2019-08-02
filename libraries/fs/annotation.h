@@ -216,6 +216,17 @@ public:
 
     //=========================================================================================================
     /**
+    * Returns the 3D positions of the labels center of gravity on its surface.
+    *
+    * @param[in] lLabels         The labels for which the center of gravity is to be computed.
+    * @param[in] surf            The surface to look up the actual vertex position in 3D space.
+    *
+    * @return The centers of gravity per label in form of a matrix.
+    */
+    static Eigen::MatrixX3f getLabelCenterOfGravity(const QList<FSLIB::Label>& lLabels, const FSLIB::Surface& surf);
+
+    //=========================================================================================================
+    /**
     * Reads a FreeSurfer annotation file
     *
     * @param[in] subject_id         Name of subject
