@@ -131,7 +131,7 @@ QMAKE_TARGET_COPYRIGHT = Copyright (C) 2019 Authors of mne-cpp. All rights reser
 ## To build MNE-CPP against wasm: qmake MNECPP_CONFIG+=wasm
 
 # Default flags
-MNECPP_CONFIG += dispOpenGL
+MNECPP_CONFIG += dispOpenGL useFFTW
 
 # At least version 5.2.1
 !minQtVersion(5, 2, 1) {
@@ -228,5 +228,5 @@ isEmpty( MNE_INSTALL_INCLUDE_DIR ) {
 }
 
 # FFTW dir
-FFTW_DIR_LIBS = $$shell_path(C:\fftw-3.3.5-dll64)
-FFTW_DIR_INCLUDE = $$shell_path(C:\fftw-3.3.5-dll64)
+FFTW_DIR_LIBS = $$shell_path(/cluster/fusion/lesch/Programs/fftw-3.3.8/lib)
+FFTW_DIR_INCLUDE = $$shell_path(/cluster/fusion/lesch/Programs/fftw-3.3.8/include)

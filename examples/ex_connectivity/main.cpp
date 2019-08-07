@@ -127,7 +127,7 @@ int main(int argc, char *argv[])
 
     QApplication a(argc, argv);
 
-    AbstractMetric::m_bStorageModeIsActive = false;
+    AbstractMetric::m_bStorageModeIsActive = true;
     AbstractMetric::m_iNumberBinStart = 0;
     AbstractMetric::m_iNumberBinAmount = 50;
 
@@ -176,7 +176,7 @@ int main(int argc, char *argv[])
 //    QCommandLineOption fwdOption("fwd", "Path to forwad solution <file> (for source level usage only).", "file", "/cluster/fusion/lesch/data/Martinos/MEG/mind002/fwd/mind002_050924_median01-fwd.fif");
 //    QCommandLineOption covFileOption("cov", "Path to the covariance <file> (for source level usage only).", "file", "/cluster/fusion/lesch/data/Martinos/MEG/mind002/ave/mind002_050924_median01-cov.fif");
 //    QCommandLineOption annotOption("annotType", "Annotation <type> (for source level usage only).", "type", "aparc.a2005s");
-//    mapReject.insert("eog", 230e-06);
+////    mapReject.insert("eog", 230e-06);
 ////    mapReject.insert("grad", 3000e-13);
 ////    mapReject.insert("mag", 3.5e-12);
 
@@ -187,7 +187,7 @@ int main(int argc, char *argv[])
 //    QCommandLineOption fwdOption("fwd", "Path to forwad solution <file> (for source level usage only).", "file", "/cluster/fusion/lesch/data/Martinos/MEG/mind002/fwd/mind002_050925_median02-fwd.fif");
 //    QCommandLineOption covFileOption("cov", "Path to the covariance <file> (for source level usage only).", "file", "/cluster/fusion/lesch/data/Martinos/MEG/mind002/ave/mind002_050925_median02-cov.fif");
 //    QCommandLineOption annotOption("annotType", "Annotation <type> (for source level usage only).", "type", "aparc.a2005s");
-//    mapReject.insert("eog", 230e-06);
+////    mapReject.insert("eog", 230e-06);
 ////    mapReject.insert("grad", 3000e-13);
 ////    mapReject.insert("mag", 3.5e-12);
 
@@ -313,9 +313,9 @@ int main(int argc, char *argv[])
     QStringList exludeChs;
    // exludeChs << "EOG062";// << "EOG063";
     QMap<QString,double> mapReject;
-    mapReject.insert("eog", 250e-06);
+    mapReject.insert("eog", 230e-06);
 //    mapReject.insert("grad", 3000e-13);
-//    mapReject.insert("mag", 3.5e-12);
+//    mapReject.insert("mag", 1.02e-11);
 
     MNEEpochDataList data = MNEEpochDataList::readEpochs(raw,
                                                          events,//events.block(0,0,50,events.cols()),
@@ -380,7 +380,7 @@ int main(int argc, char *argv[])
 
         // Cluster forward solution
         if(bDoClust) {
-            t_clusteredFwd = t_Fwd.cluster_forward_solution(tAnnotSet, 20);
+            t_clusteredFwd = t_Fwd.cluster_forward_solution(tAnnotSet, 40);
         } else {
             t_clusteredFwd = t_Fwd;
         }
