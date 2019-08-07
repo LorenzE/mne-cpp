@@ -79,7 +79,7 @@
 
 namespace FSLIB
 {
-class Label;
+    class Label;
 }
 
 
@@ -96,7 +96,6 @@ namespace MNELIB
 // USED NAMESPACES
 //=============================================================================================================
 
-using namespace FSLIB;
 using namespace FIFFLIB;
 
 
@@ -181,7 +180,17 @@ public:
     *
     * @return vertno list of length 2 Vertex numbers for lh and rh
     */
-    QList<VectorXi> label_src_vertno_sel(const Label &p_label, VectorXi &src_sel) const;
+    QList<VectorXi> label_src_vertno_sel(const FSLIB::Label &p_label, VectorXi &src_sel) const;
+
+    //=========================================================================================================
+    /**
+    * Calcualtes the sign flips for a label defined over this source space
+    *
+    * @param[in] label      Source space label
+    *
+    * @return The label sign flip vector for each label
+    */
+    VectorXi labelSignFlip(const FSLIB::Label& label) const;
 
     //=========================================================================================================
     /**

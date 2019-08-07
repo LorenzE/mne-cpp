@@ -177,10 +177,56 @@ QList<VectorXi> MNESourceSpace::label_src_vertno_sel(const Label &p_label, Vecto
 
 //*************************************************************************************************************
 
+VectorXi MNESourceSpace::labelSignFlip(const Label& label) const
+{
+    VectorXi lh_vertno = m_qListHemispheres.at(0).vertno;
+    VectorXi rh_vertno = m_qListHemispheres.at(1).vertno;
+    VectorXi flips;
+
+    if(label.hemi == 0) {
+        VectorXi vertices = label.vertices;
+        VectorXi vertno_sel = label.vertices;
+        MNEMath::intersect(lh_vertno, vertices, vertno_sel);
+       // ori.append(src[0]['nn'][vertno_sel])
+    }
+
+
+    return flips;
+
+//    # get source orientations
+//    ori = list()
+//    if label.hemi in ('lh', 'both'):
+//        vertices = label.vertices if label.hemi == 'lh' else label.lh.vertices
+//        vertno_sel = np.intersect1d(lh_vertno, vertices)
+//        ori.append(src[0]['nn'][vertno_sel])
+//    if label.hemi in ('rh', 'both'):
+//        vertices = label.vertices if label.hemi == 'rh' else label.rh.vertices
+//        vertno_sel = np.intersect1d(rh_vertno, vertices)
+//        ori.append(src[1]['nn'][vertno_sel])
+//    if len(ori) == 0:
+//        raise Exception('Unknown hemisphere type "%s"' % (label.hemi,))
+//    ori = np.concatenate(ori, axis=0)
+//    if len(ori) == 0:
+//        return np.array([], int)
+
+//    _, _, Vh = linalg.svd(ori, full_matrices=False)
+
+//    # The sign of Vh is ambiguous, so we should align to the max-positive
+//    # (outward) direction
+//    dots = np.dot(ori, Vh[0])
+//    if np.mean(dots) < 0:
+//        dots *= -1
+
+//    # Comparing to the direction of the first right singular vector
+//    flip = np.sign(dots)
+//    return flip
+}
+
+
+//*************************************************************************************************************
+
 MNESourceSpace MNESourceSpace::pick_regions(const QList<Label> &p_qListLabels) const
 {
-    Q_UNUSED(p_qListLabels);
-
     MNESourceSpace selectedSrc(*this);
 
     for(qint32 h = 0; h < 2; ++h)

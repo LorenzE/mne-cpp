@@ -375,7 +375,9 @@ VectorXi MNESourceEstimate::getIndicesByLabel(const QList<Label> &lPickedLabels,
 
 //*************************************************************************************************************
 
-MatrixXd MNESourceEstimate::extractLabelTimeCourse(const QList<FSLIB::Label> &lPickedLabels, bool bIsClustered, const QString& sMode) const
+MatrixXd MNESourceEstimate::extractLabelTimeCourse(const QList<FSLIB::Label> &lPickedLabels,
+                                                   bool bIsClustered,
+                                                   const QString& sMode) const
 {
     MatrixXd matData;
 
@@ -409,6 +411,8 @@ MatrixXd MNESourceEstimate::extractLabelTimeCourse(const QList<FSLIB::Label> &lP
                             if(this->data.row(i).cwiseAbs().maxCoeff() > matData.row(k).cwiseAbs().maxCoeff()) {
                                 matData.row(k) = this->data.row(i);
                             }
+                        } else if(sMode.contains("meanFlip",Qt::CaseInsensitive)) {
+
                         }
 
                         break;

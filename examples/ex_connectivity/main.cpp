@@ -313,12 +313,12 @@ int main(int argc, char *argv[])
     QStringList exludeChs;
    // exludeChs << "EOG062";// << "EOG063";
     QMap<QString,double> mapReject;
-    mapReject.insert("eog", 230e-06);
+    mapReject.insert("eog", 350e-06);
 //    mapReject.insert("grad", 3000e-13);
 //    mapReject.insert("mag", 1.02e-11);
 
     MNEEpochDataList data = MNEEpochDataList::readEpochs(raw,
-                                                         events,//events.block(0,0,50,events.cols()),
+                                                         events.block(0,0,50,events.cols()),
                                                          fTMin,
                                                          fTMax,
                                                          iEvent,
@@ -380,7 +380,7 @@ int main(int argc, char *argv[])
 
         // Cluster forward solution
         if(bDoClust) {
-            t_clusteredFwd = t_Fwd.cluster_forward_solution(tAnnotSet, 40);
+            t_clusteredFwd = t_Fwd.cluster_forward_solution(tAnnotSet, 20);
         } else {
             t_clusteredFwd = t_Fwd;
         }
@@ -454,7 +454,7 @@ int main(int argc, char *argv[])
         MNESourceEstimate sourceEstimate;
         double dSnr = parser.value(snrOption).toDouble();
         double lambda2 = 1.0 / pow(dSnr, 2);
-        bool bExtractLabelTimeCourses = false;
+        bool bExtractLabelTimeCourses = true;
 
         MNEInverseOperator inverse_operator(raw.info,
                                             t_clusteredFwd,
@@ -478,7 +478,7 @@ int main(int argc, char *argv[])
                 sourceEstimate.reduceInPlace(samplesToCutOut,sourceEstimate.data.cols()-samplesToCutOut);
 
                 if(bExtractLabelTimeCourses) {
-                    matDataList << sourceEstimate.extractLabelTimeCourse(lLabels, bDoClust, "mean");
+                    matDataList << sourceEstimate.extractLabelTimeCourse(lLabels, bDoClust, "meanFlip");
                 } else {
                     matDataList << sourceEstimate.data;
                 }

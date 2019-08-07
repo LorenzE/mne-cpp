@@ -112,7 +112,10 @@ public:
     * @param[in] p_tmin
     * @param[in] p_tstep
     */
-    MNESourceEstimate(const Eigen::MatrixXd &p_sol, const Eigen::VectorXi &p_vertices, float p_tmin, float p_tstep);
+    MNESourceEstimate(const Eigen::MatrixXd &p_sol,
+                      const Eigen::VectorXi &p_vertices,
+                      float p_tmin,
+                      float p_tstep);
 
     //=========================================================================================================
     /**
@@ -213,7 +216,8 @@ public:
     *
     * @return the indices
     */
-    Eigen::VectorXi getIndicesByLabel(const QList<FSLIB::Label> &lPickedLabels, bool bIsClustered) const;
+    Eigen::VectorXi getIndicesByLabel(const QList<FSLIB::Label> &lPickedLabels,
+                                      bool bIsClustered) const;
 
     //=========================================================================================================
     /**
@@ -221,11 +225,13 @@ public:
     *
     * @param[in] lPickedLabels      The labels base the selection on.
     * @param[in] bIsClustered       Whether the source space was clustered.
-    * @param[in] sMode              Method used to extract the signals. Valid methods are: 'mean' and 'max'
+    * @param[in] sMode              Method used to extract the signals. Valid methods are: 'mean', 'meanFlip' and 'max'
     *
     * @return the time courses in form of a matrix sources x signal. The order of the sources is the same as in the input label list.
     */
-    Eigen::MatrixXd extractLabelTimeCourse(const QList<FSLIB::Label> &lPickedLabels, bool bIsClustered, const QString &sMode = "mean") const;
+    Eigen::MatrixXd extractLabelTimeCourse(const QList<FSLIB::Label> &lPickedLabels,
+                                           bool bIsClustered,
+                                           const QString &sMode = "mean") const;
 
 public:
     Eigen::MatrixXd data;           /**< Matrix of shape [n_dipoles x n_times] which contains the data in source space. */
