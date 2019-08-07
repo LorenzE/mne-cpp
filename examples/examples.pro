@@ -81,7 +81,7 @@ SUBDIRS += \
             ex_spectral \
             ex_tf_plot \
 
-        !isEmpty( CNTK_INCLUDE_DIR ) {
+        !isEmpty(CNTK_INCLUDE_DIR) {
             SUBDIRS += \
                 ex_deep \
                 ex_deep_eval \
@@ -89,6 +89,6 @@ SUBDIRS += \
         }
     }
     else {
-        message("examples.pro - The Qt Charts module is missing. Please install to build the complete set of MNE-CPP features.")
+        message("examples.pro - The Qt Charts module is missing. Please install to build the complete set of MNE-CPP features. Building minimal version instead.")
     }
 }

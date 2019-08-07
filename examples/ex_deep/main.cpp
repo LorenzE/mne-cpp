@@ -48,7 +48,7 @@
 #include <deep/deep.h>
 #include <deep/deepmodelcreator.h>
 
-#include <disp/lineplot.h>
+#include <disp/plots/lineplot.h>
 
 #include <iostream>
 #include <random>
