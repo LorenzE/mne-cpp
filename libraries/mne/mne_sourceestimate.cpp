@@ -475,7 +475,7 @@ MatrixXd MNESourceEstimate::extractLabelTimeCourse(const QList<FSLIB::Label> &lP
                             if(sMode.contains("MeanFlip",Qt::CaseInsensitive)) {
                                 matData.row(k) += this->data.row(i) * lLabelFlips.at(k)(iFlipIndex++);
                             } else {
-                                matData.row(k) += this->data.row(i);
+                            matData.row(k) += this->data.row(i);
                             }
 
                             lLabelCounter(k)++;
@@ -484,6 +484,8 @@ MatrixXd MNESourceEstimate::extractLabelTimeCourse(const QList<FSLIB::Label> &lP
                                 matData.row(k) = this->data.row(i);
                             }
                         }
+
+                        meanFlip
 
                         break;
                     }
@@ -518,7 +520,7 @@ MatrixXd MNESourceEstimate::extractLabelTimeCourse(const QList<FSLIB::Label> &lP
                                 if(sMode.contains("MeanFlip",Qt::CaseInsensitive)) {
                                     matData.row(k) += this->data.row(i) * lLabelFlips.at(k)(iFlipIndex++);
                                 } else {
-                                    matData.row(k) += this->data.row(i);
+                                matData.row(k) += this->data.row(i);
                                 }
 
                                 lLabelCounter(k)++;

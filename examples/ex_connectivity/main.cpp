@@ -67,11 +67,19 @@
 #include <utils/ioutils.h>
 
 #include <disp/viewers/connectivitysettingsview.h>
+#include <disp3D/engine/model/items/network/networktreeitem.h>
+
+//----- TEMP includes
+#include <fiff/fiff_dig_point_set.h>
+#include <disp3D/engine/model/items/sensordata/sensordatatreeitem.h>
+#include <disp3D/engine/model/items/sensorspace/sensorsettreeitem.h>
+#include <connectivity/metrics/abstractmetric.h>
+#include <mne/mne_bem_surface.h>
 #include <disp/viewers/minimumnormsettingsview.h>
 #include <disp/viewers/tfsettingsview.h>
-
-#include <disp3D/engine/model/items/network/networktreeitem.h>
+#include <iostream>
 #include <disp3D/engine/model/items/sensordata/sensordatatreeitem.h>
+#include <mne/mne_bem.h>
 
 
 //*************************************************************************************************************
@@ -218,7 +226,7 @@ int main(int argc, char *argv[])
     QCommandLineOption sourceLocMethodOption("sourceLocMethod", "Inverse estimation <method> (for source level usage only), i.e., 'MNE', 'dSPM' or 'sLORETA'.", "method", "dSPM");
     QCommandLineOption connectMethodOption("connectMethod", "Connectivity <method>, i.e., 'COR', 'XCOR.", "method", "IMAGCOH");
     QCommandLineOption snrOption("snr", "The SNR <value> used for computation (for source level usage only).", "value", "3.0");
-    QCommandLineOption evokedIndexOption("aveIdx", "The average <index> to choose from the average file.", "index", "1");
+    QCommandLineOption evokedIndexOption("aveIdx", "The average <index> to choose from the average file.", "index", "2");
     QCommandLineOption chTypeOption("chType", "The channel <type> (for sensor level usage only), i.e. 'eeg' or 'meg'.", "type", "meg");
     QCommandLineOption coilTypeOption("coilType", "The coil <type> (for sensor level usage only), i.e. 'grad' or 'mag'.", "type", "grad");
     QCommandLineOption tMinOption("tmin", "The time minimum value for averaging in seconds relativ to the trigger onset.", "value", "-0.05");
@@ -400,40 +408,56 @@ int main(int argc, char *argv[])
             t_clusteredFwd = t_Fwd;
         }     
 
+        lWantedLabels << "G_subcentral-lh"
+                        << "S_central-lh"
+                        << "G_subcentral-rh"
+                        << "S_central-rh";
+
+        tAnnotSet.toLabels(tSurfSetInflated, lLabels, qListLabelRGBAs, lWantedLabels);
+
+        // Compute inverse solution for each trial
+        MNESourceEstimate sourceEstimate;
+        double dSnr = parser.value(snrOption).toDouble();
+        double lambda2 = 1.0 / pow(dSnr, 2);
+        bool bExtractLabelTimeCourses = true;
+
         MNEInverseOperator inverse_operator(raw.info,
                                             t_clusteredFwd,
                                             noise_cov,
                                             0.2f,
                                             0.8f);
 
-        // Compute inverse solution
-        MinimumNorm minimumNorm(inverse_operator, 1.0 / pow(1.0, 2), method);
+        MinimumNorm minimumNorm(inverse_operator, 1.0 / pow(1.0, 2), sSourceLocMethod);
         minimumNorm.doInverseSetup(1, true);
 
-        picks = raw.info.pick_types(QString("all"),true,false,QStringList(),exclude);
+        picks = raw.info.pick_types(QString("all"),false,false,QStringList(),exclude);
         data.pick_channels(picks);
         for(int i = 0; i < data.size(); i++) {
             sourceEstimate = minimumNorm.calculateInverse(data.at(i)->epoch,
                                                           evoked.times[0],
                                                           1.0/raw.info.sfreq,
                                                           true);
-
             if(sourceEstimate.isEmpty()) {
-                printf("Source estimate is empty");
+                qWarning("Source estimate is empty");
             } else {
-                matDataList << sourceEstimate.data;
+                sourceEstimate.reduceInPlace(samplesToCutOut,sourceEstimate.data.cols()-samplesToCutOut);
+
+                if(bExtractLabelTimeCourses) {
+                    matDataList << sourceEstimate.extractLabelTimeCourse(lLabels, bDoClust, "meanFlip");
+                } else {
+                    matDataList << sourceEstimate.data;
+                }
             }
         }
 
-        MinimumNorm minimumNormEvoked(inverse_operator, lambda2, method);
-        sourceEstimateEvoked = minimumNormEvoked.calculateInverse(evoked, false);
+        // Compute inverse solution for the average. This is used only for visualization.
+        MinimumNorm minimumNormEvoked(inverse_operator, lambda2, sSourceLocMethod);
+        sourceEstimateEvoked = minimumNormEvoked.calculateInverse(evoked, true);
         pConnectivitySettingsManager->m_matEvoked = evoked.data;
         pConnectivitySettingsManager->m_matEvokedSource = sourceEstimateEvoked.data;
 
-        //Generate network nodes and define ROIs
-        QList<Label> lLabels;
-        QList<RowVector4i> qListLabelRGBAs;
-        QStringList lWantedLabels;
+        //Get active source indices based on picked labels and enerate node vertices based on picked labels
+        MatrixX3f matNodePositions;
 
         lWantedLabels << "G_frontal_inf-Opercular_part-lh"
                         << "G_postcentral-lh"
