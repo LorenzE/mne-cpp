@@ -483,6 +483,8 @@ MatrixXd MNESourceEstimate::extractLabelTimeCourse(const QList<FSLIB::Label> &lP
                             if(this->data.row(i).cwiseAbs().maxCoeff() > matData.row(k).cwiseAbs().maxCoeff()) {
                                 matData.row(k) = this->data.row(i);
                             }
+                        } else if(sMode.contains("meanFlip",Qt::CaseInsensitive)) {
+
                         }
 
                         meanFlip
