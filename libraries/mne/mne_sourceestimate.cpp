@@ -415,6 +415,8 @@ MatrixXd MNESourceEstimate::extractLabelTimeCourse(const QList<FSLIB::Label> &lP
 
                         }
 
+                        meanFlip
+
                         break;
                     }
                 }
