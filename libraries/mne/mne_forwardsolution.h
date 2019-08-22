@@ -95,6 +95,7 @@ using namespace Eigen;
 using namespace UTILSLIB;
 using namespace FIFFLIB;
 
+
 //=========================================================================================================
 /**
 * Gain matrix output data for one region, used for clustering
@@ -252,7 +253,7 @@ public:
     *
     * @return clustered MNE forward solution
     */
-    MNEForwardSolution cluster_forward_solution(const AnnotationSet &p_AnnotationSet,
+    MNEForwardSolution cluster_forward_solution(const FSLIB::AnnotationSet &p_AnnotationSet,
                                                 qint32 p_iClusterSize,
                                                 MatrixXd& p_D = defaultD,
                                                 const FiffCov &p_pNoise_cov = defaultCov,
@@ -336,7 +337,7 @@ public:
     *
     * @return the reduced forward solution
     */
-    MNEForwardSolution pick_regions(const QList<Label> &p_qListLabels) const;
+    MNEForwardSolution pick_regions(const QList<FSLIB::Label> &p_qListLabels) const;
 
     //=========================================================================================================
     /**
@@ -513,7 +514,7 @@ public:
     *
     * @return the source position in 3D space
     */
-    MatrixX3f getSourcePositionsByLabel(const QList<Label> &lPickedLabels, const FSLIB::SurfaceSet& tSurfSetInflated);
+    MatrixX3f getSourcePositionsByLabel(const QList<FSLIB::Label> &lPickedLabels, const FSLIB::SurfaceSet& tSurfSetInflated);
 
 private:
     //=========================================================================================================

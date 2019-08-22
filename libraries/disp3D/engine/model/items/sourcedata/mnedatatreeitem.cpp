@@ -78,6 +78,7 @@
 using namespace Eigen;
 using namespace MNELIB;
 using namespace DISP3DLIB;
+using namespace FSLIB;
 
 
 //*************************************************************************************************************
@@ -86,8 +87,8 @@ using namespace DISP3DLIB;
 //=============================================================================================================
 
 MneDataTreeItem::MneDataTreeItem(int iType,
-                                         const QString &text,
-                                         bool bUseGPU)
+                                 const QString &text,
+                                 bool bUseGPU)
 : AbstractTreeItem(iType, text)
 , m_bIsDataInit(false)
 , m_bUseGPU(bUseGPU)

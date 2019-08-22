@@ -160,7 +160,7 @@ public:
     static Eigen::RowVectorXd psdFromTaperedSpectra(const Eigen::MatrixXcd &matTapSpectrum,
                                                     const Eigen::VectorXd &vecTapWeights,
                                                     int iNfft,
-                                                    double dSampFreq=1.0);
+                                                    double dSampFreq = 1.0);
 
     //=========================================================================================================
     /**

@@ -64,6 +64,7 @@
 using namespace SCMEASLIB;
 using namespace CONNECTIVITYLIB;
 using namespace MNELIB;
+using namespace FSLIB;
 
 
 //*************************************************************************************************************
