@@ -40,6 +40,8 @@
 
 #include "mne_sourceestimate.h"
 
+#include <mne_sourcespace.h>
+
 
 //*************************************************************************************************************
 //=============================================================================================================
@@ -377,6 +379,7 @@ VectorXi MNESourceEstimate::getIndicesByLabel(const QList<Label> &lPickedLabels,
 
 MatrixXd MNESourceEstimate::extractLabelTimeCourse(const QList<FSLIB::Label> &lPickedLabels,
                                                    bool bIsClustered,
+                                                   const MNESourceSpace& sourceSpace,
                                                    const QString& sMode) const
 {
     MatrixXd matData;
@@ -384,6 +387,14 @@ MatrixXd MNESourceEstimate::extractLabelTimeCourse(const QList<FSLIB::Label> &lP
     if(lPickedLabels.isEmpty()) {
         qWarning() << "MNESourceEstimate::extractLabelTimeCourse - picked label list is empty. Returning.";
         return  matData;
+    }
+
+    // If mode meanFlip then generate label flips
+    QList<VectorXi> lLabelFlips;
+    if(sMode.contains("meanFlip",Qt::CaseInsensitive)) {
+        for(int k = 0; k < lPickedLabels.size(); k++) {
+            lLabelFlips.append(sourceSpace.labelSignFlip(lPickedLabels.at(k)));
+        }
     }
 
     matData.resize(lPickedLabels.size(), this->data.cols());
@@ -402,20 +413,23 @@ MatrixXd MNESourceEstimate::extractLabelTimeCourse(const QList<FSLIB::Label> &lP
             }
 
             for(int k = 0; k < lPickedLabels.size(); k++) {
+                int iFlipIndex = 0;
+
                 if(lPickedLabels.at(k).hemi == hemi) {
                     if(this->vertices(i) == lPickedLabels.at(k).label_id) {
                         if(sMode.contains("Mean",Qt::CaseInsensitive)) {
-                            matData.row(k) += this->data.row(i);
+                            if(sMode.contains("MeanFlip",Qt::CaseInsensitive)) {
+                                matData.row(k) += this->data.row(i) * lLabelFlips.at(k)(iFlipIndex++);
+                            } else {
+                                matData.row(k) += this->data.row(i);
+                            }
+
                             lLabelCounter(k)++;
                         } else if(sMode.contains("Max",Qt::CaseInsensitive)) {
                             if(this->data.row(i).cwiseAbs().maxCoeff() > matData.row(k).cwiseAbs().maxCoeff()) {
                                 matData.row(k) = this->data.row(i);
                             }
-                        } else if(sMode.contains("meanFlip",Qt::CaseInsensitive)) {
-
                         }
-
-                        meanFlip
 
                         break;
                     }
@@ -429,6 +443,7 @@ MatrixXd MNESourceEstimate::extractLabelTimeCourse(const QList<FSLIB::Label> &lP
             }
         }
     } else {
+        int hemi = 0;
         bool bFound = false;
 
         for(int i = 0; i < this->vertices.rows(); i++) {
@@ -440,11 +455,18 @@ MatrixXd MNESourceEstimate::extractLabelTimeCourse(const QList<FSLIB::Label> &lP
             }
 
             for(int k = 0; k < lPickedLabels.size(); k++) {
+                int iFlipIndex = 0;
+
                 if(lPickedLabels.at(k).hemi == hemi) {
                     for(int l = 0; l < lPickedLabels.at(k).vertices.rows(); l++) {
                         if(this->vertices(i) == lPickedLabels.at(k).vertices(l)) {
                             if(sMode.contains("Mean",Qt::CaseInsensitive)) {
-                                matData.row(k) += this->data.row(i);
+                                if(sMode.contains("MeanFlip",Qt::CaseInsensitive)) {
+                                    matData.row(k) += this->data.row(i) * lLabelFlips.at(k)(iFlipIndex++);
+                                } else {
+                                    matData.row(k) += this->data.row(i);
+                                }
+
                                 lLabelCounter(k)++;
                             } else if(sMode.contains("Max",Qt::CaseInsensitive)) {
                                 if(this->data.row(i).cwiseAbs().maxCoeff() > matData.row(k).cwiseAbs().maxCoeff()) {

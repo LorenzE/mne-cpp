@@ -43,13 +43,14 @@
 #include <utils/mnemath.h>
 #include <fs/label.h>
 
+#include <iostream>
+
 
 //*************************************************************************************************************
 //=============================================================================================================
-// STL INCLUDES
+// Eigen INCLUDES
 //=============================================================================================================
 
-#include <iostream>
 
 
 //*************************************************************************************************************
@@ -179,17 +180,55 @@ QList<VectorXi> MNESourceSpace::label_src_vertno_sel(const Label &p_label, Vecto
 
 VectorXi MNESourceSpace::labelSignFlip(const Label& label) const
 {
-    VectorXi lh_vertno = m_qListHemispheres.at(0).vertno;
-    VectorXi rh_vertno = m_qListHemispheres.at(1).vertno;
-    VectorXi flips;
-
-    if(label.hemi == 0) {
-        VectorXi vertices = label.vertices;
-        VectorXi vertno_sel = label.vertices;
-        MNEMath::intersect(lh_vertno, vertices, vertno_sel);
-       // ori.append(src[0]['nn'][vertno_sel])
+    if(label.hemi < 0 || label.hemi > 1) {
+        qWarning() << "MNESourceSpace::labelSignFlip - label hemi does not match source space hemis. Returning.";
+        return VectorXi();
     }
 
+    // Get source orientations
+    VectorXi vVertno;
+
+    if(m_qListHemispheres.at(label.hemi).isClustered()) {
+        //When clustered source space, the values in vertno are the annotation labels. Take the cluster_info.centroidVertno instead.
+        vVertno.resize(m_qListHemispheres.at(label.hemi).cluster_info.centroidVertno.size());
+
+        for(int j = 0; j < vVertno.rows(); ++j) {
+            vVertno(j) = m_qListHemispheres.at(label.hemi).cluster_info.centroidVertno.at(j);
+        }
+    } else {
+        vVertno = m_qListHemispheres.at(label.hemi).vertno;
+    }
+
+    VectorXi vertices = label.vertices;
+    VectorXi vertno_sel, flips;
+
+    MNEMath::intersect(vVertno, vertices, vertno_sel);
+
+    MatrixX3f matOri;
+    for(int i = 0 ; i < vertno_sel.rows(); ++i) {
+        if(m_qListHemispheres.at(label.hemi).nn.rows() > vertno_sel(i)) {
+            matOri.conservativeResize(matOri.rows()+1,3);
+            matOri.row(i) = m_qListHemispheres.at(label.hemi).nn.row(vertno_sel(i));
+        }
+    }
+
+    JacobiSVD<MatrixX3f> svd(matOri, Eigen::ComputeFullU | Eigen::ComputeFullV);
+
+    VectorXf dotProd = matOri * svd.matrixV().col(0);
+
+//    qDebug() << "";
+//    qDebug() << "matOri" << matOri.rows()<< "x" << matOri.cols();
+//    qDebug() << "U" << svd.matrixU().rows()<< "x" << svd.matrixU().cols();
+//    qDebug() << "Sigma" << svd.singularValues().rows()<< "x" << svd.singularValues().cols();
+//    qDebug() << "V" << svd.matrixV().rows()<< "x" << svd.matrixV().cols();
+
+    // The sign of Vh is ambiguous, so we should align to the max-positive (outward) direction
+    if(dotProd.mean() < 0) {
+        dotProd = dotProd * -1;
+    }
+
+    // Comparing to the direction of the first right singular vector
+    flips = dotProd.array().sign().cast<int>();
 
     return flips;
 

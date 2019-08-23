@@ -84,6 +84,8 @@ namespace MNELIB
 // MNELIB FORWARD DECLARATIONS
 //=============================================================================================================
 
+class MNESourceSpace;
+
 
 //=============================================================================================================
 /**
@@ -225,12 +227,14 @@ public:
     *
     * @param[in] lPickedLabels      The labels base the selection on.
     * @param[in] bIsClustered       Whether the source space was clustered.
-    * @param[in] sMode              Method used to extract the signals. Valid methods are: 'mean', 'meanFlip' and 'max'
+    * @param[in] sourceSpace        The source space for which the labels were defined.
+    * @param[in] sMode              Method used to extract the signals. Valid methods are: 'mean', 'meanFlip' and 'max'.
     *
     * @return the time courses in form of a matrix sources x signal. The order of the sources is the same as in the input label list.
     */
     Eigen::MatrixXd extractLabelTimeCourse(const QList<FSLIB::Label> &lPickedLabels,
                                            bool bIsClustered,
+                                           const MNESourceSpace &sourceSpace,
                                            const QString &sMode = "mean") const;
 
 public:
