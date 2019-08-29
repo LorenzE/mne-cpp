@@ -40,6 +40,7 @@
 //=============================================================================================================
 
 #include "connectivitysettings.h"
+#include "metrics/abstractmetric.h"
 
 #include <mne/mne_forwardsolution.h>
 #include <fs/surfaceset.h>
@@ -200,28 +201,31 @@ void ConnectivitySettings::removeFirst(int iAmount)
     }
 
     // Substract influence of trials from overall summed up intermediate data and remove from data list
-    for (int j = 0; j < iAmount; ++j) {
-        for (int i = 0; i < m_trialData.first().matData.rows(); ++i) {
-            if(i < m_intermediateSumData.vecPairCsdSum.size() && (m_intermediateSumData.vecPairCsdSum.size() == m_trialData.first().vecPairCsd.size())) {
-                m_intermediateSumData.vecPairCsdSum[i].second -= m_trialData.first().vecPairCsd.at(i).second;
+    for (int j = 0; j < iAmount; ++j) {        
+        // Onyl subtract if we store intermediate data. Otherwise these data fields are all empty.
+        if(AbstractMetric::m_bStorageModeIsActive) {
+            for (int i = 0; i < m_trialData.first().matData.rows(); ++i) {
+                if(i < m_intermediateSumData.vecPairCsdSum.size() && (m_intermediateSumData.vecPairCsdSum.size() == m_trialData.first().vecPairCsd.size())) {
+                    m_intermediateSumData.vecPairCsdSum[i].second -= m_trialData.first().vecPairCsd.at(i).second;
+                }
+                if(i < m_intermediateSumData.vecPairCsdNormalizedSum.size() && (m_intermediateSumData.vecPairCsdNormalizedSum.size() == m_trialData.first().vecPairCsdNormalized.size())) {
+                    m_intermediateSumData.vecPairCsdNormalizedSum[i].second -= m_trialData.first().vecPairCsdNormalized.at(i).second;
+                }
+                if(i < m_intermediateSumData.vecPairCsdImagSignSum.size() && (m_intermediateSumData.vecPairCsdImagSignSum.size() == m_trialData.first().vecPairCsdImagSign.size())) {
+                    m_intermediateSumData.vecPairCsdImagSignSum[i].second -= m_trialData.first().vecPairCsdImagSign.at(i).second;
+                }
+                if(i < m_intermediateSumData.vecPairCsdImagAbsSum.size() && (m_intermediateSumData.vecPairCsdImagAbsSum.size() == m_trialData.first().vecPairCsdImagAbs.size())) {
+                    m_intermediateSumData.vecPairCsdImagAbsSum[i].second -= m_trialData.first().vecPairCsdImagAbs.at(i).second;
+                }
+                if(i < m_intermediateSumData.vecPairCsdImagSqrdSum.size() && (m_intermediateSumData.vecPairCsdImagSqrdSum.size() == m_trialData.first().vecPairCsdImagSqrd.size())) {
+                    m_intermediateSumData.vecPairCsdImagSqrdSum[i].second -= m_trialData.first().vecPairCsdImagSqrd.at(i).second;
+                }
             }
-            if(i < m_intermediateSumData.vecPairCsdNormalizedSum.size() && (m_intermediateSumData.vecPairCsdNormalizedSum.size() == m_trialData.first().vecPairCsdNormalized.size())) {
-                m_intermediateSumData.vecPairCsdNormalizedSum[i].second -= m_trialData.first().vecPairCsdNormalized.at(i).second;
-            }
-            if(i < m_intermediateSumData.vecPairCsdImagSignSum.size() && (m_intermediateSumData.vecPairCsdImagSignSum.size() == m_trialData.first().vecPairCsdImagSign.size())) {
-                m_intermediateSumData.vecPairCsdImagSignSum[i].second -= m_trialData.first().vecPairCsdImagSign.at(i).second;
-            }
-            if(i < m_intermediateSumData.vecPairCsdImagAbsSum.size() && (m_intermediateSumData.vecPairCsdImagAbsSum.size() == m_trialData.first().vecPairCsdImagAbs.size())) {
-                m_intermediateSumData.vecPairCsdImagAbsSum[i].second -= m_trialData.first().vecPairCsdImagAbs.at(i).second;
-            }
-            if(i < m_intermediateSumData.vecPairCsdImagSqrdSum.size() && (m_intermediateSumData.vecPairCsdImagSqrdSum.size() == m_trialData.first().vecPairCsdImagSqrd.size())) {
-                m_intermediateSumData.vecPairCsdImagSqrdSum[i].second -= m_trialData.first().vecPairCsdImagSqrd.at(i).second;
-            }
-        }
 
-        if(m_intermediateSumData.matPsdSum.rows() == m_trialData.first().matPsd.rows() &&
-           m_intermediateSumData.matPsdSum.cols() == m_trialData.first().matPsd.cols() ) {
+            if(m_intermediateSumData.matPsdSum.rows() == m_trialData.first().matPsd.rows() &&
+               m_intermediateSumData.matPsdSum.cols() == m_trialData.first().matPsd.cols() ) {
             m_intermediateSumData.matPsdSum -= m_trialData.first().matPsd;
+        }
         }
 
         m_trialData.removeFirst();
@@ -253,27 +257,30 @@ void ConnectivitySettings::removeLast(int iAmount)
 
     // Substract influence of trials from overall summed up intermediate data and remove from data list
     for (int j = 0; j < iAmount; ++j) {
-        for (int i = 0; i < m_trialData.last().matData.rows(); ++i) {
-            if(i < m_intermediateSumData.vecPairCsdSum.size() && (m_intermediateSumData.vecPairCsdSum.size() == m_trialData.last().vecPairCsd.size())) {
-                m_intermediateSumData.vecPairCsdSum[i].second -= m_trialData.last().vecPairCsd.at(i).second;
+        // Onyl subtract if we store intermediate data. Otherwise these data fields are all empty.
+        if(AbstractMetric::m_bStorageModeIsActive) {
+            for (int i = 0; i < m_trialData.last().matData.rows(); ++i) {
+                if(i < m_intermediateSumData.vecPairCsdSum.size() && (m_intermediateSumData.vecPairCsdSum.size() == m_trialData.last().vecPairCsd.size())) {
+                    m_intermediateSumData.vecPairCsdSum[i].second -= m_trialData.last().vecPairCsd.at(i).second;
+                }
+                if(i < m_intermediateSumData.vecPairCsdNormalizedSum.size() && (m_intermediateSumData.vecPairCsdNormalizedSum.size() == m_trialData.last().vecPairCsdNormalized.size())) {
+                    m_intermediateSumData.vecPairCsdNormalizedSum[i].second -= m_trialData.last().vecPairCsdNormalized.at(i).second;
+                }
+                if(i < m_intermediateSumData.vecPairCsdImagSignSum.size() && (m_intermediateSumData.vecPairCsdImagSignSum.size() == m_trialData.last().vecPairCsdImagSign.size())) {
+                    m_intermediateSumData.vecPairCsdImagSignSum[i].second -= m_trialData.last().vecPairCsdImagSign.at(i).second;
+                }
+                if(i < m_intermediateSumData.vecPairCsdImagAbsSum.size() && (m_intermediateSumData.vecPairCsdImagAbsSum.size() == m_trialData.last().vecPairCsdImagAbs.size())) {
+                    m_intermediateSumData.vecPairCsdImagAbsSum[i].second -= m_trialData.last().vecPairCsdImagAbs.at(i).second;
+                }
+                if(i < m_intermediateSumData.vecPairCsdImagSqrdSum.size() && (m_intermediateSumData.vecPairCsdImagSqrdSum.size() == m_trialData.last().vecPairCsdImagSqrd.size())) {
+                    m_intermediateSumData.vecPairCsdImagSqrdSum[i].second -= m_trialData.last().vecPairCsdImagSqrd.at(i).second;
+                }
             }
-            if(i < m_intermediateSumData.vecPairCsdNormalizedSum.size() && (m_intermediateSumData.vecPairCsdNormalizedSum.size() == m_trialData.last().vecPairCsdNormalized.size())) {
-                m_intermediateSumData.vecPairCsdNormalizedSum[i].second -= m_trialData.last().vecPairCsdNormalized.at(i).second;
-            }
-            if(i < m_intermediateSumData.vecPairCsdImagSignSum.size() && (m_intermediateSumData.vecPairCsdImagSignSum.size() == m_trialData.last().vecPairCsdImagSign.size())) {
-                m_intermediateSumData.vecPairCsdImagSignSum[i].second -= m_trialData.last().vecPairCsdImagSign.at(i).second;
-            }
-            if(i < m_intermediateSumData.vecPairCsdImagAbsSum.size() && (m_intermediateSumData.vecPairCsdImagAbsSum.size() == m_trialData.last().vecPairCsdImagAbs.size())) {
-                m_intermediateSumData.vecPairCsdImagAbsSum[i].second -= m_trialData.last().vecPairCsdImagAbs.at(i).second;
-            }
-            if(i < m_intermediateSumData.vecPairCsdImagSqrdSum.size() && (m_intermediateSumData.vecPairCsdImagSqrdSum.size() == m_trialData.last().vecPairCsdImagSqrd.size())) {
-                m_intermediateSumData.vecPairCsdImagSqrdSum[i].second -= m_trialData.last().vecPairCsdImagSqrd.at(i).second;
-            }
-        }
 
-        if(m_intermediateSumData.matPsdSum.rows() == m_trialData.last().matPsd.rows() &&
-           m_intermediateSumData.matPsdSum.cols() == m_trialData.last().matPsd.cols() ) {
-            m_intermediateSumData.matPsdSum -= m_trialData.last().matPsd;
+            if(m_intermediateSumData.matPsdSum.rows() == m_trialData.last().matPsd.rows() &&
+               m_intermediateSumData.matPsdSum.cols() == m_trialData.last().matPsd.cols() ) {
+                m_intermediateSumData.matPsdSum -= m_trialData.last().matPsd;
+            }
         }
 
         m_trialData.removeLast();
