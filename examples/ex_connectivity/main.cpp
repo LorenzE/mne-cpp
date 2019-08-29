@@ -128,8 +128,8 @@ int main(int argc, char *argv[])
     QApplication a(argc, argv);
 
     AbstractMetric::m_bStorageModeIsActive = false;
-//    AbstractMetric::m_iNumberBinStart = 0;
-//    AbstractMetric::m_iNumberBinAmount = 50;
+    AbstractMetric::m_iNumberBinStart = 0;
+    AbstractMetric::m_iNumberBinAmount = 50;
 
     QCommandLineParser parser;
     parser.setApplicationDescription("Connectivity Example");
@@ -214,7 +214,7 @@ int main(int argc, char *argv[])
 ////    mapReject.insert("mag", 3.5e-12);
 
     QCommandLineOption sourceLocOption("doSourceLoc", "Do source localization (for source level usage only).", "doSourceLoc", "true");
-    QCommandLineOption clustOption("doClust", "Do clustering of source space (for source level usage only).", "doClust", "false");
+    QCommandLineOption clustOption("doClust", "Do clustering of source space (for source level usage only).", "doClust", "true");
     QCommandLineOption sourceLocMethodOption("sourceLocMethod", "Inverse estimation <method> (for source level usage only), i.e., 'MNE', 'dSPM' or 'sLORETA'.", "method", "dSPM");
     QCommandLineOption connectMethodOption("connectMethod", "Connectivity <method>, i.e., 'COR', 'XCOR.", "method", "IMAGCOH");
     QCommandLineOption snrOption("snr", "The SNR <value> used for computation (for source level usage only).", "value", "3.0");
@@ -315,7 +315,7 @@ int main(int argc, char *argv[])
     QMap<QString,double> mapReject;
     mapReject.insert("eog", 240e-06);
 //    mapReject.insert("grad", 3000e-13);
-//    mapReject.insert("mag", 1.02e-11);
+//    mapReject.insert("mag", 3.5e-12);
 
     MNEEpochDataList data = MNEEpochDataList::readEpochs(raw,
                                                          events,//.block(0,0,50,events.cols()),
@@ -380,7 +380,7 @@ int main(int argc, char *argv[])
 
         // Cluster forward solution
         if(bDoClust) {
-            t_clusteredFwd = t_Fwd.cluster_forward_solution(tAnnotSet, 30);
+            t_clusteredFwd = t_Fwd.cluster_forward_solution(tAnnotSet, 20);
         } else {
             t_clusteredFwd = t_Fwd;
         }
@@ -513,7 +513,7 @@ int main(int argc, char *argv[])
     pConnectivitySettingsManager->epochs = data;
 
     //Do connectivity estimation and visualize results
-    pConnectivitySettingsManager->m_settings.setConnectivityMethods(QStringList() << sConnectivityMethod);
+    pConnectivitySettingsManager->m_settings.setConnectivityMethods(QStringList() << "COH" << "COR" << "XCOR" << "PLI" << "IMAGCOH" << "PLV" << "WPLI" << "USPLI" << "DSWPLI");//<< sConnectivityMethod);
     pConnectivitySettingsManager->m_settings.setSamplingFrequency(raw.info.sfreq);
     pConnectivitySettingsManager->m_settings.setWindowType("hanning");
 
@@ -545,7 +545,7 @@ int main(int argc, char *argv[])
 
     QObject::connect(pConnectivitySettingsManager.data(), &ConnectivitySettingsManager::newConnectivityResultAvailable,
                      [&](const QString& a, const QString& b, const Network& c) {if(NetworkTreeItem* pNetworkTreeItem = tNetworkView.addData(a,b,c)) {
-                                                                                    //pNetworkTreeItem->setThresholds(QVector3D(0.9,0.95,1.0));
+                                                                                    pNetworkTreeItem->setThresholds(QVector3D(0.9,0.95,1.0));
                                                                                 }});
 
     TfSettingsView::SPtr pTfSettingsView = TfSettingsView::SPtr::create();

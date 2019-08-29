@@ -110,8 +110,8 @@ public:
                          this, &ConnectivitySettingsManager::onNewConnectivityResultAvailable);
 
         // Default frequency range
-        m_fFreqBandLow = 2.0f;
-        m_fFreqBandHigh = 50.0f;
+        m_fFreqBandLow = 18.0f;
+        m_fFreqBandHigh = 30.0f;
     }
 
     ConnectivitySettings    m_settings;
@@ -130,6 +130,7 @@ public:
     DISPLIB::Plot *m_pEvokedSignalCoursePlot = Q_NULLPTR;
     DISPLIB::Plot *m_pEpochSignalCoursePlot = Q_NULLPTR;
     DISPLIB::Plot *m_pEvokedSourceSignalCoursePlot = Q_NULLPTR;
+    DISPLIB::Plot *m_pEdgeWeightPlot = Q_NULLPTR;
     DISPLIB::ImageSc *m_pImageConnWeights = Q_NULLPTR;
 
     TFplot::SPtr m_pTfPlot;
@@ -214,7 +215,7 @@ public:
 
         for(int i = 0; i < connectivityResults.size(); ++i) {
             m_networkData[i].setFrequencyRange(m_fFreqBandLow, m_fFreqBandHigh);
-            //m_networkData[i].normalize();
+            m_networkData[i].normalize();
 
 //            if(!m_networkData.isEmpty()) {
 //                Network network = m_networkData.first();
@@ -274,7 +275,7 @@ public:
     //            MatrixXd dataSpectrum = Spectrogram::makeSpectrogram(plotVeca, m_settings.getSamplingFrequency()*0.05);
 
     //            m_pTfPlot = TFplot::SPtr::create(dataSpectrum, m_settings.getSamplingFrequency(), 2,50, ColorMaps::Jet);
-    //            m_pTfPlot->show();
+    //            m_pTfPlot->show();}
             }
 
             if(iRowNumber < epochs.at(iTrialNumber)->epoch.rows()) {
@@ -304,6 +305,25 @@ public:
                 m_pSpectrumPlot->setTitle(QString("Spectrum of conn used signal for trial %1 and row %2").arg(QString::number(iTrialNumber)).arg(QString::number(iRowNumber)));
                 m_pSpectrumPlot->show();
             }
+        }
+
+        if(iRowNumber < m_networkData.first().getFullEdges().size()) {
+            Eigen::VectorXd plotVecb = m_networkData.first().getFullEdges().at(0)->getMatrixWeight().col(0);
+
+            for(int i = 1; i < m_networkData.first().getFullEdges().size(); ++i) {
+                plotVecb += m_networkData.first().getFullEdges().at(i)->getMatrixWeight().col(0);
+            }
+
+            plotVecb /= m_networkData.first().getFullEdges().size();
+
+            if(!m_pEdgeWeightPlot) {
+                m_pEdgeWeightPlot = new DISPLIB::Plot(plotVecb);
+            } else {
+                m_pEdgeWeightPlot->updateData(plotVecb);
+            }
+
+            m_pEdgeWeightPlot->setTitle(QString("Averageweights over freq bins"));
+            m_pEdgeWeightPlot->show();
         }
 
         if(iRowNumber < m_matEvoked.rows()) {

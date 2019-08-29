@@ -164,16 +164,6 @@ public:
 
     //=========================================================================================================
     /**
-    * Returns the edge at a specific position.
-    *
-    * @param[in] i      The index to look up the edge. i must be a valid index position in the network list (i.e., 0 <= i < size()).
-    *
-    * @return Returns the network edge.
-    */
-    QSharedPointer<NetworkEdge> getEdgeAt(int i);
-
-    //=========================================================================================================
-    /**
     * Returns the node at a specific position.
     *
     * @param[in] i      The index to look up the node. i must be a valid index position in the network list (i.e., 0 <= i < size()).
