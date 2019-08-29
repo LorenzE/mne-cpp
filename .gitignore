@@ -21,6 +21,10 @@
 # Bin folder with exceptions
 /lib/
 /bin/
+<<<<<<< HEAD
+=======
+/doc/html
+>>>>>>> Fix some linebreaks in gitignore
 
 # Applications folder
 /applications/mne_analyze/extensions/deepcntknets/bio
