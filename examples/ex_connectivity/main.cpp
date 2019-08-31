@@ -135,7 +135,7 @@ int main(int argc, char *argv[])
 
     QApplication a(argc, argv);
 
-    AbstractMetric::m_bStorageModeIsActive = false;
+    AbstractMetric::m_bStorageModeIsActive = true;
     AbstractMetric::m_iNumberBinStart = 0;
     AbstractMetric::m_iNumberBinAmount = 50;
 
@@ -656,8 +656,8 @@ int main(int argc, char *argv[])
     }
 
     tNetworkView.setQuickControlWidgets(lWidgets);
-    tNetworkView.getConnectivitySettingsView()->setNumberTrials(200);
-    pConnectivitySettingsManager->onNumberTrialsChanged(200);
+    tNetworkView.getConnectivitySettingsView()->setNumberTrials(50);
+    pConnectivitySettingsManager->onNumberTrialsChanged(50);
 
     return a.exec();
 }
