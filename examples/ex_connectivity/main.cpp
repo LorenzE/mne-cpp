@@ -127,7 +127,7 @@ int main(int argc, char *argv[])
 
     QApplication a(argc, argv);
 
-    AbstractMetric::m_bStorageModeIsActive = false;
+    AbstractMetric::m_bStorageModeIsActive = true;
     AbstractMetric::m_iNumberBinStart = 0;
     AbstractMetric::m_iNumberBinAmount = 50;
 
@@ -545,7 +545,7 @@ int main(int argc, char *argv[])
 
     QObject::connect(pConnectivitySettingsManager.data(), &ConnectivitySettingsManager::newConnectivityResultAvailable,
                      [&](const QString& a, const QString& b, const Network& c) {if(NetworkTreeItem* pNetworkTreeItem = tNetworkView.addData(a,b,c)) {
-                                                                                    pNetworkTreeItem->setThresholds(QVector3D(0.9,0.95,1.0));
+                                                                                    pNetworkTreeItem->setThresholds(QVector3D(0.95,0.957,1.0));
                                                                                 }});
 
     TfSettingsView::SPtr pTfSettingsView = TfSettingsView::SPtr::create();
@@ -631,8 +631,8 @@ int main(int argc, char *argv[])
     }
 
     tNetworkView.setQuickControlWidgets(lWidgets);
-    tNetworkView.getConnectivitySettingsView()->setNumberTrials(200);
-    pConnectivitySettingsManager->onNumberTrialsChanged(200);
+    tNetworkView.getConnectivitySettingsView()->setNumberTrials(50);
+    pConnectivitySettingsManager->onNumberTrialsChanged(50);
 
     return a.exec();
 }

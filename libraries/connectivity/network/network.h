@@ -84,10 +84,10 @@ class NetworkEdge;
 class NetworkNode;
 
 struct VisualizationInfo {
-    QString sMethod = "Map";                                    /**< The color method: Map (uses sColormap parameter) or Color (uses colNodes and colEdges).*/
-    QString sColormap = "Viridis";                                 /**< The colormap.*/
-    Eigen::Vector4i colNodes = Eigen::Vector4i(255, 0, 0, 255); /**< The node color.*/
-    Eigen::Vector4i colEdges = Eigen::Vector4i(255, 0, 0, 255); /**< The edge color.*/
+    QString sMethod = "Map";                                  /**< The color method: Map (uses sColormap parameter) or Color (uses colNodes and colEdges).*/
+    QString sColormap = "Viridis";                              /**< The colormap.*/
+    Eigen::Vector4i colNodes = Eigen::Vector4i(0, 49, 69, 255); /**< The node color.*/
+    Eigen::Vector4i colEdges = Eigen::Vector4i(0, 49, 69, 255); /**< The edge color.*/
 };
 
 //=============================================================================================================
