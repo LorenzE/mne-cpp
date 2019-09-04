@@ -116,10 +116,7 @@ int main(int argc, char *argv[])
     AbstractView::SPtr p3DAbstractView = AbstractView::SPtr(new AbstractView());
     Data3DTreeModel::SPtr p3DDataModel = p3DAbstractView->getTreeModel();
 
-//    //Option 1 - Visualize full source space
-//    p3DDataModel->addForwardSolution(parser.value(subjectOption), "FullForwardSolution", t_forwardSolution);
-
-    //Option 2 - Visualize clustered source space
+    //Visualize source spaces
     AnnotationSet t_annotationSet (parser.value(subjectOption), parser.value(hemiOption).toInt(), parser.value(annotOption), parser.value(subjectPathOption));
 
     MNEForwardSolution t_clusteredFwd = t_forwardSolution.cluster_forward_solution(t_annotationSet, 40);
