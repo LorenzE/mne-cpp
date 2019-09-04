@@ -181,6 +181,16 @@ public:
     *
     * @param [in] p_IODevice   IO device to write the stc to.
     */
+    bool writePerHemi(const QString& sFilePath, bool bIsClustered);
+
+    //=========================================================================================================
+    /**
+    * mne_write_stc_file
+    *
+    * Writes a stc file
+    *
+    * @param [in] p_IODevice   IO device to write the stc to.
+    */
     bool write(QIODevice &p_IODevice);
 
     //=========================================================================================================

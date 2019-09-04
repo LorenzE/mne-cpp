@@ -219,6 +219,60 @@ bool MNESourceEstimate::read(QIODevice &p_IODevice, MNESourceEstimate& p_stc)
 
 //*************************************************************************************************************
 
+bool MNESourceEstimate::writePerHemi(const QString& sFilePath, bool bIsClustered)
+{
+    // Split left and right hemi into two files
+    int iHemiSwitchIdx = -1;
+
+    for(int i = 1; i < this->vertices.rows(); i++) {
+        if(bIsClustered) {
+            if(this->vertices(i) == this->vertices(0)){
+                iHemiSwitchIdx = i;
+                break;
+            }
+        } else {
+            if(this->vertices(i) < this->vertices(i-1)){
+                iHemiSwitchIdx = i;
+                break;
+            }
+        }
+    }
+
+    qInfo() << "MNESourceEstimate::writePerHemi - Found hemisphere switch index at" << iHemiSwitchIdx << "of a total of" << this->vertices.rows() << "sources.";
+
+    // Write hemi to individual files
+    if(iHemiSwitchIdx > 0) {
+        MNESourceEstimate lh(this->data.block(0,0,iHemiSwitchIdx,this->data.cols()),
+                             this->vertices.segment(0,iHemiSwitchIdx),
+                             this->tmin,
+                             this->tstep);
+        QString sPathLh = sFilePath;
+        sPathLh.replace(".stc","-lh.stc");
+        QFile fileLh(sPathLh);
+
+        MNESourceEstimate rh(this->data.block(iHemiSwitchIdx,0,this->data.rows()-iHemiSwitchIdx,this->data.cols()),
+                             this->vertices.segment(iHemiSwitchIdx,this->vertices.rows()-iHemiSwitchIdx),
+                             this->tmin,
+                             this->tstep);
+        QString sPathRh = sFilePath;
+        sPathRh.replace(".stc","-rh.stc");
+        QFile fileRh(sPathRh);
+
+        bool bSuccess = false;
+        bSuccess = lh.write(fileLh);
+        bSuccess = rh.write(fileRh);
+
+        return bSuccess;
+    } else {
+        QFile file(sFilePath);
+
+        return this->write(file);
+    }
+}
+
+
+//*************************************************************************************************************
+
 bool MNESourceEstimate::write(QIODevice &p_IODevice)
 {
     // Create the file and save the essentials
@@ -239,6 +293,8 @@ bool MNESourceEstimate::write(QIODevice &p_IODevice)
         printf("Write source estimate to %s...", t_pFile->fileName().toUtf8().constData());
     else
         printf("Write source estimate...");
+
+    std::cout << this->vertices;
 
     // write start time in ms
     *t_pStream << (float)1000*this->tmin;
