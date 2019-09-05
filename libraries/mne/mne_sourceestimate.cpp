@@ -294,8 +294,6 @@ bool MNESourceEstimate::write(QIODevice &p_IODevice)
     else
         printf("Write source estimate...");
 
-    std::cout << this->vertices;
-
     // write start time in ms
     *t_pStream << (float)1000*this->tmin;
     // write sampling rate in ms

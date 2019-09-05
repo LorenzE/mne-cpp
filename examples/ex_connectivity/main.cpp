@@ -135,15 +135,15 @@ int main(int argc, char *argv[])
     parser.setApplicationDescription("Connectivity Example");
     parser.addHelpOption();
 
-////    QCommandLineOption rawFileOption("fileIn", "The input file <in>.", "in", QCoreApplication::applicationDirPath() + "/MNE-sample-data/MEG/sample/sample_audvis_raw.fif");
-////    QCommandLineOption eventsFileOption("eve", "Path to the event <file>.", "file", QCoreApplication::applicationDirPath() + "/MNE-sample-data/MEG/sample/sample_audvis_raw-eve.fif");
-//    QCommandLineOption rawFileOption("fileIn", "The input file <in>.", "in", QCoreApplication::applicationDirPath() + "/MNE-sample-data/MEG/sample/sample_audvis-meg-eeg-oct-6-simulated-raw.fif");
-//    QCommandLineOption eventsFileOption("eve", "Path to the event <file>.", "file", QCoreApplication::applicationDirPath() + "/MNE-sample-data/MEG/sample/sample_audvis-meg-eeg-oct-6-simulated-eve.fif");
-//    QCommandLineOption fwdOption("fwd", "Path to forwad solution <file>.", "file", QCoreApplication::applicationDirPath() + "/MNE-sample-data/MEG/sample/sample_audvis-meg-oct-6-fwd.fif");
-//    QCommandLineOption subjectOption("subject", "Selected subject <subject>.", "subject", "sample");
-//    QCommandLineOption subjectPathOption("subjectPath", "Selected subject path <subjectPath>.", "subjectPath", QCoreApplication::applicationDirPath() + "/MNE-sample-data/subjects");
-//    QCommandLineOption covFileOption("cov", "Path to the covariance <file>.", "file", QCoreApplication::applicationDirPath() + "/MNE-sample-data/MEG/sample/sample_audvis-meg-simulated-cov.fif");
-//    QCommandLineOption annotOption("annotType", "Annotation <type> (for source level usage only).", "type", "aparc.a2009s");
+//    QCommandLineOption rawFileOption("fileIn", "The input file <in>.", "in", QCoreApplication::applicationDirPath() + "/MNE-sample-data/MEG/sample/sample_audvis_raw.fif");
+//    QCommandLineOption eventsFileOption("eve", "Path to the event <file>.", "file", QCoreApplication::applicationDirPath() + "/MNE-sample-data/MEG/sample/sample_audvis_raw-eve.fif");
+    QCommandLineOption rawFileOption("fileIn", "The input file <in>.", "in", QCoreApplication::applicationDirPath() + "/MNE-sample-data/MEG/sample/sample_audvis-meg-eeg-oct-6-simulated-raw.fif");
+    QCommandLineOption eventsFileOption("eve", "Path to the event <file>.", "file", QCoreApplication::applicationDirPath() + "/MNE-sample-data/MEG/sample/sample_audvis-meg-eeg-oct-6-simulated-eve.fif");
+    QCommandLineOption fwdOption("fwd", "Path to forwad solution <file>.", "file", QCoreApplication::applicationDirPath() + "/MNE-sample-data/MEG/sample/sample_audvis-meg-oct-6-fwd.fif");
+    QCommandLineOption subjectOption("subject", "Selected subject <subject>.", "subject", "sample");
+    QCommandLineOption subjectPathOption("subjectPath", "Selected subject path <subjectPath>.", "subjectPath", QCoreApplication::applicationDirPath() + "/MNE-sample-data/subjects");
+    QCommandLineOption covFileOption("cov", "Path to the covariance <file>.", "file", QCoreApplication::applicationDirPath() + "/MNE-sample-data/MEG/sample/sample_audvis-meg-simulated-cov.fif");
+    QCommandLineOption annotOption("annotType", "Annotation <type> (for source level usage only).", "type", "aparc.a2009s");
 
 //    QCommandLineOption rawFileOption("fileIn", "The input file <in>.", "in", "Y:/Git/mne-cpp-lorenze/bin/MNE-sample-data/MEG/sample/sample_audvis-meg-eeg-oct-6-simulated-raw.fif");
 //    QCommandLineOption eventsFileOption("eve", "Path to the event <file>.", "file", "Y:/Git/mne-cpp-lorenze/bin/MNE-sample-data/MEG/sample/sample_audvis-meg-eeg-oct-6-simulated-eve.fif");
@@ -202,13 +202,13 @@ int main(int argc, char *argv[])
 ////    mapReject.insert("grad", 3000e-13);
 ////    mapReject.insert("mag", 3.5e-12);
 
-    QCommandLineOption rawFileOption("raw", "Path to the raw <file>.", "file", "/cluster/fusion/lesch/data/Martinos/MEG/mind010/raw/mind010_060526_median01_filtered_HP_2_raw.fif");
-    QCommandLineOption eventsFileOption("eve", "Path to the event <file>.", "file", "/cluster/fusion/MIND/MEG-anal/MGH/mind010/raw/mind010_060526_median01_raw-eve.fif");
-    QCommandLineOption subjectOption("subj", "Selected <subject> (for source level usage only).", "subject", "mind010");
-    QCommandLineOption subjectPathOption("subjDir", "Selected <subjectPath> (for source level usage only).", "subjectPath", "/cluster/fusion/MIND/MEG-anal/subjects");
-    QCommandLineOption fwdOption("fwd", "Path to forwad solution <file> (for source level usage only).", "file", "/cluster/fusion/MIND/MEG-anal/MGH/mind010/fwd/mind010_060526_median01-fwd.fif");
-    QCommandLineOption covFileOption("cov", "Path to the covariance <file> (for source level usage only).", "file", "/cluster/fusion/MIND/MEG-anal/MGH/mind010/ave/mind010_060526_median01-cov.fif");
-    QCommandLineOption annotOption("annotType", "Annotation <type> (for source level usage only).", "type", "aparc.a2005s");
+//    QCommandLineOption rawFileOption("raw", "Path to the raw <file>.", "file", "/cluster/fusion/lesch/data/Martinos/MEG/mind010/raw/mind010_060526_median01_filtered_HP_2_raw.fif");
+//    QCommandLineOption eventsFileOption("eve", "Path to the event <file>.", "file", "/cluster/fusion/MIND/MEG-anal/MGH/mind010/raw/mind010_060526_median01_raw-eve.fif");
+//    QCommandLineOption subjectOption("subj", "Selected <subject> (for source level usage only).", "subject", "mind010");
+//    QCommandLineOption subjectPathOption("subjDir", "Selected <subjectPath> (for source level usage only).", "subjectPath", "/cluster/fusion/MIND/MEG-anal/subjects");
+//    QCommandLineOption fwdOption("fwd", "Path to forwad solution <file> (for source level usage only).", "file", "/cluster/fusion/MIND/MEG-anal/MGH/mind010/fwd/mind010_060526_median01-fwd.fif");
+//    QCommandLineOption covFileOption("cov", "Path to the covariance <file> (for source level usage only).", "file", "/cluster/fusion/MIND/MEG-anal/MGH/mind010/ave/mind010_060526_median01-cov.fif");
+//    QCommandLineOption annotOption("annotType", "Annotation <type> (for source level usage only).", "type", "aparc.a2005s");
 //    mapReject.insert("eog", 250e-06);
 ////    mapReject.insert("grad", 3000e-13);
 ////    mapReject.insert("mag", 3.5e-12);
@@ -218,11 +218,11 @@ int main(int argc, char *argv[])
     QCommandLineOption sourceLocMethodOption("sourceLocMethod", "Inverse estimation <method> (for source level usage only), i.e., 'MNE', 'dSPM' or 'sLORETA'.", "method", "dSPM");
     QCommandLineOption connectMethodOption("connectMethod", "Connectivity <method>, i.e., 'COR', 'XCOR.", "method", "IMAGCOH");
     QCommandLineOption snrOption("snr", "The SNR <value> used for computation (for source level usage only).", "value", "3.0");
-    QCommandLineOption evokedIndexOption("aveIdx", "The average <index> to choose from the average file.", "index", "2");
+    QCommandLineOption evokedIndexOption("aveIdx", "The average <index> to choose from the average file.", "index", "1");
     QCommandLineOption chTypeOption("chType", "The channel <type> (for sensor level usage only), i.e. 'eeg' or 'meg'.", "type", "meg");
     QCommandLineOption coilTypeOption("coilType", "The coil <type> (for sensor level usage only), i.e. 'grad' or 'mag'.", "type", "grad");
-    QCommandLineOption tMinOption("tmin", "The time minimum value for averaging in seconds relativ to the trigger onset.", "value", "-0.1");
-    QCommandLineOption tMaxOption("tmax", "The time maximum value for averaging in seconds relativ to the trigger onset.", "value", "0.15");
+    QCommandLineOption tMinOption("tmin", "The time minimum value for averaging in seconds relativ to the trigger onset.", "value", "-0.05");
+    QCommandLineOption tMaxOption("tmax", "The time maximum value for averaging in seconds relativ to the trigger onset.", "value", "0.20");
 
     parser.addOption(annotOption);
     parser.addOption(subjectOption);
@@ -293,7 +293,7 @@ int main(int argc, char *argv[])
     QFile t_fileRaw(sRaw);
     FiffRawData raw(t_fileRaw);
 
-    int samplesToCutOut = (fabs(fTMin) + 0.01) * raw.info.sfreq;
+    int samplesToCutOut = (fabs(fTMin) + 0.0) * raw.info.sfreq;
     QSharedPointer<ConnectivitySettingsManager> pConnectivitySettingsManager = QSharedPointer<ConnectivitySettingsManager>::create();
 
     // Select bad channels
@@ -380,7 +380,7 @@ int main(int argc, char *argv[])
 
         // Cluster forward solution
         if(bDoClust) {
-            t_clusteredFwd = t_Fwd.cluster_forward_solution(tAnnotSet, 20);
+            t_clusteredFwd = t_Fwd.cluster_forward_solution(tAnnotSet, 40);
         } else {
             t_clusteredFwd = t_Fwd;
         }
@@ -478,7 +478,7 @@ int main(int argc, char *argv[])
                 sourceEstimate.reduceInPlace(samplesToCutOut,sourceEstimate.data.cols()-samplesToCutOut);
 
                 if(bExtractLabelTimeCourses) {
-                    matDataList << sourceEstimate.extractLabelTimeCourse(lLabels, bDoClust, t_clusteredFwd.src, "meanFlip");
+                    matDataList << sourceEstimate.extractLabelTimeCourse(lLabels, bDoClust, t_clusteredFwd.src, "max");
                 } else {
                     matDataList << sourceEstimate.data;
                 }
@@ -487,9 +487,8 @@ int main(int argc, char *argv[])
 
         // Compute inverse solution for the average. This is used only for visualization.
         MinimumNorm minimumNormEvoked(inverse_operator, lambda2, sSourceLocMethod);
-        sourceEstimateEvoked = minimumNormEvoked.calculateInverse(evoked, true);
-        QFile t_fileStc("sourceEstimateEvokedFull.stc");
-        sourceEstimateEvoked.write(t_fileStc);
+        sourceEstimateEvoked = minimumNormEvoked.calculateInverse(evoked, false);
+        sourceEstimateEvoked.writePerHemi("sourceEstimateEvokedFull.stc", bDoClust);
         pConnectivitySettingsManager->m_matEvoked = evoked.data;
         pConnectivitySettingsManager->m_matEvokedSource = sourceEstimateEvoked.data;
 
@@ -631,8 +630,8 @@ int main(int argc, char *argv[])
     }
 
     tNetworkView.setQuickControlWidgets(lWidgets);
-    tNetworkView.getConnectivitySettingsView()->setNumberTrials(50);
-    pConnectivitySettingsManager->onNumberTrialsChanged(50);
+    tNetworkView.getConnectivitySettingsView()->setNumberTrials(200);
+    pConnectivitySettingsManager->onNumberTrialsChanged(200);
 
     return a.exec();
 }
