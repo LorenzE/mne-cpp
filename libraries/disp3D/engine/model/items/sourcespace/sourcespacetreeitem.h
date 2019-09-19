@@ -45,6 +45,8 @@
 #include "../common/abstractmeshtreeitem.h"
 #include "../common/types.h"
 
+#include <fs/surface.h>
+
 
 //*************************************************************************************************************
 //=============================================================================================================
@@ -117,8 +119,10 @@ public:
     * Adds source space data.
     *
     * @param[in] tHemisphere        The hemisphere data of the source space.
+    * @param[in] tSurface           FreeSurfer surface. If left empty the source space mesh from tHemisphere is plotted.
     */
-    void addData(const MNELIB::MNEHemisphere& tHemisphere);
+    void addData(const MNELIB::MNEHemisphere& tHemisphere,
+                 const FSLIB::Surface& tSurface = FSLIB::Surface());
 
 protected:
     //=========================================================================================================
@@ -126,8 +130,10 @@ protected:
     * Plots the sources a spheres.
     *
     * @param[in] tHemisphere        The hemisphere data of the source space.
+    * @param[in] tSurface           FreeSurfer surface. If left empty the source locations from from tHemisphere are used.
     */
-    void plotSources(const MNELIB::MNEHemisphere& tHemisphere);
+    void plotSources(const MNELIB::MNEHemisphere& tHemisphere,
+                     const FSLIB::Surface& tSurface = FSLIB::Surface());
 
     //=========================================================================================================
     /**

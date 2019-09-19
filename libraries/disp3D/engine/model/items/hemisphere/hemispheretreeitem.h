@@ -142,11 +142,13 @@ public:
     * Adds source space information.
     *
     * @param[in] tHemisphere        The MNEHemisphere.
+    * @param[in] tSurface           FreeSurfer surface.  If left empty the source space mesh from tHemisphere is plotted.
     * @param[in] p3DEntityParent    The Qt3D entity parent of the new item.
     *
     * @return                       Returns a pointer to the added tree item. Default is a NULL pointer if no item was added.
     */
     SourceSpaceTreeItem* addData(const MNELIB::MNEHemisphere& tHemisphere,
+                                 const FSLIB::Surface& tSurface,
                                  Qt3DCore::QEntity* p3DEntityParent = 0);
 
 protected:

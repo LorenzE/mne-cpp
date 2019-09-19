@@ -158,7 +158,7 @@ public :
     *
     * @return The colors per vertex
     */
-    static Eigen::MatrixX4f createVertColor(int numVert, const QColor& color = QColor(0,49,69));
+    static Eigen::MatrixX4f createVertColor(int numVert, const QColor& color = QColor(125,125,125));
 
     //=========================================================================================================
     /**

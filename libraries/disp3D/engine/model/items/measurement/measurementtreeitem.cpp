@@ -122,6 +122,7 @@ void MeasurementTreeItem::initItem()
 //*************************************************************************************************************
 
 QList<SourceSpaceTreeItem*> MeasurementTreeItem::addData(const MNESourceSpace& tSourceSpace,
+                                                         const SurfaceSet& tSurfSet,
                                                          Qt3DCore::QEntity* p3DEntityParent)
 {
     //Generate child items based on surface set input parameters
@@ -138,7 +139,12 @@ QList<SourceSpaceTreeItem*> MeasurementTreeItem::addData(const MNESourceSpace& t
             if(HemisphereTreeItem* pHemiItem = dynamic_cast<HemisphereTreeItem*>(itemList.at(j))) {
                 if(pHemiItem->data(Data3DTreeModelItemRoles::SurfaceHemi).toInt() == i) {
                     hemiItemFound = true;
-                    pReturnItem.append(pHemiItem->addData(tSourceSpace[i], p3DEntityParent));
+
+                    if(tSurfSet.size() >= i) {
+                        pReturnItem.append(pHemiItem->addData(tSourceSpace[i], tSurfSet[i], p3DEntityParent));
+                    } else {
+                        pReturnItem.append(pHemiItem->addData(tSourceSpace[i], Surface(), p3DEntityParent));
+                    }
                 }
             }
         }
@@ -147,7 +153,11 @@ QList<SourceSpaceTreeItem*> MeasurementTreeItem::addData(const MNESourceSpace& t
             //Item does not exist yet, create it here.
             HemisphereTreeItem* pHemiItem = new HemisphereTreeItem(Data3DTreeModelItemTypes::HemisphereItem);
 
-            pReturnItem.append(pHemiItem->addData(tSourceSpace[i], p3DEntityParent));
+            if(tSurfSet.size() >= i) {
+                pReturnItem.append(pHemiItem->addData(tSourceSpace[i], tSurfSet[i], p3DEntityParent));
+            } else {
+                pReturnItem.append(pHemiItem->addData(tSourceSpace[i], Surface(), p3DEntityParent));
+            }
 
             QList<QStandardItem*> list;
             list << pHemiItem;

@@ -216,7 +216,8 @@ FsSurfaceTreeItem* Data3DTreeModel::addSurface(const QString& subject,
 
 QList<SourceSpaceTreeItem*> Data3DTreeModel::addSourceSpace(const QString& sSubject,
                                                             const QString& sMeasurementSetName,
-                                                            const MNESourceSpace& sourceSpace)
+                                                            const MNESourceSpace& sourceSpace,
+                                                            const FSLIB::SurfaceSet& tSurfSet)
 {
     QList<SourceSpaceTreeItem*> pReturnItem;
 
@@ -228,11 +229,11 @@ QList<SourceSpaceTreeItem*> Data3DTreeModel::addSourceSpace(const QString& sSubj
 
     if(!itemList.isEmpty()) {
         MeasurementTreeItem* pMeasurementItem = dynamic_cast<MeasurementTreeItem*>(itemList.first());
-        pReturnItem = pMeasurementItem->addData(sourceSpace, m_pModelEntity);
+        pReturnItem = pMeasurementItem->addData(sourceSpace, tSurfSet, m_pModelEntity);
     } else {
         MeasurementTreeItem* pMeasurementItem = new MeasurementTreeItem(Data3DTreeModelItemTypes::MeasurementItem, sMeasurementSetName);
         AbstractTreeItem::addItemWithDescription(pSubjectItem, pMeasurementItem);
-        pReturnItem = pMeasurementItem->addData(sourceSpace, m_pModelEntity);
+        pReturnItem = pMeasurementItem->addData(sourceSpace, tSurfSet, m_pModelEntity);
     }
 
     return pReturnItem;
@@ -243,9 +244,10 @@ QList<SourceSpaceTreeItem*> Data3DTreeModel::addSourceSpace(const QString& sSubj
 
 QList<SourceSpaceTreeItem*> Data3DTreeModel::addForwardSolution(const QString& sSubject,
                                                                 const QString& sMeasurementSetName,
-                                                                const MNEForwardSolution& forwardSolution)
+                                                                const MNEForwardSolution& forwardSolution,
+                                                                const FSLIB::SurfaceSet& tSurfSet)
 {
-    return this->addSourceSpace(sSubject, sMeasurementSetName, forwardSolution.src);
+    return this->addSourceSpace(sSubject, sMeasurementSetName, forwardSolution.src, tSurfSet);
 }
 
 

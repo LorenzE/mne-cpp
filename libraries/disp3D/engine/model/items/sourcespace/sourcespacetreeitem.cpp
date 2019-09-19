@@ -40,6 +40,7 @@
 
 #include "sourcespacetreeitem.h"
 #include "../common/metatreeitem.h"
+#include "../freesurfer/fssurfacetreeitem.h"
 #include "../../3dhelpers/renderable3Dentity.h"
 #include "../../3dhelpers/custommesh.h"
 #include "../../3dhelpers/geometrymultiplier.h"
@@ -73,6 +74,7 @@
 using namespace Eigen;
 using namespace MNELIB;
 using namespace DISP3DLIB;
+using namespace FSLIB;
 
 
 //*************************************************************************************************************
@@ -100,25 +102,44 @@ void SourceSpaceTreeItem::initItem()
 
 //*************************************************************************************************************
 
-void SourceSpaceTreeItem::addData(const MNEHemisphere& tHemisphere)
+void SourceSpaceTreeItem::addData(const MNEHemisphere& tHemisphere,
+                                  const Surface& tSurface)
 {
-    //Create color from curvature information with default gyri and sulcus colors
-    MatrixX4f matVertColor = createVertColor(tHemisphere.rr.rows());
-
-    //Set renderable 3D entity mesh and color data
-    m_pCustomMesh->setMeshData(tHemisphere.rr,
-                               tHemisphere.nn,
-                               tHemisphere.tris,
-                               matVertColor,
-                               Qt3DRender::QGeometryRenderer::Triangles);
-
-    //Add data which is held by this SourceSpaceTreeItem
     QVariant data;
 
-    data.setValue(tHemisphere.rr.rows());
+    if(tSurface.rr().rows() == 0) {
+        //Create color from curvature information with default gyri and sulcus colors
+        MatrixX4f matVertColor = createVertColor(tHemisphere.rr.rows());
+
+        //Set renderable 3D entity mesh and color data
+        m_pCustomMesh->setMeshData(tHemisphere.rr,
+                                   tHemisphere.nn,
+                                   tHemisphere.tris,
+                                   matVertColor,
+                                   Qt3DRender::QGeometryRenderer::Triangles);
+
+        data.setValue(tHemisphere.rr.rows());
+    } else {
+        //Create color from curvature information with default gyri and sulcus colors
+        MatrixX4f matVertColor = FsSurfaceTreeItem::createCurvatureVertColor(tSurface.curv());
+
+        //Set renderable 3D entity mesh and color data
+        m_pCustomMesh->setMeshData(tSurface.rr(),
+                                   tSurface.nn(),
+                                   tSurface.tris(),
+                                   matVertColor,
+                                   Qt3DRender::QGeometryRenderer::Triangles);
+
+        this->setPosition(QVector3D(-tSurface.offset()(0), -tSurface.offset()(1), -tSurface.offset()(2)));
+
+        data.setValue(tSurface.rr().rows());
+    }
+
+
+    //Add data which is held by this SourceSpaceTreeItem
     this->setData(data, Data3DTreeModelItemRoles::NumberVertices);
 
-    plotSources(tHemisphere);
+    plotSources(tHemisphere, tSurface);
 
     this->setAlpha(1.0f);
 }
@@ -126,15 +147,19 @@ void SourceSpaceTreeItem::addData(const MNEHemisphere& tHemisphere)
 
 //*************************************************************************************************************
 
-void SourceSpaceTreeItem::plotSources(const MNEHemisphere& tHemisphere)
+void SourceSpaceTreeItem::plotSources(const MNEHemisphere& tHemisphere,
+                                      const Surface& tSurface)
 {
+    this->setAlpha(0.75f);
+
     //use QEntity instead of Renderable3DEntity to avoid a double transformation of digitizers
     //from Abstract3DMeshTree and the child Renderable3DEntity
     QEntity* pSourceSphereEntity = new QEntity(this);
 
     //create geometry
     QSharedPointer<Qt3DExtras::QSphereGeometry> pSourceSphereGeometry = QSharedPointer<Qt3DExtras::QSphereGeometry>::create();
-    pSourceSphereGeometry->setRadius(0.00075f);
+
+
     //create instanced renderer
     GeometryMultiplier *pSphereMesh = new GeometryMultiplier(pSourceSphereGeometry);
 
@@ -142,14 +167,33 @@ void SourceSpaceTreeItem::plotSources(const MNEHemisphere& tHemisphere)
     QVector<QMatrix4x4> vTransforms;
     QVector3D tempPos;
 
+    //QColor defaultColor(240, 50, 50, 255);
+    //QColor defaultColor(33, 101, 176, 255);
+    //QColor defaultColor(212, 28, 92, 255);
+    //QColor defaultColor(20, 20, 255, 255);
+
+    QVector<QColor> vColors;
+    QMatrix4x4 tempTransform;
+    Vector3f sourcePos;
+
     if(tHemisphere.isClustered())
     {
+        //QColor defaultColor(212, 28, 92, 255);
+        QColor defaultColor(0, 49, 69, 255);
+
+        pSourceSphereGeometry->setRadius(0.002f);
         vTransforms.reserve(tHemisphere.cluster_info.centroidVertno.size());
+        vColors.fill(defaultColor, tHemisphere.cluster_info.centroidVertno.size());
 
         for(int i = 0; i < tHemisphere.cluster_info.centroidVertno.size(); i++)
         {
-            QMatrix4x4 tempTransform;
-            const RowVector3f& sourcePos = tHemisphere.rr.row(tHemisphere.cluster_info.centroidVertno.at(i));
+            tempTransform.setToIdentity();
+
+            if(tSurface.rr().rows() == 0) {
+                sourcePos = tHemisphere.rr.row(tHemisphere.cluster_info.centroidVertno.at(i));
+            } else {
+                sourcePos = tSurface.rr().row(tHemisphere.cluster_info.centroidVertno.at(i));
+            }
 
             tempPos.setX(sourcePos(0));
             tempPos.setY(sourcePos(1));
@@ -162,12 +206,20 @@ void SourceSpaceTreeItem::plotSources(const MNEHemisphere& tHemisphere)
     }
     else
     {
+        QColor defaultColor(0, 49, 69, 255);
+        pSourceSphereGeometry->setRadius(0.001f);
         vTransforms.reserve(tHemisphere.vertno.rows());
+        vColors.fill(defaultColor, tHemisphere.vertno.rows());
 
         for(int i = 0; i < tHemisphere.vertno.rows(); i++)
         {
-            QMatrix4x4 tempTransform;
-            const RowVector3f& sourcePos = tHemisphere.rr.row(tHemisphere.vertno(i));
+            tempTransform.setToIdentity();
+
+            if(tSurface.rr().rows() == 0) {
+                sourcePos = tHemisphere.rr.row(tHemisphere.vertno(i));
+            } else {
+                sourcePos = tSurface.rr().row(tHemisphere.vertno(i));
+            }
 
             tempPos.setX(sourcePos(0));
             tempPos.setY(sourcePos(1));
@@ -178,15 +230,15 @@ void SourceSpaceTreeItem::plotSources(const MNEHemisphere& tHemisphere)
             vTransforms.push_back(tempTransform);
         }
     }
+
     //Set instance Transform
     pSphereMesh->setTransforms(vTransforms);
+    pSphereMesh->setColors(vColors);
 
     pSourceSphereEntity->addComponent(pSphereMesh);
 
     //Add material
     GeometryMultiplierMaterial* pMaterial = new GeometryMultiplierMaterial;
-    QColor defaultColor(212, 28, 92);
-    pMaterial->setAmbient(defaultColor);
     pMaterial->setAlpha(1.0f);
 
     pSourceSphereEntity->addComponent(pMaterial);

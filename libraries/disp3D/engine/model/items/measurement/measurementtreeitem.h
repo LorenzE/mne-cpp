@@ -145,11 +145,13 @@ public:
     *
     * @param[in] tSourceSpace       The source space data.
     * @param[in] p3DEntityParent    The Qt3D entity parent of the new item.
+    * @param[in] tSurfSet           The surface set holding the left and right hemisphere surfaces. If left empty the source space mesh from sourceSpace is plotted.
     *
     * @return                       Returns a pointer to the added tree item. Default is a NULL pointer if no item was added.
     */
     QList<SourceSpaceTreeItem*> addData(const MNELIB::MNESourceSpace& tSourceSpace,
-                                 Qt3DCore::QEntity* p3DEntityParent = 0);
+                                        const FSLIB::SurfaceSet &tSurfSet,
+                                        Qt3DCore::QEntity* p3DEntityParent = 0);
 
     //=========================================================================================================
     /**

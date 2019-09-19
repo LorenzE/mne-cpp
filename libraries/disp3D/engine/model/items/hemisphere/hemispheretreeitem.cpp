@@ -159,6 +159,7 @@ FsSurfaceTreeItem* HemisphereTreeItem::addData(const Surface& tSurface,
 //*************************************************************************************************************
 
 SourceSpaceTreeItem* HemisphereTreeItem::addData(const MNEHemisphere& tHemisphere,
+                                                 const FSLIB::Surface& tSurface,
                                                  Qt3DCore::QEntity* p3DEntityParent)
 {
     //Set name of HemisphereTreeItem based on the hemisphere information
@@ -189,7 +190,7 @@ SourceSpaceTreeItem* HemisphereTreeItem::addData(const MNEHemisphere& tHemispher
     list << new QStandardItem(pSourceSpaceItem->toolTip());
     this->appendRow(list);
 
-    pSourceSpaceItem->addData(tHemisphere);
+    pSourceSpaceItem->addData(tHemisphere, tSurface);
 
     return pSourceSpaceItem;
 }

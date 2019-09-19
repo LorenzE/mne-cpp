@@ -50,6 +50,8 @@
 
 #include <connectivity/network/network.h>
 
+#include <fs/surfaceset.h>
+
 
 //*************************************************************************************************************
 //=============================================================================================================
@@ -77,9 +79,7 @@ namespace Qt3DCore {
 
 class QSurfaceFormat;
 
-
 namespace FSLIB {
-    class SurfaceSet;
     class AnnotationSet;
     class Annotation;
     class Surface;
@@ -201,12 +201,14 @@ public:
     * @param[in] sSubject               The name of the subject.
     * @param[in] sMeasurementSetName    The name of the measurement set to which the data is to be added. If it does not exist yet, it will be created.
     * @param[in] sourceSpace            The source space information.
+    * @param[in] tSurfSet               The surface set holding the left and right hemisphere surfaces. If left empty the source space mesh from sourceSpace is plotted.
     *
     * @return                           Returns a pointer to the added tree item. Default is a NULL pointer if no item was added.
     */
     QList<SourceSpaceTreeItem*> addSourceSpace(const QString& sSubject,
                                                const QString& sMeasurementSetName,
-                                               const MNELIB::MNESourceSpace& sourceSpace);
+                                               const MNELIB::MNESourceSpace& sourceSpace,
+                                               const FSLIB::SurfaceSet &tSurfSet = FSLIB::SurfaceSet());
 
     //=========================================================================================================
     /**
@@ -215,12 +217,14 @@ public:
     * @param[in] sSubject               The name of the subject.
     * @param[in] sMeasurementSetName    The name of the measurement set to which the data is to be added. If it does not exist yet, it will be created.
     * @param[in] forwardSolution        The forward solution information.
+    * @param[in] tSurfSet               The surface set holding the left and right hemisphere surfaces. If left empty the source space mesh from forwardSolution is plotted.
     *
     * @return                           Returns a pointer to the added tree item. Default is a NULL pointer if no item was added.
     */
     QList<SourceSpaceTreeItem*> addForwardSolution(const QString& sSubject,
-                                            const QString& sMeasurementSetName,
-                                            const MNELIB::MNEForwardSolution& forwardSolution);
+                                                   const QString& sMeasurementSetName,
+                                                   const MNELIB::MNEForwardSolution& forwardSolution,
+                                                   const FSLIB::SurfaceSet &tSurfSet = FSLIB::SurfaceSet());
 
     //=========================================================================================================
     /**
