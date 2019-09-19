@@ -122,17 +122,19 @@ void GeometryMultiplier::setTransforms(const QVector<QMatrix4x4> &tInstanceTansf
 
 void GeometryMultiplier::setColors(const QVector<QColor> &tInstanceColors)
 {
-    //Update buffer content
-    m_pColorBuffer->setData(buildColorBuffer(tInstanceColors));
-
-    if(tInstanceColors.size() > 1) {
-        m_pColorAttribute->setDivisor(1);
-    } else {
-        //enable 1 color for x transforms
-        m_pColorAttribute->setDivisor(0);
+    if(this->instanceCount() != tInstanceColors.size()) {
+        qWarning() << "GeometryMultiplier::setColors - Size of input colors is unequal to instance count.";
     }
 
-    this->setInstanceCount(tInstanceColors.size());
+    m_pColorAttribute->setDivisor(1);
+
+    if(tInstanceColors.size() <= 1) {
+        QVector<QColor> colors(this->instanceCount(), tInstanceColors.first());
+        m_pColorBuffer->setData(buildColorBuffer(colors));
+    } else {
+        m_pColorBuffer->setData(buildColorBuffer(tInstanceColors));
+        this->setInstanceCount(tInstanceColors.size());
+    }
 }
 
 
