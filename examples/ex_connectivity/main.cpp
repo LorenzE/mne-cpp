@@ -145,13 +145,13 @@ int main(int argc, char *argv[])
 
 //    QCommandLineOption rawFileOption("fileIn", "The input file <in>.", "in", QCoreApplication::applicationDirPath() + "/MNE-sample-data/MEG/sample/sample_audvis_raw.fif");
 //    QCommandLineOption eventsFileOption("eve", "Path to the event <file>.", "file", QCoreApplication::applicationDirPath() + "/MNE-sample-data/MEG/sample/sample_audvis_raw-eve.fif");
-    QCommandLineOption rawFileOption("fileIn", "The input file <in>.", "in", QCoreApplication::applicationDirPath() + "/MNE-sample-data/MEG/sample/sample_audvis-meg-eeg-oct-6-simulated-raw.fif");
-    QCommandLineOption eventsFileOption("eve", "Path to the event <file>.", "file", QCoreApplication::applicationDirPath() + "/MNE-sample-data/MEG/sample/sample_audvis-meg-eeg-oct-6-simulated-eve.fif");
-    QCommandLineOption fwdOption("fwd", "Path to forwad solution <file>.", "file", QCoreApplication::applicationDirPath() + "/MNE-sample-data/MEG/sample/sample_audvis-meg-oct-6-fwd.fif");
-    QCommandLineOption subjectOption("subject", "Selected subject <subject>.", "subject", "sample");
-    QCommandLineOption subjectPathOption("subjectPath", "Selected subject path <subjectPath>.", "subjectPath", QCoreApplication::applicationDirPath() + "/MNE-sample-data/subjects");
-    QCommandLineOption covFileOption("cov", "Path to the covariance <file>.", "file", QCoreApplication::applicationDirPath() + "/MNE-sample-data/MEG/sample/sample_audvis-meg-simulated-cov.fif");
-    QCommandLineOption annotOption("annotType", "Annotation <type> (for source level usage only).", "type", "aparc.a2009s");
+//    QCommandLineOption rawFileOption("fileIn", "The input file <in>.", "in", QCoreApplication::applicationDirPath() + "/MNE-sample-data/MEG/sample/sample_audvis-meg-eeg-oct-6-simulated-raw.fif");
+//    QCommandLineOption eventsFileOption("eve", "Path to the event <file>.", "file", QCoreApplication::applicationDirPath() + "/MNE-sample-data/MEG/sample/sample_audvis-meg-eeg-oct-6-simulated-eve.fif");
+//    QCommandLineOption fwdOption("fwd", "Path to forwad solution <file>.", "file", QCoreApplication::applicationDirPath() + "/MNE-sample-data/MEG/sample/sample_audvis-meg-oct-6-fwd.fif");
+//    QCommandLineOption subjectOption("subject", "Selected subject <subject>.", "subject", "sample");
+//    QCommandLineOption subjectPathOption("subjectPath", "Selected subject path <subjectPath>.", "subjectPath", QCoreApplication::applicationDirPath() + "/MNE-sample-data/subjects");
+//    QCommandLineOption covFileOption("cov", "Path to the covariance <file>.", "file", QCoreApplication::applicationDirPath() + "/MNE-sample-data/MEG/sample/sample_audvis-meg-simulated-cov.fif");
+//    QCommandLineOption annotOption("annotType", "Annotation <type> (for source level usage only).", "type", "aparc.a2009s");
 
 //    QCommandLineOption rawFileOption("fileIn", "The input file <in>.", "in", "Y:/Git/mne-cpp-lorenze/bin/MNE-sample-data/MEG/sample/sample_audvis-meg-eeg-oct-6-simulated-raw.fif");
 //    QCommandLineOption eventsFileOption("eve", "Path to the event <file>.", "file", "Y:/Git/mne-cpp-lorenze/bin/MNE-sample-data/MEG/sample/sample_audvis-meg-eeg-oct-6-simulated-eve.fif");
@@ -210,16 +210,16 @@ int main(int argc, char *argv[])
 ////    mapReject.insert("grad", 3000e-13);
 ////    mapReject.insert("mag", 3.5e-12);
 
-//    QCommandLineOption rawFileOption("raw", "Path to the raw <file>.", "file", "/cluster/fusion/lesch/data/Martinos/MEG/mind010/raw/mind010_060526_median01_filtered_HP_2_raw.fif");
-//    QCommandLineOption eventsFileOption("eve", "Path to the event <file>.", "file", "/cluster/fusion/MIND/MEG-anal/MGH/mind010/raw/mind010_060526_median01_raw-eve.fif");
-//    QCommandLineOption subjectOption("subj", "Selected <subject> (for source level usage only).", "subject", "mind010");
-//    QCommandLineOption subjectPathOption("subjDir", "Selected <subjectPath> (for source level usage only).", "subjectPath", "/cluster/fusion/MIND/MEG-anal/subjects");
-//    QCommandLineOption fwdOption("fwd", "Path to forwad solution <file> (for source level usage only).", "file", "/cluster/fusion/MIND/MEG-anal/MGH/mind010/fwd/mind010_060526_median01-fwd.fif");
-//    QCommandLineOption covFileOption("cov", "Path to the covariance <file> (for source level usage only).", "file", "/cluster/fusion/MIND/MEG-anal/MGH/mind010/ave/mind010_060526_median01-cov.fif");
-//    QCommandLineOption annotOption("annotType", "Annotation <type> (for source level usage only).", "type", "aparc.a2005s");
+    QCommandLineOption rawFileOption("raw", "Path to the raw <file>.", "file", "/cluster/fusion/lesch/data/Martinos/MEG/mind010/raw/mind010_060526_median01_filtered_HP_2_raw.fif");
+    QCommandLineOption eventsFileOption("eve", "Path to the event <file>.", "file", "/cluster/fusion/MIND/MEG-anal/MGH/mind010/raw/mind010_060526_median01_raw-eve.fif");
+    QCommandLineOption subjectOption("subj", "Selected <subject> (for source level usage only).", "subject", "mind010");
+    QCommandLineOption subjectPathOption("subjDir", "Selected <subjectPath> (for source level usage only).", "subjectPath", "/cluster/fusion/MIND/MEG-anal/subjects");
+    QCommandLineOption fwdOption("fwd", "Path to forwad solution <file> (for source level usage only).", "file", "/cluster/fusion/MIND/MEG-anal/MGH/mind010/fwd/mind010_060526_median01-fwd.fif");
+    QCommandLineOption covFileOption("cov", "Path to the covariance <file> (for source level usage only).", "file", "/cluster/fusion/MIND/MEG-anal/MGH/mind010/ave/mind010_060526_median01-cov.fif");
+    QCommandLineOption annotOption("annotType", "Annotation <type> (for source level usage only).", "type", "aparc.a2005s");
 //    mapReject.insert("eog", 250e-06);
-////    mapReject.insert("grad", 3000e-13);
-////    mapReject.insert("mag", 3.5e-12);
+//    mapReject.insert("grad", 3000e-13);
+//    mapReject.insert("mag", 3.5e-12);
 
     QCommandLineOption sourceLocOption("doSourceLoc", "Do source localization (for source level usage only).", "doSourceLoc", "true");
     QCommandLineOption clustOption("doClust", "Do clustering of source space (for source level usage only).", "doClust", "true");
@@ -301,7 +301,7 @@ int main(int argc, char *argv[])
     QFile t_fileRaw(sRaw);
     FiffRawData raw(t_fileRaw);
 
-    int samplesToCutOut = (fabs(fTMin) + 0.0) * raw.info.sfreq;
+    int samplesToCutOut = (fabs(fTMin) + 0.01) * raw.info.sfreq;
     QSharedPointer<ConnectivitySettingsManager> pConnectivitySettingsManager = QSharedPointer<ConnectivitySettingsManager>::create();
 
     // Select bad channels
@@ -503,7 +503,7 @@ int main(int argc, char *argv[])
             } else {
                 sourceEstimate.reduceInPlace(samplesToCutOut,sourceEstimate.data.cols()-samplesToCutOut);
 
-        if(bExtractLabelTimeCourses) {
+                if(bExtractLabelTimeCourses) {
                     matDataList << sourceEstimate.extractLabelTimeCourse(lLabels, bDoClust, t_clusteredFwd.src, "max");
                 } else {
                     matDataList << sourceEstimate.data;
