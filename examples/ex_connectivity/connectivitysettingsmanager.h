@@ -110,8 +110,8 @@ public:
                          this, &ConnectivitySettingsManager::onNewConnectivityResultAvailable);
 
         // Default frequency range
-        m_fFreqBandLow = 16.0f;
-        m_fFreqBandHigh = 22.0f;
+        m_fFreqBandLow = 18.0f;
+        m_fFreqBandHigh = 30.0f;
     }
 
     ConnectivitySettings    m_settings;
