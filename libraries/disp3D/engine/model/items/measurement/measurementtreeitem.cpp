@@ -140,7 +140,7 @@ QList<SourceSpaceTreeItem*> MeasurementTreeItem::addData(const MNESourceSpace& t
                 if(pHemiItem->data(Data3DTreeModelItemRoles::SurfaceHemi).toInt() == i) {
                     hemiItemFound = true;
 
-                    if(tSurfSet.size() >= i) {
+                    if(tSurfSet.size() > i) {
                         pReturnItem.append(pHemiItem->addData(tSourceSpace[i], tSurfSet[i], p3DEntityParent));
                     } else {
                         pReturnItem.append(pHemiItem->addData(tSourceSpace[i], Surface(), p3DEntityParent));
@@ -153,7 +153,7 @@ QList<SourceSpaceTreeItem*> MeasurementTreeItem::addData(const MNESourceSpace& t
             //Item does not exist yet, create it here.
             HemisphereTreeItem* pHemiItem = new HemisphereTreeItem(Data3DTreeModelItemTypes::HemisphereItem);
 
-            if(tSurfSet.size() >= i) {
+            if(tSurfSet.size() > i) {
                 pReturnItem.append(pHemiItem->addData(tSourceSpace[i], tSurfSet[i], p3DEntityParent));
             } else {
                 pReturnItem.append(pHemiItem->addData(tSourceSpace[i], Surface(), p3DEntityParent));
