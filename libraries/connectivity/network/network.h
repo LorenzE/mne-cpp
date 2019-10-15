@@ -84,7 +84,7 @@ class NetworkEdge;
 class NetworkNode;
 
 struct VisualizationInfo {
-    QString sMethod = "Color";                                  /**< The color method: Map (uses sColormap parameter) or Color (uses colNodes and colEdges).*/
+    QString sMethod = "Color";                                    /**< The color method: Map (uses sColormap parameter) or Color (uses colNodes and colEdges).*/
     QString sColormap = "Viridis";                              /**< The colormap.*/
     Eigen::Vector4i colNodes = Eigen::Vector4i(0, 49, 69, 255); /**< The node color.*/
     Eigen::Vector4i colEdges = Eigen::Vector4i(0, 49, 69, 255); /**< The edge color.*/
@@ -109,10 +109,20 @@ public:
     * Constructs a Network object.
     *
     * @param[in] sConnectivityMethod    The connectivity measure method used to create the data of this network structure.
-    * @param[in] dThreshold             The threshold of the network. Default is 0.0.
     */
-    explicit Network(const QString& sConnectivityMethod = "Unknown",
-                     double dThreshold = 0.0);
+    explicit Network(const QString& sConnectivityMethod = "Unknown");
+
+    //=========================================================================================================
+    /**
+    * Constructs a Network object from a connectivity matrix.
+    *
+    * @param[in] matNodePos             The node positions in 3D space.
+    * @param[in] matDist                The connectivity/distance matrix in form of a lower triangular matrix.
+    * @param[in] sConnectivityMethod    The connectivity measure method used to create the data of this network structure.
+    */
+    explicit Network(const Eigen::MatrixX3f matNodePos,
+                     const Eigen::MatrixXd& matDist,
+                     const QString& sConnectivityMethod = "Unknown");
 
     //=========================================================================================================
     /**
@@ -286,7 +296,7 @@ public:
 
     //=========================================================================================================
     /**
-    * Sets the frequency range to average from/to.
+    * Sets the frequency range to average from/to. If you want to normalize the network, this should be done beforehand.
     *
     * @param[in] fLowerFreq        The new lower frequency edge to average from.
     * @param[in] fUpperFreq        The new upper frequency edge to average to.

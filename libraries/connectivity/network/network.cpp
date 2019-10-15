@@ -84,12 +84,11 @@ using namespace UTILSLIB;
 // DEFINE MEMBER METHODS
 //=============================================================================================================
 
-Network::Network(const QString& sConnectivityMethod,
-                 double dThreshold)
+Network::Network(const QString& sConnectivityMethod)
 : m_sConnectivityMethod(sConnectivityMethod)
 , m_minMaxFullWeights(QPair<double,double>(std::numeric_limits<double>::max(),0.0))
 , m_minMaxThresholdedWeights(QPair<double,double>(std::numeric_limits<double>::max(),0.0))
-, m_dThreshold(dThreshold)
+, m_dThreshold(0.0)
 , m_fSFreq(0.0f)
 , m_iFFTSize(128)
 , m_iNumberFreqBins(0)
@@ -98,6 +97,62 @@ Network::Network(const QString& sConnectivityMethod,
     qRegisterMetaType<CONNECTIVITYLIB::Network::SPtr>("CONNECTIVITYLIB::Network::SPtr");
     qRegisterMetaType<QList<CONNECTIVITYLIB::Network> >("QList<CONNECTIVITYLIB::Network>");
     qRegisterMetaType<QList<CONNECTIVITYLIB::Network::SPtr> >("QList<CONNECTIVITYLIB::Network::SPtr>");
+}
+
+
+//*************************************************************************************************************
+
+Network::Network(const Eigen::MatrixX3f matNodePos,
+                 const Eigen::MatrixXd& matDist,
+                 const QString& sConnectivityMethod)
+: m_sConnectivityMethod(sConnectivityMethod)
+, m_minMaxFullWeights(QPair<double,double>(std::numeric_limits<double>::max(),0.0))
+, m_minMaxThresholdedWeights(QPair<double,double>(std::numeric_limits<double>::max(),0.0))
+, m_dThreshold(0.0)
+, m_fSFreq(0.0f)
+, m_iFFTSize(128)
+, m_iNumberFreqBins(0)
+{
+    qRegisterMetaType<CONNECTIVITYLIB::Network>("CONNECTIVITYLIB::Network");
+    qRegisterMetaType<CONNECTIVITYLIB::Network::SPtr>("CONNECTIVITYLIB::Network::SPtr");
+    qRegisterMetaType<QList<CONNECTIVITYLIB::Network> >("QList<CONNECTIVITYLIB::Network>");
+    qRegisterMetaType<QList<CONNECTIVITYLIB::Network::SPtr> >("QList<CONNECTIVITYLIB::Network::SPtr>");
+
+    if(matNodePos.rows() != matDist.rows() ||
+       matNodePos.rows() != matDist.cols()) {
+        qWarning() << "Network::Network - The number of node positions does not match the number of rows or columns in the connectivity matrix. Returning empty object.";
+        return;
+    }
+
+    // First create the nodes
+    RowVectorXf rowVert = RowVectorXf::Zero(3);
+
+    for(int i = 0; i < matNodePos.rows(); ++i) {
+        rowVert = RowVectorXf::Zero(3);
+
+        if(matNodePos.rows() != 0 && i < matNodePos.rows()) {
+            rowVert(0) = matNodePos.row(i)(0);
+            rowVert(1) = matNodePos.row(i)(1);
+            rowVert(2) = matNodePos.row(i)(2);
+        }
+
+        this->append(NetworkNode::SPtr(new NetworkNode(i, rowVert)));
+    }
+
+    // Fill network based on connectivity weights present in the (upper triangular) matrix
+    QSharedPointer<NetworkEdge> pEdge;
+    MatrixXd element(1,1);
+
+    for(int i = 0; i < matDist.rows(); ++i) {
+        for(int j = i; j < matDist.cols(); ++j) {
+            element(0,0) = matDist(i,j);
+            pEdge = QSharedPointer<NetworkEdge>(new NetworkEdge(i, j, element));
+
+            this->getNodeAt(i)->append(pEdge);
+            this->getNodeAt(j)->append(pEdge);
+            this->append(pEdge);
+        }
+    }
 }
 
 
