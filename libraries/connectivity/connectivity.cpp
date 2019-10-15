@@ -54,6 +54,8 @@
 #include "metrics/debiasedsquaredweightedphaselagindex.h"
 
 
+#include <utils/ioutils.h>
+#include <QDateTime>
 //*************************************************************************************************************
 //=============================================================================================================
 // QT INCLUDES
@@ -148,6 +150,18 @@ QList<Network> Connectivity::calculate(ConnectivitySettings& connectivitySetting
     if(!AbstractMetric::m_bStorageModeIsActive) {
         connectivitySettings.clearIntermediateData();
     }
+
+    QDateTime dateTime = QDateTime::currentDateTime();
+
+    for(int i = 0; i < results.size(); ++i) {
+        Network network = results.at(i);
+        network.setFrequencyRange(18,30);
+        network.normalize();
+        UTILSLIB::IOUtils::write_eigen_matrix(network.getFullConnectivityMatrix(false),
+                                              QString("connMat_%1_%2.txt").arg(network.getConnectivityMethod()).arg(dateTime.toString("yyyy_MM_dd_hh_mm_ss")),
+                                              QString("trials_%1_method_%2_freqband_%3_%4").arg(connectivitySettings.size()).arg(network.getConnectivityMethod()).arg(network.getFrequencyRange().first).arg(network.getFrequencyRange().second));
+    }
+
 
     return results;
 }
