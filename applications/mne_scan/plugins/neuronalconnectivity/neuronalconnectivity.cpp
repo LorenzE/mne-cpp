@@ -269,7 +269,7 @@ void NeuronalConnectivity::updateSource(SCMEASLIB::Measurement::SPtr pMeasuremen
             for(int j = 0; j < pRTSE->getValue()[i]->times.cols(); ++j) {
                 if(pRTSE->getValue()[i]->times(j) >= 0) {
                     iZeroIdx = j;
-                    //iZeroIdx = j + m_pFiffInfo->sfreq * 0.01; //Cut stimulus artifact, e.g. for median nerve stimulation.
+                    iZeroIdx = j + m_pFiffInfo->sfreq * 0.01; //Cut stimulus artifact, e.g. for median nerve stimulation.
                     break;
                 }
             }

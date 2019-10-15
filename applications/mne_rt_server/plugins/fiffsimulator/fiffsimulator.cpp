@@ -88,7 +88,8 @@ const QString FiffSimulator::Commands::SIMFILE      = "simfile";
 
 FiffSimulator::FiffSimulator()
 : m_pFiffProducer(new FiffProducer(this))
-, m_sResourceDataPath(QString("%1/MNE-sample-data/MEG/sample/sample_audvis_raw.fif").arg(QCoreApplication::applicationDirPath()))
+//, m_sResourceDataPath(QString("%1/MNE-sample-data/MEG/sample/sample_audvis_raw.fif").arg(QCoreApplication::applicationDirPath()))
+, m_sResourceDataPath("/cluster/fusion/lesch/data/Martinos/MEG/mind010/raw/mind010_060526_median01_filtered_HP_2_raw.fif")
 , m_uiBufferSampleSize(100)//(4)
 , m_AccelerationFactor(1.0)
 , m_TrueSamplingRate(0.0)
