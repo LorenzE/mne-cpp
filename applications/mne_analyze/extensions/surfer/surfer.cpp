@@ -410,10 +410,10 @@ void Surfer::updateSurfaceModelMesh(QSharedPointer<SurfaceModel> pModel, CustomM
     pMesh->setIndex(tris);
 
     // Colors
-    Eigen::MatrixX3f colors;
+    Eigen::MatrixX4f colors;
     int rows = pModel->columnCount(pModel->index(0, 0, QModelIndex()));
-    colors.resize(rows, 3);
-    colors.setConstant(rows, 3, 0.6);
+    colors.resize(rows, 4);
+    colors.setConstant(rows, 4, 0.6);
     pMesh->setColor(colors);
 }
 
