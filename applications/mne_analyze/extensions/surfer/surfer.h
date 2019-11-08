@@ -133,35 +133,7 @@ public:
     virtual QDockWidget* getControl() override;
     virtual QWidget* getView() override;
     virtual void handleEvent(QSharedPointer<ANSHAREDLIB::Event> e) override;
-    virtual QVector<ANSHAREDLIB::Event::EVENT_TYPE> getEventSubscriptions() const override;
-
-private slots:
-
-    //=========================================================================================================
-    /**
-    * This is called by the SurferControl (via a connect).
-    * It opens a file dialog so that the user can choose the file to load.
-    */
-    void onLoadNewSurface();
-
-    //=========================================================================================================
-    /**
-    * This is called by the SurferControl (via a connect).
-    * It toggles visibility for the corresponding surface (see m_mLoadedSurfaces).
-    *
-    * @param[in] pItem The Item that was changed.
-    */
-    void onSurfaceSelectionChanged(const QListWidgetItem* pItem);
-
-    //=========================================================================================================
-    /**
-    * This is called by the SurferControl (via a connect).
-    * It removes the corresponding surface (see m_mLoadedSurfaces) and destructs its entity tree.
-    * CAUTION this method will DELETE the passed pointer.
-    *
-    * @param pItem The Item that was removed.
-    */
-    void onRemoveSurface(QListWidgetItem* pItem);
+    virtual QVector<ANSHAREDLIB::EVENT_TYPE> getEventSubscriptions() const override;
 
 private slots:
 

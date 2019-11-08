@@ -74,11 +74,11 @@ SOURCES += \
     Management/event.cpp \
     Management/communicator.cpp \
     Management/eventmanager.cpp \
-    Model/ecdsetmodel.cpp
+    Model/ecdsetmodel.cpp \
     Model/qentitylistmodel.cpp \
     Data/dipolefitsettingswrapper.cpp \
     Management/statusbar.cpp \
-    Model/fiffrawmodel.cpp
+    Model/fiffrawmodel.cpp \
 
 HEADERS += \
     anshared_global.h \
@@ -94,13 +94,12 @@ HEADERS += \
     Management/communicator.h \
     Management/eventmanager.h \
     Model/abstractmodel.h \
-    Model/ecdsetmodel.h
+    Model/ecdsetmodel.h \
     Utils/metatypes.h \
     Model/qentitylistmodel.h \
     Data/dipolefitsettingswrapper.h \
     Management/statusbar.h \
-    Model/fiffrawmodel.h
-
+    Model/fiffrawmodel.h \
 
 INCLUDEPATH += $${EIGEN_INCLUDE_DIR}
 INCLUDEPATH += $${MNE_INCLUDE_DIR}

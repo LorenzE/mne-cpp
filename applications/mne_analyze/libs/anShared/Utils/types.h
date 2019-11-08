@@ -104,9 +104,5 @@ namespace ANSHAREDLIB
     };
 } //NAMESPACE
 
-Q_DECLARE_METATYPE(Eigen::Vector3f);
-Q_DECLARE_METATYPE(Eigen::Vector3i);
-Q_DECLARE_METATYPE(INVERSELIB::ECD);
-
 
 #endif // TYPES_H

@@ -54,29 +54,4 @@ Q_DECLARE_METATYPE(INVERSELIB::ECD);
 Q_DECLARE_METATYPE(QSharedPointer<ANSHAREDLIB::Event>);
 Q_DECLARE_METATYPE(ANSHAREDLIB::ChannelData);
 
-namespace ANSHAREDLIB {
-
-    //=========================================================================================================
-    /**
-    * The MODEL_TYPE enum lists all available model types.
-    * Naming convention: NAMESPACE_CLASSNAME_MODEL
-    */
-    enum MODEL_TYPE
-    {
-        FSLIB_SURFACE_MODEL,
-        INVERSE_ECDSET_MODEL
-    };
-
-    //=========================================================================================================
-    /**
-    * Public enum for all available Event types.
-    */
-    enum EVENT_TYPE
-    {
-        PING,
-        DEFAULT
-    };
-
-} //NAMESPACE ANSHAREDLIB
-
 #endif // ENUMS_H

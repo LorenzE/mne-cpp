@@ -132,12 +132,12 @@ signals:
     void mainWindowClosed();
 
 private:
-    void createActions(QSharedPointer<ANSHAREDLIB::ExtensionManager> pExtensionManager);       /**< Creates all actions for user interface of MainWindow class. */
-    void createMenus(QSharedPointer<ANSHAREDLIB::ExtensionManager> pExtensionManager);         /**< Creates all menus for user interface of MainWindow class. */
-    void createDockWindows(QSharedPointer<ANSHAREDLIB::ExtensionManager> pExtensionManager);   /**< Creates all dock windows for user interface of MainWindow class. */
-    void createMdiView(QSharedPointer<ANSHAREDLIB::ExtensionManager> pExtensionManager);       /**< Creates all Windows within the MDI View for user interface of MainWindow class. */
-    void tabifyDockWindows();   /**< Tabify all dock windows */
-    void about();               /**< Implements about action.*/
+    void createActions();                                                                       /**< Creates all actions for user interface of MainWindow class. */
+    void createMenus(QSharedPointer<ANSHAREDLIB::ExtensionManager> pExtensionManager);          /**< Creates all menus for user interface of MainWindow class. */
+    void createDockWindows(QSharedPointer<ANSHAREDLIB::ExtensionManager> pExtensionManager);    /**< Creates all dock windows for user interface of MainWindow class. */
+    void createMdiView(QSharedPointer<ANSHAREDLIB::ExtensionManager> pExtensionManager);        /**< Creates all Windows within the MDI View for user interface of MainWindow class. */
+    void tabifyDockWindows();                                                                   /**< Tabify all dock windows */
+    void about();                                                                               /**< Implements about action.*/
 
     MdiView*                            m_pMdiView;                 /**< The Central MDI View.*/
 
