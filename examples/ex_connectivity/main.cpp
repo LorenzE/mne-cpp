@@ -77,7 +77,8 @@
 #include <mne/mne_bem_surface.h>
 #include <disp/viewers/minimumnormsettingsview.h>
 #include <disp/viewers/tfsettingsview.h>
-#include <iostream>
+
+#include <disp3D/engine/model/items/network/networktreeitem.h>
 #include <disp3D/engine/model/items/sensordata/sensordatatreeitem.h>
 #include <mne/mne_bem.h>
 
@@ -266,6 +267,7 @@ int main(int argc, char *argv[])
     QString sRaw = parser.value(rawFileOption);
     float fTMin = parser.value(tMinOption).toFloat();
     float fTMax = parser.value(tMaxOption).toFloat();
+    double dSnr = parser.value(snrOption).toDouble();
     int iEvent = parser.value(evokedIndexOption).toInt();
 
     bool bDoSourceLoc = false;
@@ -295,6 +297,9 @@ int main(int argc, char *argv[])
     AnnotationSet tAnnotSet(sSubj, 2, sAnnotType, sSubjDir);
 
     QFile coordTransfile(QCoreApplication::applicationDirPath() + "/MNE-sample-data/MEG/sample/all-trans.fif");
+    //QFile coordTransfile(QCoreApplication::applicationDirPath() + "/MNE-sample-data/subjects/sample/mri/brain-neuromag/sets/COR.fif");
+    FiffCoordTrans coordTrans(coordTransfile);
+
     bool keep_comp = false;
     fiff_int_t dest_comp = 0;
 
@@ -303,6 +308,7 @@ int main(int argc, char *argv[])
     FiffRawData raw(t_fileRaw);
 
     int samplesToCutOut = (fabs(fTMin) + 0.01) * raw.info.sfreq;
+    //int samplesToCutOut = 0;
     QSharedPointer<ConnectivitySettingsManager> pConnectivitySettingsManager = QSharedPointer<ConnectivitySettingsManager>::create();
 
     // Select bad channels
@@ -403,11 +409,48 @@ int main(int argc, char *argv[])
                                          0.1,
                                          true);
 
-        // Cluster forward solution;
-        if(bDoClust) {
-            t_clusteredFwd = t_Fwd.cluster_forward_solution(tAnnotSet, 10);        } else {
-            t_clusteredFwd = t_Fwd;
-        }     
+        //Generate network nodes and define ROIs
+        QList<Label> lLabels;
+        QList<RowVector4i> qListLabelRGBAs;
+        QStringList lWantedLabels;
+//        lWantedLabels << "G_frontal_inf-Opercular_part-lh"
+//                        << "G_insular_long-lh"
+//                        << "G_insular_short-lh"
+//                        << "G_paracentral-lh"
+//                        << "G_parietal_inferior-Supramarginal_part-lh"
+//                        << "G_postcentral-lh"
+//                        << "G_precentral-lh"
+//                        << "G_subcentral-lh"
+//                        << "G_temp_sup-G_temp_transv_and_interm_S-lh"
+//                        << "G_temp_sup-Planum_tempolare-lh"
+//                        << "Lat_Fissure-post_sgt-lh"
+//                        << "S_central-lh"
+//                        << "S_cingulate-Marginalis_part-lh"
+//                        << "S_circular_insula_superior-lh"
+//                        << "S_intermedius_primus-Jensen-lh"
+//                        << "S_postcentral-lh"
+//                        << "S_precentral-Inferior-part-lh"
+//                        << "S_precentral-Superior-part-lh"
+//                        << "S_temporal_transverse-lh"
+//                        << "G_frontal_inf-Opercular_part-lh"
+//                        << "G_insular_long-rh"
+//                        << "G_insular_short-rh"
+//                        << "G_paracentral-rh"
+//                        << "G_parietal_inferior-Supramarginal_part-rh"
+//                        << "G_postcentral-rh"
+//                        << "G_precentral-rh"
+//                        << "G_subcentral-rh"
+//                        << "G_temp_sup-G_temp_transv_and_interm_S-rh"
+//                        << "G_temp_sup-Planum_tempolare-rh"
+//                        << "Lat_Fissure-post_sgt-rh"
+//                        << "S_central-rh"
+//                        << "S_cingulate-Marginalis_part-rh"
+//                        << "S_circular_insula_superior-rh"
+//                        << "S_intermedius_primus-Jensen-rh"
+//                        << "S_postcentral-rh"
+//                        << "S_precentral-Inferior-part-rh"
+//                        << "S_precentral-Superior-part-rh"
+//                        << "S_temporal_transverse-rh";
 
 //        lWantedLabels << "G_subcentral-lh"
 //                        << "S_central-lh"
@@ -438,67 +481,7 @@ int main(int argc, char *argv[])
                                                           evoked.times[0],
                                                           1.0/raw.info.sfreq,
                                                           true);
-            if(sourceEstimate.isEmpty()) {
-                qWarning("Source estimate is empty");
-            } else {
-                sourceEstimate.reduceInPlace(samplesToCutOut,sourceEstimate.data.cols()-samplesToCutOut);
 
-                if(bExtractLabelTimeCourses) {
-                    matDataList << sourceEstimate.extractLabelTimeCourse(lLabels, bDoClust, t_clusteredFwd.src, "meanFlip");
-                } else {
-                    matDataList << sourceEstimate.data;
-                }
-            }
-        }
-
-        // Compute inverse solution for the average. This is used only for visualization.
-        MinimumNorm minimumNormEvoked(inverse_operator, lambda2, sSourceLocMethod);
-        sourceEstimateEvoked = minimumNormEvoked.calculateInverse(evoked, true);
-        QFile t_fileStc("sourceEstimateEvokedFull.stc");
-        sourceEstimateEvoked.write(t_fileStc);
-        pConnectivitySettingsManager->m_matEvoked = evoked.data;
-        pConnectivitySettingsManager->m_matEvokedSource = sourceEstimateEvoked.data;
-
-        //Get active source indices based on picked labels and enerate node vertices based on picked labels
-        MatrixX3f matNodePositions;
-
-        lWantedLabels << "G_frontal_inf-Opercular_part-lh"
-                        << "G_postcentral-lh"
-                        << "G_precentral-lh"
-                        << "G_subcentral-lh"
-                        << "S_central-lh"
-                        << "G_frontal_inf-Opercular_part-rh"
-                        << "G_postcentral-rh"
-                        << "G_precentral-rh"
-                        << "G_subcentral-rh"
-                        << "S_central-rh"
-                        << "G_occipital_middle-lh"
-                        << "G_occipital_middle-rh";
-
-        tAnnotSet.toLabels(tSurfSetInflated, lLabels, qListLabelRGBAs, lWantedLabels);
-
-        // Compute inverse solution for each trial
-        MNESourceEstimate sourceEstimate;
-        double dSnr = parser.value(snrOption).toDouble();
-        double lambda2 = 1.0 / pow(dSnr, 2);
-        bool bExtractLabelTimeCourses = false;
-
-        MNEInverseOperator inverse_operator(raw.info,
-                                            t_clusteredFwd,
-                                            noise_cov,
-                                            0.2f,
-                                            0.8f);
-
-        MinimumNorm minimumNorm(inverse_operator, 1.0 / pow(1.0, 2), sSourceLocMethod);
-        minimumNorm.doInverseSetup(1, true);
-
-        picks = raw.info.pick_types(QString("all"),false,false,QStringList(),exclude);
-        data.pick_channels(picks);
-        for(int i = 0; i < data.size(); i++) {
-            sourceEstimate = minimumNorm.calculateInverse(data.at(i)->epoch,
-                                                          evoked.times[0],
-                                                          1.0/raw.info.sfreq,
-                                                          true);
             if(sourceEstimate.isEmpty()) {
                 qWarning("Source estimate is empty");
             } else {
@@ -534,25 +517,25 @@ int main(int argc, char *argv[])
         samplesToCutOut = 0;
     }
 
-//    pConnectivitySettingsManager->epochs = data;
+    pConnectivitySettingsManager->epochs = data;
 
-//    //Do connectivity estimation and visualize results
-//    pConnectivitySettingsManager->m_settings.setConnectivityMethods(QStringList() << "COH" << "COR" << "XCOR" << "PLI" << "IMAGCOH" << "PLV" << "WPLI" << "USPLI" << "DSWPLI");//<< sConnectivityMethod);
-//    pConnectivitySettingsManager->m_settings.setSamplingFrequency(raw.info.sfreq);
-//    pConnectivitySettingsManager->m_settings.setWindowType("hanning");
+    //Do connectivity estimation and visualize results
+    pConnectivitySettingsManager->m_settings.setConnectivityMethods(QStringList() << "COH" << "COR" << "XCOR" << "PLI" << "IMAGCOH" << "PLV" << "WPLI" << "USPLI" << "DSWPLI");//<< sConnectivityMethod);
+    pConnectivitySettingsManager->m_settings.setSamplingFrequency(raw.info.sfreq);
+    pConnectivitySettingsManager->m_settings.setWindowType("hanning");
 
-//    ConnectivitySettings::IntermediateTrialData connectivityData;
-//    for(int i = 0; i < matDataList.size(); i++) {
-//        connectivityData.matData.resize(vDataIndices.rows(),matDataList.at(i).cols()-samplesToCutOut);
+    ConnectivitySettings::IntermediateTrialData connectivityData;
+    for(int i = 0; i < matDataList.size(); i++) {
+        connectivityData.matData.resize(vDataIndices.rows(),matDataList.at(i).cols()-samplesToCutOut);
 
-//        for(int j = 0; j < vDataIndices.rows(); j++) {
-//            // Only calculate connectivity for post stim
-//            connectivityData.matData.row(j) = matDataList.at(i).row(vDataIndices(j)).segment(samplesToCutOut, matDataList.at(i).cols()-samplesToCutOut);
-//        }
+        for(int j = 0; j < vDataIndices.rows(); j++) {
+            // Only calculate connectivity for post stim
+            connectivityData.matData.row(j) = matDataList.at(i).row(vDataIndices(j)).segment(samplesToCutOut, matDataList.at(i).cols()-samplesToCutOut);
+        }
 
-//        pConnectivitySettingsManager->m_settings.append(connectivityData);
-//        pConnectivitySettingsManager->m_dataListOriginal.append(connectivityData);
-//    }
+        pConnectivitySettingsManager->m_settings.append(connectivityData);
+        pConnectivitySettingsManager->m_dataListOriginal.append(connectivityData);
+    }
 
 
     //Create NetworkView
@@ -567,66 +550,26 @@ int main(int argc, char *argv[])
     NetworkTreeItem* pNetworkTreeItem = tNetworkView.addData("subject", "loaded", test);
     pNetworkTreeItem->setThresholds(QVector3D(0.95,0.957,1.0));
 
-    UTILSLIB::IOUtils::read_eigen_matrix(connMat,"/cluster/fusion/lesch/analysis/2019-09-27-conn_metric-stability/mnescan_rt_conn_mind010/COR/connMat_COR_2019_09_27_18_02_52.txt");
-    test = Network(matNodePositions, connMat,"COR");
-    pNetworkTreeItem = tNetworkView.addData("subject", "loaded", test);
-    pNetworkTreeItem->setThresholds(QVector3D(0.95,0.957,1.0));
+    QObject::connect(tNetworkView.getConnectivitySettingsView().data(), &ConnectivitySettingsView::connectivityMetricChanged,
+                     pConnectivitySettingsManager.data(), &ConnectivitySettingsManager::onConnectivityMetricChanged);
 
-    UTILSLIB::IOUtils::read_eigen_matrix(connMat,"/cluster/fusion/lesch/analysis/2019-09-27-conn_metric-stability/mnescan_rt_conn_mind010/DSWPLI/connMat_DSWPLI_2019_09_27_19_19_57.txt");
-    test = Network(matNodePositions, connMat,"DSWPLI");
-    pNetworkTreeItem = tNetworkView.addData("subject", "loaded", test);
-    pNetworkTreeItem->setThresholds(QVector3D(0.95,0.957,1.0));
+    QObject::connect(tNetworkView.getConnectivitySettingsView().data(), &ConnectivitySettingsView::numberTrialsChanged,
+                     pConnectivitySettingsManager.data(), &ConnectivitySettingsManager::onNumberTrialsChanged);
 
-    UTILSLIB::IOUtils::read_eigen_matrix(connMat,"/cluster/fusion/lesch/analysis/2019-09-27-conn_metric-stability/mnescan_rt_conn_mind010/IMAGCOH/connMat_IMAGCOH_2019_09_27_18_36_51.txt");
-    test = Network(matNodePositions, connMat,"IMAGCOH");
-    pNetworkTreeItem = tNetworkView.addData("subject", "loaded", test);
-    pNetworkTreeItem->setThresholds(QVector3D(0.95,0.957,1.0));
+    QObject::connect(tNetworkView.getConnectivitySettingsView().data(), &ConnectivitySettingsView::freqBandChanged,
+                     pConnectivitySettingsManager.data(), &ConnectivitySettingsManager::onFreqBandChanged);
 
-    UTILSLIB::IOUtils::read_eigen_matrix(connMat,"/cluster/fusion/lesch/analysis/2019-09-27-conn_metric-stability/mnescan_rt_conn_mind010/PLI/connMat_PLI_2019_09_27_17_47_35.txt");
-    test = Network(matNodePositions, connMat,"PLI");
-    pNetworkTreeItem = tNetworkView.addData("subject", "loaded", test);
-    pNetworkTreeItem->setThresholds(QVector3D(0.95,0.957,1.0));
+    QObject::connect(pConnectivitySettingsManager.data(), &ConnectivitySettingsManager::newConnectivityResultAvailable,
+                     [&](const QString& a, const QString& b, const Network& c) {if(NetworkTreeItem* pNetworkTreeItem = tNetworkView.addData(a,b,c)) {
+                                                                                    pNetworkTreeItem->setThresholds(QVector3D(0.95,0.957,1.0));
+                                                                                }});
 
-    UTILSLIB::IOUtils::read_eigen_matrix(connMat,"/cluster/fusion/lesch/analysis/2019-09-27-conn_metric-stability/mnescan_rt_conn_mind010/PLV/connMat_PLV_2019_09_27_18_51_11.txt");
-    test = Network(matNodePositions, connMat,"PLV");
-    pNetworkTreeItem = tNetworkView.addData("subject", "loaded", test);
-    pNetworkTreeItem->setThresholds(QVector3D(0.95,0.957,1.0));
+    TfSettingsView::SPtr pTfSettingsView = TfSettingsView::SPtr::create();
+    QList<QSharedPointer<QWidget> > lWidgets;
+    lWidgets << pTfSettingsView;
 
-    UTILSLIB::IOUtils::read_eigen_matrix(connMat,"/cluster/fusion/lesch/analysis/2019-09-27-conn_metric-stability/mnescan_rt_conn_mind010/USPLI/connMat_USPLI_2019_09_27_17_27_09.txt");
-    test = Network(matNodePositions, connMat,"USPLI");
-    pNetworkTreeItem = tNetworkView.addData("subject", "loaded", test);
-    pNetworkTreeItem->setThresholds(QVector3D(0.95,0.957,1.0));
-
-    UTILSLIB::IOUtils::read_eigen_matrix(connMat,"/cluster/fusion/lesch/analysis/2019-09-27-conn_metric-stability/mnescan_rt_conn_mind010/WPLI/connMat_WPLI_2019_09_27_19_05_18.txt");
-    test = Network(matNodePositions, connMat,"WPLI");
-    pNetworkTreeItem = tNetworkView.addData("subject", "loaded", test);
-    pNetworkTreeItem->setThresholds(QVector3D(0.95,0.957,1.0));
-
-    UTILSLIB::IOUtils::read_eigen_matrix(connMat,"/cluster/fusion/lesch/analysis/2019-09-27-conn_metric-stability/mnescan_rt_conn_mind010/XCOR/connMat_XCOR_2019_09_27_18_55_30.txt");
-    test = Network(matNodePositions, connMat,"XCOR");
-    pNetworkTreeItem = tNetworkView.addData("subject", "loaded", test);
-    pNetworkTreeItem->setThresholds(QVector3D(0.95,0.957,1.0));
-
-//    QObject::connect(tNetworkView.getConnectivitySettingsView().data(), &ConnectivitySettingsView::connectivityMetricChanged,
-//                     pConnectivitySettingsManager.data(), &ConnectivitySettingsManager::onConnectivityMetricChanged);
-
-//    QObject::connect(tNetworkView.getConnectivitySettingsView().data(), &ConnectivitySettingsView::numberTrialsChanged,
-//                     pConnectivitySettingsManager.data(), &ConnectivitySettingsManager::onNumberTrialsChanged);
-
-//    QObject::connect(tNetworkView.getConnectivitySettingsView().data(), &ConnectivitySettingsView::freqBandChanged,
-//                     pConnectivitySettingsManager.data(), &ConnectivitySettingsManager::onFreqBandChanged);
-
-//    QObject::connect(pConnectivitySettingsManager.data(), &ConnectivitySettingsManager::newConnectivityResultAvailable,
-//                     [&](const QString& a, const QString& b, const Network& c) {if(NetworkTreeItem* pNetworkTreeItem = tNetworkView.addData(a,b,c)) {
-//                                                                                    pNetworkTreeItem->setThresholds(QVector3D(0.95,0.957,1.0));
-//                                                                                }});
-
-//    TfSettingsView::SPtr pTfSettingsView = TfSettingsView::SPtr::create();
-//    QList<QSharedPointer<QWidget> > lWidgets;
-//    lWidgets << pTfSettingsView;
-
-//    QObject::connect(pTfSettingsView.data(), &TfSettingsView::numberTrialRowChanged,
-//                     pConnectivitySettingsManager.data(), &ConnectivitySettingsManager::plotTimeCourses);
+    QObject::connect(pTfSettingsView.data(), &TfSettingsView::numberTrialRowChanged,
+                     pConnectivitySettingsManager.data(), &ConnectivitySettingsManager::plotTimeCourses);
 
     //Read and show sensor helmets
     if(!bDoSourceLoc && sChType.contains("meg", Qt::CaseInsensitive)) {
@@ -656,7 +599,7 @@ int main(int argc, char *argv[])
                                                       raw.info.bads);
     } else {
         MinimumNormSettingsView::SPtr pMinimumNormSettingsView = MinimumNormSettingsView::SPtr::create();
-        lWidgets << pMinimumNormSettingsView;
+        //lWidgets << pMinimumNormSettingsView;
 
         QObject::connect(pMinimumNormSettingsView.data(), &MinimumNormSettingsView::timePointChanged,
                          [&](int a) {int aSamples = raw.info.sfreq * (float)a * 1.0e-03;
@@ -704,12 +647,7 @@ int main(int argc, char *argv[])
     }
 
     tNetworkView.setQuickControlWidgets(lWidgets);
-    tNetworkView.getConnectivitySettingsView()->setNumberTrials(50);
-    pConnectivitySettingsManager->onNumberTrialsChanged(50);
-
-    for(int i = 1; i <= 200; ++i) {
-        pConnectivitySettingsManager->onNumberTrialsChanged(i);
-    }
+    tNetworkView.getConnectivitySettingsView()->setNumberTrials(1);
 
     return a.exec();
 }
