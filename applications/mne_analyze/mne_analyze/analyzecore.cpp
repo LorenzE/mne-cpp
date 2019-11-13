@@ -157,7 +157,7 @@ void AnalyzeCore::initExtensionManager()
 void AnalyzeCore::initMainWindow()
 {
     m_pMainWindow = new MainWindow(m_pExtensionManager);
-    QObject::connect(m_pMainWindow, &MainWindow::mainWindowClosed, this, &AnalyzeCore::onMainWindowClosed);
+    QObject::connect(m_pMainWindow.data(), &MainWindow::mainWindowClosed, this, &AnalyzeCore::onMainWindowClosed);
 }
 
 
