@@ -108,16 +108,14 @@ Network ImagCoherence::calculate(ConnectivitySettings& connectivitySettings)
 
     finalNetwork.setSamplingFrequency(connectivitySettings.getSamplingFrequency());
 
-    // Check if start and bin amount need to be reset to full spectrum
+    // Check that iNfft >= signal length
     int iNfft = connectivitySettings.getFFTSize();
-
-//    // Check that iNfft >= signal length
-//    if(iNfft > connectivitySettings.at(0).matData.cols()) {
-//        iNfft = connectivitySettings.at(0).matData.cols();
-//    }
-
+    if(iNfft < connectivitySettings.at(0).matData.cols()) {
+        iNfft = connectivitySettings.at(0).matData.cols();
+    }
     int iNFreqs = int(floor(iNfft / 2.0)) + 1;
 
+    // Check if start and bin amount need to be reset to full spectrum;
     if(m_iNumberBinStart == -1 ||
        m_iNumberBinAmount == -1 ||
        m_iNumberBinStart > iNFreqs ||
@@ -133,10 +131,10 @@ Network ImagCoherence::calculate(ConnectivitySettings& connectivitySettings)
     finalNetwork.setUsedFreqBins(AbstractMetric::m_iNumberBinAmount);
 
     //Create nodes
-    int rows = connectivitySettings.at(0).matData.rows();
+    int iNRows = connectivitySettings.at(0).matData.rows();
     RowVectorXf rowVert = RowVectorXf::Zero(3);
 
-    for(int i = 0; i < rows; ++i) {
+    for(int i = 0; i < iNRows; ++i) {
         rowVert = RowVectorXf::Zero(3);
 
         if(connectivitySettings.getNodePositions().rows() != 0 && i < connectivitySettings.getNodePositions().rows()) {

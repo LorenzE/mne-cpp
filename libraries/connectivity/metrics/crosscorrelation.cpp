@@ -116,10 +116,10 @@ Network CrossCorrelation::calculate(ConnectivitySettings& connectivitySettings)
     finalNetwork.setSamplingFrequency(connectivitySettings.getSamplingFrequency());
 
     //Create nodes
-    int rows = connectivitySettings.at(0).matData.rows();
+    int iNRows = connectivitySettings.at(0).matData.rows();
     RowVectorXf rowVert = RowVectorXf::Zero(3);
 
-    for(int i = 0; i < rows; ++i) {
+    for(int i = 0; i < iNRows; ++i) {
         rowVert = RowVectorXf::Zero(3);
 
         if(connectivitySettings.getNodePositions().rows() != 0 && i < connectivitySettings.getNodePositions().rows()) {

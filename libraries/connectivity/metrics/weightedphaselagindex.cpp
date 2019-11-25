@@ -121,10 +121,10 @@ Network WeightedPhaseLagIndex::calculate(ConnectivitySettings& connectivitySetti
     #endif
 
     //Create nodes
-    int rows = connectivitySettings.at(0).matData.rows();
+    int iNRows = connectivitySettings.at(0).matData.rows();
     RowVectorXf rowVert = RowVectorXf::Zero(3);
 
-    for(int i = 0; i < rows; ++i) {
+    for(int i = 0; i < iNRows; ++i) {
         rowVert = RowVectorXf::Zero(3);
 
         if(connectivitySettings.getNodePositions().rows() != 0 && i < connectivitySettings.getNodePositions().rows()) {
@@ -136,18 +136,17 @@ Network WeightedPhaseLagIndex::calculate(ConnectivitySettings& connectivitySetti
         finalNetwork.append(NetworkNode::SPtr(new NetworkNode(i, rowVert)));
     }
 
-    // Check that iNfft >= signal length
-    int iSignalLength = connectivitySettings.at(0).matData.cols();
-    int iNfft = connectivitySettings.getFFTSize();
-
     // Generate tapers
-    QPair<MatrixXd, VectorXd> tapers = Spectral::generateTapers(iSignalLength, connectivitySettings.getWindowType());
+    QPair<MatrixXd, VectorXd> tapers = Spectral::generateTapers(connectivitySettings.at(0).matData.cols(), connectivitySettings.getWindowType());
 
-    // Initialize
-    int iNRows = connectivitySettings.at(0).matData.rows();
+    // Check that iNfft >= signal length
+    int iNfft = connectivitySettings.getFFTSize();
+    if(iNfft < connectivitySettings.at(0).matData.cols()) {
+        iNfft = connectivitySettings.at(0).matData.cols();
+    }
     int iNFreqs = int(floor(iNfft / 2.0)) + 1;
 
-    // Check if start and bin amount need to be reset to full spectrum
+    // Check if start and bin amount need to be reset to full spectrum;
     if(m_iNumberBinStart == -1 ||
        m_iNumberBinAmount == -1 ||
        m_iNumberBinStart > iNFreqs ||

@@ -91,7 +91,7 @@ ConnectivitySettings::ConnectivitySettings()
 , m_fSFreq(1000.0f)
 , m_sWindowType("hanning")
 {
-    m_iNfft = int(m_fSFreq/m_fFreqResolution);
+    m_iNfft = int((m_fSFreq/2.0f)/m_fFreqResolution);
     qRegisterMetaType<CONNECTIVITYLIB::ConnectivitySettings>("CONNECTIVITYLIB::ConnectivitySettings");
 }
 
@@ -155,6 +155,9 @@ void ConnectivitySettings::append(const MatrixXd& matInputData)
 void ConnectivitySettings::append(const ConnectivitySettings::IntermediateTrialData& inputData)
 {
     m_trialData.append(inputData);
+
+    // Make sure we have set the right FFT size and frequency resolution
+    setSamplingFrequency(m_fSFreq);
 }
 
 
@@ -322,7 +325,14 @@ void ConnectivitySettings::setSamplingFrequency(int iSFreq)
     m_fSFreq = iSFreq;
 
     if(m_fFreqResolution != 0.0f) {
-        m_iNfft = int(m_fSFreq/m_fFreqResolution);
+        m_iNfft = int((m_fSFreq/2.0f)/m_fFreqResolution);
+
+        if(!this->isEmpty()) {
+            if(m_iNfft < this->at(0).matData.cols()) {
+                m_iNfft = this->at(0).matData.cols();
+                qWarning() << "ConnectivitySettings::setSamplingFrequency - FFT size is too small. Setting FFT size to" << m_iNfft << " which is the same as the signal size.";
+            }
+        }
     }
 }
 
@@ -346,8 +356,15 @@ void ConnectivitySettings::setFFTSize(int iNfft)
     clearIntermediateData();
 
     m_iNfft = iNfft;
-    m_fFreqResolution = m_fSFreq/m_iNfft;
 
+    if(!this->isEmpty()) {
+        if(m_iNfft < this->at(0).matData.cols()) {
+            m_iNfft = this->at(0).matData.cols();
+            qWarning() << "ConnectivitySettings::setFFTSize - FFT size is too small. Setting FFT size to" << m_iNfft << " which is the same as the signal size.";
+        }
+    }
+
+    m_fFreqResolution = (m_fSFreq/2.0f)/m_iNfft;
 }
 
 
