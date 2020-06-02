@@ -5,7 +5,7 @@ on:
     tags:        
     - v0.*
     branches:
-    - master
+    - qt515
 
 jobs:
   CreateRelease:
@@ -269,7 +269,7 @@ jobs:
       with:
         python-version: '3.7'
         architecture: 'x64'
-    - name: Install BrainFlow and LSL submodules
+    - name: Init BrainFlow and LSL submodules
       run: |
         git submodule update --init applications/mne_scan/plugins/brainflowboard/brainflow
         git submodule update --init applications/mne_scan/plugins/lsladapter/liblsl
@@ -324,7 +324,7 @@ jobs:
         cp -r ./bin ./lib mne-cpp/
         # linuxdeployqt uses mne_scan binary to resolve dependencies in current directory. 
         cd mne-cpp
-        ../linuxdeployqt-continuous-x86_64.AppImage bin/mne_scan -verbose2
+        ../linuxdeployqt-continuous-x86_64.AppImage bin/mne_scan -verbose2 -extra-plugins=renderers
         # Creating archive of everything in current directory
         tar cfvz ../mne-cpp-linux-dynamic-x86_64.tar.gz ./*
     - name: Deploy binaries with stable release on Github
@@ -358,7 +358,7 @@ jobs:
       with:
         python-version: '3.7'
         architecture: 'x64'
-    - name: Install BrainFlow and LSL submodules
+    - name: Init BrainFlow and LSL submodules
       run: |
         git submodule update --init applications/mne_scan/plugins/brainflowboard/brainflow
         git submodule update --init applications/mne_scan/plugins/lsladapter/liblsl
@@ -430,7 +430,7 @@ jobs:
       with:
         python-version: '3.7'
         architecture: 'x64'   
-    - name: Install BrainFlow and LSL submodules
+    - name: Init BrainFlow and LSL submodules
       run: |
         git submodule update --init applications/mne_scan/plugins/brainflowboard/brainflow
         git submodule update --init applications/mne_scan/plugins/lsladapter/liblsl
@@ -502,6 +502,10 @@ jobs:
     steps:
     - name: Clone repository
       uses: actions/checkout@v2
+    - name: Init mne-cpp test data submodule
+      run: |
+        # Always update to the latest commit via --merge
+        git submodule update --init --remote --merge bin/mne-cpp-test-data
     - name: Install Python 3.7 version
       uses: actions/setup-python@v1
       with:
