@@ -149,6 +149,12 @@ isEmpty(EIGEN_INCLUDE_DIR) {
     EIGEN_INCLUDE_DIR = $$shell_path($${PWD}/include/3rdParty/eigen3)
 }
 
+# Nodes dir
+NODES_INCLUDE_DIR = $$NODES_INCLUDE_DIR
+isEmpty(NODES_INCLUDE_DIR) {
+    NODES_INCLUDE_DIR = $$shell_path($${PWD}/include/3rdParty/nodes)
+}
+
 # include dir
 MNE_INCLUDE_DIR = $$MNE_INCLUDE_DIR
 isEmpty( MNE_INCLUDE_DIR ) {

@@ -48,6 +48,7 @@ SUBDIRS += \
     mne_rt_server \
     mne_forward_solution \
     mne_anonymize \
+    mne_flow \
 
     qtHaveModule(charts) {
         SUBDIRS += \
