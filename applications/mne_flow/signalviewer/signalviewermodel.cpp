@@ -5,7 +5,7 @@
 
 #include <QtWidgets/QFileDialog>
 
-#include <DataModelRegistry>
+#include <nodes/DataModelRegistry>
 
 #include "../data/filepathdata.h"
 #include "../data/scalingdata.h"

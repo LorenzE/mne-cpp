@@ -48,7 +48,11 @@ SUBDIRS += \
     mne_rt_server \
     mne_forward_solution \
     mne_anonymize \
-    mne_flow \
+
+    contains(MNECPP_CONFIG, withNodeEditor) {
+        SUBDIRS += \
+            mne_flow \
+    }
 
     qtHaveModule(charts) {
         SUBDIRS += \
@@ -63,6 +67,11 @@ SUBDIRS += \
 contains(MNECPP_CONFIG, wasm) {
     SUBDIRS = mne_analyze \
               mne_anonymize
+
+    contains(MNECPP_CONFIG, withNodeEditor) {
+        SUBDIRS += \
+            mne_flow \
+    }
 
     qtHaveModule(charts) {
         #SUBDIRS += # needs qt3D which is not yet wasm supported

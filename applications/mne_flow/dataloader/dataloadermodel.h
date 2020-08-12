@@ -5,7 +5,7 @@
 #include <QtCore/QObject>
 #include <QtWidgets/QPushButton>
 
-#include <NodeDataModel>
+#include <nodes/NodeDataModel>
 
 using QtNodes::PortType;
 using QtNodes::PortIndex;

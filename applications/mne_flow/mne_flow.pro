@@ -60,6 +60,9 @@ DEFINES += NO_OPENGL
 contains(MNECPP_CONFIG, static) {
     CONFIG += static
     DEFINES += STATICBUILD
+    DEFINES += NODE_EDITOR_STATIC
+} else {
+    DEFINES += NODE_EDITOR_SHARED
 }
 
 contains(MNECPP_CONFIG, wasm) {
@@ -108,8 +111,6 @@ CONFIG(debug, debug|release) {
             -lmnecppUtils \
             -lnodes \
 }
-
-DEFINES += NODE_EDITOR_SHARED
 
 DESTDIR = $${MNE_BINARY_DIR}
 

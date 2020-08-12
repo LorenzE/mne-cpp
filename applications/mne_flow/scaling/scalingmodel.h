@@ -5,7 +5,7 @@
 #include <QtCore/QObject>
 #include <QtWidgets/QPushButton>
 
-#include <NodeDataModel>
+#include <nodes/NodeDataModel>
 
 #include <disp/viewers/scalingview.h>
 

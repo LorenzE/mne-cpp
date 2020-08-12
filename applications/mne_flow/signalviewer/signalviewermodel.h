@@ -5,8 +5,8 @@
 #include <QtCore/QObject>
 #include <QtWidgets/QLabel>
 
-#include <DataModelRegistry>
-#include <NodeDataModel>
+#include <nodes/DataModelRegistry>
+#include <nodes/NodeDataModel>
 
 #include "fiffrawview.h"
 

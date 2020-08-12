@@ -42,13 +42,13 @@
 
 #include <utils/generics/applicationlogger.h>
 
-#include <NodeData>
-#include <FlowScene>
-#include <FlowView>
+#include <nodes/NodeData>
+#include <nodes/FlowScene>
+#include <nodes/FlowView>
 
 #include <QtWidgets/QApplication>
 
-#include <DataModelRegistry>
+#include <nodes/DataModelRegistry>
 
 #include "dataloader/dataloadermodel.h"
 #include "signalviewer/signalviewermodel.h"

@@ -13,6 +13,9 @@ ScalingModel::ScalingModel()
 {
     connect(m_pScalingView, &ScalingView::scalingChanged,
             this, &ScalingModel::onScalingChanged);
+
+    m_scalingMap = m_pScalingView->getScaleMap();
+    emit dataUpdated(0);
 }
 
 

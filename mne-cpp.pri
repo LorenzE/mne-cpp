@@ -122,9 +122,10 @@ QMAKE_TARGET_COPYRIGHT = Copyright (C) 2020 Authors of MNE-CPP. All rights reser
 ## To build MNE Scan with EegoSports support: qmake MNECPP_CONFIG+=withEego
 ## To build MNE Scan with GUSBAmp support: qmake MNECPP_CONFIG+=withGUSBAmp
 ## To build MNE Scan with TMSI support: qmake MNECPP_CONFIG+=withTmsi
+## To build with NodeEditor support: qmake MNECPP_CONFIG+=withNodeEditor
 
 # Default flags
-MNECPP_CONFIG +=
+MNECPP_CONFIG += withNodeEditor
 
 # Check versions
 !minQtVersion(5, 10, 0) {
@@ -152,7 +153,7 @@ isEmpty(EIGEN_INCLUDE_DIR) {
 # Nodes dir
 NODES_INCLUDE_DIR = $$NODES_INCLUDE_DIR
 isEmpty(NODES_INCLUDE_DIR) {
-    NODES_INCLUDE_DIR = $$shell_path($${PWD}/include/3rdParty/nodes)
+    NODES_INCLUDE_DIR = $$shell_path($${PWD}/include/3rdParty/nodeeditor/include)
 }
 
 # include dir

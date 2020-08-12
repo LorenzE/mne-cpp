@@ -10,3 +10,7 @@
 	path = applications/mne_scan/plugins/brainflowboard/brainflow
 	url = https://github.com/brainflow-dev/brainflow
 	branch = master
+[submodule "include/3rdParty/nodeeditor"]
+	path = include/3rdParty/nodeeditor
+	url = https://github.com/paceholder/nodeeditor.git
+	branch = master
