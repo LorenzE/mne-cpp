@@ -59,6 +59,11 @@ class QPropertyAnimation;
 namespace Qt3DRender {
     class QPointLight;
     class QRenderCaptureReply;
+    class QPickEvent;
+}
+
+namespace Qt3DExtras {
+    class QForwardRenderer;
 }
 
 //=============================================================================================================
@@ -100,6 +105,8 @@ public:
      * Default destructor
      */
     ~View3D() = default;
+
+    void handlePickerPress(Qt3DRender::QPickEvent *event);
 
     //=========================================================================================================
     /**
@@ -192,7 +199,9 @@ protected:
     QPointer<Qt3DCore::QEntity>                 m_pLightEntity;                 /**< The root/most top level entity buffer. */
     QSharedPointer<Qt3DCore::QEntity>           m_pCoordSysEntity;              /**< The entity representing the x/y/z coord system. */
 
-    QPointer<CustomFrameGraph>                  m_pFrameGraph;                  /**< The frameGraph entity. */
+    //QPointer<CustomFrameGraph>                m_pFrameGraph;                  /**< The frameGraph entity. */
+    QPointer<Qt3DExtras::QForwardRenderer>      m_pFrameGraph;                  /**< The frameGraph entity. */
+
     QPointer<Qt3DRender::QCamera>               m_pCamera;                      /**< The camera entity. */
     QPointer<Qt3DRender::QRenderCaptureReply>   m_pScreenCaptureReply;          /**< The capture reply object to save screenshots. */
 

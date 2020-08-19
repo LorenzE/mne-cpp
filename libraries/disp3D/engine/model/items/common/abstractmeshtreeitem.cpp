@@ -49,6 +49,10 @@
 // QT INCLUDES
 //=============================================================================================================
 
+#include <QObjectPicker>
+#include <QRenderSettings>
+#include <QPickEvent>
+
 //=============================================================================================================
 // EIGEN INCLUDES
 //=============================================================================================================
@@ -71,7 +75,25 @@ AbstractMeshTreeItem::AbstractMeshTreeItem(QEntity* p3DEntityParent, int iType, 
 , m_pMaterial(new PerVertexPhongAlphaMaterial)
 , m_pCustomMesh(new CustomMesh())
 {
+    Qt3DRender::QObjectPicker *picker = new Qt3DRender::QObjectPicker(this);
+    //this->addComponent(picker);
+    connect(picker, &Qt3DRender::QObjectPicker::pressed,
+            this, &AbstractMeshTreeItem::handlePickerPress);
+
+    Qt3DRender::QRenderSettings* renderSettings = new Qt3DRender::QRenderSettings(this);
+    renderSettings->pickingSettings()->setPickMethod(Qt3DRender::QPickingSettings::TrianglePicking);
+    renderSettings->pickingSettings()->setPickResultMode(Qt3DRender::QPickingSettings::NearestPick);
+
+    //this->addComponent(renderSettings);
+
     initItem();
+}
+
+//=============================================================================================================
+int i = 0;
+void AbstractMeshTreeItem::handlePickerPress(Qt3DRender::QPickEvent *event)
+{
+    qInfo() << "AbstractMeshTreeItem::handlePickerPress" << i++ ;
 }
 
 //=============================================================================================================

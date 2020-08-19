@@ -65,6 +65,7 @@ namespace Qt3DCore {
 
 namespace Qt3DRender {
     class QMaterial;
+    class QPickEvent;
 }
 
 //=============================================================================================================
@@ -130,6 +131,8 @@ public:
                      const Eigen::MatrixXi& tMatTris,
                      const Eigen::MatrixX4f &tMatColors,
                      Qt3DRender::QGeometryRenderer::PrimitiveType primitiveType = Qt3DRender::QGeometryRenderer::Triangles);
+
+    void handlePickerPress(Qt3DRender::QPickEvent *event);
 
     //=========================================================================================================
     /**

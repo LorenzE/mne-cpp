@@ -52,6 +52,9 @@
 #include <Qt3DExtras/QSphereGeometry>
 #include <QMatrix4x4>
 #include <Qt3DCore/QTransform>
+#include <Qt3DRender/QObjectPicker>
+#include <Qt3DRender/QRenderSettings>
+#include <Qt3DRender/QPickEvent>
 
 //=============================================================================================================
 // EIGEN INCLUDES
@@ -70,7 +73,25 @@ using namespace DISP3DLIB;
 DigitizerTreeItem::DigitizerTreeItem(Qt3DCore::QEntity *p3DEntityParent, int iType, const QString& text)
 : Abstract3DTreeItem(p3DEntityParent, iType, text)
 {
+    Qt3DRender::QObjectPicker *picker = new Qt3DRender::QObjectPicker(this);
+    //this->addComponent(picker);
+    connect(picker, &Qt3DRender::QObjectPicker::pressed,
+            this, &DigitizerTreeItem::handlePickerPress);
+
+    Qt3DRender::QRenderSettings* renderSettings = new Qt3DRender::QRenderSettings(this);
+    renderSettings->pickingSettings()->setPickMethod(Qt3DRender::QPickingSettings::TrianglePicking);
+    renderSettings->pickingSettings()->setPickResultMode(Qt3DRender::QPickingSettings::NearestPick);
+
+    //this->addComponent(renderSettings);
+
     initItem();
+}
+
+//=============================================================================================================
+int j = 0;
+void DigitizerTreeItem::handlePickerPress(Qt3DRender::QPickEvent *event)
+{
+    qInfo() << "DigitizerTreeItem::handlePickerPress" << j++ ;
 }
 
 //=============================================================================================================

@@ -63,6 +63,10 @@ namespace Qt3DCore {
     class QEntity;
 }
 
+namespace Qt3DRender {
+    class QPickEvent;
+}
+
 //=============================================================================================================
 // DEFINE NAMESPACE DISP3DLIB
 //=============================================================================================================
@@ -101,6 +105,8 @@ public:
     explicit DigitizerTreeItem(Qt3DCore::QEntity* p3DEntityParent = 0,
                                int iType = Data3DTreeModelItemTypes::DigitizerItem,
                                const QString& text = "Digitizer");
+
+    void handlePickerPress(Qt3DRender::QPickEvent *event);
 
     //=========================================================================================================
     /**
