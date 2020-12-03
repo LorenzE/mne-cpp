@@ -76,7 +76,7 @@ BabyMEGSetupWidget::BabyMEGSetupWidget(BabyMEG* p_pBabyMEG,
     connect(m_pBabyMEG, &BabyMEG::cmdConnectionChanged,
             this, &BabyMEGSetupWidget::setConnectionStatus);
 
-    connect(ui.m_pPushButton_Connect, &QPushButton::click,
+    connect(ui.m_pPushButton_Connect, &QPushButton::clicked,
             this, &BabyMEGSetupWidget::onConnectionPressed);
 
     //rt server fiffInfo received

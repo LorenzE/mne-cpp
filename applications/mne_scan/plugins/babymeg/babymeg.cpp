@@ -168,6 +168,10 @@ void BabyMEG::init()
     m_pMyClientComm->SetInfo(m_pInfo);
     m_pMyClientComm->start();
 
+    m_pMyClientComm->SendCommandToBabyMEGShortConnection("INFO");
+
+    m_pMyClient->ConnectToBabyMEG();
+
     //init channels when fiff info is available
     connect(this, &BabyMEG::fiffInfoAvailable,
             this, &BabyMEG::initConnector);    
@@ -195,10 +199,6 @@ void BabyMEG::clear()
 
 bool BabyMEG::start()
 {
-    m_pMyClientComm->SendCommandToBabyMEGShortConnection("INFO");
-
-    m_pMyClient->ConnectToBabyMEG();
-
     if(!m_pFiffInfo) {
         QMessageBox msgBox;
         msgBox.setText("FiffInfo is missing!");
@@ -350,6 +350,10 @@ void BabyMEG::setFiffInfo(const FiffInfo& p_FiffInfo)
 
 void BabyMEG::setFiffData(QByteArray data)
 {
+    if(!m_pFiffInfo) {
+        return;
+    }
+
     //get the first byte -- the data format
     int dformat = data.left(1).toInt();
 

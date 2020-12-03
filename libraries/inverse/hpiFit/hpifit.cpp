@@ -83,7 +83,7 @@ using namespace FWDLIB;
 
 HPIFit::HPIFit(FiffInfo::SPtr pFiffInfo,
                bool bDoFastFit)
-    : m_bDoFastFit(bDoFastFit)
+: m_bDoFastFit(bDoFastFit)
 {
     // init member variables
     m_lChannels = QList<FIFFLIB::FiffChInfo>();
@@ -152,7 +152,7 @@ void HPIFit::fitHPI(const MatrixXd& t_mat,
     // Make sure the fitted digitzers are empty
     fittedPointSet.clear();
 
-    // init coil parameters
+    // Init coil parameters
     struct CoilParam coil;
 
     //Get HPI coils from digitizers and set number of coils
@@ -268,7 +268,9 @@ void HPIFit::fitHPI(const MatrixXd& t_mat,
     MatrixXd matCoilPos = MatrixXd::Zero(iNumCoils,3);
 
     // Generate seed point by projection the found channel position 3cm inwards if previous transDevHead is identity or bad fit
+    qDebug() << "HPIFIT::dError" << dError;
     if(transDevHead.trans == MatrixXd::Identity(4,4).cast<float>() || dError > 0.010) {
+        qDebug() << "HPIFIT::BAD FIT";
         for (int j = 0; j < vecChIdcs.rows(); ++j) {
             if(vecChIdcs(j) < pFiffInfo->chs.size()) {
                 Vector3f r0 = pFiffInfo->chs.at(vecChIdcs(j)).chpos.r0;
@@ -466,6 +468,7 @@ CoilParam HPIFit::dipfit(struct CoilParam coil,
 
         lCoilData.append(coilData);
     }
+
     //Do the concurrent filtering
     if(!lCoilData.isEmpty()) {
 //        //Do sequential
@@ -636,7 +639,7 @@ void HPIFit::storeHeadPosition(float fTime,
 void HPIFit::updateSensor()
 {
     // Create MEG-Coils and read data
-    int iAcc = 2;
+    int iAcc = 0;
     int iNch = m_lChannels.size();
 
     if(iNch == 0) {
@@ -700,7 +703,6 @@ void HPIFit::updateModel(const int iSamF,
         }
         m_matModel = UTILSLIB::MNEMath::pinv(matSimsig);
         return;
-
     } else {
         // add linefreq + harmonics + DC part to model
         matSimsig.conservativeResize(iSamLoc,iNumCoils*4);

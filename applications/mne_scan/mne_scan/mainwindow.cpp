@@ -904,7 +904,7 @@ void MainWindow::startMeasurement()
     startTimer(m_iTimeoutMSec);
 
     delete m_pMultiView;
-    m_pMultiView = new MultiView();
+    m_pMultiView = new MultiView("MNESCAN/MULTIVIEW");
     connect(m_pMultiView.data(), &MultiView::dockLocationChanged,
             this, &MainWindow::onDockLocationChanged);
     setCentralWidget(m_pMultiView);
@@ -912,12 +912,18 @@ void MainWindow::startMeasurement()
     m_pActionQuickControl->setVisible(true);
     //m_pDynamicPluginToolBar->addAction(m_pActionQuickControl);
     initMultiViewWidget(m_pPluginSceneManager->getPlugins());
+
+    m_pMultiView->loadSettings();
 }
 
 //=============================================================================================================
 
 void MainWindow::stopMeasurement()
 {
+    if(m_pMultiView) {
+        m_pMultiView->saveSettings();
+    }
+
     writeToLog(tr("Stopping real-time measurement..."), _LogKndMessage, _LogLvMin);
 
     //Stop all plugins
